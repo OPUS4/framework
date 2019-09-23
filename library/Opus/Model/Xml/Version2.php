@@ -36,14 +36,17 @@
 /**
  * Second implementation of Opus XML representation.
  */
-class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
+class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->_version = '2.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field) {
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field)
+    {
         $fieldName = $field->getName();
         $fieldValues = $this->getFieldValues($field);
 
@@ -63,12 +66,12 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
      * @param  DOMElement           $element The DomElement holding the field names and values.
      * @return Opus_Model_Abstract  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    {
         $fieldList = $model->describe();
 
         // fields exist as child elements
         foreach ($element->childNodes as $fieldNode) {
-
             // skip non-element nodes
             if (XML_ELEMENT_NODE !== $fieldNode->nodeType) {
                 continue;
@@ -82,15 +85,13 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
                     'Field ' . $fieldName . ' not defined. Model class: '
                     . get_class($model)
                 );
-            }
-            else {
+            } else {
                 $fieldObj = $model->getField($fieldName);
                 $modelclass = $fieldObj->getValueModelClass();
                 // determine accessor function
                 if (true === $fieldObj->hasMultipleValues()) {
                     $accessor = 'add';
-                }
-                else {
+                } else {
                     $accessor = 'set';
                 }
 
@@ -105,14 +106,12 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
                             // if we add values then we need to do this on the returned model
                             $tempModel = $model->$callname($submodel);
                             $this->_populateModelFromXml($tempModel, $fieldNode);
-                        }
-                        else {
+                        } else {
                             // setting of values should be done on submodel
                             $model->$callname($submodel);
                             $this->_populateModelFromXml($submodel, $fieldNode);
                         }
-                    }
-                    else {
+                    } else {
                         $callname = $accessor . $fieldName;
                         $model->$callname($fieldValue);
                     }
@@ -126,8 +125,8 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
-    public function updateFromXml($xml) {
+    public function updateFromXml($xml)
+    {
         throw new Opus_Model_Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
     }
-
 }

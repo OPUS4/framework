@@ -29,7 +29,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_DocumentXmlCache extends Opus_Db_TableGateway {
+class Opus_Db_DocumentXmlCache extends Opus_Db_TableGateway
+{
     /**
      * Real database name of the documents table.
      *
@@ -42,6 +43,5 @@ class Opus_Db_DocumentXmlCache extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array( 'document_id', 'xml_version');
-
+    protected $_primary = [ 'document_id', 'xml_version'];
 }

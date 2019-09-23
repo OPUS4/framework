@@ -32,7 +32,8 @@
  * @version     $Id$
  */
 
-class Opus_Util_FileTest extends TestCase {
+class Opus_Util_FileTest extends TestCase
+{
 
     private $__src_path = '';
 
@@ -40,7 +41,8 @@ class Opus_Util_FileTest extends TestCase {
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
 
         $config = Zend_Registry::get('Zend_Config');
@@ -53,7 +55,8 @@ class Opus_Util_FileTest extends TestCase {
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown() {
+    protected function tearDown()
+    {
         Opus_Util_File::deleteDirectory($this->__src_path);
         parent::tearDown();
     }
@@ -61,7 +64,8 @@ class Opus_Util_FileTest extends TestCase {
     /**
      * Test deleting a non-existing directory.
      */
-    public function testDeleteNonExistingDirectory() {
+    public function testDeleteNonExistingDirectory()
+    {
         $this->assertFalse(file_exists($this->__src_path));
         $this->assertTrue(Opus_Util_File::deleteDirectory($this->__src_path));
     }
@@ -69,7 +73,8 @@ class Opus_Util_FileTest extends TestCase {
     /**
      * Test deleting an empty directory.
      */
-    public function testDeleteEmptyDirectory() {
+    public function testDeleteEmptyDirectory()
+    {
         mkdir($this->__src_path, 0777, true);
         $this->assertTrue(Opus_Util_File::deleteDirectory($this->__src_path));
         $this->assertFalse(file_exists($this->__src_path));
@@ -78,7 +83,8 @@ class Opus_Util_FileTest extends TestCase {
     /**
      * Test deleting a non-empty directory.
      */
-    public function testDeleteNonEmptyDirectory() {
+    public function testDeleteNonEmptyDirectory()
+    {
         mkdir($this->__src_path, 0777, true);
         touch($this->__src_path . '/' . 'test.txt');
         $this->assertTrue(Opus_Util_File::deleteDirectory($this->__src_path));
@@ -89,7 +95,8 @@ class Opus_Util_FileTest extends TestCase {
     /**
      * Test using deleteDirectory on a file (should work).
      */
-    public function testDeleteDirectoryOnFile() {
+    public function testDeleteDirectoryOnFile()
+    {
         mkdir($this->__src_path, 0777, true);
         $file = $this->__src_path . '/' . 'test.txt';
         touch($file);
@@ -100,16 +107,20 @@ class Opus_Util_FileTest extends TestCase {
     /**
      * Test adding a directory separator to path.
      */
-    public function testAddDirectorySeparator() {
+    public function testAddDirectorySeparator()
+    {
         $path = $this->__src_path;
-        $this->assertEquals($path . DIRECTORY_SEPARATOR,
-                Opus_Util_File::addDirectorySeparator($path));
+        $this->assertEquals(
+            $path . DIRECTORY_SEPARATOR,
+            Opus_Util_File::addDirectorySeparator($path)
+        );
     }
 
     /**
      * Test using addDirectorySeparator on null value.
      */
-    public function testAddDirectorySeparatorOnNull() {
+    public function testAddDirectorySeparatorOnNull()
+    {
         $path = null;
         $this->assertEquals(null, Opus_Util_File::addDirectorySeparator($path));
     }
@@ -117,20 +128,24 @@ class Opus_Util_FileTest extends TestCase {
     /**
      * Test using addDirectorySeparator on path with existing separator.
      */
-    public function testAddDirectorySeparatorWithAlreadyExistingSeparator() {
+    public function testAddDirectorySeparatorWithAlreadyExistingSeparator()
+    {
         $path = $this->__src_path . DIRECTORY_SEPARATOR;
-        $this->assertEquals($path,
-                Opus_Util_File::addDirectorySeparator($path));
+        $this->assertEquals(
+            $path,
+            Opus_Util_File::addDirectorySeparator($path)
+        );
     }
 
     /**
      * Test adding directory separator to path with trailing whitespaces.
      */
-    public function testAddDirectorySeparatorWithTrailingWhitespaces() {
+    public function testAddDirectorySeparatorWithTrailingWhitespaces()
+    {
         $path = $this->__src_path . '   ';
-        $this->assertEquals($path . DIRECTORY_SEPARATOR,
-                Opus_Util_File::addDirectorySeparator($path));
+        $this->assertEquals(
+            $path . DIRECTORY_SEPARATOR,
+            Opus_Util_File::addDirectorySeparator($path)
+        );
     }
-
 }
-

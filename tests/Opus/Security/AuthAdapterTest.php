@@ -41,8 +41,9 @@
  *
  * @group       AuthAdapterTest
  */
-class Opus_Security_AuthAdapterTest extends TestCase {
-    
+class Opus_Security_AuthAdapterTest extends TestCase
+{
+
     /**
      * Holds the authentication adapter instance.
      *
@@ -50,58 +51,62 @@ class Opus_Security_AuthAdapterTest extends TestCase {
      */
     protected $_auth_adapter = null;
 
-    
+
     /**
-     * Returns an array with invalid credentials. 
+     * Returns an array with invalid credentials.
      *
      * @return Array Invalid credentials and Zend_Auth_Result error code.
      */
-    public function invalidCredentialsDataProvider() {
-        return array(
-            array('bob', 'wrong_password', Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID),
-            array('bobby', 'secret', Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND),
-            array('bobby', 'wrong', Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND)
-        );
+    public function invalidCredentialsDataProvider()
+    {
+        return [
+            ['bob', 'wrong_password', Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID],
+            ['bobby', 'secret', Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND],
+            ['bobby', 'wrong', Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND]
+        ];
     }
-    
+
     /**
      * Set up test account.
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
-    
+
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
-        
+
         $this->_auth_adapter = new Opus_Security_AuthAdapter();
     }
-    
-    
+
+
     /**
      * Test if a successful authentication can be performed.
      *
      * @return void
      */
-    public function testSettingEmptyCredentialsThrowsException() {
+    public function testSettingEmptyCredentialsThrowsException()
+    {
         $this->setExpectedException('Zend_Auth_Adapter_Exception');
         $this->_auth_adapter->setCredentials('', null);
     }
-    
+
     /**
      * Test if a successful authentication can be performed.
      *
      * @return void
      */
-    public function testSuccessfulAuthentication() {
+    public function testSuccessfulAuthentication()
+    {
         $this->_auth_adapter->setCredentials('bob', 'secret');
         $result = $this->_auth_adapter->authenticate();
         $this->assertNotNull($result, 'Authentication result should not be null.');
         $this->assertInstanceOf('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
         $this->assertEquals($result->getCode(), Zend_Auth_Result::SUCCESS, 'Authentication should be successful.');
     }
-    
+
     /**
      * Test if given invalid credentials failes.
      *
@@ -109,15 +114,15 @@ class Opus_Security_AuthAdapterTest extends TestCase {
      * @param string  $password Password credentials.
      * @param integer $code     Expected Zend_Auth_Result code.
      * @return void
-     * 
+     *
      * @dataProvider invalidCredentialsDataProvider
      */
-    public function testFailingAuthentication($login, $password, $code) {
+    public function testFailingAuthentication($login, $password, $code)
+    {
         $this->_auth_adapter->setCredentials($login, $password);
         $result = $this->_auth_adapter->authenticate();
         $this->assertNotNull($result, 'Authentication result should not be null.');
         $this->assertInstanceOf('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
         $this->assertEquals($result->getCode(), $code, 'Authentication should not be successful.');
     }
-    
 }

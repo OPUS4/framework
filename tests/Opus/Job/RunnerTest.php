@@ -41,19 +41,22 @@
  *
  * @group       RunnerTest
  */
-class Opus_Job_RunnerTest extends TestCase {
+class Opus_Job_RunnerTest extends TestCase
+{
 
     /**
      * Simple test for catching code coverage.
      *
      * @return void
      */
-    public function testRunnerInit() {
+    public function testRunnerInit()
+    {
         $runner = new Opus_Job_Runner();
         $this->assertNotNull($runner, 'Simple initializing of Opus_Job_Runner failed.');
     }
 
-    public function testRunIndexWorkerWithInvalidJob() {
+    public function testRunIndexWorkerWithInvalidJob()
+    {
 
         $document = new Opus_Document();
         $document->setServerState('published');
@@ -62,9 +65,9 @@ class Opus_Job_RunnerTest extends TestCase {
 
         $job = new Opus_Job();
         $job->setLabel('opus-index-document');
-        $job->setData(array(
+        $job->setData([
             'documentId' => $documentId,
-            'task' => 'get-me-a-coffee'));
+            'task' => 'get-me-a-coffee']);
         $jobId = $job->store();
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
@@ -78,10 +81,10 @@ class Opus_Job_RunnerTest extends TestCase {
         $error = $job->getErrors();
         $this->assertNotEquals('', $error, 'Expected error message from job.');
 //        $job->delete();
-
     }
 
-    public function testRunIndexWorkerWithValidJob() {
+    public function testRunIndexWorkerWithValidJob()
+    {
 
         $document = new Opus_Document();
         $document->setServerState('published');
@@ -90,9 +93,9 @@ class Opus_Job_RunnerTest extends TestCase {
 
         $job = new Opus_Job();
         $job->setLabel('opus-index-document');
-        $job->setData(array(
+        $job->setData([
             'documentId' => $documentId,
-            'task' => 'index'));
+            'task' => 'index']);
         $jobId = $job->store();
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
@@ -102,10 +105,8 @@ class Opus_Job_RunnerTest extends TestCase {
         $runner->run();
         $this->setExpectedException('Opus_Model_NotFoundException');
         $job = new Opus_Job($jobId);
-        if($job instanceof Opus_Job)
+        if ($job instanceof Opus_Job) {
             $job->delete();
+        }
     }
-
-
 }
-

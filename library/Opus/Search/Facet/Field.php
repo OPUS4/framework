@@ -42,114 +42,128 @@
  * @method int getLimit()
  * @method int getMinCount()
  */
-class Opus_Search_Facet_Field {
+class Opus_Search_Facet_Field
+{
 
-	protected $data = array(
-		'name' => null,
-		'sort' => null,
-		'limit' => null,
-		'mincount' => null
-	);
+    protected $data = [
+        'name' => null,
+        'sort' => null,
+        'limit' => null,
+        'mincount' => null
+    ];
 
-	public function __construct( $fieldName ) {
-		if ( !is_string( $fieldName ) || !( $fieldName = trim( $fieldName ) ) ) {
-			throw new InvalidArgumentException( 'invalid facet field name' );
-		}
+    public function __construct($fieldName)
+    {
+        if (! is_string($fieldName) || ! ( $fieldName = trim($fieldName) )) {
+            throw new InvalidArgumentException('invalid facet field name');
+        }
 
-		$this->data['name'] = $fieldName;
-	}
+        $this->data['name'] = $fieldName;
+    }
 
-	public static function create( $fieldName ) {
-		return new static( $fieldName );
-	}
+    public static function create($fieldName)
+    {
+        return new static( $fieldName );
+    }
 
-	/**
-	 * Sets limit on facet counter (-1 for disabling any limit).
-	 *
-	 * @param int $limit
-	 * @return $this fluent interface
-	 */
-	public function setLimit( $limit ) {
-		if ( !preg_match( '/^[+-]?\d+$/', trim( $limit ) ) ) {
-			throw new InvalidArgumentException( 'invalid limit value' );
-		}
+    /**
+     * Sets limit on facet counter (-1 for disabling any limit).
+     *
+     * @param int $limit
+     * @return $this fluent interface
+     */
+    public function setLimit($limit)
+    {
+        if (! preg_match('/^[+-]?\d+$/', trim($limit))) {
+            throw new InvalidArgumentException('invalid limit value');
+        }
 
-		$this->data['limit'] = intval( $limit );
+        $this->data['limit'] = intval($limit);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Sets minimum count required for obeying values in faceted search on
-	 * field.
-	 *
-	 * @param int $minCount
-	 * @return $this fluent interface
-	 */
-	public function setMinCount( $minCount ) {
-		if ( !preg_match( '/^[+-]?\d+$/', trim( $minCount ) ) ) {
-			throw new InvalidArgumentException( 'invalid minCount value' );
-		}
+    /**
+     * Sets minimum count required for obeying values in faceted search on
+     * field.
+     *
+     * @param int $minCount
+     * @return $this fluent interface
+     */
+    public function setMinCount($minCount)
+    {
+        if (! preg_match('/^[+-]?\d+$/', trim($minCount))) {
+            throw new InvalidArgumentException('invalid minCount value');
+        }
 
-		$this->data['mincount'] = intval( $minCount );
+        $this->data['mincount'] = intval($minCount);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Selects sorting facet results by index or by count.
-	 *
-	 * @param bool $useIndex sort facet results by index (service specific) or by count values per result
-	 * @return $this fluent interface
-	 */
-	public function setSort( $useIndex = true ) {
-		if ( !is_bool( $useIndex ) && !preg_match( '/^(count|index)$/', $useIndex = strtolower( trim( $useIndex ) ) ) ) {
-			throw new InvalidArgumentException( 'invalid sort direction value' );
-		}
+    /**
+     * Selects sorting facet results by index or by count.
+     *
+     * @param bool $useIndex sort facet results by index (service specific) or by count values per result
+     * @return $this fluent interface
+     */
+    public function setSort($useIndex = true)
+    {
+        if (! is_bool($useIndex) && ! preg_match('/^(count|index)$/', $useIndex = strtolower(trim($useIndex)))) {
+            throw new InvalidArgumentException('invalid sort direction value');
+        }
 
-		if ( is_bool( $useIndex ) ) {
-			$this->data['sort'] = $useIndex;
-		} else {
-			$this->data['sort'] = ( $useIndex === 'index' );
-		}
+        if (is_bool($useIndex)) {
+            $this->data['sort'] = $useIndex;
+        } else {
+            $this->data['sort'] = ( $useIndex === 'index' );
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function get( $name, $default = null ) {
-		if ( array_key_exists( $name, $this->data ) ) {
-			return is_null( $this->data[$name] ) ? $default : $this->data[$name];
-		}
+    public function get($name, $default = null)
+    {
+        if (array_key_exists($name, $this->data)) {
+            return is_null($this->data[$name]) ? $default : $this->data[$name];
+        }
 
-		throw new RuntimeException( 'invalid request for unknown facet property' );
-	}
+        throw new RuntimeException('invalid request for unknown facet property');
+    }
 
-	public function __get( $name ) {
-		return $this->get( $name );
-	}
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
 
-	public function __isset( $name ) {
-		return !is_null( $this->data[$name] );
-	}
+    public function __isset($name)
+    {
+        return ! is_null($this->data[$name]);
+    }
 
-	public function __set( $name, $value ) {
-		switch ( $name ) {
-			case 'sort' : return $this->setSort( $value );
-			case 'limit' : return $this->setLimit( $value );
-			case 'mincount' : return $this->setMinCount( $value );
-			default :
-				throw new RuntimeException( 'invalid request for setting facet field property' );
-		}
-	}
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'sort':
+                return $this->setSort($value);
+            case 'limit':
+                return $this->setLimit($value);
+            case 'mincount':
+                return $this->setMinCount($value);
+            default:
+                throw new RuntimeException('invalid request for setting facet field property');
+        }
+    }
 
-	public function __call( $name, $args ) {
-		switch ( substr( $name, 0, 3 ) ) {
-			case 'get' :
-				$propertyName = strtolower( substr( $name, 3 ) );
-				return $this->{$propertyName};
+    public function __call($name, $args)
+    {
+        switch (substr($name, 0, 3)) {
+            case 'get':
+                $propertyName = strtolower(substr($name, 3));
+                return $this->{$propertyName};
 
-			default :
-				throw new RuntimeException( 'invalid call for method ' . $name );
-		}
-	}
+            default:
+                throw new RuntimeException('invalid call for method ' . $name);
+        }
+    }
 }

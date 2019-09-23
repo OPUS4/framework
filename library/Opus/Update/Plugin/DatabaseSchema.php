@@ -27,21 +27,23 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
  * Class for updating the database schema for new version of OPUS.
  */
-class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
+class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
+{
 
     private $_targetVersion = null;
 
     /**
      * Performs update of database schema.
      */
-    public function run() {
+    public function run()
+    {
         $database = new Opus_Database();
 
         $version = $database->getVersion();
@@ -52,16 +54,13 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
 
         $scripts = $database->getUpdateScripts($version, $this->getTargetVersion());
 
-        if (count($scripts) > 0)
-        {
+        if (count($scripts) > 0) {
             foreach ($scripts as $scriptPath) {
                 $this->log("Running $scriptPath ...");
 
                 $result = $database->execScript($scriptPath);
             }
-        }
-        else
-        {
+        } else {
             $this->log('No update needed');
         }
     }
@@ -74,12 +73,9 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
      */
     public function mapVersion($version)
     {
-        if (is_null($version))
-        {
+        if (is_null($version)) {
             return 1;
-        }
-        else if ($version === '4.5')
-        {
+        } elseif ($version === '4.5') {
             return 2;
         }
 
@@ -95,5 +91,4 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
     {
         return $this->_targetVersion;
     }
-
 }

@@ -41,47 +41,50 @@ class Opus_Validate_IssnTest extends TestCase
     /**
      * @return array with valid issn's
      */
-    public function validIssnProvider() {
-        return array(
-            array('1050-124X'),
-            array('0317-8471'),
-            array('1062-5127'),
-            array('0025-5858'),
-            array('0001-3218'),
-        );
+    public function validIssnProvider()
+    {
+        return [
+            ['1050-124X'],
+            ['0317-8471'],
+            ['1062-5127'],
+            ['0025-5858'],
+            ['0001-3218'],
+        ];
     }
 
     /**
      * @return array with invalid issn's
      */
-    public function invalidIssnProvider() {
-        return array(
-            array(null),
-            array(True),
-            array('12345478'),
-            array('12456-65478'),
-            array('123456789'),
-            array('1050 124X'),
-            array('1050_124X'),
-            array('1050-1242'),
-        );
+    public function invalidIssnProvider()
+    {
+        return [
+            [null],
+            [true],
+            ['12345478'],
+            ['12456-65478'],
+            ['123456789'],
+            ['1050 124X'],
+            ['1050_124X'],
+            ['1050-1242'],
+        ];
     }
 
     /**
      * @return array with invalid issn's and it's error-messages and error-keys
      */
-    public function messageIssnProvider() {
-        return array(
-            array('12345478', 'form', "'12345478' is malformed"),
-            array('12456-65478', 'form', "'12456-65478' is malformed"),
-            array('123456789', 'form', "'123456789' is malformed"),
-            array('1050 124X', 'form', "'1050 124X' is malformed"),
-            array('1050_124X', 'form', "'1050_124X' is malformed"),
-            array('1050-1242', 'checkdigit', "The check digit of '1050-1242' is not valid"),
-            array('1062-512X', 'checkdigit', "The check digit of '1062-512X' is not valid"),
-            array('0025-5856', 'checkdigit', "The check digit of '0025-5856' is not valid"),
-            array('0001-3211', 'checkdigit', "The check digit of '0001-3211' is not valid"),
-        );
+    public function messageIssnProvider()
+    {
+        return [
+            ['12345478', 'form', "'12345478' is malformed."],
+            ['12456-65478', 'form', "'12456-65478' is malformed."],
+            ['123456789', 'form', "'123456789' is malformed."],
+            ['1050 124X', 'form', "'1050 124X' is malformed."],
+            ['1050_124X', 'form', "'1050_124X' is malformed."],
+            ['1050-1242', 'checkdigit', "The check digit of '1050-1242' is not valid."],
+            ['1062-512X', 'checkdigit', "The check digit of '1062-512X' is not valid."],
+            ['0025-5856', 'checkdigit', "The check digit of '0025-5856' is not valid."],
+            ['0001-3211', 'checkdigit', "The check digit of '0001-3211' is not valid."],
+        ];
     }
 
     /**
@@ -90,7 +93,8 @@ class Opus_Validate_IssnTest extends TestCase
      * @covers ::_calculateCheckDigit
      * @dataProvider validIssnProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_Issn();
         $this->assertTrue($validator->isValid($arg));
     }
@@ -101,7 +105,8 @@ class Opus_Validate_IssnTest extends TestCase
      * @covers ::_calculateCheckDigit
      * @dataProvider invalidIssnProvider
      */
-    public function testInvalidArguments($arg) {
+    public function testInvalidArguments($arg)
+    {
         $validator = new Opus_Validate_Issn();
         $this->assertFalse($validator->isValid($arg));
     }
@@ -119,5 +124,4 @@ class Opus_Validate_IssnTest extends TestCase
         $this->assertContains($err, $validator->getErrors());
         $this->assertContains($msg, $validator->getMessages());
     }
-
 }

@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_Isbn13 extends Zend_Validate_Abstract {
+class Opus_Validate_Isbn13 extends Zend_Validate_Abstract
+{
 
     /**
      * Error message key for invalid check digit.
@@ -58,10 +59,10 @@ class Opus_Validate_Isbn13 extends Zend_Validate_Abstract {
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
     self::MSG_CHECK_DIGIT => "The check digit of '%value%' is not valid",
     self::MSG_FORM => "'%value%' is malformed"
-    );
+    ];
 
     /**
      * Validate the given ISBN-13 string.
@@ -74,13 +75,14 @@ class Opus_Validate_Isbn13 extends Zend_Validate_Abstract {
         $this->_setValue($value);
 
         // check lenght
-        if (strlen($value) !== (13+4)) {
+        if (strlen($value) !== 13 and strlen($value) !== 17) {
             $this->_error(self::MSG_FORM);
             return false;
         }
 
-        // check form
-        if (preg_match('/^(978|979)((-|\s)[\d]*){4}$/', $value) === 0) {
+        // check form. ISBN13 can have 13 characters or 17 characters. If it has 13 characters, all digits are numbers.
+        // If it has 17 characters, there are additionally 4 seperator of dashes or spaces.
+        if (preg_match('/^[\d]*((-|\s)?[\d]*){4}$/', $value) === 0) {
             $this->_error(self::MSG_FORM);
             return false;
         }
@@ -95,16 +97,21 @@ class Opus_Validate_Isbn13 extends Zend_Validate_Abstract {
         $isbn_parts = preg_split('/(-|\s)/', $value);
 
         // Separate digits for checkdigit calculation
-        $digits = array();
-        for ($i=0; $i<4; $i++) {
+        $digits = [];
+        for ($i = 0; $i < count($isbn_parts); $i++) {
             foreach (str_split($isbn_parts[$i]) as $digit) {
                 $digits[] = $digit;
             }
         }
 
+        if (count($digits) != 13) {
+            $this->_error(self::MSG_FORM);
+            return false;
+        }
+
         // Calculate and compare check digit
         $checkdigit = $this->calculateCheckDigit($digits);
-        if ($checkdigit !== $isbn_parts[4]) {
+        if ($checkdigit !== end($digits)) {
             $this->_error(self::MSG_CHECK_DIGIT);
             return false;
         }
@@ -118,10 +125,10 @@ class Opus_Validate_Isbn13 extends Zend_Validate_Abstract {
      * @param array $digits Array of digits that form ISBN.
      * @return string The check digit.
      */
-    protected function calculateCheckDigit(array $digits) {
+    protected function calculateCheckDigit(array $digits)
+    {
         $z = $digits;
-        $z[12] = ((10 - (($z[0]+$z[2]+$z[4]+$z[6]+$z[8]+$z[10]+(3*($z[1]+$z[3]+$z[5]+$z[7]+$z[9]+$z[11]))) % 10)) % 10);
+        $z[12] = ((10 - (($z[0] + $z[2] + $z[4] + $z[6] + $z[8] + $z[10] + (3 * ($z[1] + $z[3] + $z[5] + $z[7] + $z[9] + $z[11]))) % 10)) % 10);
         return "$z[12]";
     }
-
 }

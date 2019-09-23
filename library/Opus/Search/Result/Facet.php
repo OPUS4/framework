@@ -37,34 +37,40 @@
  * Implements API for accessing single result of faceted search.
  */
 
-class Opus_Search_Result_Facet {
+class Opus_Search_Result_Facet
+{
 
     private $text;
     private $count;
 
-    public function  __construct($text, $count) {
+    public function __construct($text, $count)
+    {
         $this->text = $text;
         $this->count = $count;
     }
 
-    public function getText() {
+    public function getText()
+    {
         return $this->text;
     }
 
-    public function setText($text) {
+    public function setText($text)
+    {
         $this->text = $text;
     }
 
-    public function getCount() {
+    public function getCount()
+    {
         return $this->count;
     }
 
-    public function setCount($count) {
+    public function setCount($count)
+    {
         $this->count = $count;
     }
 
-    public function  __toString() {
+    public function __toString()
+    {
         return $this->getText() . ' => ' . $this->getCount();
     }
 }
-

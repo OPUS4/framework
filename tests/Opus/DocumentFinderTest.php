@@ -42,9 +42,11 @@
  * @group DocumentTest
  *
  */
-class Opus_DocumentFinderTest extends TestCase {
+class Opus_DocumentFinderTest extends TestCase
+{
 
-    private function prepareDocuments() {
+    private function prepareDocuments()
+    {
         $publishedDoc1 = new Opus_Document();
         $publishedDoc1->setType("preprint")
                 ->setServerState('published')
@@ -108,8 +110,9 @@ class Opus_DocumentFinderTest extends TestCase {
                 ->store();
     }
 
-    private function checkServerState($ids, $state) {
-        foreach ($ids AS $id) {
+    private function checkServerState($ids, $state)
+    {
+        foreach ($ids as $id) {
             $doc = new Opus_Document($id);
             $this->assertEquals($state, $doc->getServerState());
         }
@@ -120,7 +123,8 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testCountOnEmptyDb() {
+    public function testCountOnEmptyDb()
+    {
         $finder = new Opus_DocumentFinder();
         $this->assertEquals(0, $finder->count());
     }
@@ -130,9 +134,10 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testIdsOnEmptyDb() {
+    public function testIdsOnEmptyDb()
+    {
         $finder = new Opus_DocumentFinder();
-        $this->assertEquals(array(), $finder->ids());
+        $this->assertEquals([], $finder->ids());
     }
 
     /**
@@ -140,7 +145,8 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testAllEntriesNoConstraints() {
+    public function testAllEntriesNoConstraints()
+    {
         $this->prepareDocuments();
 
         // published
@@ -154,7 +160,8 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testAllConstraints() {
+    public function testAllConstraints()
+    {
         // published
         $finder = new Opus_DocumentFinder();
         $finder->setEnrichmentKeyExists('foobar')
@@ -164,18 +171,18 @@ class Opus_DocumentFinderTest extends TestCase {
                ->setIdRangeEnd(1)
                ->setIdentifierTypeValue('opus-3', 23)
                ->setServerState('published')
-               ->setServerStateInList(array('published'))
+               ->setServerStateInList(['published'])
                ->setType('fooprintbar')
-               ->setTypeInList(array('fooprintbar'))
+               ->setTypeInList(['fooprintbar'])
                ->setServerDateModifiedRange('2010-01-01', '2000-01-01')
                ->setServerDatePublishedRange('1999-12-31', '1900-01-01')
                ->setIdSubset(null)
-               ->setIdSubset(array())
-               ->setIdSubset(array(1))
-               ->setIdSubset(array(-1))
-               ->setIdSubset(array(1, 2))
-               ->setIdSubset(array('foo'));
-                
+               ->setIdSubset([])
+               ->setIdSubset([1])
+               ->setIdSubset([-1])
+               ->setIdSubset([1, 2])
+               ->setIdSubset(['foo']);
+
         $this->assertEquals(0, $finder->count());
         $this->assertEquals(0, count($finder->ids()));
     }
@@ -185,7 +192,8 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testIdsByState() {
+    public function testIdsByState()
+    {
         $this->prepareDocuments();
 
         // published
@@ -221,7 +229,8 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testGroupedDocumentTypes() {
+    public function testGroupedDocumentTypes()
+    {
         $this->prepareDocuments();
 
         // all
@@ -283,14 +292,19 @@ class Opus_DocumentFinderTest extends TestCase {
 
         $lastDoc = $docs[0];
 
-        foreach ($docs as $docId)
-        {
+        foreach ($docs as $docId) {
             if ($lastDoc > $docId) {
                 $this->fail('documents are not sorted by id');
             }
         }
     }
 
+    /**
+     * @throws Opus_Model_Exception
+     * @throws Opus_Security_Exception
+     *
+     * TODO the testdata for this text is not meaningfull
+     */
     public function testSortByServerDatePublished()
     {
         $this->prepareDocuments();
@@ -310,10 +324,10 @@ class Opus_DocumentFinderTest extends TestCase {
             if (is_null($lastDate)) {
                 $lastDate = $doc->getServerDatePublished();
             }
-            if ($lastDate > $doc->getServerDatePublished()) {
+
+            if (! is_null($lastDate) and $lastDate->compare($doc->getServerDatePublished()) == 1) {
                 $this->fail('documents are not sorted properly');
             }
-
         }
     }
 
@@ -346,42 +360,44 @@ class Opus_DocumentFinderTest extends TestCase {
 
         $this->assertEquals(6, count($docs));
 
-        $expected_order = array(2, 5, 3, 6, 1, 4);
+        $expected_order = [2, 5, 3, 6, 1, 4];
 
-        foreach($docs as $index => $docId) {
+        foreach ($docs as $index => $docId) {
             if ($docId != $expected_order[$index]) {
                 $this->fail('documents are not in expected order');
             }
         }
     }
-    
+
     /**
      * test for added functionality setServerDateCreated[Before|After]()
      */
-    public function testFindByDateCreated() {
+    public function testFindByDateCreated()
+    {
         $this->prepareDocuments();
         $date = new Opus_Date();
         $date->setNow();
         $date->setDay(date('d') - 1);
         $date->setHour(date('H') - 1);
-        
+
         $finder = new Opus_DocumentFinder();
         $this->assertEquals(6, $finder->count());
-        $finder->setServerDateCreatedAfter(date("Y-m-d", time()+(60*60*24)));
+        $finder->setServerDateCreatedAfter(date("Y-m-d", time() + (60 * 60 * 24)));
         $this->assertEquals(0, $finder->count());
         $finder = new Opus_DocumentFinder();
-        $finder->setServerDateCreatedAfter(date("Y-m-d", time()-(60*60*24)));
+        $finder->setServerDateCreatedAfter(date("Y-m-d", time() - (60 * 60 * 24)));
         $this->assertEquals(6, $finder->count());
         $finder = new Opus_DocumentFinder();
-        $finder->setServerDateCreatedBefore(date("Y-m-d", time()-(60*60*24)));
+        $finder->setServerDateCreatedBefore(date("Y-m-d", time() - (60 * 60 * 24)));
         $this->assertEquals(0, $finder->count());
         $finder = new Opus_DocumentFinder();
-        $finder->setServerDateCreatedBefore(date("Y-m-d", time()+(60*60*24)));
+        $finder->setServerDateCreatedBefore(date("Y-m-d", time() + (60 * 60 * 24)));
         $this->assertEquals(6, $finder->count());
     }
-    
-    public function testSetDependentModel() {
-        $docIds = array();
+
+    public function testSetDependentModel()
+    {
+        $docIds = [];
         $doc1 = new Opus_Document();
         $docIds[] = $doc1->setType("article")
                 ->setServerState('published')
@@ -396,7 +412,7 @@ class Opus_DocumentFinderTest extends TestCase {
         $docIds[] = $doc3->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
-        
+
 
         // test dependent model
         $title = $doc3->addTitleMain();
@@ -412,7 +428,7 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertFalse(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID not in result set');
         $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
 
-        
+
         // test linked model
         //person
         $author = new Opus_Person();
@@ -442,7 +458,7 @@ class Opus_DocumentFinderTest extends TestCase {
         $licence = new Opus_Licence($licenceId);
         $docfinder = new Opus_DocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($licence)->ids();
-        
+
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
         $this->assertTrue(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID in result set');
         $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
@@ -457,7 +473,7 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertTrue(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID in result set');
         $this->assertTrue(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID in result set');
         $this->assertFalse(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID not in result set');
-        
+
         // collections (are implemented differently)
         $collectionRole = new Opus_CollectionRole();
         $collectionRole->setName("role-name-" . rand());
@@ -478,53 +494,52 @@ class Opus_DocumentFinderTest extends TestCase {
         $collection = new Opus_Collection($collectionId);
         $docfinder = new Opus_DocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($collection)->ids();
-        
+
         $this->assertEquals(2, count($resultDocIds), 'Excpected 2 IDs in result');
         $this->assertTrue(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID in result set');
         $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
         $this->assertTrue(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID in result set');
-        
-        
     }
-    
-    public function testSetFilesVisibleInOai() {
-        
+
+    public function testSetFilesVisibleInOai()
+    {
+
         $visibleFileDoc = new Opus_Document();
         $visibleFile = new Opus_File();
-        
+
         $visibleFile->setPathName('visible_file.txt');
         $visibleFile->setVisibleInOai(true);
-        
+
         $visibleFileDoc->addFile($visibleFile);
 
         $invisibleFileDoc = new Opus_Document();
         $invisibleFile = new Opus_File();
-        
+
         $invisibleFile->setPathName('invisible_file.txt');
         $invisibleFile->setVisibleInOai(false);
-        
+
         $invisibleFileDoc->addFile($invisibleFile);
 
-        
+
         $visibleFileDocId = $visibleFileDoc->store();
         $invisibleFileDocId = $invisibleFileDoc->store();
-        
+
         $mixedFileDoc = new Opus_Document();
         $visibleFile = new Opus_File();
-        
+
         $visibleFile->setPathName('another_visible_file.txt');
         $visibleFile->setVisibleInOai(true);
 
         $invisibleFile = new Opus_File();
-        
+
         $invisibleFile->setPathName('another_invisible_file.txt');
         $invisibleFile->setVisibleInOai(false);
 
         $mixedFileDoc->addFile($visibleFile);
         $mixedFileDoc->addFile($invisibleFile);
-        
-        $mixedFileDocId= $mixedFileDoc->store();
-        
+
+        $mixedFileDocId = $mixedFileDoc->store();
+
         $docfinder = new Opus_DocumentFinder();
         $docfinder->setFilesVisibleInOai();
         $foundIds = $docfinder->ids();
@@ -534,7 +549,8 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertFalse(in_array($invisibleFileDocId, $foundIds), 'Expected no id of Document with invisible file in OAI');
     }
 
-    public function testSetEmbargoDateBefore() {
+    public function testSetEmbargoDateBefore()
+    {
         $doc = new Opus_Document();
         $doc->setEmbargoDate('2016-10-16');
         $doc1Id = $doc->store();
@@ -552,7 +568,8 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertNotContains($doc1Id, $foundIds);
     }
 
-    public function testSetEmbargoDateAfter() {
+    public function testSetEmbargoDateAfter()
+    {
         $doc = new Opus_Document();
         $doc->setEmbargoDate('2016-10-16');
         $doc1Id = $doc->store();
@@ -575,7 +592,8 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertNotContains($doc2Id, $foundIds);
     }
 
-    public function testSetEmbargoDateRange() {
+    public function testSetEmbargoDateRange()
+    {
         $doc = new Opus_Document();
         $doc->setEmbargoDate('2016-10-16'); // not in range
         $doc1Id = $doc->store();
@@ -601,7 +619,8 @@ class Opus_DocumentFinderTest extends TestCase {
     /**
      * Tests from a perspective of two days in the future to avoid the need to manipulate ServerDateModified.
      */
-    public function testFindDocumentsWithExpiredEmbargoDateForUpdatingServerDateModified() {
+    public function testFindDocumentsWithExpiredEmbargoDateForUpdatingServerDateModified()
+    {
         $tomorrow = date('Y-m-d', time() + (60 * 60 * 24));
         $dayaftertomorrow = date('Y-m-d', time() + (2 * 60 * 60 * 24));
         $today = date('Y-m-d', time());
@@ -660,7 +679,8 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertNotContains($futureId, $foundIds);
     }
 
-    public function testFindDocumentsForXMetaDissPlus() {
+    public function testFindDocumentsForXMetaDissPlus()
+    {
         $today = date('Y-m-d', time());
 
         $doc = new Opus_Document();
@@ -694,5 +714,4 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertCount(1, $foundIds);
         $this->assertContains($publishedId, $foundIds);
     }
-
 }

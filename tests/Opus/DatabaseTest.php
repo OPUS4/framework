@@ -27,29 +27,25 @@
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_DatabaseTest extends TestCase {
+class Opus_DatabaseTest extends TestCase
+{
 
-    public function testGetSqlFiles() {
+    public function testGetSqlFiles()
+    {
         $database = new Opus_Database();
 
         $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
 
         $this->assertGreaterThan(4, $files);
-        $this->assertContains(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files);
-        $this->assertContains( APPLICATION_PATH . '/db/schema/001-OPUS-4.4.4.sql', $files);
+        $this->assertContains(APPLICATION_PATH . '/db/schema/001-OPUS-4.4.4.sql', $files);
     }
 
-    public function testGetSchemaFile() {
-        $database = new Opus_Database();
-
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $database->getSchemaFile());
-    }
-
-    public function testGetUpdateScripts() {
+    public function testGetUpdateScripts()
+    {
         $database = new Opus_Database();
 
         $scripts = $database->getUpdateScripts();
@@ -62,15 +58,15 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertContains('002-OPUS-4.5.sql', $basenames);
     }
 
-    public function testGetUpdateScriptsSorting() {
+    public function testGetUpdateScriptsSorting()
+    {
         $database = new Opus_Database();
 
         $scripts = $database->getUpdateScripts();
 
         $lastNumber = 0;
 
-        foreach ($scripts as $script)
-        {
+        foreach ($scripts as $script) {
             $basename = basename($script);
             $number = substr($basename, 0, 3);
 
@@ -79,15 +75,15 @@ class Opus_DatabaseTest extends TestCase {
         }
     }
 
-    public function testGetUpdateScriptsFrom() {
+    public function testGetUpdateScriptsFrom()
+    {
         $database = new Opus_Database();
 
         $scripts = $database->getUpdateScripts(2);
 
         $lastNumber = 0;
 
-        foreach ($scripts as $script)
-        {
+        foreach ($scripts as $script) {
             $number = substr(basename($script), 0, 3);
             $this->assertGreaterThan(2, $number);
             $this->assertGreaterThan($lastNumber, $number);
@@ -95,7 +91,8 @@ class Opus_DatabaseTest extends TestCase {
         }
     }
 
-    public function testGetUpdateScriptsFromTo() {
+    public function testGetUpdateScriptsFromTo()
+    {
         $database = new Opus_Database();
 
         $scripts = $database->getUpdateScripts(1, 2);
@@ -107,15 +104,15 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertEquals(2, $number);
     }
 
-    public function testGetUpdateScriptsUntil() {
+    public function testGetUpdateScriptsUntil()
+    {
         $database = new Opus_Database();
 
         $scripts = $database->getUpdateScripts(null, 2);
 
         $lastNumber = 0;
 
-        foreach($scripts as $script)
-        {
+        foreach ($scripts as $script) {
             $number = substr(basename($script), 0, 3);
             $this->assertLessThanOrEqual(2, $number);
             $this->assertGreaterThan($lastNumber, $number);
@@ -126,7 +123,8 @@ class Opus_DatabaseTest extends TestCase {
     /**
      * @expectedException PDOException
      */
-    public function testBadSqlThrowsException() {
+    public function testBadSqlThrowsException()
+    {
         $this->markTestIncomplete('exec function does not throw exceptions yet');
 
         $database = new Opus_Database();
@@ -210,8 +208,7 @@ class Opus_DatabaseTest extends TestCase {
             $statement->nextRowset();
 
             $this->fail('Should have thrown exception.');
-        }
-        catch(PDOException $pdoex) {
+        } catch (PDOException $pdoex) {
         }
 
         $this->assertFalse($statement->nextRowset());
@@ -283,5 +280,4 @@ class Opus_DatabaseTest extends TestCase {
     {
         $this->markTestIncomplete('TODO - how to do schema import testing within the regular test environment?');
     }
-
 }

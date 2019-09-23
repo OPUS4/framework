@@ -27,17 +27,18 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Unit tests for Opus_Account operations.
  */
-class Opus_AccountTest extends TestCase {
+class Opus_AccountTest extends TestCase
+{
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
 
         $account = new Opus_Account();
@@ -49,7 +50,8 @@ class Opus_AccountTest extends TestCase {
     /**
      * Test creating a new account.
      */
-    public function testCreateAccount() {
+    public function testCreateAccount()
+    {
         $account = new Opus_Account();
         $account->setLogin('dummy2');
         $account->setPassword('dummypassword');
@@ -63,7 +65,8 @@ class Opus_AccountTest extends TestCase {
     /**
      * Test double-create account.
      */
-    public function testDoubleCreateAccount() {
+    public function testDoubleCreateAccount()
+    {
         $account = new Opus_Account();
         $account->setLogin('dummy3');
         $account->setPassword('dummypassword');
@@ -79,7 +82,8 @@ class Opus_AccountTest extends TestCase {
     /**
      * @depends testCreateAccount
      */
-    public function testDeleteAccount() {
+    public function testDeleteAccount()
+    {
         $account = new Opus_Account(null, null, 'dummy');
         $account_id = $account->store();
         $account->delete();
@@ -91,7 +95,8 @@ class Opus_AccountTest extends TestCase {
     /**
      * Test adding a role to an account.
      */
-    public function testAddRoleToAccount() {
+    public function testAddRoleToAccount()
+    {
         $account = new Opus_Account(null, null, 'dummy');
 
         $role = new Opus_UserRole();
@@ -112,14 +117,15 @@ class Opus_AccountTest extends TestCase {
     /**
      * Test setting the roles of an account.
      */
-    public function testSetRoleOfAccount() {
+    public function testSetRoleOfAccount()
+    {
         $account = new Opus_Account(null, null, 'dummy');
 
         $role = new Opus_UserRole();
         $role->setName('role1');
         $role->store();
 
-        $roles = array($role);
+        $roles = [$role];
 
         $account->setRole($roles);
         $account->store();
@@ -132,5 +138,36 @@ class Opus_AccountTest extends TestCase {
         $this->assertEquals('role1', $roles[0]->getName());
     }
 
-}
+    public function testGetFullName()
+    {
+        $account = new Opus_Account();
+        $account->setFirstName('John');
+        $account->setLastName('Doe');
 
+        $this->assertEquals('John Doe', $account->getFullName());
+    }
+
+    public function testGetFullNameWithoutFirstName()
+    {
+        $account = new Opus_Account();
+        $account->setLastName('Doe');
+
+        $this->assertEquals('Doe', $account->getFullName());
+    }
+
+    public function testGetFullNameWithoutLastName()
+    {
+        $account = new Opus_Account();
+        $account->setFirstName('John');
+
+        $this->assertEquals('John', $account->getFullName());
+    }
+
+    public function testGetFullNameEmpty()
+    {
+        $account = new Opus_Account();
+
+        $this->assertNotNull($account->getFullName());
+        $this->assertEquals('', $account->getFullName());
+    }
+}

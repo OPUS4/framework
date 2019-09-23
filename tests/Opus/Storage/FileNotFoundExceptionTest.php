@@ -35,12 +35,14 @@
 /**
  * Test Opus_Storage_FileNotFoundException class.
  */
-class Opus_Storage_FileNotFoundExceptionTest extends TestCase {
+class Opus_Storage_FileNotFoundExceptionTest extends TestCase
+{
 
     /**
      * Test constructing exception with a file name.
      */
-    public function testConstructFileNotFoundException() {
+    public function testConstructFileNotFoundException()
+    {
         $exception = new Opus_Storage_FileNotFoundException('test.txt');
         $this->assertEquals('test.txt', $exception->getFilename());
         $this->assertEquals('File test.txt does not exist!', $exception->getMessage());
@@ -49,7 +51,8 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase {
     /**
      * Test constructing exception with a filename and message.
      */
-    public function testConstructFileNotFoundExceptionWithMessage() {
+    public function testConstructFileNotFoundExceptionWithMessage()
+    {
         $message = 'Custom file not found message.';
         $exception = new Opus_Storage_FileNotFoundException('test.txt', $message);
         $this->assertEquals('test.txt', $exception->getFilename());
@@ -59,10 +62,10 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase {
     /**
      * Tests constructing exception without parameters.
      */
-    public function testConstructFileNotFoundExceptionWithoutParameters() {
+    public function testConstructFileNotFoundExceptionWithoutParameters()
+    {
         $exception = new Opus_Storage_FileNotFoundException();
         $this->assertEquals(null, $exception->getFilename());
         $this->assertEquals('File  does not exist!', $exception->getMessage());
     }
-
 }

@@ -32,7 +32,8 @@
  * @version     $Id$
  */
 
-class Opus_Util_MetadataImportSkippedDocumentsException extends Exception {
+class Opus_Util_MetadataImportSkippedDocumentsException extends Exception
+{
 
 
 }

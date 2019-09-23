@@ -29,9 +29,8 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,43 +40,70 @@
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract implements \Opus\Model\Plugin\ServerStateChangeListener
+{
 
     /**
      * Generates a new URN for any document that has no URN assigned yet.
      * URN's are generated for Opus_Document instances only.
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
+    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    {
+        $log = Zend_Registry::get('Zend_Log');
 
-        if(!($model instanceof Opus_Document))
-            return;
-
-        if ($model->getServerState() !== 'published') {
+        if (! ($model instanceof Opus_Document)) {
+            $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
             return;
         }
 
+        $serverState = $model->getServerState();
+        $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
+
+        if ($serverState !== 'published') {
+            $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
+            return;
+        }
+
+        // prüfe zuerst, ob das Dokument das Enrichment opus.urn.autoCreate besitzt
+        // in diesem Fall bestimmt der Wert des Enrichments, ob eine URN beim Publish generiert wird
+        $generateUrn = null;
+        $enrichment = $model->getEnrichment('opus.urn.autoCreate');
+        if (! is_null($enrichment)) {
+            $enrichmentValue = $enrichment->getValue();
+            $generateUrn = ($enrichmentValue == 'true');
+            $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
+        }
+
         $config = Zend_Registry::get('Zend_Config');
-        $log = Zend_Registry::get('Zend_Log');
+        if (is_null($generateUrn)) {
+            // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
+            $generateUrn = (isset($config->urn->autoCreate) && filter_var($config->urn->autoCreate, FILTER_VALIDATE_BOOLEAN));
+        }
 
-        $log->debug('IdentifierUrn postStoreInternal for ' . $model->getDisplayName());
-
-        if(!isset($config->urn->autoCreate) or $config->urn->autoCreate != '1') {
+        if (! $generateUrn) {
             $log->debug('URN auto creation is not configured. skipping...');
             return;
         }
 
-        if(!isset($config->urn->nid) || !isset($config->urn->nss)) {
+        if (! isset($config->urn->nid) || ! isset($config->urn->nss)) {
             throw new Opus_Document_Exception('URN data is not present in config. Aborting...');
+            // FIXME hier sollte keine Exception geworfen werden, weil sonst
+            // die Ausführung aller nachfolgenden Plugins im Plugin-Array abgebrochen wird
+            // Plugins werden nämlich in Schleife nacheinander aufgerufen (ohne Exception Handling zwischen
+            // den einzelnen Aufrufen)
+
+            // FIXME außerdem ist der Exception Type schlecht gewählt, weil es sich in diesem
+            // Fall ja um einen Konfigurationsfehler handelt und nicht um einen Fehler im Dokument
         }
 
         $log->debug('config.ini is set to support urn auto generation');
 
-        if($this->urnAlreadyPresent($model)) {
+        if ($this->urnAlreadyPresent($model)) {
             $log->debug('Model ' . $model->getDisplayName() . ' already has a URN. Skipping automatic generation.');
             return;
         }
 
-        if (!$this->allowUrnOnThisDocument($model)) {
+        if (! $this->allowUrnOnThisDocument($model)) {
             $log->debug('Model ' . $model->getDisplayName() . ' has no oai-visible files. Skipping automatic URN generation.');
             return;
         }
@@ -96,14 +122,21 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $model->addIdentifierUrn($urn_model);
     }
 
-    public function urnAlreadyPresent($document) {
+    /**
+     * Liefert true, wenn das vorliegende Dokument bereits einen Identifier vom Typ URN besitzt; andernfalls false.
+     *
+     * @param $document
+     * @return bool
+     */
+    public function urnAlreadyPresent($document)
+    {
         $identifierUrns = $document->getIdentifierUrn();
-        if(count($identifierUrns) > 0) {
+        if (count($identifierUrns) > 0) {
             return true;
         }
 
         $identifiers = $document->getIdentifier();
-        foreach ($identifiers AS $identifier) {
+        foreach ($identifiers as $identifier) {
             if ($identifier->getType() === 'urn') {
                 return true;
             }
@@ -112,10 +145,21 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         return false;
     }
 
-    public function allowUrnOnThisDocument($document) {
-        $files = array_filter($document->getFile(),
-            function ($f) { return $f->getVisibleInOai() == 1; });
+    /**
+     * Liefert true, wenn das vorliegende Dokumente mindestens eine Datei mit OAI-Sichtbarkeit besitzt (nur für solche
+     * Dokumente kann bei der DNB eine URN registriert werden)
+     *
+     * @param $document
+     * @return bool
+     */
+    public function allowUrnOnThisDocument($document)
+    {
+        $files = array_filter(
+            $document->getFile(),
+            function ($f) {
+                return $f->getVisibleInOai() == 1;
+            }
+        );
         return count($files) > 0;
     }
 }
-

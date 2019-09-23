@@ -35,7 +35,8 @@
 /**
  * This class extends Opus_Model_AbstractDb to be able to test its code.
  */
-class Opus_Model_ModelDefiningAbstractExternalField extends Opus_Model_AbstractDb {
+class Opus_Model_ModelDefiningAbstractExternalField extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -49,18 +50,19 @@ class Opus_Model_ModelDefiningAbstractExternalField extends Opus_Model_AbstractD
      *
      * @var array
      */
-    protected $_externalFields = array(
-        'LazyAbstractModel' => array(
+    protected $_externalFields = [
+        'LazyAbstractModel' => [
             'model' => 'Opus_Model_ModelAbstract',
-            'fetch' => 'lazy')
-    );
+            'fetch' => 'lazy']
+    ];
 
     /**
      * Initialize model with the a single field "ExternalModel".
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $this->addField(new Opus_Model_Field('LazyAbstractModel'));
     }
 }

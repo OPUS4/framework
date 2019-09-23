@@ -15,10 +15,9 @@
  * @package     Opus
  * @subpackage  Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2009-2010
+ * @copyright   Copyright (c) 2009-2019
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -30,56 +29,55 @@
  * @package     Opus
  * @subpackage  Model
  */
-abstract class Opus_Model_Plugin_Abstract 
-    implements Opus_Model_Plugin_Interface {
-    
+abstract class Opus_Model_Plugin_Abstract implements Opus_Model_Plugin_Interface
+{
+
     /**
      * @see {Opus_Model_Plugin_Interface::preStore}
      */
-    public function preStore(Opus_Model_AbstractDb $model) {
-
+    public function preStore(Opus_Model_AbstractDb $model)
+    {
     }
-    
+
     /**
      * @see {Opus_Model_Plugin_Interface::preFetch}
      */
-    public function preFetch(Opus_Model_AbstractDb $model) {
-
+    public function preFetch(Opus_Model_AbstractDb $model)
+    {
     }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {
-
+    public function postStore(Opus_Model_AbstractDb $model)
+    {
     }
-    
+
     /**
      * @see {Opus_Model_Plugin_Interface::postStoreInternal}
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    {
     }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStoreExternal}
      */
-    public function postStoreExternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreExternal(Opus_Model_AbstractDb $model)
+    {
     }
 
     /**
      * @see {Opus_Model_Plugin_Interface::preDelete}
      */
-    public function preDelete(Opus_Model_AbstractDb $model) {
-
+    public function preDelete(Opus_Model_AbstractDb $model)
+    {
     }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
-    public function postDelete($modelId) {
-
+    public function postDelete($modelId)
+    {
     }
-
 }

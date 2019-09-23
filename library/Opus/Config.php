@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,22 +27,23 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * TODO sinnvoll? Should be injected in classes?
+ * TODO function to verify syntax of INI files?
  */
-class Opus_Config {
+class Opus_Config
+{
 
-	/**
-	 * @return Zend_Config
-	 * @throws Zend_Exception
-	 */
-	public static function get() {
-		return Zend_Registry::get( 'Zend_Config' );
-	}
-
+    /**
+     * @return Zend_Config
+     * @throws Zend_Exception
+     */
+    public static function get()
+    {
+        return Zend_Registry::get('Zend_Config');
+    }
 }

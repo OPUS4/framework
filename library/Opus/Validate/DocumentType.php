@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_DocumentType extends Opus_Validate_AbstractEnum {
+class Opus_Validate_DocumentType extends Opus_Validate_AbstractEnum
+{
 
     /**
      * Error message key.
@@ -51,15 +52,14 @@ class Opus_Validate_DocumentType extends Opus_Validate_AbstractEnum {
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_DOCUMENTTYPE => "'%value%' is not a valid document type"
-    );
+    ];
 
     /**
      * Define valid enum values.
      *
      * @var array
      */
-    protected $_valid_enums = array('article', 'book section', 'monograph', 'report', 'doctoral thesis');
-
+    protected $_valid_enums = ['article', 'book section', 'monograph', 'report', 'doctoral thesis'];
 }

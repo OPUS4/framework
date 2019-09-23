@@ -28,7 +28,6 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,11 +37,13 @@
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract
+{
 
     private $config;
 
-    public function __construct($config = null) {
+    public function __construct($config = null)
+    {
         $this->config = is_null($config) ? Zend_Registry::get('Zend_Config') : $config;
     }
 
@@ -56,7 +57,8 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @param Opus_Model_AbstractDb $model item written to store before
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {
+    public function postStore(Opus_Model_AbstractDb $model)
+    {
 
         // only index Opus_Document instances
         if (false === ($model instanceof Opus_Document)) {
@@ -84,13 +86,14 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @param mixed $modelId ID of item deleted before
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
-    public function postDelete($modelId) {
+    public function postDelete($modelId)
+    {
 
         if (null === $modelId) {
             return;
         }
 
-	    $this->removeDocumentFromIndexById($modelId);
+        $this->removeDocumentFromIndexById($modelId);
         return;
     }
 
@@ -99,20 +102,20 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      *
      * @param $documentId
      */
-    private function removeDocumentFromIndexById( $documentId ) {
+    private function removeDocumentFromIndexById($documentId)
+    {
 
         $log = Opus_Log::get();
 
-        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
-
+        if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
             $job = new Opus_Job();
             $job->setLabel(Opus_Job_Worker_IndexOpusDocument::LABEL);
-            $job->setData(array(
+            $job->setData([
                 'documentId' => $documentId,
                 'task' => 'remove'
-            ));
+            ]);
 
             // skip creating job if equal job already exists
             if (true === $job->isUniqueInQueue()) {
@@ -120,18 +123,15 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             } else {
                 $log->debug(__METHOD__ . ': ' . 'remove-index job for document ' . $documentId . ' already exists!');
             }
-
         } else {
             $log->debug(__METHOD__ . ': ' . 'Removing document ' . $documentId . ' from index.');
             try {
-	            Opus_Search_Service::selectIndexingService( 'onDocumentChange' )
-		            ->removeDocumentsFromIndexById( $documentId );
-            }
-            catch (Opus_Search_Exception $e) {
+                Opus_Search_Service::selectIndexingService('onDocumentChange')
+                    ->removeDocumentsFromIndexById($documentId);
+            } catch (Opus_Search_Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
             }
         }
-
     }
 
     /**
@@ -140,47 +140,41 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @param Opus_Document $document
      * @return void
      */
-    private function addDocumentToIndex(Opus_Document $document) {
+    private function addDocumentToIndex(Opus_Document $document)
+    {
 
-	    $documentId = $document->getId();
+        $documentId = $document->getId();
 
         $log = Opus_Log::get();
 
         // create job if asynchronous is set
-        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
-
+        if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
 
             $job = new Opus_Job();
             $job->setLabel(Opus_Job_Worker_IndexOpusDocument::LABEL);
-            $job->setData(array(
+            $job->setData([
                 'documentId' => $documentId,
                 'task' => 'index'
-            ));
+            ]);
 
             // skip creating job if equal job already exists
             if (true === $job->isUniqueInQueue()) {
                 $job->store();
-            }
-            else {
+            } else {
                 $log->debug(__METHOD__ . ': ' . 'Indexing job for document ' . $documentId . ' already exists!');
             }
-        }
-        else {
-
+        } else {
             $log->debug(__METHOD__ . ': ' . 'Index document ' . $documentId . '.');
 
             try {
-	            Opus_Search_Service::selectIndexingService( 'onDocumentChange' )
-		            ->addDocumentsToIndex( $document );
-            }
-            catch (Opus_Search_Exception $e) {
+                Opus_Search_Service::selectIndexingService('onDocumentChange')
+                    ->addDocumentsToIndex($document);
+            } catch (Opus_Search_Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
-            }
-            catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 $log->warn(__METHOD__ . ': ' . $e->getMessage());
             }
         }
     }
 }
-

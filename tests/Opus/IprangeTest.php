@@ -34,7 +34,8 @@
  * @version     $Id$
  */
 
-class Opus_IprangeTest extends TestCase {
+class Opus_IprangeTest extends TestCase
+{
     /**
      * @var    Opus_Iprange
      * @access protected
@@ -69,7 +70,7 @@ class Opus_IprangeTest extends TestCase {
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
-          'This test has not been implemented yet.'
+            'This test has not been implemented yet.'
         );
     }
 
@@ -80,8 +81,7 @@ class Opus_IprangeTest extends TestCase {
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
-          'This test has not been implemented yet.'
+            'This test has not been implemented yet.'
         );
     }
 }
-

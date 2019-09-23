@@ -40,7 +40,8 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Iprange extends Opus_Model_AbstractDb {
+class Opus_Iprange extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -56,20 +57,21 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = array(
-            'Role' => array(
+    protected $_externalFields = [
+            'Role' => [
                 'model' => 'Opus_UserRole',
                 'through' => 'Opus_Model_Dependent_Link_IprangeRole',
                 'fetch' => 'lazy'
-            ),
-    );
+            ],
+    ];
 
     /**
      * Retrieve all Opus_Iprange instances from the database.
      *
      * @return array Array of Opus_Iprange objects.
      */
-    public static function getAll() {
+    public static function getAll()
+    {
         return self::getAllFrom('Opus_Iprange', 'Opus_Db_Ipranges');
     }
 
@@ -81,12 +83,13 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $startingip = new Opus_Model_Field('Startingip');
         $endingip = new Opus_Model_Field('Endingip');
         $name = new Opus_Model_Field('Name');
         $role = new Opus_Model_Field('Role');
-        
+
         $startingip->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
                 ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
@@ -106,7 +109,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      *
      * @return void.
      */
-    protected function _storeStartingip() {
+    protected function _storeStartingip()
+    {
         // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
         if ($this->_fields['Startingip']->getValue() !== null) {
             $this->_primaryTableRow->startingip = sprintf("%u", ip2long($this->_fields['Startingip']->getValue()));
@@ -118,7 +122,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      *
      * @return void.
      */
-    protected function _storeEndingip() {
+    protected function _storeEndingip()
+    {
         // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
         if ($this->_fields['Endingip']->getValue() !== null) {
             $this->_primaryTableRow->endingip = sprintf("%u", ip2long($this->_fields['Endingip']->getValue()));
@@ -130,11 +135,11 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      *
      * @return string IPv4 address in Internet standard format (dotted string).
      */
-    protected function _fetchStartingip() {
+    protected function _fetchStartingip()
+    {
         if (empty($this->_primaryTableRow->startingip) === false) {
             $result = long2ip($this->_primaryTableRow->startingip);
-        }
-        else {
+        } else {
             // FIXME: may conflict with Zend_Validate_NotEmpty?
             $result = null;
         }
@@ -146,11 +151,11 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      *
      * @return string IPv4 address in Internet standard format (dotted string).
      */
-    protected function _fetchEndingip() {
+    protected function _fetchEndingip()
+    {
         if (empty($this->_primaryTableRow->endingip) === false) {
             $result = long2ip($this->_primaryTableRow->endingip);
-        }
-        else {
+        } else {
             // FIXME: may conflict with Zend_Validate_NotEmpty?
             $result = null;
         }
@@ -162,8 +167,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
-    public function getDisplayName() {
-       return $this->getName();
+    public function getDisplayName()
+    {
+        return $this->getName();
     }
-
 }

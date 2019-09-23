@@ -29,10 +29,11 @@
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @deprecated
  */
 
-class Opus_SolrSearch_ResultList {
+class Opus_SolrSearch_ResultList
+{
 
     private $results;
     private $numberOfHits;
@@ -45,17 +46,18 @@ class Opus_SolrSearch_ResultList {
      */
     private $log;
 
-    public function __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $validateDocIds = true, $log = null) {
+    public function __construct($results = [], $numberOfHits = 0, $queryTime = 0, $facets = [], $validateDocIds = true, $log = null)
+    {
         $this->log = $log;
         $this->numberOfHits = $numberOfHits;
         $this->queryTime = $queryTime;
         $this->facets = $facets;
-        $this->results = array();
+        $this->results = [];
 
         // make sure that documents returned from index exist in database
-        if (!empty($results)) {
+        if (! empty($results)) {
             if ($validateDocIds) {
-                $docIds = array();
+                $docIds = [];
                 foreach ($results as $result) {
                     array_push($docIds, $result->getId());
                 }
@@ -67,18 +69,16 @@ class Opus_SolrSearch_ResultList {
                 foreach ($results as $result) {
                     if (in_array($result->getId(), $docIdsDB)) {
                         array_push($this->results, $result);
-                    }
-                    else {
+                    } else {
                         $notInDB++;
                     }
                 }
                 $resultsSize = count($this->results);
-                if ($notInDB > 0 && !is_null($this->log)) {
+                if ($notInDB > 0 && ! is_null($this->log)) {
                     $inDB = $resultsSize - $notInDB;
                     $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only " . $inDB . " found in database");
                 }
-            }
-            else {
+            } else {
                 $this->results = $results;
             }
         }
@@ -88,15 +88,18 @@ class Opus_SolrSearch_ResultList {
      *
      * @return array Returns an array of Opus_SolrSearch_Result objects.
      */
-    public function getResults() {
+    public function getResults()
+    {
         return $this->results;
     }
 
-    public function getNumberOfHits() {
+    public function getNumberOfHits()
+    {
         return $this->numberOfHits;
     }
 
-    public function getQueryTime() {
+    public function getQueryTime()
+    {
         return $this->queryTime;
     }
 
@@ -105,13 +108,14 @@ class Opus_SolrSearch_ResultList {
      * @return array Returns an array with a facet name as key and an array of
      * Opus_SolrSearch_FacetItem objects as value
      */
-    public function getFacets() {
+    public function getFacets()
+    {
         return $this->facets;
     }
 
-    public function  __toString() {
+    public function __toString()
+    {
         // TODO
         return "Result list consisting of " . $this->numberOfHits . " results retrieved in " . $this->queryTime . " milliseconds.";
     }
 }
-

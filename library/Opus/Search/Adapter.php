@@ -43,11 +43,12 @@
  * Opus_Search_Extracting each.
  */
 
-abstract class Opus_Search_Adapter {
-	/**
-	 * Retrieves name of current adapter's search engine domain.
-	 *
-	 * @return string
-	 */
-	abstract public function getDomain();
+abstract class Opus_Search_Adapter
+{
+    /**
+     * Retrieves name of current adapter's search engine domain.
+     *
+     * @return string
+     */
+    abstract public function getDomain();
 }

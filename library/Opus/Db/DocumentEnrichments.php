@@ -41,7 +41,8 @@
  *
  */
 
-class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
+class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -56,16 +57,16 @@ class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'EnrichmentKeys' => array(
+    protected $_referenceMap = [
+            'EnrichmentKeys' => [
                 'columns' => 'key_name',
                 'refTableClass' => 'Opus_Db_EnrichmentKeys',
                 'refColumns' => 'name',
-                ),
-            'Documents' => array(
+                ],
+            'Documents' => [
                 'columns' => 'document_id',
                 'refTableClass' => 'Opus_Db_Documents',
                 'refColumns' => 'id',
-                ),
-            );
+                ],
+            ];
 }

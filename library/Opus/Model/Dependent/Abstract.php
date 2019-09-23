@@ -28,9 +28,9 @@
  * @package     Opus_Model_Dependent
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,8 +40,8 @@
  * @package     Opus_Model_Dependent
  */
 
-abstract class Opus_Model_Dependent_Abstract
-    extends Opus_Model_AbstractDb {
+abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
+{
 
     /**
      * Primary key of the parent model.
@@ -64,7 +64,7 @@ abstract class Opus_Model_Dependent_Abstract
      *
      * Calls to doDelete() will only succeed if this token is passed.
      * A call to delete() will return the next valid token.
-     * 
+     *
      * @var string
      */
     private $_deletionToken = null;
@@ -73,9 +73,12 @@ abstract class Opus_Model_Dependent_Abstract
      *
      * @var array
      */
-    protected $_plugins = array(
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache'
+        ];
+    }
 
     /**
      * Construct a new model instance and connect it a database table's row.
@@ -88,7 +91,8 @@ abstract class Opus_Model_Dependent_Abstract
      * @throws Opus_Model_Exception     Thrown if passed id is invalid.
      * @see Opus_Model_AbstractDb#__construct()
      */
-    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
+    {
         parent::__construct($id, $tableGatewayModel);
         if (false === is_null($this->_parentColumn) && $this->_parentColumn != '') {
             $parentId = $this->_primaryTableRow->{$this->_parentColumn};
@@ -104,19 +108,21 @@ abstract class Opus_Model_Dependent_Abstract
      * @param integer $parentId The id of the parent Opus_Model
      * @return void
      */
-    public function setParentId($parentId) {
+    public function setParentId($parentId)
+    {
         $this->_parentId = $parentId;
     }
-    
+
     /**
      * Return the identifier of this models parent model.
      *
      * @return mixed Identifier of the parent model or Null if not set.
      */
-    public function getParentId() {
+    public function getParentId()
+    {
         return $this->_parentId;
     }
-    
+
     /**
      * Set the name of the column holding the parent id
      * of the linked model.
@@ -124,7 +130,8 @@ abstract class Opus_Model_Dependent_Abstract
      * @param string $column Name of the parent id column.
      * @return void
      */
-    public function setParentIdColumn($column) {
+    public function setParentIdColumn($column)
+    {
         $this->_parentColumn = $column;
     }
 
@@ -134,7 +141,8 @@ abstract class Opus_Model_Dependent_Abstract
      *
      * @return string $column Name of the parent id column.
      */
-    public function getParentIdColumn() {
+    public function getParentIdColumn()
+    {
         return $this->_parentColumn;
     }
 
@@ -144,23 +152,24 @@ abstract class Opus_Model_Dependent_Abstract
      * @throws Opus_Model_Exception Thrown if trying to store without parent.
      * @return mixed $id    Primary key of the models primary table row.
      */
-    public function store() {
+    public function store()
+    {
         if (null === $this->_parentId) {
             throw new Opus_Model_Exception(
                 'Dependent Model ' . get_class($this)
                 . ' without parent cannot be persisted.'
             );
-        } 
+        }
         if (null === $this->_parentColumn) {
             throw new Opus_Model_Exception(
                 'Dependent Model ' . get_class($this)
                 . ' needs to know name of the parent-id column.'
             );
-        } 
+        }
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
         return parent::store();
     }
-    
+
     /**
      * Register dependent Model for deletion in its parent Model.
      *
@@ -169,19 +178,21 @@ abstract class Opus_Model_Dependent_Abstract
      * delete Token returned by this method.
      *
      * @return string Token to be passed to doDelete() method to actually confirm deletion request.
-     */   
-    public function delete() {
+     */
+    public function delete()
+    {
         $this->_deletionToken = uniqid();
         return $this->_deletionToken;
     }
-    
+
     /**
      * Perform actual delete operation if the correct token has been provided.
      *
      * @param string $token Delete token as returned by previous call to delete()
      * @return void
      */
-    public function doDelete($token) {
+    public function doDelete($token)
+    {
         if ($this->_deletionToken === null) {
             throw new Opus_Model_Exception('No deletion token set. Call delete() prior to doDelete().');
         }
@@ -190,6 +201,4 @@ abstract class Opus_Model_Dependent_Abstract
         }
         parent::delete();
     }
-    
-    
 }

@@ -50,17 +50,21 @@
  * @method string getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
  * @method string getMimeType() retrieves value of field MimeType
  */
-class Opus_File extends Opus_Model_Dependent_Abstract {
+class Opus_File extends Opus_Model_Dependent_Abstract
+{
 
     /**
      * Plugins to load
      *
      * @var array
      */
-    protected $_plugins = array(
-        'Opus_File_Plugin_DefaultAccess' => null,
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null
-    );
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_File_Plugin_DefaultAccess',
+            'Opus_Model_Plugin_InvalidateDocumentCache'
+        ];
+    }
 
     /**
      * Holds storage object.
@@ -90,14 +94,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = array(
-        'TempFile' => array(),
-        'HashValue' => array(
+    protected $_externalFields = [
+        'TempFile' => [],
+        'HashValue' => [
             'model' => 'Opus_HashValues'
-        ),
-    );
+        ],
+    ];
 
-    private $_hashValues = array();
+    private $_hashValues = [];
 
     /**
      * Initialize model with the following fields:
@@ -109,7 +113,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $filepathname = new Opus_Model_Field('PathName');
         $filepathname->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
@@ -155,14 +160,15 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($sortOrder);
     }
 
-    public static function fetchByDocIdPathName($docId, $pathName) {
+    public static function fetchByDocIdPathName($docId, $pathName)
+    {
         $files = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $files->select()
                 ->where('document_id = ?', $docId)
                 ->where('path_name = ?', $pathName);
         $row = $files->fetchRow($select);
 
-        if (!is_null($row)) {
+        if (! is_null($row)) {
             return new Opus_File($row);
         }
         return null;
@@ -173,8 +179,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return Opus_Storage_File Storage object.
      */
-    private function getStorage() {
-        if (!is_null($this->_storage)) {
+    private function getStorage()
+    {
+        if (! is_null($this->_storage)) {
             return $this->_storage;
         }
 
@@ -194,7 +201,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean false if the file does not exist, true if it exists
      */
-    public function exists() {
+    public function exists()
+    {
         return file_exists($this->getPath());
     }
 
@@ -203,16 +211,17 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean true if the file is readable, otherwise false
      */
-    public function isReadable() {
+    public function isReadable()
+    {
         return is_readable($this->getPath());
     }
 
     /**
      * Get full path of destination file.
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->getStorage()->getWorkingDirectory() . $this->getPathName();
-
     }
 
     /**
@@ -225,7 +234,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @see Opus_Model_AbstractDb::_preStore()
      */
-    protected function _preStore() {
+    protected function _preStore()
+    {
         $result = parent::_preStore();
 
         if (isset($result)) {
@@ -236,7 +246,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $tempFile = $this->getTempFile();
         if (false === empty($tempFile)) {
-
             $this->getStorage()->createSubdirectory();
             $this->getStorage()->copyExternalFile($tempFile, $target);
 
@@ -258,7 +267,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         if (false === $this->isNewRecord() && $this->getField('PathName')->isModified()) {
             $storedFileName = $this->_primaryTableRow->path_name;
 
-            if (!empty($storedFileName)) {
+            if (! empty($storedFileName)) {
                 // $oldName = $this->getStorage()->getWorkingDirectory() . $storedFileName;
                 $result = $this->getStorage()->renameFile($storedFileName, $target);
             }
@@ -278,7 +287,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _storeTempFile() {
+    protected function _storeTempFile()
+    {
         return;
     }
 
@@ -287,7 +297,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return string Filename
      */
-    protected function _fetchTempFile() {
+    protected function _fetchTempFile()
+    {
         return;
     }
 
@@ -300,7 +311,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @throws Opus_Storage_FileAccessException if file could not be deleted
      * @return void
      */
-    public function doDelete($token) {
+    public function doDelete($token)
+    {
         parent::doDelete($token);
         $this->getStorage()->deleteFile($this->getPathName());
 
@@ -314,13 +326,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @param  array $info An associative array containing file metadata.
      * @return void
      */
-    public function setFromPost(array $info) {
+    public function setFromPost(array $info)
+    {
         // TODO: populate all fields
         $this->setPathName($info['name']);
         // $this->setMimeType($info['type']);
         $this->setTempFile($info['tmp_name']);
         $this->setLabel($info['name']);
-
     }
 
     /**
@@ -331,9 +343,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * TODO gets called too often and does not cache values
      */
-    public function getRealHash($type) {
-        if (array_key_exists($type, $this->_hashValues))
-        {
+    public function getRealHash($type)
+    {
+        if (array_key_exists($type, $this->_hashValues)) {
             return $this->_hashValues[$type];
         }
 
@@ -346,7 +358,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         return $hash;
-
     }
 
     /**
@@ -357,13 +368,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean true if the checksum is valid, false if not
      */
-    public function verify($type, $value = null) {
-        if (!empty($value) and $this->getRealHash($type) === $value) {
+    public function verify($type, $value = null)
+    {
+        if (! empty($value) and $this->getRealHash($type) === $value) {
             return true;
         }
 
         return false;
-
     }
 
     /**
@@ -371,14 +382,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean true (all value) or false (at least one hash invalid)
      */
-    public function verifyAll() {
+    public function verifyAll()
+    {
         foreach ($this->getHashValue() as $hash) {
-            if (!$this->verify($hash->getType(), $hash->getValue())) {
+            if (! $this->verify($hash->getType(), $hash->getValue())) {
                 return false;
             }
         }
         return true;
-
     }
 
     /**
@@ -386,7 +397,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean True if verification can get performed
      */
-    public function canVerify() {
+    public function canVerify()
+    {
         $config = Zend_Registry::get('Zend_Config');
 
         $maxVerifyFilesize = -1;
@@ -400,7 +412,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         return false;
-
     }
 
     /**
@@ -411,9 +422,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    private function _createHashValues() {
-        $hashtypes = array('md5', 'sha512');
-        $hashs = array();
+    private function _createHashValues()
+    {
+        $hashtypes = ['md5', 'sha512'];
+        $hashs = [];
 
         foreach ($hashtypes as $type) {
             $hash = new Opus_HashValues();
@@ -424,6 +436,5 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);
-
     }
 }

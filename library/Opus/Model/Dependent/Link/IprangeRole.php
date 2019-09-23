@@ -39,7 +39,8 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Abstract {
+class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Abstract
+{
 
     /**
      * Specify then table gateway.
@@ -69,24 +70,17 @@ class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Ab
      */
     protected $_displayAttributeName = 'Name';
 
-     /** Plugins to load
-     *
-     * @var array
-     */
-    protected $_plugins = array();
-
-    
     /**
      * Initialize model with the following values:
      * - Role
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         if (is_null($this->getId()) === false) {
             $this->setModel(new Opus_UserRole($this->_primaryTableRow->role_id));
-        }
-        else {
+        } else {
             $this->setModel(new Opus_UserRole);
         }
     }
@@ -96,13 +90,13 @@ class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Ab
      *
      * @return void
      */
-    public function store() {
+    public function store()
+    {
         $this->_primaryTableRow->role_id = $this->_model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->role_id) {            
+        if ($this->getId() !== $this->_primaryTableRow->role_id) {
             parent::store();
         }
     }
-
 }

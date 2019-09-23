@@ -43,22 +43,24 @@
  * @group       LanguageTest
  *
  */
-class Opus_Validate_LanguageTest extends TestCase {
+class Opus_Validate_LanguageTest extends TestCase
+{
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array('de'),
-            array('fr'),
-            array('az'),
-            array('es'),
-            array('ar'),
-            array('zu')
-        );
+    public function validDataProvider()
+    {
+        return [
+            ['de'],
+            ['fr'],
+            ['az'],
+            ['es'],
+            ['ar'],
+            ['zu']
+        ];
     }
 
     /**
@@ -66,14 +68,15 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @return array Array of invalid arguments.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null),
-            array(''),
-            array(4711),
-            array(true),
-            array('not_a_valid_type')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null],
+            [''],
+            [4711],
+            [true],
+            ['not_a_valid_type']
+        ];
     }
 
 
@@ -82,9 +85,10 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         // Set up a mock language list.
-        $list = array(
+        $list = [
             'de' => 'Test_Deutsch',
             'en' => 'Test_Englisch',
             'fr' => 'Test_Französisch',
@@ -92,7 +96,7 @@ class Opus_Validate_LanguageTest extends TestCase {
             'es' => 'Test_Spanisch',
             'ar' => 'Test_Arabisch',
             'zu' => 'Test_Zulu',
-        );
+        ];
         Zend_Registry::set('Available_Languages', $list);
     }
 
@@ -100,7 +104,9 @@ class Opus_Validate_LanguageTest extends TestCase {
     /**
      * Overwrite parent methods.
      */
-    public function tearDown() {}
+    public function tearDown()
+    {
+    }
 
 
     /**
@@ -111,7 +117,8 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_Language();
         $this->assertTrue($validator->isValid($arg), $arg . ' should pass validation.');
     }
@@ -124,7 +131,8 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg) {
+    public function testInvalidArguments($arg)
+    {
         $validator = new Opus_Validate_Language();
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
@@ -134,9 +142,10 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @return void
      */
-    public function testErrorMessageIsSetIfNullIsGivenAsValue() {
+    public function testErrorMessageIsSetIfNullIsGivenAsValue()
+    {
         $validator = new Opus_Validate_Language();
-        $validator->isValid(NULL);
+        $validator->isValid(null);
         $errorMessage = $validator->getMessages();
         $this->assertFalse(empty($errorMessage), 'There should be at least one error message.');
         $this->assertEquals('\'\' is not a valid language shortcut.', $errorMessage['language'], 'Wrong error message set.');
@@ -147,9 +156,10 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @return void
      */
-    public function testValidateMultiValueLanguage() {
+    public function testValidateMultiValueLanguage()
+    {
         $validator = new Opus_Validate_Language();
-        $languages = array('de', 'en', 'fr');
+        $languages = ['de', 'en', 'fr'];
         $this->assertTrue($validator->isValid($languages), 'An array of values should pass validation.');
     }
 
@@ -158,9 +168,10 @@ class Opus_Validate_LanguageTest extends TestCase {
      *
      * @return void
      */
-    public function testValidateMultiValueLanguageWithInvalidData() {
+    public function testValidateMultiValueLanguageWithInvalidData()
+    {
         $validator = new Opus_Validate_Language();
-        $languages = array('de', 'en', 'fr', 'blablub');
+        $languages = ['de', 'en', 'fr', 'blablub'];
         $this->assertFalse($validator->isValid($languages), 'Value should not pass validation.');
         $errorMessage = $validator->getMessages();
         $this->assertFalse(empty($errorMessage), 'There should be at least one error message.');

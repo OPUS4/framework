@@ -41,6 +41,9 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase {
 
     private $config_backup;
 
+    const CONFIG_VALUE_FALSE = ''; // Zend_Config übersetzt false in den Wert ''
+
+    const CONFIG_VALUE_TRUE = '1'; // Zend_Config übersetzt true in den Wert '1'
 
     /**
      * Overwrites selected properties of current configuration.

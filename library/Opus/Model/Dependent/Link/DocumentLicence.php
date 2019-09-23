@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Link_Abstract {
+class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Link_Abstract
+{
 
     /**
      * Specify then table gateway.
@@ -61,7 +62,7 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      */
     protected $_modelKey = 'licence_id';
 
-    
+
     /**
      * The class of the model that is linked to.
      *
@@ -82,12 +83,12 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
             $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
-        }
-        else {
+        } else {
             $this->setModel(new $modelClass());
         }
     }
@@ -97,14 +98,13 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      *
      * @return void
      */
-    public function store() {
+    public function store()
+    {
         $this->_primaryTableRow->licence_id = $this->_model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->licence_id) {            
+        if ($this->getId() !== $this->_primaryTableRow->licence_id) {
             parent::store();
         }
     }
-
 }
-

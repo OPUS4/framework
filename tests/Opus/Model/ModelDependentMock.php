@@ -34,14 +34,15 @@
 
 /**
  * Mockup class used for tracking calls to specific methods in unit tests.
- * 
+ *
  * @category Tests
  * @package Opus_Model
  */
-class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
-    
+class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract
+{
+
     public $deleteHasBeenCalled = false;
-    
+
     public $doDeleteHasBeenCalled = false;
 
     public $setParentIdHasBeenCalled = false;
@@ -50,35 +51,40 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
 
     private $_discriminatorObject = null;
 
-    public function __construct() {
+    public function __construct()
+    {
     }
-    
-    public function _init() {
+
+    public function _init()
+    {
     }
-    
-    public function delete() {
+
+    public function delete()
+    {
         $this->deleteHasBeenCalled = true;
     }
-    
-    public function doDelete($token) {
+
+    public function doDelete($token)
+    {
         $this->doDeleteHasBeenCalled = true;
     }
 
-    public function setParentId($id) {
+    public function setParentId($id)
+    {
         $this->setParentIdHasBeenCalled = true;
     }
 
-    public function getId() {
+    public function getId()
+    {
         if (null === $this->id) {
             return parent::getId();
         }
         return $this->id;
-
     }
 
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
-
     }
 
     /**
@@ -87,9 +93,8 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
      *
      * @param <type> $object An arbitrary object
      */
-    public function setDiscriminatorObject($object) {
+    public function setDiscriminatorObject($object)
+    {
         $this->_discriminatorObject = $object;
-
     }
-
 }

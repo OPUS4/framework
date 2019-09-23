@@ -29,9 +29,8 @@
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -42,7 +41,8 @@
  *
  * @group DependentAbstractTest
  */
-class Opus_Model_Dependent_AbstractTest extends TestCase {
+class Opus_Model_Dependent_AbstractTest extends TestCase
+{
 
     /**
      * Class instance under test.
@@ -65,21 +65,22 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      * @var Zend_Db_Table_Row
      */
     private $_mockTableRow = null;
-    
-    
+
+
     /**
      * Zend_Db_Adapter mockup
      *
      * @var Zend_Db_Adapter
      */
-    private $_mockAdapter = null; 
-    
+    private $_mockAdapter = null;
+
     /**
      * Set up test instance and mock environment.
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         if (false === class_exists('Opus_Model_Dependent_AbstractTest_MockTableGateway', false)) {
             eval('
                 class Opus_Model_Dependent_AbstractTest_MockTableGateway
@@ -107,69 +108,85 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
             ');
         }
 
-        $config = array('dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser');
+        $config = ['dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser'];
 
-        $this->_mockAdapter = $this->getMock('Zend_Db_Adapter_Abstract',
-            array('_connect', '_beginTransaction', '_commit', '_rollback',
-                'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId', 
-                'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'),
-            array($config));
+        $this->_mockAdapter = $this->getMock(
+            'Zend_Db_Adapter_Abstract',
+            ['_connect', '_beginTransaction', '_commit', '_rollback',
+                'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId',
+                'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'],
+            [$config]
+        );
 
-        $this->_mockTableGateway = $this->getMock('Opus_Model_Dependent_AbstractTest_MockTableGateway',
-            array('createRow'), array(array(Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter)));
+        $this->_mockTableGateway = $this->getMock(
+            'Opus_Model_Dependent_AbstractTest_MockTableGateway',
+            ['createRow'],
+            [[Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter]]
+        );
 
-        $this->_mockTableRow = $this->getMock('Zend_Db_Table_Row', 
-            array('delete'), 
-            array(array('table' => $this->_mockTableGateway)));
+        $this->_mockTableRow = $this->getMock(
+            'Zend_Db_Table_Row',
+            ['delete'],
+            [['table' => $this->_mockTableGateway]]
+        );
         $this->_mockTableRow->expects($this->any())
             ->method('delete')
             ->will($this->returnValue(1));
-        
+
         $this->_mockTableGateway->expects($this->any())
             ->method('createRow')
             ->will($this->returnValue($this->_mockTableRow));
-            
-        $this->_cut = $this->getMock('Opus_Model_Dependent_Abstract', 
-            array('_init', 'getId'), array(null, $this->_mockTableGateway));
+
+        $this->_cut = $this->getMock(
+            'Opus_Model_Dependent_Abstract',
+            ['_init', 'getId'],
+            [null, $this->_mockTableGateway]
+        );
         $this->_cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
         // unregister plugin to avoid side effects using mock object
         // plugin relies on table gateway class which is not available
         try {
             $this->_cut->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {}
+        } catch (Opus_Model_Exception $ome) {
+        }
     }
 
     /**
      * Overwrite parent methods.
      */
-    public function tearDown() {}
+    public function tearDown()
+    {
+    }
 
     /**
      * Test if no row is actually deleted on delete() call.
      *
      * @return void
      */
-    public function testDeleteCallDoesNotDeleteRow() {
+    public function testDeleteCallDoesNotDeleteRow()
+    {
         $this->_mockTableRow->expects($this->never())->method('delete');
         $this->_cut->delete();
     }
-    
+
     /**
      * Test if delete() returns a deletion token.
      *
      * @return void
      */
-    public function testDeleteCallReturnsToken() {
+    public function testDeleteCallReturnsToken()
+    {
         $token = $this->_cut->delete();
         $this->assertNotNull($token, 'No deletion token returned.');
     }
-    
+
     /**
      * Test if doDelete() rejects invalid deletion token.
      *
      * @return void
-     */   
-    public function testInvalidDeletionTokenThrowsException() {
+     */
+    public function testInvalidDeletionTokenThrowsException()
+    {
         $this->setExpectedException('Opus_Model_Exception');
         $this->_cut->delete();
         $this->_cut->doDelete('foo');
@@ -179,56 +196,55 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      * Test if doDelete() throws Exception if no deletion token has been required.
      *
      * @return void
-     */   
-    public function testMissingDeletionTokenThrowsException() {
+     */
+    public function testMissingDeletionTokenThrowsException()
+    {
         $this->setExpectedException('Opus_Model_Exception');
         $this->_cut->doDelete(null);
     }
 
-    
+
     /**
      * Test if doDelete() accepts a valid deletion token.
      *
      * @return void
      */
-    public function testDoDeleteAcceptsValidDeletionToken() {
+    public function testDoDeleteAcceptsValidDeletionToken()
+    {
         try {
             $token = $this->_cut->delete();
             $this->_cut->doDelete($token);
         } catch (Opus_Model_Exception $ex) {
             $this->fail('Valid deletion token rejected with Exception: '.$ex->getMessage());
         }
-    }   
-    
+    }
+
     /**
      * Test if call to doDelete() with valid token deletes the actual row.
      *
      * @return void
      */
-    public function testDoDeleteRemovesParentRow() {
+    public function testDoDeleteRemovesParentRow()
+    {
         $this->_mockTableRow->expects($this->once())->method('delete');
         $token = $this->_cut->delete();
         $this->_cut->doDelete($token);
     }
-    
+
     /**
      * Regression Test for OPUSVIER-1687
      * make sure cache invalidation is enabled when document caching enabled
      */
-    public function testInvalidateDocumentCacheEnabled() {
-        
-        $reflectedClass = new ReflectionClass('Opus_Document');
-        $property = $reflectedClass->getProperty('_plugins');
-        $props = $reflectedClass->getDefaultProperties();
-        $docPlugins = @$props['_plugins'] ?: array() ;
-        if(array_key_exists('Opus_Document_Plugin_XmlCache', $docPlugins)) {
-            $reflectedClass = new ReflectionClass('Opus_Model_Dependent_Abstract');
-            $props = $reflectedClass->getDefaultProperties();
-            $modelPlugins = @$props['_plugins'] ?: array() ;
-            $this->assertTrue(array_key_exists('Opus_Model_Plugin_InvalidateDocumentCache', $modelPlugins), 'Expected plugin Opus_Model_Plugin_InvalidateDocumentCache');
+    public function testInvalidateDocumentCacheEnabled()
+    {
+        $document = new Opus_Document();
+
+        $cachingEnabled = $document->hasPlugin('Opus_Document_Plugin_XmlCache');
+
+        if ($cachingEnabled) {
+            $subject = new Opus_Subject(); // inherits from Opus_Model_Dependent_Abstract
+
+            $this->assertTrue($subject->hasPlugin('Opus_Model_Plugin_InvalidateDocumentCache'));
         }
-
     }
-
-      
 }

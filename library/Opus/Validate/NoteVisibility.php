@@ -39,7 +39,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_NoteVisibility extends Opus_Validate_AbstractEnum {
+class Opus_Validate_NoteVisibility extends Opus_Validate_AbstractEnum
+{
     /**
      * Error message key.
      *
@@ -51,14 +52,14 @@ class Opus_Validate_NoteVisibility extends Opus_Validate_AbstractEnum {
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_NOTEVISIBILITY => "'%value%' is not a valid note visibility"
-    );
+    ];
 
     /**
      * Define valid enum values.
      *
      * @var array
      */
-    protected $_valid_enums = array('private','public');
+    protected $_valid_enums = ['private','public'];
 }

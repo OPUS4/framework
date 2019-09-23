@@ -2,13 +2,6 @@
 --  SQL update for OPUS 4.5
 -- ---------------------------------------------------------------------------
 
--- Prepare settings for update
-
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES';
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
-
 -- Schema changes
 
 START TRANSACTION;
@@ -52,7 +45,7 @@ ALTER TABLE `document_licences`
     MODIFY `active` TINYINT NOT NULL DEFAULT 1 COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?',
     MODIFY `language` VARCHAR(3) NULL COMMENT 'Language of the licence.',
     MODIFY `mime_type` VARCHAR(30) NULL COMMENT 'Mime type of the licence text linked in \"link_licence\".',
-    MODIFY `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed (0=no, 1=yes).',
+    MODIFY `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed (1=yes, 0=no).',
     MODIFY `sort_order` TINYINT NOT NULL DEFAULT 0 COMMENT 'Sort order (00 to 99).';
 
 ALTER TABLE `accounts`
@@ -89,13 +82,3 @@ ALTER TABLE `link_documents_collections`
     ADD CONSTRAINT `link_documents_collections_ibfk_4` FOREIGN KEY (`role_id`, `collection_id`) REFERENCES `collections` (`role_id`, `id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 COMMIT;
-
--- Reset settings
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
-
-
-

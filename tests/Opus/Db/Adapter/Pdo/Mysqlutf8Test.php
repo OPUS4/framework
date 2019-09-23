@@ -42,7 +42,8 @@
  *
  * @group       Mysqlutf8Test
  */
-class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
+class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase
+{
 
     /**
      * @var Zend_Db_Adapter_Abstract
@@ -53,7 +54,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
 
         // Clean setup of default database adapter
@@ -78,10 +80,13 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
      *
      * @return void
      */
-    public function tearDown() {
+    public function tearDown()
+    {
         // Close connection for clean transaction state.
         $dba = Zend_Db_Table::getDefaultAdapter();
-        $dba->closeConnection();
+        if (! is_null($dba)) {
+            $dba->closeConnection();
+        }
 
         // Restore existing adapter
         Zend_Db_Table::setDefaultAdapter($this->dba_backup);
@@ -95,7 +100,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
      *
      * @return void
      */
-    public function testStartNestingTransactions() {
+    public function testStartNestingTransactions()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         try {
@@ -110,7 +116,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
      *
      * @return void
      */
-    public function testCommitNestedTransactions() {
+    public function testCommitNestedTransactions()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         $dba->beginTransaction();
@@ -136,7 +143,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
      *
      * @return void
      */
-    public function testRollbackNestedTransactions() {
+    public function testRollbackNestedTransactions()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         $dba->beginTransaction();

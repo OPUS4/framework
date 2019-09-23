@@ -41,24 +41,30 @@
  * @package     Opus_Validate
  *
  */
-class Opus_Validate_NoteVisibilityTest extends TestCase {
+class Opus_Validate_NoteVisibilityTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array('private'),
-            array('public'),
-        );
+    public function validDataProvider()
+    {
+        return [
+            ['private'],
+            ['public'],
+        ];
     }
 
     /**
@@ -66,14 +72,15 @@ class Opus_Validate_NoteVisibilityTest extends TestCase {
      *
      * @return array Array of invalid arguments.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null),
-            array(''),
-            array(4711),
-            array(true),
-            array('not_a_valid_type')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null],
+            [''],
+            [4711],
+            [true],
+            ['not_a_valid_type']
+        ];
     }
 
 
@@ -85,22 +92,23 @@ class Opus_Validate_NoteVisibilityTest extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_NoteVisibility();
         $this->assertTrue($validator->isValid($arg), $arg . ' should pass validation.');
     }
 
     /**
      * Test validation of incorrect arguments.
-     * 
+     *
      * @param mixed $arg Value for validation.
      * @return void
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg) {
+    public function testInvalidArguments($arg)
+    {
         $validator = new Opus_Validate_NoteVisibility();
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
-
 }

@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,23 +37,24 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-abstract class Opus_Validate_AbstractMate extends Zend_Validate_Abstract implements Opus_Validate_Mate {
-    
+abstract class Opus_Validate_AbstractMate extends Zend_Validate_Abstract implements Opus_Validate_Mate
+{
+
     /**
      * Hold the common validation result of the group of mates.
      *
      * @var boolean
      */
     protected $_common = false;
-    
-    
+
+
     /**
      * List of associated mate validators for broadcasting validation results.
      *
      * @var array
      */
-    protected $_mates = array();
-    
+    protected $_mates = [];
+
     /**
      * Add another validator to the list of mates. Further, the validator adds
      * itself to the list of mates of the just added mate.
@@ -62,42 +62,45 @@ abstract class Opus_Validate_AbstractMate extends Zend_Validate_Abstract impleme
      * @param Opus_Validate_Mate $mate Validator implementing Opus_Validate_Mate.
      * @return void
      */
-    public function addMate(Opus_Validate_Mate $mate) {
+    public function addMate(Opus_Validate_Mate $mate)
+    {
         // If the mate is not already registerd and its not the instance itself,
         // then make it a member in the list of mates.
         if ((in_array($mate, $this->_mates, true) === false) and ($this !== $mate)) {
             $this->_mates[] = $mate;
-            
+
             // Add this instance as mate to the new member.
             $mate->addMate($this);
-            
+
             // Add all the instances mates to the list of mates of the new member.
             foreach ($this->_mates as $mymate) {
-                $mate->addMate($mymate); 
+                $mate->addMate($mymate);
             }
         }
     }
 
     /**
      * Inform all mates that the common validation result.
-     * 
+     *
      * @return void
      */
-    public function decideAllValid() {
+    public function decideAllValid()
+    {
         foreach ($this->_mates as $mate) {
             $mate->decideValid();
         }
     }
-    
+
     /**
      * Tell this specific validator to decide for validity.
      *
      * @return void
      */
-    public function decideValid() {
+    public function decideValid()
+    {
         $this->_common = true;
     }
-    
+
     /**
      * Validate the given value and inform all attended mates about a
      * maybe positive decision.
@@ -111,15 +114,14 @@ abstract class Opus_Validate_AbstractMate extends Zend_Validate_Abstract impleme
         if ($this->_common === true) {
             return true;
         }
-        
+
         $this->_setValue($value);
         $result = $this->_isValid($value);
-        
+
         if ($result === true) {
             $this->decideAllValid();
             $this->decideValid();
         }
-        return $result; 
+        return $result;
     }
-    
 }

@@ -30,7 +30,6 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +39,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_AccessFiles extends Opus_Db_TableGateway {
+class Opus_Db_AccessFiles extends Opus_Db_TableGateway
+{
 
     /**
      * Table schema name.
@@ -48,5 +48,4 @@ class Opus_Db_AccessFiles extends Opus_Db_TableGateway {
      * @var string
      */
     protected $_name = 'access_files';
-
 }

@@ -28,9 +28,9 @@
  * @package     Opus_Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Eva Kranz <s9evkran@stud.uni-saarland.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +40,8 @@
  * @package     Opus_Mail
  *
  */
-class Opus_Mail_SendMail {
+class Opus_Mail_SendMail
+{
 
     /**
      * @var Opus_Mail_Transport
@@ -50,9 +51,24 @@ class Opus_Mail_SendMail {
     /**
      * Create a new SendMail instance
      */
-    public function __construct() {
+    public function __construct()
+    {
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config, $config->mail->opus)) {
+            if (isset($config->mail->opus->transport) && $config->mail->opus->transport == 'file') {
+                // erlaubt das Speichern von E-Mails in Dateien, die im Verzeichnis mail.opus.file abgelegt werden
+                $options = [];
+                if (isset($config->mail->opus->file)) {
+                    $options['path'] = $config->mail->opus->file;
+                }
+                $callback = function () {
+                    return 'opus-mail_' . time() . '_' . mt_rand() . '.tmp';
+                };
+                $options['callback'] = $callback;
+                $this->_transport = new Zend_Mail_Transport_File($options);
+                return;
+            }
+
             $this->_transport = new Opus_Mail_Transport($config->mail->opus);
             return;
         }
@@ -66,7 +82,8 @@ class Opus_Mail_SendMail {
      * @throws  Opus_Mail_Exception Thrown if the e-mail address is not valid
      * @return  string              Address
      */
-    public static function validateAddress($address) {
+    public static function validateAddress($address)
+    {
         $validator = new Zend_Validate_EmailAddress();
         if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
@@ -92,9 +109,17 @@ class Opus_Mail_SendMail {
      * @throws Opus_Mail_Exception Thrown if the mail could not be sent.
      * @throws Opus_Mail_Exception Thrown if the from address is invalid.
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, $recipients, $replyTo = null,
-                             $replyToName = null, $returnPath = null)
-    {
+    public function sendMail(
+        $from,
+        $fromName,
+        $subject,
+        $bodyText,
+        $recipients,
+        $replyTo = null,
+        $replyToName = null,
+        $returnPath = null
+    ) {
+
         $logger = Zend_Registry::get('Zend_Log');
 
         if (trim($from) === '') {
@@ -111,13 +136,11 @@ class Opus_Mail_SendMail {
         $mail->setSubject($subject);
         $mail->setBodyText($bodyText);
 
-        if (!is_null($replyTo))
-        {
+        if (! is_null($replyTo)) {
             $mail->setReplyTo($replyTo, $replyToName);
         }
 
-        if (!is_null($returnPath))
-        {
+        if (! is_null($returnPath)) {
             $mail->setReturnPath($returnPath);
         }
 

@@ -39,7 +39,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Series extends Opus_Db_TableGateway {
+class Opus_Db_Series extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -54,5 +55,5 @@ class Opus_Db_Series extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_LinkDocumentsSeries');
+    protected $_dependentTables = ['Opus_Db_LinkDocumentsSeries'];
 }

@@ -31,25 +31,30 @@
  * @version     $Id$
  */
 
-class Opus_Job_Worker_ConsistencyCheckTest extends TestCase {    
-    
-    public function setUp() {
+class Opus_Job_Worker_ConsistencyCheckTest extends TestCase
+{
+
+    public function setUp()
+    {
         parent::setUp();
         $this->job = new Opus_Job();
         $this->worker = new Opus_Job_Worker_ConsistencyCheck();
     }
-    
-    public function testActivationLabel() {
+
+    public function testActivationLabel()
+    {
          $this->assertEquals(Opus_Job_Worker_ConsistencyCheck::LABEL, $this->worker->getActivationLabel());
     }
 
-    public function testInvalidJobExecution() {
+    public function testInvalidJobExecution()
+    {
         $this->job->setLabel('invalid-label');
         $this->setExpectedException('Opus_Job_Worker_InvalidJobException');
         $this->worker->work($this->job);
     }
 
-    public function testValidJobExecution() {
+    public function testValidJobExecution()
+    {
         // create a published test doc
         $doc = new Opus_Document();
         $doc->setServerState('published');
@@ -57,15 +62,15 @@ class Opus_Job_Worker_ConsistencyCheckTest extends TestCase {
 
         $this->job->setLabel(Opus_Job_Worker_ConsistencyCheck::LABEL);
         $this->worker->work($this->job);
-        
+
         // check if consistency check log file was created and is not empty
         $config = Zend_Registry::get('Zend_Config');
         $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
         $this->assertFileExists($logfilePath);
-        
+
         $content = file_get_contents($logfilePath);
         $this->assertContains('checking 1 published documents for consistency.', $content);
         $this->assertContains('No inconsistency was detected.', $content);
         $this->assertContains('Completed operation after ', $content);
-    }    
+    }
 }

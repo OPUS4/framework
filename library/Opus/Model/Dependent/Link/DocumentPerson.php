@@ -26,10 +26,10 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -37,8 +37,51 @@
  *
  * @category    Framework
  * @package     Opus_Model
+ *
+ * @method void setRole(string $role)
+ * @method string getRole()
+ *
+ * @method void setSortOrder(integer $pos)
+ * @method integer getSortOrder()
+ *
+ * @method void setAllowEmailContact(boolean $allowContact)
+ * @method boolean getAllowEmailContact()
+ *
+ * Methods proxied to Opus_Person
+ *
+ * @method void setAcademicTitle(string $title)
+ * @method string getAcademicTitle()
+ *
+ * @method void setFirstName(string $firstName)
+ * @method string getFirstName()
+ *
+ * @method void setLastName(string $lastName)
+ * @method string getLastName()
+ *
+ * @method void setDateOfBirth(Opus_Date $date)
+ * @method Opus_Date getDateOfBirth()
+ *
+ * @method void setPlaceOfBirth(string $place)
+ * @method string getPlaceOfBirth()
+ *
+ * @method void setIdentifierOrcid(string $orcid)
+ * @method string getIdentifierOrcid()
+ *
+ * @method void setIdentifierGnd(string $gnd)
+ * @method string getIdentifierGnd()
+ *
+ * @method void setIdentifierMisc(string $misc)
+ * @method string getIdentifierMisc()
+ *
+ * @method void setEmail(string $email)
+ * @method string getEmail()
+ *
+ * @method void setOpusId(string $internalId)
+ * @method string getOpusId()
  */
-class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link_Abstract {
+class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link_Abstract
+{
+
     /**
      * Primary key of the parent model.
      *
@@ -72,10 +115,10 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      *
      * @var array
      */
-    protected $_internalFields = array(
+    protected $_internalFields = [
 //            'Role',
 //            'SortOrder',
-        );
+    ];
 
 
     /**
@@ -86,17 +129,17 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
             $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
-        } 
+        }
 
         $role = new Opus_Model_Field('Role');
         $role->setSelection(true);
         $role->setMandatory(false); // TODO change later maybe
-        $role->setDefault(
-            array(
+        $role->setDefault([
             'advisor' => 'advisor',
             'author' => 'author',
             'contributor' => 'contributor',
@@ -105,8 +148,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
             'other' => 'other',
             'translator' => 'translator',
             'submitter' => 'submitter'
-            )
-        );
+        ]);
 
         $sortOrder = new Opus_Model_Field('SortOrder');
         $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
@@ -115,6 +157,8 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         $this->addField($role)
             ->addField($sortOrder)
             ->addField($allowEmailContact);
+
+        $this->setModified(false);
     }
 
     /**
@@ -122,10 +166,9 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      *
      * @return void
      */
-    public function store() {
+    public function store()
+    {
         $this->_primaryTableRow->person_id = $this->_model->store();
         parent::store();
     }
-
 }
-

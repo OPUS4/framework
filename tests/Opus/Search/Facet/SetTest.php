@@ -31,15 +31,18 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Facet_SetTest extends SimpleTestCase {
+class Opus_Search_Facet_SetTest extends SimpleTestCase
+{
 
-    public function testOverrideLimitsFluent() {
+    public function testOverrideLimitsFluent()
+    {
         $facets = Opus_Search_Facet_Set::create();
 
         $this->assertEquals($facets, $facets->overrideLimits(20));
     }
 
-    public function testOverrideLimits() {
+    public function testOverrideLimits()
+    {
         $facets = Opus_Search_Facet_Set::create();
 
         $facets->addField('author_facet');
@@ -53,12 +56,12 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
 
         $this->assertEquals(10, $authorField->getLimit());
 
-        $facets->overrideLimits(array(
+        $facets->overrideLimits([
             'author_facet' => 10000
-        ));
+        ]);
 
         // this causes the field to be updated after the limit change
-        $facets->setFields(array('author_facet', 'year'));
+        $facets->setFields(['author_facet', 'year']);
 
         $fields = $facets->getFields();
 
@@ -76,7 +79,8 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
         $this->assertEquals(10, $yearField->getLimit());
     }
 
-    public function testOverrideLimitsCustomValuesArePreserved() {
+    public function testOverrideLimitsCustomValuesArePreserved()
+    {
         $facets = Opus_Search_Facet_Set::create();
 
         $facets->addField('author_facet');
@@ -90,16 +94,16 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
 
         $this->assertEquals(10, $authorField->getLimit());
 
-        $facets->overrideLimits(array(
+        $facets->overrideLimits([
             'author_facet' => 20
-        ));
+        ]);
 
-        $facets->overrideLimits(array(
+        $facets->overrideLimits([
             'year' => 30
-        ));
+        ]);
 
         // this causes the field to be updated after the limit change
-        $facets->setFields(array('author_facet', 'year'));
+        $facets->setFields(['author_facet', 'year']);
 
         $fields = $facets->getFields();
 
@@ -117,7 +121,8 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
         $this->assertEquals(30, $yearField->getLimit());
     }
 
-    public function testOverrideGlobalLimits() {
+    public function testOverrideGlobalLimits()
+    {
         $facets = Opus_Search_Facet_Set::create();
 
         $facets->overrideLimits(20);
@@ -137,16 +142,18 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage invalid limits for overriding configuration
      */
-    public function testOverrideLimitsInvalidArgument() {
+    public function testOverrideLimitsInvalidArgument()
+    {
         $facets = Opus_Search_Facet_Set::create();
 
         $facets->overrideLimits('all');
     }
 
-    public function testAddFieldSettingSorting() {
-        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
-            'searchengine' => array( 'solr' => array( 'sortcrit' => array( 'institute' => 'lexi' )))
-        ))));
+    public function testAddFieldSettingSorting()
+    {
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'searchengine' => [ 'solr' => [ 'sortcrit' => [ 'institute' => 'lexi' ]]]
+        ])));
 
         $facets = Opus_Search_Facet_Set::create();
 
@@ -157,8 +164,4 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
         $this->assertNotNull($instituteField->getSort());
         $this->assertTrue($instituteField->getSort());
     }
-
-
-
 }
-

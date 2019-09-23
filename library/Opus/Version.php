@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -45,12 +45,12 @@ class Opus_Version
     /**
      * Opus Framework version identification - see compareVersion()
      */
-    const VERSION = '4.5';
+    const VERSION = '4.6.4.1';
 
     /**
      * Version of database schema.
      */
-    const SCHEMA_VERSION = '8';
+    const SCHEMA_VERSION = '15';
 
     /**
      * Compare the specified Opus Framework version string $version
@@ -77,6 +77,4 @@ class Opus_Version
     {
         return self::SCHEMA_VERSION;
     }
-
 }
-

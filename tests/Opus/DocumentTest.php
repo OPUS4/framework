@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -32,9 +31,9 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Michael Lang <lang@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -59,10 +58,18 @@ class Opus_DocumentTest extends TestCase
     public function setUp()
     {
         // Set up a mock language list.
-        $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
+        $list = ['de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch'];
         Zend_Registry::set('Available_Languages', $list);
 
         parent::setUp();
+    }
+
+    public function tearDown()
+    {
+        $document = new Opus_Document();
+        $document->setDefaultPlugins(null);
+
+        parent::tearDown();
     }
 
     /**
@@ -99,9 +106,9 @@ class Opus_DocumentTest extends TestCase
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
      * associative array that represents valid document data.
      */
-    protected static $_validDocumentData = array(
-        array(
-            array(
+    protected static $_validDocumentData = [
+        [
+            [
                 'Language' => 'de',
                 'ContributingCorporation' => 'Contributing, Inc.',
                 'CreatingCorporation' => 'Creating, Inc.',
@@ -116,9 +123,9 @@ class Opus_DocumentTest extends TestCase
                 'CompletedDate' => '1901-01-01',
                 'BelongsToBibliography' => 1,
                 'EmbargoDate' => '1902-01-01',
-            )
-        )
-    );
+            ]
+        ]
+    ];
 
     /**
      * Valid document data provider
@@ -465,7 +472,7 @@ class Opus_DocumentTest extends TestCase
 
         $file = $doc->getFile(0);
 
-        $this->assertTrue(!empty($file)); // document has a file
+        $this->assertTrue(! empty($file)); // document has a file
 
         $filePath = $file->getPath();
 
@@ -813,12 +820,12 @@ class Opus_DocumentTest extends TestCase
         $loaded_document = new Opus_Document($id);
         $iterim_result = $loaded_document->toArray();
         $result = $iterim_result['TitleMain'][0];
-        $expected = array(
+        $expected = [
             'Language' => 'de',
             'Value' => 'Ein deutscher Titel',
             'Type' => 'main'
 //            'SortOrder' => null
-        );
+        ];
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
     }
 
@@ -1095,18 +1102,19 @@ class Opus_DocumentTest extends TestCase
     {
         $doc = new Opus_Document();
         $doc->setServerState('published');
-        $doc->setServerDatePublished('2011-11-11T11:11+01:00');
+        $doc->setServerDatePublished('2011-11-11T11:11:11+01:00');
         $doc->store();
 
         $filter = new Opus_Model_Filter;
         $filter->setModel($doc);
 
-        $docXml = $doc->toXml(array(), new Opus_Model_Xml_Version1());
+        $docXml = $doc->toXml([], new Opus_Model_Xml_Version1());
+        $xml = $docXml->saveXML();
         $serverDatePublElements = $docXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'document xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'document xml field "ServerDatePublished" should have attributes');
 
-        $modelXml = $filter->toXml(array(), new Opus_Model_Xml_Version1());
+        $modelXml = $filter->toXml([], new Opus_Model_Xml_Version1());
         $serverDatePublElements = $modelXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'model xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'model xml field "ServerDatePublished" should have attributes');
@@ -1157,18 +1165,24 @@ class Opus_DocumentTest extends TestCase
         $id = $d->store();
 
         $this->assertEquals(
-            $examplePublishedDate->__toString(), $d->getServerDatePublished()->__toString(), "Don't change user-specified server_date_published");
+            $examplePublishedDate->__toString(),
+            $d->getServerDatePublished()->__toString(),
+            "Don't change user-specified server_date_published"
+        );
 
-        $testStates = array('unpublished', 'published', 'published', 'unpublished');
-        foreach ($testStates AS $state) {
+        $testStates = ['unpublished', 'published', 'published', 'unpublished'];
+        foreach ($testStates as $state) {
             $d = new Opus_Document($id);
             $d->setServerState($state);
             $d->store();
 
             $d = new Opus_Document($id);
             $this->assertNotNull($d->getServerDatePublished());
-            $this->assertEquals($examplePublishedDate->__toString(), $d->getServerDatePublished()->__toString(),
-                "Don't change user-specified server_date_published (state $state)");
+            $this->assertEquals(
+                $examplePublishedDate->__toString(),
+                $d->getServerDatePublished()->__toString(),
+                "Don't change user-specified server_date_published (state $state)"
+            );
         }
     }
 
@@ -1569,6 +1583,14 @@ class Opus_DocumentTest extends TestCase
         // Do something with authors: reverse
         $authors = $document->getPersonAuthor();
         $new_authors = array_reverse($authors);
+
+        $index = 1;
+
+        foreach ($authors as $author) {
+            $this->assertEquals($index, $author->getSortOrder());
+            $index++;
+        }
+
         $document->setPersonAuthor($new_authors);
         $document->store();
 
@@ -1644,8 +1666,8 @@ class Opus_DocumentTest extends TestCase
     private function _checkPersonAuthorSortOrderForDocument($document)
     {
         $authors = $document->getPersonAuthor();
-        $numbers = array();
-        foreach ($authors AS $author) {
+        $numbers = [];
+        foreach ($authors as $author) {
             $this->assertNotNull($author->getSortOrder());
             $numbers[] = $author->getSortOrder();
         }
@@ -1669,7 +1691,7 @@ class Opus_DocumentTest extends TestCase
 
         // Insert invalid entry into database...
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-        $table->insert(array('server_date_published' => '1234', 'server_date_created' => '1234'));
+        $table->insert(['server_date_published' => '1234', 'server_date_created' => '1234']);
         $invalidDate = Opus_Document::getEarliestPublicationDate();
         $this->assertNull($invalidDate, "Expected NULL on invalid date.");
     }
@@ -1831,7 +1853,7 @@ class Opus_DocumentTest extends TestCase
         $person->setLastName('Testy');
         $person->store(); // notwendig?
 
-        $doc->setPersonAuthor(array($person));
+        $doc->setPersonAuthor([$person]);
 
         $doc = new Opus_Document($doc->store());
 
@@ -1843,8 +1865,8 @@ class Opus_DocumentTest extends TestCase
 
         $person->setRole('submitter');
 
-        $doc->setPersonAuthor(array());
-        $doc->setPersonSubmitter(array($person));
+        $doc->setPersonAuthor([]);
+        $doc->setPersonSubmitter([$person]);
 
         $doc = new Opus_Document($doc->store());
 
@@ -1861,10 +1883,10 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $this->assertTrue(count($doc->getPerson()) == 0, 'testcase changed?');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
@@ -1876,10 +1898,10 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->assertEquals(false, $doc->getField('Person')->isModified(), 'Field Person should not be modified');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
@@ -1900,17 +1922,22 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
+
+        $person = $doc->getPerson(0);
+
+        $this->assertFalse($person->getModel()->isModified());
+        $this->assertFalse($person->isModified());
+        $this->assertFalse($doc->isModified());
 
         $persons = $doc->getPerson();
-        $this->assertTrue(count($persons) == 1, 'testcase changed?');
+        $this->assertCount(1, $persons, 'testcase changed?');
 
-        $this->assertEquals(false, $persons[0]->getModel()->isModified(), 'linked model has just been loaded and is not modified!');
+        $this->assertFalse($persons[0]->getModel()->isModified(), 'linked model has just been loaded and is not modified!');
 
-        $this->markTestIncomplete('Check: Is only SortOrder modified?');
-        $this->assertEquals(false, $persons[0]->isModified(), 'link model has just been loaded and is not modified!');
+        $this->assertFalse($persons[0]->isModified(), 'link model has just been loaded and should not be modified!');
 
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getPerson!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getPerson!');
     }
 
     /**
@@ -1931,18 +1958,17 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->markTestIncomplete('Check: Is only SortOrder modified?');
-        $this->assertEquals(false, $doc->getField('Person')->isModified(), 'Field Person should not be modified');
+        $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
 
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
      * Regression test for OPUSVIER-2307: Test for modification tracking bug.
      */
-    public function testPlinkIsNotModified()
+    public function testPlinkIsModifiedAfterFixingSortOrder()
     {
         $doc = new Opus_Document();
 
@@ -1960,15 +1986,14 @@ class Opus_DocumentTest extends TestCase
             ->setValue(123)
             ->clearModified();
 
-        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified before');
+        $this->assertFalse($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified');
 
         $newField = new Opus_Model_Field('test');
         $newField->setSortFieldName('SortOrder');
-        $newField->setValue(array($plink));
+        $newField->setValue([$plink]);
 
-        $this->markTestIncomplete('Modification tracking bug with SortOrder field not fully fixed yet.');
-
-        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified after');
+        $this->assertTrue($plink->isModified());
+        $this->assertTrue($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should be modified');
     }
 
     public function testChangeTitleType()
@@ -2067,7 +2092,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc1 = new Opus_Document();
         $institute = new Opus_DnbInstitute($instituteId);
-        $doc1->setThesisGrantor(array($institute));
+        $doc1->setThesisGrantor([$institute]);
         $doc1id = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
 
@@ -2075,7 +2100,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc2 = new Opus_Document();
         $institute = new Opus_DnbInstitute($instituteId);
-        $doc2->setThesisGrantor(array($institute));
+        $doc2->setThesisGrantor([$institute]);
         $doc2->store();
 
         $doc1 = new Opus_Document($doc1id);
@@ -2088,7 +2113,9 @@ class Opus_DocumentTest extends TestCase
         $doc = new Opus_Document();
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is not registered');
+        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
+        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
+        $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_SequenceNumber'), 'Opus_Document_Plugin_SequenceNumber is registered');
     }
 
     /**
@@ -2106,7 +2133,7 @@ class Opus_DocumentTest extends TestCase
         $docid = $doc->store();
 
         $redoc = new Opus_Document($docid);
-        $redoc->deleteFields(array('TitleMain'));
+        $redoc->deleteFields(['TitleMain']);
         $redoc->store();
 
         $retitle = new Opus_Title();
@@ -2132,13 +2159,16 @@ class Opus_DocumentTest extends TestCase
         sleep(2);
 
         $doc = new Opus_Document($docId);
-        $doc->deleteFields(array('Edition'));
+        $doc->deleteFields(['Edition']);
         $doc->store();
 
         $doc = new Opus_Document($docId);
 
-        $this->assertNotEquals($docServerDateModified, $doc->getServerDateModified()->getUnixTimestamp(),
-            'ServerDateModified was not modified by deleteFields.');
+        $this->assertNotEquals(
+            $docServerDateModified,
+            $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified was not modified by deleteFields.'
+        );
     }
 
     /**
@@ -2287,10 +2317,10 @@ class Opus_DocumentTest extends TestCase
         $doc->setEmbargoDate('2014-06-18');
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
-        $now = new Opus_Date("2014-06-18T12:00:00");
+        $now = new Opus_Date("2014-06-18T12:00:00Z");
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
-        $now = new Opus_Date("2014-06-18T23:59:59");
+        $now = new Opus_Date("2014-06-18T23:59:59Z");
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
         $now = new Opus_Date("2014-06-19");
@@ -2321,7 +2351,7 @@ class Opus_DocumentTest extends TestCase
 
         $date = new Opus_Date('2016-05-10');
 
-        Opus_Document::setServerDateModifiedByIds($date, array(1, 3));
+        Opus_Document::setServerDateModifiedByIds($date, [1, 3]);
 
         $doc = new Opus_Document($doc1Id);
         $this->assertEquals('2016-05-10', $doc->getServerDateModified());
@@ -2577,6 +2607,1482 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(0, $persons);
     }
 
+    /**
+     * OPUSVIER-3860 Regression test.
+     */
+    public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
+    {
+        $this->markTestSkipped('TODO OPUSVIER-3860 Regression test - not fixed yet');
+
+        $doc = new Opus_Document();
+        $doc->store();
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+        $ids = $doc->getIdentifier();
+        $ids[] = $id;
+        $doc->setIdentifier($ids);
+
+        $test1 = $doc->getIdentifier();
+        $test2 = $doc->getIdentifierDoi();
+
+        $this->assertEquals($test1, $test2);
+    }
+
+    public function testGetEnrichment()
+    {
+        $keyName = 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichment = $doc->getEnrichment();
+
+        $this->assertInternalType('array', $enrichment);
+        $this->assertCount(1, $enrichment);
+        $this->assertEquals($keyName, $enrichment[0]->getKeyName());
+        $this->assertEquals('test-value', $enrichment[0]->getValue());
+
+        $enrichment = $doc->getEnrichment(0);
+
+        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertEquals($keyName, $enrichment->getKeyName());
+        $this->assertEquals('test-value', $enrichment->getValue());
+
+        $enrichment = $doc->getEnrichment($keyName);
+
+        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertEquals($keyName, $enrichment->getKeyName());
+        $this->assertEquals('test-value', $enrichment->getValue());
+    }
+
+    public function testGetEnrichmentSingleMatch()
+    {
+        $keyName = "test.key1";
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName('anotherKey');
+        $enrichmentKey->store();
+
+        $enrichment1 = new Opus_Enrichment();
+        $enrichment1->setKeyName('anotherKey');
+        $enrichment1->setValue('another-value');
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment1);
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichment = $doc->getEnrichment($keyName);
+
+        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertEquals($keyName, $enrichment->getKeyName());
+        $this->assertEquals('test-value', $enrichment->getValue());
+    }
+
+    public function testGetEnrichmentBadKey()
+    {
+        $keyName = 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichment = $doc->getEnrichment('unknownkey');
+
+        $this->assertNull($enrichment);
+    }
+
+    public function testGetEnrichmentValue()
+    {
+        $keyName = 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $value = $doc->getEnrichmentValue($keyName);
+
+        $this->assertEquals('test-value', $value);
+    }
+
+    /**
+     * @expectedException Opus_Model_Exception
+     * @expectedExceptionMessage unknown enrichment key
+     */
+    public function testGetEnrichmentValueBadKey()
+    {
+        $keyName = 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->getEnrichmentValue('unknownkey');
+    }
+
+    public function testGetEnrichmentMultiValue()
+    {
+        $keyName = 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName('otherkey');
+        $enrichmentKey->store();
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value-2');
+
+        $doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('otherkey');
+        $enrichment->setValue('test-value-other');
+
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichments = $doc->getEnrichment();
+
+        $this->assertInternalType('array', $enrichments);
+        $this->assertCount(3, $enrichments);
+
+        $this->assertEquals($keyName, $enrichments[0]->getKeyName());
+        $this->assertEquals('test-value', $enrichments[0]->getValue());
+
+        $this->assertEquals($keyName, $enrichments[1]->getKeyName());
+        $this->assertEquals('test-value-2', $enrichments[1]->getValue());
+
+        $this->assertEquals('otherkey', $enrichments[2]->getKeyName());
+        $this->assertEquals('test-value-other', $enrichments[2]->getValue());
+
+        $enrichments = $doc->getEnrichment($keyName);
+
+        $this->assertInternalType('array', $enrichments);
+        $this->assertCount(2, $enrichments);
+
+        $this->assertEquals($keyName, $enrichments[0]->getKeyName());
+        $this->assertEquals('test-value', $enrichments[0]->getValue());
+
+        $this->assertEquals($keyName, $enrichments[1]->getKeyName());
+        $this->assertEquals('test-value-2', $enrichments[1]->getValue());
+
+        $values = $doc->getEnrichmentValue($keyName);
+
+        $this->assertInternalType('array', $values);
+        $this->assertCount(2, $values);
+        $this->assertContains('test-value', $values);
+        $this->assertContains('test-value-2', $values);
+    }
+
+    public function testStoreAsNew()
+    {
+        $this->markTestIncomplete('Storing as new document not implemented yet.');
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Title');
+        $title->setLanguage('de');
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $titles = $doc->getTitleMain();
+
+        $this->assertCount(1, $titles);
+
+        $docId2 = $doc->storeAsNew();
+
+        $doc2 = new Opus_Document($docId2);
+
+        $this->assertNotEquals($docId, $docId2);
+
+        $this->assertEquals('Title', $doc2->getMainTitle('de')->getValue());
+    }
+
+    public function testGetCopy()
+    {
+        $this->markTestIncomplete('Getting a copy/clone of a document not implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Original Title');
+        $title->setLanguage('en');
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $copy = $doc->getCopy();
+
+        $copy->store();
+    }
+
+    public function testToArray()
+    {
+        $doc = new Opus_Document();
+
+        $bibliography = 1;
+        $doc->setBelongsToBibliography($bibliography);
+
+        $contributingCorporation = 'KOBV Corp';
+        $doc->setContributingCorporation($contributingCorporation);
+
+        $creatingCorporation = 'ZIB Corp';
+        $doc->setCreatingCorporation($creatingCorporation);
+
+        $edition = '3rd';
+        $doc->setEdition($edition);
+
+        $issue = 'Nov';
+        $doc->setIssue($issue);
+
+        $pageFirst = 10;
+        $doc->setPageFirst($pageFirst);
+
+        $pageLast = 20;
+        $doc->setPageLast($pageLast);
+
+        $pageNumber = 11;
+        $doc->setPageNumber($pageNumber);
+
+        $publishedYear = 2015;
+        $doc->setPublishedYear($publishedYear);
+
+        $publisherName = 'Verlag SoUndSo';
+        $doc->setPublisherName($publisherName);
+
+        $publisherPlace = 'Bonn';
+        $doc->setPublisherPlace($publisherPlace);
+
+        $publicationState = 'draft';
+        $doc->setPublicationState($publicationState);
+
+        $now = Opus_Date::getNow();
+
+        $nowArray = [
+            'Year' => $now->getYear(),
+            'Month' => $now->getMonth(),
+            'Day' => $now->getDay(),
+            'Hour' => $now->getHour(),
+            'Minute' => $now->getMinute(),
+            'Second' => $now->getSecond(),
+            'Timezone' => $now->getTimezone(),
+            'UnixTimestamp' => $now->getUnixTimestamp()
+        ];
+
+        $doc->setCompletedDate($now);
+        $doc->setPublishedDate($now);
+        $doc->setServerDateDeleted($now);
+        $doc->setServerDatePublished($now);
+        $doc->setThesisDateAccepted($now);
+        $doc->setEmbargoDate($now);
+
+        $thesisYearAccepted = 2015;
+        $doc->setThesisYearAccepted($thesisYearAccepted);
+
+        $completedYear = 2018;
+        $doc->setCompletedYear($completedYear);
+
+        $lang = 'eng';
+        $doc->setLanguage($lang);
+
+        $type = 'article';
+        $doc->setType($type);
+
+        $volume = 'III';
+        $doc->setVolume($volume);
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Original Title');
+        $title->setLanguage('eng');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Deutscher Titel');
+        $title->setLanguage('deu');
+
+        $parent = $doc->addTitleParent();
+        $parent->setValue('Parent title');
+        $parent->setLanguage('eng');
+
+        $parent = $doc->addTitleParent();
+        $parent->setValue('Übergeordneter Titel');
+        $parent->setLanguage('deu');
+
+        $sub = $doc->addTitleSub();
+        $sub->setValue('subtitle');
+        $sub->setLanguage('eng');
+
+        $sub = $doc->addTitleSub();
+        $sub->setValue('Untertitel');
+        $sub->setLanguage('deu');
+
+        $additional = $doc->addTitleAdditional();
+        $additional->setValue('Another title');
+        $additional->setLanguage('eng');
+
+        $additional = $doc->addTitleAdditional();
+        $additional->setValue('Weiterer Titel');
+        $additional->setLanguage('deu');
+
+        $abstract = $doc->addTitleAbstract();
+        $abstract->setValue('English abstract');
+        $abstract->setLanguage('eng');
+
+        $abstract = $doc->addTitleAbstract();
+        $abstract->setValue('Zusammenfassung');
+        $abstract->setLanguage('deu');
+
+        $note = $doc->addNote();
+        $note->setMessage('A private note');
+        $note->setVisibility(Opus_Note::ACCESS_PRIVATE);
+
+        $note = $doc->addNote();
+        $note->setMessage('A public note');
+        $note->setVisibility(Opus_Note::ACCESS_PUBLIC);
+
+        $patent = $doc->addPatent();
+        $patent->setCountries('Germany');
+        $patent->setDateGranted($now);
+        $patent->setNumber('123');
+        $patent->setYearApplied(2017);
+        $patent->setApplication('Invention');
+
+        $patent = $doc->addPatent();
+        $patent->setCountries('France');
+        $patent->setDateGranted($now);
+        $patent->setNumber('456');
+        $patent->setYearApplied(2018);
+        $patent->setApplication('Another invention');
+
+        $licence1 = new Opus_Licence();
+        $licence1->setActive(0);
+        $licence1->setCommentInternal('first licence');
+        $licence1->setDescMarkup('<b>Main Licence</b>');
+        $licence1->setDescText('Main licence');
+        $licence1->setLanguage('eng');
+        $licence1->setLinkLicence('http://www.example.org/licence1');
+        $licence1->setLinkLogo('http://www.example.org/licence1/logo');
+        $licence1->setLinkSign('http://www.example.org/licence1/sign');
+        $licence1->setMimeType('text/plain');
+        $licence1->setName('MLN');
+        $licence1->setNameLong('Main Licence Name');
+        $licence1->setPodAllowed(1);
+        $licence1->setSortOrder(2);
+        $doc->addLicence($licence1);
+
+        $licence2 = new Opus_Licence();
+        $licence2->setActive(1);
+        $licence2->setCommentInternal('second licence');
+        $licence2->setDescMarkup('<b>Second Licence</b>');
+        $licence2->setDescText('Second licence');
+        $licence2->setLanguage('eng');
+        $licence2->setLinkLicence('http://www.example.org/licence2');
+        $licence2->setLinkLogo('http://www.example.org/licence2/logo');
+        $licence2->setLinkSign('http://www.example.org/licence2/sign');
+        $licence2->setMimeType('text/plain');
+        $licence2->setName('SLN');
+        $licence2->setNameLong('Second Licence Name');
+        $licence2->setPodAllowed(0);
+        $licence2->setSortOrder(1);
+        $doc->addLicence($licence2);
+
+        $keyword = $doc->addSubject();
+        $keyword->setValue('A keyword');
+        $keyword->setLanguage('eng');
+        $keyword->setType('uncontrolled');
+        $keyword->setExternalKey('ext:keyword:key'); // not a real example
+
+        $keyword = new Opus_SubjectSwd();
+        $keyword->setValue('Schlagwort');
+        $keyword->setExternalKey('gnd:Schlagwort'); // not a real example
+        $doc->addSubject($keyword);
+
+        $grantor = new Opus_DnbInstitute();
+        $grantor->setAddress('Grantor Str. 18');
+        $grantor->setCity('Berlin');
+        $grantor->setDepartment('The department');
+        $grantor->setDnbContactId('123');
+        $grantor->setIsGrantor(1);
+        $grantor->setIsPublisher(0);
+        $grantor->setName('Big Granting');
+        $grantor->setPhone('555 1234');
+        $doc->addThesisGrantor($grantor);
+
+        $grantor = new Opus_DnbInstitute();
+        $grantor->setAddress('Grantor Str. 19');
+        $grantor->setCity('Berlin');
+        $grantor->setDepartment('The department 2');
+        $grantor->setDnbContactId('456');
+        $grantor->setIsGrantor(1);
+        $grantor->setIsPublisher(1);
+        $grantor->setName('Big Granting 2');
+        $grantor->setPhone('555 5678');
+        $doc->addThesisGrantor($grantor);
+
+        $publisher = new Opus_DnbInstitute();
+        $publisher->setAddress('Publishing Str. 18');
+        $publisher->setCity('Berlin');
+        $publisher->setDepartment('The other department');
+        $publisher->setDnbContactId('321');
+        $publisher->setIsGrantor(0);
+        $publisher->setIsPublisher(1);
+        $publisher->setName('Big Publishing');
+        $publisher->setPhone('555 4321');
+        $doc->addThesisPublisher($publisher);
+
+        $publisher = new Opus_DnbInstitute();
+        $publisher->setAddress('Publishing Str. 19');
+        $publisher->setCity('London');
+        $publisher->setDepartment('The other department 2');
+        $publisher->setDnbContactId('234');
+        $publisher->setIsGrantor(1);
+        $publisher->setIsPublisher(1);
+        $publisher->setName('Big Publishing 2');
+        $publisher->setPhone('555 8765');
+        $doc->addThesisPublisher($publisher);
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName('enkey1');
+        $enrichmentKey->store();
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName('enkey2');
+        $enrichmentKey->store();
+
+        $enrichment = $doc->addEnrichment();
+        $enrichment->setKeyName('enkey1');
+        $enrichment->setValue('enrichment1');
+
+        $enrichment = $doc->addEnrichment();
+        $enrichment->setKeyName('enkey2');
+        $enrichment->setValue('enrichment2');
+
+        $enrichment = $doc->addEnrichment();
+        $enrichment->setKeyName('enkey1');
+        $enrichment->setValue('another enrichment value');
+
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName('ColRole1');
+        $collectionRole->setOaiName('oaiColRole1');
+        $collectionRole->addRootCollection();
+        $collectionRole->store();
+
+        $collection = new Opus_Collection();
+        $collection->setName('col1');
+        $collection->setNumber('colnum1');
+        $collection->setOaiSubset('oaicol1');
+        $collection->setVisible(0);
+        $collection->setVisiblePublish(1);
+        $collectionRole->getRootCollection()->addFirstChild($collection);
+        $collection->store();
+        $doc->addCollection($collection);
+
+        $collectionRole2 = new Opus_CollectionRole();
+        $collectionRole2->setName('ColRole2');
+        $collectionRole2->setOaiName('oaiColRole2');
+        $collectionRole2->addRootCollection();
+        $collectionRole2->store();
+
+        $collection2 = new Opus_Collection();
+        $collection2->setName('col2');
+        $collection2->setNumber('colnum2');
+        $collection2->setOaiSubset('oaicol2');
+        $collection2->setVisible(1);
+        $collection2->setVisiblePublish(0);
+        $collectionRole2->getRootCollection()->addFirstChild($collection2);
+        $collection2->store();
+        $doc->addCollection($collection2);
+
+        $series = new Opus_Series();
+        $series->setTitle('Series1');
+        $series->setInfobox('Series1 description');
+        $series->setVisible(1);
+        $series->setSortOrder(2);
+        $series->store();
+
+        $series2 = new Opus_Series();
+        $series2->setTitle('Series2');
+        $series2->setInfobox('Series2 description');
+        $series2->setVisible(0);
+        $series2->setSortOrder(1);
+        $series2->store();
+
+        $seriesLink = $doc->addSeries($series);
+        $seriesLink->setNumber('3');
+
+        $seriesLink = $doc->addSeries($series2);
+        $seriesLink->setNumber('7');
+
+        $identifier = $doc->addIdentifier();
+        $identifier->setValue('123');
+        $identifier->setType('isbn');
+        $identifier->setStatus('registered');
+        $identifier->setRegistrationTs('2018-10-12 13:45:21');
+
+        $identifier = $doc->addIdentifier();
+        $identifier->setValue('abc');
+        $identifier->setType('doi');
+        $identifier->setStatus('registered');
+        $identifier->setRegistrationTs('2018-10-12 13:45:21');
+
+        $ref = $doc->addReference();
+        $ref->setValue('146');
+        $ref->setType('opus4-id');
+        $ref->setLabel('Previous version');
+        $ref->setRelation('updates');
+
+        $person = new Opus_Person();
+        $person->setFirstName('John');
+        $person->setLastName('Doe');
+        $person->setAcademicTitle('Prof.');
+        $person->setDateOfBirth(new Opus_Date('1995-04-01'));
+        $person->setEmail('john@example.org');
+        $person->setOpusId(1);
+        $person->setIdentifierOrcid('0000-0000-0000-0001');
+        $person->setIdentifierGnd('123456789');
+        $person->setIdentifierMisc('opus2');
+        $person->setPlaceOfBirth('Berlin');
+        $personLink = $doc->addPersonAuthor($person);
+        $personLink->setAllowEmailContact(1);
+        $personLink->setSortOrder(2);
+
+        // TODO files
+
+        // store document and retrieve it again
+        // TODO does it also work without storing (especially identifier and other redundant fields)
+        // TODO IMPORTANT it does not work without storing - figure out why and fix it
+        $doc = new Opus_Document($doc->store());
+
+        // create array and verify it
+
+        $dateCreated = $doc->getServerDateCreated();
+
+        $dateModified = $doc->getServerDateModified();
+
+        $data = $doc->toArray();
+
+        $this->checkArrayEntry('BelongsToBibliography', $bibliography, $data);
+        $this->checkArrayEntry('ContributingCorporation', $contributingCorporation, $data);
+        $this->checkArrayEntry('CreatingCorporation', $creatingCorporation, $data);
+        $this->checkArrayEntry('Edition', $edition, $data);
+        $this->checkArrayEntry('Issue', $issue, $data);
+        $this->checkArrayEntry('PageFirst', $pageFirst, $data);
+        $this->checkArrayEntry('PageLast', $pageLast, $data);
+        $this->checkArrayEntry('PageNumber', $pageNumber, $data);
+        $this->checkArrayEntry('PublishedYear', $publishedYear, $data);
+        $this->checkArrayEntry('PublisherName', $publisherName, $data);
+        $this->checkArrayEntry('PublisherPlace', $publisherPlace, $data);
+        $this->checkArrayEntry('PublicationState', $publicationState, $data);
+        $this->checkArrayEntry('ServerState', 'unpublished', $data);
+        $this->checkArrayEntry('Type', $type, $data);
+        $this->checkArrayEntry('Volume', $volume, $data);
+
+        $this->checkArrayEntry('CompletedDate', $nowArray, $data);
+        $this->checkArrayEntry('CompletedYear', $completedYear, $data);
+
+        $this->checkArrayEntry('ThesisDateAccepted', $nowArray, $data);
+        $this->checkArrayEntry('ThesisYearAccepted', $thesisYearAccepted, $data);
+
+        $this->checkArrayEntry('ServerDateCreated', $dateCreated->toArray(), $data);
+        $this->checkArrayEntry('ServerDateModified', $dateModified->toArray(), $data);
+        $this->checkArrayEntry('ServerDateDeleted', $nowArray, $data);
+        $this->checkArrayEntry('ServerDatePublished', $nowArray, $data);
+
+        $this->checkArrayEntry('EmbargoDate', $nowArray, $data);
+
+        $this->checkArrayEntry('Language', $lang, $data);
+
+        $this->checkArrayEntry('PublishedDate', $nowArray, $data);
+
+        // check main titles
+
+        $this->assertArrayHasKey('TitleMain', $data);
+        $titles = $data['TitleMain'];
+        unset($data['TitleMain']);
+
+        $this->assertCount(2, $titles);
+
+        $this->assertEquals([
+            'Value' => 'Original Title',
+            'Language' => 'eng',
+            'Type' => 'main'
+        ], $titles[0]);
+
+        $this->assertEquals([
+            'Value' => 'Deutscher Titel',
+            'Language' => 'deu',
+            'Type' => 'main'
+        ], $titles[1]);
+
+        // check abstracts
+
+        $this->assertArrayHasKey('TitleAbstract', $data);
+        $titles = $data['TitleAbstract'];
+        unset($data['TitleAbstract']);
+
+        $this->assertCount(2, $titles);
+
+        $this->assertEquals([
+            'Value' => 'English abstract',
+            'Language' => 'eng',
+            'Type' => 'abstract'
+        ], $titles[0]);
+
+        $this->assertEquals([
+            'Value' => 'Zusammenfassung',
+            'Language' => 'deu',
+            'Type' => 'abstract'
+        ], $titles[1]);
+
+        // check parent titles
+
+        $this->assertArrayHasKey('TitleParent', $data);
+        $titles = $data['TitleParent'];
+        unset($data['TitleParent']);
+
+        $this->assertCount(2, $titles);
+
+        $this->assertEquals([
+            'Value' => 'Parent title',
+            'Language' => 'eng',
+            'Type' => 'parent'
+        ], $titles[0]);
+
+        $this->assertEquals([
+            'Value' => 'Übergeordneter Titel',
+            'Language' => 'deu',
+            'Type' => 'parent'
+        ], $titles[1]);
+
+        // check sub titles
+
+        $this->assertArrayHasKey('TitleSub', $data);
+        $titles = $data['TitleSub'];
+        unset($data['TitleSub']);
+
+        $this->assertCount(2, $titles);
+
+        $this->assertEquals([
+            'Value' => 'subtitle',
+            'Language' => 'eng',
+            'Type' => 'sub'
+        ], $titles[0]);
+
+        $this->assertEquals([
+            'Value' => 'Untertitel',
+            'Language' => 'deu',
+            'Type' => 'sub'
+        ], $titles[1]);
+
+        // check additional titles
+
+        $this->assertArrayHasKey('TitleAdditional', $data);
+        $titles = $data['TitleAdditional'];
+        unset($data['TitleAdditional']);
+
+        $this->assertCount(2, $titles);
+
+        $this->assertEquals([
+            'Value' => 'Another title',
+            'Language' => 'eng',
+            'Type' => 'additional'
+        ], $titles[0]);
+
+        $this->assertEquals([
+            'Value' => 'Weiterer Titel',
+            'Language' => 'deu',
+            'Type' => 'additional'
+        ], $titles[1]);
+
+        // check notes
+
+        $this->assertArrayHasKey('Note', $data);
+        $notes = $data['Note'];
+        unset($data['Note']);
+
+        $this->assertCount(2, $notes);
+
+        $this->assertEquals([
+            'Message' => 'A private note',
+            'Visibility' => 'private',
+        ], $notes[0]);
+
+        $this->assertEquals([
+            'Message' => 'A public note',
+            'Visibility' => 'public',
+        ], $notes[1]);
+
+        // check patents
+
+        $this->assertArrayHasKey('Patent', $data);
+        $patents = $data['Patent'];
+        unset($data['Patent']);
+
+        $this->assertCount(2, $patents);
+
+        $this->assertEquals([
+            'Countries' => 'Germany',
+            'DateGranted' => $nowArray,
+            'Number' => '123',
+            'YearApplied' => 2017,
+            'Application' => 'Invention'
+        ], $patents[0]);
+
+        $this->assertEquals([
+            'Countries' => 'France',
+            'DateGranted' => $nowArray,
+            'Number' => '456',
+            'YearApplied' => 2018,
+            'Application' => 'Another invention'
+        ], $patents[1]);
+
+        // check licences
+
+        $this->assertArrayHasKey('Licence', $data);
+        $licences = $data['Licence'];
+        unset($data['Licence']);
+
+        $this->assertCount(2, $licences);
+
+        $this->assertEquals([
+            'Active' => 0,
+            'CommentInternal' => 'first licence',
+            'DescMarkup' => '<b>Main Licence</b>',
+            'DescText' => 'Main licence',
+            'Language' => 'eng',
+            'LinkLicence' => 'http://www.example.org/licence1',
+            'LinkLogo' => 'http://www.example.org/licence1/logo',
+            'LinkSign' => 'http://www.example.org/licence1/sign',
+            'MimeType' => 'text/plain',
+            'Name' => 'MLN',
+            'NameLong' => 'Main Licence Name',
+            'PodAllowed' => 1,
+            'SortOrder' => 2
+        ], $licences[0]);
+
+        $this->assertEquals([
+            'Active' => 1,
+            'CommentInternal' => 'second licence',
+            'DescMarkup' => '<b>Second Licence</b>',
+            'DescText' => 'Second licence',
+            'Language' => 'eng',
+            'LinkLicence' => 'http://www.example.org/licence2',
+            'LinkLogo' => 'http://www.example.org/licence2/logo',
+            'LinkSign' => 'http://www.example.org/licence2/sign',
+            'MimeType' => 'text/plain',
+            'Name' => 'SLN',
+            'NameLong' => 'Second Licence Name',
+            'PodAllowed' => 0,
+            'SortOrder' => 1
+        ], $licences[1]);
+
+        // check keywords
+
+        $this->assertArrayHasKey('Subject', $data);
+        $subjects = $data['Subject'];
+        unset($data['Subject']);
+
+        $this->assertEquals([
+            'Language' => 'eng',
+            'Type' => 'uncontrolled',
+            'Value' => 'A keyword',
+            'ExternalKey' => 'ext:keyword:key'
+        ], $subjects[0]);
+
+        $this->assertEquals([
+            'Language' => 'deu',
+            'Type' => 'swd',
+            'Value' => 'Schlagwort',
+            'ExternalKey' => 'gnd:Schlagwort'
+        ], $subjects[1]);
+
+        // check thesis grantors
+
+        $this->assertArrayHasKey('ThesisGrantor', $data);
+        $grantors = $data['ThesisGrantor'];
+        unset($data['ThesisGrantor']);
+
+        $this->assertEquals([
+            'Address' => 'Grantor Str. 18',
+            'City' => 'Berlin',
+            'Department' => 'The department',
+            'DnbContactId' => '123',
+            'IsGrantor' => '1', // TODO why strings here?
+            'IsPublisher' => '0', // TODO why strings here?
+            'Name' => 'Big Granting',
+            'Phone' => '555 1234',
+            'Role' => 'grantor'
+        ], $grantors[0]);
+
+        $this->assertEquals([
+            'Address' => 'Grantor Str. 19',
+            'City' => 'Berlin',
+            'Department' => 'The department 2',
+            'DnbContactId' => '456',
+            'IsGrantor' => '1',
+            'IsPublisher' => '1',
+            'Name' => 'Big Granting 2',
+            'Phone' => '555 5678',
+            'Role' => 'grantor'
+        ], $grantors[1]);
+
+        // check thesis publishers
+
+        $this->assertArrayHasKey('ThesisPublisher', $data);
+        $publishers = $data['ThesisPublisher'];
+        unset($data['ThesisPublisher']);
+
+        $this->assertEquals([
+            'Address' => 'Publishing Str. 18',
+            'City' => 'Berlin',
+            'Department' => 'The other department',
+            'DnbContactId' => '321',
+            'IsGrantor' => '0', // TODO why strings here?
+            'IsPublisher' => '1', // TODO why strings here?
+            'Name' => 'Big Publishing',
+            'Phone' => '555 4321',
+            'Role' => 'publisher'
+        ], $publishers[0]);
+
+        $this->assertEquals([
+            'Address' => 'Publishing Str. 19',
+            'City' => 'London',
+            'Department' => 'The other department 2',
+            'DnbContactId' => '234',
+            'IsGrantor' => '1',
+            'IsPublisher' => '1',
+            'Name' => 'Big Publishing 2',
+            'Phone' => '555 8765',
+            'Role' => 'publisher'
+        ], $publishers[1]);
+
+        // check enrichments
+
+        $this->assertArrayHasKey('Enrichment', $data);
+        $enrichments = $data['Enrichment'];
+        unset($data['Enrichment']);
+
+        $this->assertEquals([
+            'KeyName' => 'enkey1',
+            'Value' => 'enrichment1'
+        ], $enrichments[0]);
+
+        $this->assertEquals([
+            'KeyName' => 'enkey2',
+            'Value' => 'enrichment2'
+        ], $enrichments[1]);
+
+        $this->assertEquals([
+            'KeyName' => 'enkey1',
+            'Value' => 'another enrichment value'
+        ], $enrichments[2]);
+
+        // TODO check collections (big problem because collections have very incomplete arrays)
+
+        // check series
+
+        $this->assertArrayHasKey('Series', $data);
+        $series = $data['Series'];
+        unset($data['Series']);
+        $this->assertCount(2, $series);
+
+        $this->assertEquals([
+            'Title' => 'Series1',
+            'Infobox' => 'Series1 description',
+            'SortOrder' => '2',
+            'Number' => '3',
+            'DocSortOrder' => '0',
+            'Visible' => '1'
+        ], $series[0]);
+
+        $this->assertEquals([
+            'Title' => 'Series2',
+            'Infobox' => 'Series2 description',
+            'SortOrder' => '1',
+            'Number' => '7',
+            'DocSortOrder' => '0',
+            'Visible' => '0'
+        ], $series[1]);
+
+        // check identifiers
+
+        $this->assertArrayHasKey('Identifier', $data);
+        $identifiers = $data['Identifier'];
+        unset($data['Identifier']);
+        $this->assertCount(2, $identifiers);
+
+        $this->assertEquals([
+            'Value' => '123',
+            'Type' => 'isbn',
+            'Status' => 'registered',
+            'RegistrationTs' => '2018-10-12 13:45:21'
+        ], $identifiers[0]);
+
+        $this->assertEquals([
+            'Value' => 'abc',
+            'Type' => 'doi',
+            'Status' => 'registered',
+            'RegistrationTs' => '2018-10-12 13:45:21'
+        ], $identifiers[1]);
+
+        $this->assertArrayHasKey('IdentifierIsbn', $data);
+        $identifiers = $data['IdentifierIsbn'];
+        unset($data['IdentifierIsbn']);
+        $this->assertCount(1, $identifiers);
+
+        $this->assertEquals([
+            'Value' => '123',
+            'Type' => 'isbn',
+            'Status' => 'registered',
+            'RegistrationTs' => '2018-10-12 13:45:21'
+        ], $identifiers[0]);
+
+        $this->assertArrayHasKey('IdentifierDoi', $data);
+        $identifiers = $data['IdentifierDoi'];
+        unset($data['IdentifierDoi']);
+        $this->assertCount(1, $identifiers);
+
+        $this->assertEquals([
+            'Value' => 'abc',
+            'Type' => 'doi',
+            'Status' => 'registered',
+            'RegistrationTs' => '2018-10-12 13:45:21'
+        ], $identifiers[0]);
+
+        // TODO get types from somewhere (dry)
+        $identifierTypes = [
+            'Old', 'Serial', 'Uuid', 'Urn', 'Handle', 'Url', 'Issn', 'StdDoi',
+            'CrisLink', 'SplashUrl', 'Opus3', 'Opac', 'Arxiv', 'Pubmed'
+        ];
+
+        foreach ($identifierTypes as $type) {
+            $fieldName = "Identifier$type";
+            $this->assertArrayHasKey($fieldName, $data);
+            $identifiers = $data[$fieldName];
+            unset($data[$fieldName]);
+            $this->assertEmpty($identifiers);
+        }
+
+        // check references
+
+        $this->assertArrayHasKey('Reference', $data);
+        $references = $data['Reference'];
+        unset($data['Reference']);
+        $this->assertCount(1, $references);
+
+        $this->assertEquals([
+            'Value' => '146',
+            'Type' => 'opus4-id',
+            'Relation' => 'updates',
+            'Label' => 'Previous version'
+        ], $references[0]);
+
+        $this->assertArrayHasKey('ReferenceOpus4', $data);
+        $references = $data['ReferenceOpus4'];
+        unset($data['ReferenceOpus4']);
+        $this->assertCount(1, $references);
+
+        $this->assertEquals([
+            'Value' => '146',
+            'Type' => 'opus4-id',
+            'Relation' => 'updates',
+            'Label' => 'Previous version'
+        ], $references[0]);
+
+        $referenceTypes = [
+            'Isbn', 'Urn', 'Doi', 'Handle', 'Url', 'Issn', 'StdDoi', 'CrisLink', 'SplashUrl'
+        ];
+
+        foreach ($referenceTypes as $type) {
+            $fieldName = "Reference$type";
+            $this->assertArrayHasKey($fieldName, $data);
+            $references = $data[$fieldName];
+            unset($data[$fieldName]);
+            $this->assertEmpty($references);
+        }
+
+        // check persons
+
+        $this->assertArrayHasKey('Person', $data);
+        $persons = $data['Person'];
+        unset($data['Person']);
+        $this->assertCount(1, $persons);
+
+        $this->assertEquals([
+            'AcademicTitle' => 'Prof.',
+            'FirstName' => 'John',
+            'LastName' => 'Doe',
+            'DateOfBirth' => [
+                'Year' => '1995',
+                'Month' => '04',
+                'Day' => '01',
+                'Hour' => null,
+                'Minute' => null,
+                'Second' => null,
+                'Timezone' => null,
+                'UnixTimestamp' => 796694400,
+            ],
+            'Email' => 'john@example.org',
+            'OpusId' => '1',
+            'IdentifierOrcid' => '0000-0000-0000-0001',
+            'IdentifierGnd' => '123456789',
+            'IdentifierMisc' => 'opus2',
+            'PlaceOfBirth' => 'Berlin',
+            'Role' => 'author',
+            'AllowEmailContact' => 1,
+            'SortOrder' => 1
+        ], $persons[0]);
+
+        $this->assertArrayHasKey('PersonAuthor', $data);
+        $persons = $data['PersonAuthor'];
+        unset($data['PersonAuthor']);
+        $this->assertCount(1, $persons);
+
+        $this->assertEquals([
+            'AcademicTitle' => 'Prof.',
+            'FirstName' => 'John',
+            'LastName' => 'Doe',
+            'DateOfBirth' => [
+                'Year' => '1995',
+                'Month' => '04',
+                'Day' => '01',
+                'Hour' => null,
+                'Minute' => null,
+                'Second' => null,
+                'Timezone' => null,
+                'UnixTimestamp' => 796694400,
+            ],
+            'Email' => 'john@example.org',
+            'OpusId' => '1',
+            'IdentifierOrcid' => '0000-0000-0000-0001',
+            'IdentifierGnd' => '123456789',
+            'IdentifierMisc' => 'opus2',
+            'PlaceOfBirth' => 'Berlin',
+            'Role' => 'author',
+            'AllowEmailContact' => 1,
+            'SortOrder' => 1
+        ], $persons[0]);
+
+        $personRoles = ['Contributor', 'Referee', 'Advisor', 'Editor', 'Translator', 'Other', 'Submitter'];
+
+        foreach ($personRoles as $role) {
+            $fieldName = "Person$role";
+            $this->assertArrayHasKey($fieldName, $data);
+            $persons = $data[$fieldName];
+            unset($data[$fieldName]);
+            $this->assertEmpty($persons);
+        }
+
+        // capture output of var_dump to provide remaining array keys if necessary
+        ob_start();
+        var_dump($data);
+        $output = ob_get_clean();
+        ob_clean();
+
+        // TODO make exception for File and Collection until we know how to handle them
+        $this->assertCount(2, $data, $output);
+
+        $this->assertArrayHasKey('File', $data, $output);
+        unset($data['File']);
+
+        $this->assertArrayHasKey('Collection', $data, $output);
+        unset($data['Collection']);
+
+        // check if everything has been verified
+        $this->assertEmpty($data, $output);
+    }
+
+    /**
+     * Checks if array key exists and value matches.
+     *
+     * Removes the key from the array in order to check at the end if all keys have been
+     * tested.
+     *
+     * @param $key
+     * @param $value
+     * @param $array
+     */
+    protected function checkArrayEntry($key, $value, &$array)
+    {
+        $this->assertArrayHasKey($key, $array);
+        $this->assertEquals($value, $array[$key]);
+        unset($array[$key]);
+    }
+
+    /**
+     * TODO licences referenced if possible
+     * TODO enrichment keys created if necessary?
+     * TODO collections referenced
+     * TODO series referenced
+     * TODO handling ThesisPublisher and ThesisGrantor
+     */
+    public function testFromArray()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    public function testUpdateFrom()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Original Title');
+        $title->setLanguage('en');
+
+        $doc = new Opus_Document($doc->store());
+
+        $copy = new Opus_Document();
+
+        $copy->updateFrom($doc);
+
+        $titles = $copy->getTitleMain();
+
+        $this->assertCount(1, $titles);
+
+        $copy = new Opus_Document($copy->store());
+
+        $this->assertCount(1, $copy->getTitleMain());
+    }
+
+    public function testUpdateFromArrayForFullDocument()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $data = [
+            'Type' => 'article'
+        ];
+
+        $doc->updateFromArray($data);
+
+        $this->assertEquals($data, $doc->toArray());
+    }
+
+    /**
+     * In the database the date is stored as a single value.
+     *
+     * It used to be, when the value is read the unix timestamp is set to the correct value. Now the setting of the
+     * UNIX timestamp actually changes the date and time in the Opus_Date object.
+     */
+    public function testStoringDateWithConflictingUnixTimestamp()
+    {
+        $doc = new Opus_Document();
+
+        $date = new Opus_Date();
+        $date->setFromString('2011-10-24'); // 1319414400
+        $date->setUnixTimestamp(1322694000); // Field UnixTimestamp is read-only now
+
+        $doc->setCompletedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $date = $doc->getCompletedDate();
+
+        $this->assertEquals('2011-10-24 00:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
+        $this->assertEquals('2011-10-24', $date->__toString());
+        $this->assertNotEquals(1322694000, $date->getUnixTimestamp());
+        $this->assertEquals(1319414400, $date->getUnixTimestamp());
+
+        $expected = new DateTime();
+        $expected->setTimestamp(1319407200);
+
+        $this->assertEquals($expected, $date->getDateTime());
+    }
+
+    public function testDateSettingUnixTimestamp()
+    {
+        $doc = new Opus_Document();
+
+        $date = new Opus_Date();
+
+        $date->setTimestamp(1322694000);
+
+        $doc->setCompletedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $date = $doc->getCompletedDate();
+
+        $this->assertEquals(1322694000, $date->getUnixTimestamp());
+        $this->assertEquals('2011-11-30 23:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
+        $this->assertEquals('2011-11-30T23:00:00Z', $date->__toString());
+    }
+
+    public function testGetSubjectOrderAsAdded()
+    {
+        $doc = new Opus_Document();
+
+        $keyword = new Opus_Subject();
+        $keyword->setType(Opus_Subject::SWD);
+        $keyword->setValue('Berlin');
+
+        $doc->addSubject($keyword);
+
+        $keyword = new Opus_Subject();
+        $keyword->setType(Opus_Subject::SWD);
+        $keyword->setValue('Antonplatz');
+
+        $doc->addSubject($keyword);
+
+        $keyword = new Opus_Subject();
+        $keyword->setType(Opus_Subject::SWD);
+        $keyword->setValue('Checkpoint');
+
+        $doc->addSubject($keyword);
+
+        $doc = new Opus_Document($doc->store());
+
+        $subjects = $doc->getSubject();
+
+        $this->assertCount(3, $subjects);
+        $this->assertEquals('Berlin', $subjects[0]->getValue());
+        $this->assertEquals('Antonplatz', $subjects[1]->getValue());
+        $this->assertEquals('Checkpoint', $subjects[2]->getValue());
+    }
+
+    public function testGetDefaultPlugins()
+    {
+        $document = new Opus_Document();
+
+        $this->assertEquals([
+            'Opus_Document_Plugin_Index',
+            'Opus_Document_Plugin_XmlCache',
+            'Opus_Document_Plugin_IdentifierUrn',
+            'Opus_Document_Plugin_IdentifierDoi'
+        ], $document->getDefaultPlugins());
+    }
+
+    public function testGetDefaultPluginsConfigured()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'model' => [
+                'plugins' => [
+                    'document' => [
+                        'Opus_Document_Plugin_SequenceNumber'
+                    ]
+                ]
+            ]
+        ]));
+
+        $document = new Opus_Document();
+
+        $document->setDefaultPlugins(null);
+
+        $this->assertEquals([
+            'Opus_Document_Plugin_SequenceNumber',
+        ], $document->getDefaultPlugins());
+
+        $this->assertTrue($document->hasPlugin('Opus_Document_Plugin_SequenceNumber'));
+    }
+
+    public function testServerStateChanged()
+    {
+        $doc = new Opus_Document();
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('unpublished');
+        $this->assertTrue($doc->getServerStateChanged());
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('published');
+        $this->assertTrue($doc->getServerStateChanged());
+
+        $doc->setServerState('unpublished');
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->setServerState('unpublished');
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('published');
+        $this->assertTrue($doc->getServerStateChanged());
+    }
+
+    /**
+     * This test threw the following exception.
+     *
+     * "Opus_Model_DbException : Opus_Document:  Opus_Document: Database column 'edition' has been truncated by
+     * 1 characters!"
+     *
+     * This is caused by the truncate check after saving an object. The function deletePermanent calls delete first.
+     * Delete is a status change, so it is an update operation for the database. After an update the truncate check
+     * verifies that all the values have been stored completelly. The framework only stores changed values. The check
+     * verifies all values. The old longer value has not been changed and therefore is not stored when delete is called.
+     * The database contains the shorter value so the truncation check fails.
+     */
+    public function testNoTruncateExceptionDeletingDocumentUsingOutOfDateObject()
+    {
+        $doc = new Opus_Document();
+        $doc->setEdition('0123456789');
+        $docId = $doc->store();
+
+        $newObj = new Opus_Document($docId);
+        $newObj->setEdition('012345678');
+        $newObj->store();
+
+        $doc->deletePermanent();
+    }
+
+    /**
+     * Old truncation check code caused this test to fail with an exception.
+     *
+     * "Opus_Model_DbException : Opus_Patent:  Opus_Patent: Database column 'number' has been truncated by
+     * 1 characters!"
+     *
+     * The reason is that the delete function a save triggers, because it is actually a status change. After the saving
+     * a truncate check is performed, because the Number field in the original patent Object has not been changed, it
+     * is not saved. The database however contains a short entry by now. The truncate check always compared all values
+     * and so this lead to the exception, because the value in the model was longer than the one in the database.
+     */
+    public function testNoTruncateExceptionDeletingDocumentWithPatentUsingOutOfDateObject()
+    {
+        $doc = new Opus_Document();
+        $patent = new Opus_Patent();
+        $patent->setNumber('0123456789');
+        $patent->setCountries('Germany');
+        $patent->setApplication('Application');
+        $doc->addPatent($patent);
+        $docId = $doc->store();
+
+        $newObj = new Opus_Document($docId);
+        $patents = $newObj->getPatent();
+        $patents[0]->setNumber('012345678');
+        $newObj->store();
+
+        $patent->setCountries('France');
+        $doc->delete();
+
+        $doc = new Opus_Document($docId);
+        $patents = $doc->getPatent();
+
+        // old, longer value '0123456789' does not get stored, because it is not modified (anymore)
+        $this->assertEquals('012345678', $patents[0]->getNumber());
+    }
+
+    /**
+     * @expectedException  Opus_Model_DbException
+     * @expectedExceptionMessage Data too long
+     */
+    public function testTruncateExceptionForTooLongValue()
+    {
+        $doc = new Opus_Document();
+        $patent = new Opus_Patent();
+        $value = str_repeat('0123456789', 25);
+        $patent->setNumber($value);
+        $patent->setCountries('Germany');
+        $patent->setApplication('Application');
+        $doc->addPatent($patent);
+        $doc->store();
+
+        $patent->setNumber(str_repeat('0123456789', 26));
+        $doc->deletePermanent();
+    }
+
+    public function testDeleteSavesChanges()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $doc->setEdition('1st');
+        $docId = $doc->store();
+
+        $doc->setEdition('2nd');
+
+        $doc->delete();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals('deleted', $doc->getServerState());
+        $this->assertEquals('2nd', $doc->getEdition());
+    }
     /**
      * OPUSVIER-3860 Regression test.
      */
