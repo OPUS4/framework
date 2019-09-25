@@ -1250,6 +1250,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     public function deletePermanent()
     {
+        $docId = $this->getId();
+
         $this->delete();
 
         // remove all files permanently
@@ -1265,6 +1267,8 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
 
         parent::delete();
+
+        $this->callPluginMethod('postDeletePermanent', $docId);
     }
 
     /**
