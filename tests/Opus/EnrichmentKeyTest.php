@@ -315,4 +315,13 @@ class Opus_EnrichmentKeyTest extends TestCase
         $this->assertCount(2, Opus_EnrichmentKey::getAll());
         $this->assertCount(0, Opus_EnrichmentKey::getAllReferenced());
     }
+
+    public function testGetKeys()
+    {
+        $keys = Opus_EnrichmentKey::getKeys();
+
+        $this->assertCount(2, $keys);
+        $this->assertContains('bar', $keys);
+        $this->assertContains('foo', $keys);
+    }
 }
