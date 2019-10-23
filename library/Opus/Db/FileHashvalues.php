@@ -28,9 +28,9 @@
  * @package     Opus_Db
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -63,10 +63,10 @@ class Opus_Db_FileHashvalues extends Opus_Db_TableGateway
      * @var array $_referenceMap
      */
     protected $_referenceMap = [
-            'DocumentFiles' => [
-                'columns' => 'file_id',
-                'refTableClass' => 'Opus_Db_DocumentFiles',
-                'refColumns' => 'id',
-                ],
-            ];
+        'DocumentFiles' => [
+            'columns' => 'file_id',
+            'refTableClass' => 'Opus_Db_DocumentFiles',
+            'refColumns' => 'id'
+        ]
+    ];
 }

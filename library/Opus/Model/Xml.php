@@ -30,7 +30,6 @@
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2008 - 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -298,7 +297,7 @@ class Opus_Model_Xml
         $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
         try {
             return $this->_cache->get($model->getId(), (int) $this->_strategy->getVersion());
-        } catch (Opus_Model_Exception $e) {
+        } catch (Opus\Model\Exception $e) {
             $logger->warn(
                 __METHOD__ . " Access to XML cache failed on " . get_class($model) . '#' . $model->getId()
                 . ".  Trying to recover."

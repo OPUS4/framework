@@ -82,7 +82,7 @@ class Opus_Model_Xml_Version1Test extends TestCase
     {
         $xml = new Opus_Model_Xml();
         $xml->setModel(null);
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $xml->getDomDocument();
     }
 
@@ -477,7 +477,7 @@ class Opus_Model_Xml_Version1Test extends TestCase
     public function testLoadInvalidXmlThrowsException()
     {
         $omx = new Opus_Model_Xml;
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $omx->setXml('<Opus attr/>');
     }
 

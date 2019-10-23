@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -32,7 +32,7 @@
  * @author      Michael Lang <lang@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -106,26 +106,22 @@ class Opus_DocumentTest extends TestCase
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
      * associative array that represents valid document data.
      */
-    protected static $_validDocumentData = [
-        [
-            [
-                'Language' => 'de',
-                'ContributingCorporation' => 'Contributing, Inc.',
-                'CreatingCorporation' => 'Creating, Inc.',
-                'ThesisDateAccepted' => '1901-01-01',
-                'Edition' => 2,
-                'Issue' => 3,
-                'Volume' => 1,
-                'PageFirst' => 1,
-                'PageLast' => 297,
-                'PageNumber' => 297,
-                'CompletedYear' => 1960,
-                'CompletedDate' => '1901-01-01',
-                'BelongsToBibliography' => 1,
-                'EmbargoDate' => '1902-01-01',
-            ]
-        ]
-    ];
+    protected static $_validDocumentData = [[[
+        'Language' => 'de',
+        'ContributingCorporation' => 'Contributing, Inc.',
+        'CreatingCorporation' => 'Creating, Inc.',
+        'ThesisDateAccepted' => '1901-01-01',
+        'Edition' => 2,
+        'Issue' => 3,
+        'Volume' => 1,
+        'PageFirst' => 1,
+        'PageLast' => 297,
+        'PageNumber' => 297,
+        'CompletedYear' => 1960,
+        'CompletedDate' => '1901-01-01',
+        'BelongsToBibliography' => 1,
+        'EmbargoDate' => '1902-01-01',
+    ]]];
 
     /**
      * Valid document data provider
@@ -200,7 +196,7 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if storing a document wich has a linked model doesnt throw
-     * an Opus_Model_Exception.
+     * an Opus\Model\Exception.
      *
      * @return void
      *
@@ -243,7 +239,7 @@ class Opus_DocumentTest extends TestCase
      */
     public function testUndefinedFetchMethodForFieldValueClassNotExtendingAbstractModelThrowsException()
     {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $document = new Opus_Model_ModelWithNonAbstractExtendingClassField;
     }
 
@@ -1109,7 +1105,6 @@ class Opus_DocumentTest extends TestCase
         $filter->setModel($doc);
 
         $docXml = $doc->toXml([], new Opus_Model_Xml_Version1());
-        $xml = $docXml->saveXML();
         $serverDatePublElements = $docXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'document xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'document xml field "ServerDatePublished" should have attributes');
@@ -2111,7 +2106,7 @@ class Opus_DocumentTest extends TestCase
     public function testHasPlugins()
     {
         $doc = new Opus_Document();
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered');
+        // $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered'); // TODO OPUSVIER-3871 plugin not part of framework anymore
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
@@ -2144,7 +2139,7 @@ class Opus_DocumentTest extends TestCase
 
         try {
             $redoc->store();
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
             $this->fail($ome->getMessage());
         }
     }
@@ -2756,7 +2751,7 @@ class Opus_DocumentTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage unknown enrichment key
      */
     public function testGetEnrichmentValueBadKey()
@@ -3927,7 +3922,6 @@ class Opus_DocumentTest extends TestCase
         $document = new Opus_Document();
 
         $this->assertEquals([
-            'Opus_Document_Plugin_Index',
             'Opus_Document_Plugin_XmlCache',
             'Opus_Document_Plugin_IdentifierUrn',
             'Opus_Document_Plugin_IdentifierDoi'

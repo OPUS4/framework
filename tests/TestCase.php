@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -79,14 +80,6 @@ class TestCase extends SimpleTestCase
     }
 
     /**
-     * Removes all documents from Solr index.
-     */
-    protected function clearSolrIndex()
-    {
-	    Opus_Search_Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
-    }
-
-    /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
      * @param null $directory
      */
@@ -98,10 +91,10 @@ class TestCase extends SimpleTestCase
             }
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
+            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), array('.', '..'));
+            $files = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -114,7 +107,7 @@ class TestCase extends SimpleTestCase
             }
         }
 
-        if (!is_null($directory)) {
+        if (! is_null($directory)) {
             rmdir($directory);
         }
 
@@ -130,18 +123,7 @@ class TestCase extends SimpleTestCase
     {
         parent::setUp();
 
-        Opus_Search_Config::dropCached();
-        Opus_Search_Service::dropCached();
-
         $this->_clearTables();
-        $this->clearSolrIndex();
-    }
-
-    protected function tearDown()
-    {
-        $this->clearSolrIndex();
-
-        parent::tearDown();
     }
 
     protected function prepareXpathFromResultString($resultString)
@@ -153,7 +135,7 @@ class TestCase extends SimpleTestCase
 
         $namespace = $domDocument->documentElement->namespaceURI;
 
-        if (!is_null($namespace)) {
+        if (! is_null($namespace)) {
             $xpath->registerNamespace('ns', $namespace);
         }
 

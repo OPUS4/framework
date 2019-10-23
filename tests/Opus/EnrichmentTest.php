@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -129,7 +129,7 @@ class Opus_EnrichmentTest extends TestCase
     public function testStoreEnrichmentWithoutValue()
     {
         $this->_doc->addEnrichment()->setKeyName('valid');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->_doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());

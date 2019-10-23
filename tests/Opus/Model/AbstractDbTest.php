@@ -59,11 +59,11 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function abstractDataSetDataProvider()
     {
         return [
-        [1, 'foobar'],
-        [3, 'foo'],
-        [4, 'bar'],
-        [5, 'bla'],
-        [8, 'blub']
+            [1, 'foobar'],
+            [3, 'foo'],
+            [4, 'bar'],
+            [5, 'bla'],
+            [8, 'blub']
         ];
     }
 
@@ -133,7 +133,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $mockup->addLazyExternalModel();
     }
 
@@ -145,7 +145,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningAbstractExternalField();
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $return = $mockup->getLazyAbstractModel();
     }
 
@@ -586,7 +586,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
 
         try {
             $mockup->addLazyExternalModel();
-        } catch (Opus_Model_Exception $ex) {
+        } catch (Opus\Model\Exception $ex) {
             // Expect exception because of missing link model class
             $noop = 42;
         }
@@ -670,7 +670,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         $model->setValue('InvalidDate');
 
         // trigger Exception
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $id = $model->store();
     }
 
@@ -857,7 +857,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function testRegisteredPluginGetsCalled($call, $expect)
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
+        $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin');
 
         // define expectation
         $getsCalled = $plugin->expects($this->once())->method($expect);
@@ -880,7 +880,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function testRegisteredPluginPreFetchGetsCalledOnCreation()
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
+        $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin');
 
         // define expectation
         $plugin->expects($this->once())
@@ -898,7 +898,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function testRegisteredPluginPostDeleteGetsCalledOnCreation()
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
+        $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin');
 
         // create persistent test model
         $model = new Opus_Model_ModelAbstractDb();
@@ -925,7 +925,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         $model = new Opus_Model_ModelAbstractDb;
 
         $plugin = $this->getMock(
-            'Opus_Model_Plugin_Abstract',
+            'Opus\Model\Plugin\AbstractPlugin',
             ['postStoreInternal']
         );
         $plugin->expects($this->never())
@@ -947,7 +947,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         $model = new Opus_Model_ModelAbstractDb;
 
         $plugin = $this->getMock(
-            'Opus_Model_Plugin_Abstract',
+            'Opus\Model\Plugin\AbstractPlugin',
             ['postStoreInternal']
         );
         $plugin->expects($this->never())
@@ -969,7 +969,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         $model = new Opus_Model_ModelAbstractDb;
 
         $plugin = $this->getMock(
-            'Opus_Model_Plugin_Abstract',
+            'Opus\Model\Plugin\AbstractPlugin',
             ['postStoreInternal']
         );
         $plugin->expects($this->never())

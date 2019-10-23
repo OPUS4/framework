@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -54,7 +53,5 @@ class Opus_Db_DnbInstitutes extends Opus_Db_TableGateway
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = [
-            'Opus_Db_LinkDocumentsDnbInstitutes',
-            ];
+    protected $_dependentTables = ['Opus_Db_LinkDocumentsDnbInstitutes'];
 }

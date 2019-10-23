@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,16 +25,18 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Model_Xml
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * First implementation of Opus XML representation.
+ *
+ * Simple fields are converted to attributes of element.
  */
 class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
 {
@@ -118,7 +119,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         foreach ($element->childNodes as $externalField) {
             $fieldName = $externalField->nodeName;
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined');
+                throw new Opus\Model\Exception('Field ' . $fieldName . ' not defined');
             } else {
                 $modelclass = $model->getField($fieldName)->getValueModelClass();
             }

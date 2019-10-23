@@ -652,7 +652,7 @@ class Opus_Person extends Opus_Model_AbstractDb
         foreach ($changes as $name => $value) {
             if (is_null($model->getField($name))) {
                 // TODO use
-                throw new Opus_Model_Exception("unknown field '$name' for update");
+                throw new Opus\Model\Exception("unknown field '$name' for update");
             } else {
                 if (! is_null($value)) {
                     $trimmed[$name] = trim($value);

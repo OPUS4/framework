@@ -94,7 +94,7 @@ class Opus_EnrichmentKeyTest extends TestCase
     {
         $ek = new Opus_EnrichmentKey();
         $ek->setName('foo');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
@@ -104,7 +104,7 @@ class Opus_EnrichmentKeyTest extends TestCase
     {
         $ek = new Opus_EnrichmentKey();
         $ek->setName('');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
@@ -113,7 +113,7 @@ class Opus_EnrichmentKeyTest extends TestCase
     public function testStoryUnsetEnrichmentKey()
     {
         $ek = new Opus_EnrichmentKey();
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
@@ -314,5 +314,14 @@ class Opus_EnrichmentKeyTest extends TestCase
         // prüfe, dass der EnrichmentKey selbst immer noch vorhanden ist
         $this->assertCount(2, Opus_EnrichmentKey::getAll());
         $this->assertCount(0, Opus_EnrichmentKey::getAllReferenced());
+    }
+
+    public function testGetKeys()
+    {
+        $keys = Opus_EnrichmentKey::getKeys();
+
+        $this->assertCount(2, $keys);
+        $this->assertContains('bar', $keys);
+        $this->assertContains('foo', $keys);
     }
 }

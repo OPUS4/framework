@@ -177,7 +177,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $field = $this->filter->getField('Field2');
     }
 
@@ -205,7 +205,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $field = $this->filter->addField2();
     }
 
@@ -234,7 +234,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $field = $this->filter->getField2();
     }
 
@@ -262,7 +262,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $field = $this->filter->setField2('value');
     }
 

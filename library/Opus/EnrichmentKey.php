@@ -274,4 +274,19 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         }
         parent::delete();
     }
+
+    /**
+     * Returns names for all enrichments.
+     * @return array
+     * @throws Zend_Db_Select_Exception
+     */
+    public static function getKeys()
+    {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_EnrichmentKeys');
+        $db = $table->getAdapter();
+        $select = $db->select()->from('enrichmentkeys');
+        $select->reset('columns');
+        $select->columns('name');
+        return $db->fetchCol($select);
+    }
 }

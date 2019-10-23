@@ -42,7 +42,7 @@ interface Opus_Model_Xml_Strategy
      * If a model has been set this method generates and returnes
      * DOM representation of it.
      *
-     * @throws Opus_Model_Exception Thrown if no Model is given.
+     * @throws Opus\Model\Exception Thrown if no Model is given.
      * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument();
@@ -51,7 +51,7 @@ interface Opus_Model_Xml_Strategy
      * Return the current Model instance if there is any. If there is an XML representation set up,
      * a new model is created by unserialising it from the XML data.
      *
-     * @throws Opus_Model_Exception If an error occured during deserialisation
+     * @throws Opus\Model\Exception If an error occured during deserialisation
      * @return Opus_Model_Abstract Deserialised or previously set Model.
      */
     public function getModel();
@@ -83,7 +83,7 @@ interface Opus_Model_Xml_Strategy
      * Set XML model representation.
      *
      * @param string $xml XML string representing a model.
-     * @throws Opus_Model_Exception Thrown if XML loading failed.
+     * @throws Opus\Model\Exception Thrown if XML loading failed.
      * @return void
      */
     public function setXml($xml);

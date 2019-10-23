@@ -28,6 +28,9 @@
  * @copyright   Copyright (c) 2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
  */
 
 /**
@@ -35,54 +38,42 @@
  *
  * @category    Framework
  * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
+ * @uses        Opus\Model\Plugin\Abstract
  */
-class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract
+class Opus_Document_Plugin_XmlCache extends Opus\Model\Plugin\AbstractPlugin
 {
+
+    use Opus\LoggingTrait;
 
     /**
      * Function is only called if document was modified.
      *
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model)
+    public function postStore(Opus\Model\ModelInterface $model)
     {
-        $logger = Zend_Registry::get('Zend_Log');
-        if (null !== $logger) {
-            $logger->debug('Opus_Document_Plugin_XmlCache::postStore() with id ' . $model->getId());
-        }
+        $logger = $this->getLogger();
+        $logger->debug('Opus_Document_Plugin_XmlCache::postStore() with id ' . $model->getId());
 
         // TODO can that be eleminated? why is it necessary?
         $model = new Opus_Document($model->getId());
 
         $cache = new Opus_Model_Xml_Cache(false);
-        $omx = new Opus_Model_Xml();
 
         // remove document from cache. This can always be done, because postStore is only called if model was modified.
-        $cache->removeAllEntriesWhereDocumentId($model->getId());
+        $cache->remove($model->getId());
 
         // refresh cache (TODO does it make sense?)
-        $omx->setStrategy(new Opus_Model_Xml_Version1)
+        $omx = new Opus_Model_Xml();
+        $omx->setStrategy(new Opus_Model_Xml_Version1())
             ->excludeEmptyFields()
             ->setModel($model)
             ->setXmlCache($cache);
-        $dom = $omx->getDomDocument();
-
-        // Skip caching of XML-Version2.
-        // TODO why?
-        $index_version_two = false;
-        if ($index_version_two) {
-            // xml version 2
-            $omx = new Opus_Model_Xml();
-            $omx->setStrategy(new Opus_Model_Xml_Version2)
-                ->setModel($model)
-                ->setXmlCache($cache);
-            $dom = $omx->getDomDocument();
-        }
+        $omx->getDomDocument(); // TODO caching as side effect?
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postDelete}
+     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
      */
     public function postDelete($modelId)
     {
@@ -90,11 +81,8 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract
         $omx = new Opus_Model_Xml;
 
         // xml version 1
-        $omx->setStrategy(new Opus_Model_Xml_Version1);
-        $cache->remove($modelId, floor($omx->getStrategyVersion()));
+        $omx->setStrategy(new Opus_Model_Xml_Version1());
 
-        // xml version 2
-        $omx->setStrategy(new Opus_Model_Xml_Version2);
         $cache->remove($modelId, floor($omx->getStrategyVersion()));
     }
 }

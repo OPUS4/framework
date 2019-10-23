@@ -33,11 +33,7 @@
 abstract class Opus_Update_Plugin_Abstract
 {
 
-    /**
-     * Logger for this class.
-     * @var Zend_Log
-     */
-    private $_logger;
+    use \Opus\LoggingTrait;
 
     /**
      * Configuration for application.
@@ -50,28 +46,6 @@ abstract class Opus_Update_Plugin_Abstract
      * @var boolean
      */
     private $_quietMode;
-
-    /**
-     * Set logger for this class.
-     * @param Zend_Log $logger
-     */
-    public function setLogger($logger)
-    {
-        $this->_logger = $logger;
-    }
-
-    /**
-     * Returns logger for this class.
-     * @return Zend_Log
-     */
-    public function getLogger()
-    {
-        if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
-        }
-
-        return $this->_logger;
-    }
 
     /**
      * Sets configuration.

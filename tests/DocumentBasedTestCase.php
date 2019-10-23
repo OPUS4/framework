@@ -32,258 +32,266 @@
  * @version     $Id$
  */
 
-class DocumentBasedTestCase extends TestCase {
+class DocumentBasedTestCase extends TestCase
+{
 
-	private $created = array();
+    private $created = [];
 
-	protected static $documentPropertySets = array(
-		'article' => array(
-			'Type' => 'article',
-			'Language' => 'deu',
-			'ContributingCorporation' => 'Contributing, Inc.',
-			'CreatingCorporation' => 'Creating, Inc.',
-			'ThesisDateAccepted' => '1901-01-01',
-			'Edition' => 2,
-			'Issue' => 3,
-			'Volume' => 1,
-			'PageFirst' => 1,
-			'PageLast' => 297,
-			'PageNumber' => 297,
-			'CompletedYear' => 1960,
-			'CompletedDate' => '1901-01-01',
-			'BelongsToBibliography' => 0,
-			'TitleMain' => array(
-				'Value' => 'Test Main Article',
-				'Type' => 'main',
+    protected static $documentPropertySets = [
+        'article' => [
+            'Type' => 'article',
+            'Language' => 'deu',
+            'ContributingCorporation' => 'Contributing, Inc.',
+            'CreatingCorporation' => 'Creating, Inc.',
+            'ThesisDateAccepted' => '1901-01-01',
+            'Edition' => 2,
+            'Issue' => 3,
+            'Volume' => 1,
+            'PageFirst' => 1,
+            'PageLast' => 297,
+            'PageNumber' => 297,
+            'CompletedYear' => 1960,
+            'CompletedDate' => '1901-01-01',
+            'BelongsToBibliography' => 0,
+            'TitleMain' => [
+                'Value' => 'Test Main Article',
+                'Type' => 'main',
                 'Language' => 'deu'
-			)
-		),
-		'book' => array(
-			'Type' => 'book',
-			'Language' => 'de',
-			'ContributingCorporation' => 'Contributing, Inc.',
-			'CreatingCorporation' => 'Creating, Inc.',
-			'ThesisDateAccepted' => '1999-12-31',
-			'Edition' => 2,
-			'Issue' => 3,
-			'Volume' => 1,
-			'PageFirst' => 1,
-			'PageLast' => 465,
-			'PageNumber' => 465,
-			'CompletedYear' => 1996,
-			'CompletedDate' => '1996-10-02',
-			'BelongsToBibliography' => 1,
-			'EmbargoDate' => '2010-01-04',
-			'PersonAuthor' => array(
-				'Opus_Person', array(
-					'AcademicTitle' => 'Prof.',
-					'FirstName' => 'Jane',
-					'LastName' => 'Doe',
-				)
-			)
-		),
-		'monograph' => array(
-			'Type' => 'monograph',
-			'Language' => 'eng',
-			'ContributingCorporation' => 'Contributing, Inc.',
-			'CreatingCorporation' => 'Creating, Inc.',
-			'ThesisDateAccepted' => '1999-12-31',
-			'Edition' => 2,
-			'Issue' => 1,
-			'Volume' => 2,
-			'PageFirst' => 1,
-			'PageLast' => 465,
-			'PageNumber' => 465,
-			'CompletedYear' => 1996,
-			'CompletedDate' => '1996-10-02',
-			'BelongsToBibliography' => 1,
-			'EmbargoDate' => '2010-01-04',
-			'PersonAuthor' => array(
-				'Opus_Person', array(
-					'FirstName' => 'John',
-					'LastName' => 'Doe',
-				)
-			),
-			'TitleMain' => array(
-				'Value' => 'A Monograph On Indexing',
-			    'Type' => 'main',
+            ]
+        ],
+        'book' => [
+            'Type' => 'book',
+            'Language' => 'de',
+            'ContributingCorporation' => 'Contributing, Inc.',
+            'CreatingCorporation' => 'Creating, Inc.',
+            'ThesisDateAccepted' => '1999-12-31',
+            'Edition' => 2,
+            'Issue' => 3,
+            'Volume' => 1,
+            'PageFirst' => 1,
+            'PageLast' => 465,
+            'PageNumber' => 465,
+            'CompletedYear' => 1996,
+            'CompletedDate' => '1996-10-02',
+            'BelongsToBibliography' => 1,
+            'EmbargoDate' => '2010-01-04',
+            'PersonAuthor' => [
+                'Opus_Person', [
+                    'AcademicTitle' => 'Prof.',
+                    'FirstName' => 'Jane',
+                    'LastName' => 'Doe',
+                ]
+            ]
+        ],
+        'monograph' => [
+            'Type' => 'monograph',
+            'Language' => 'eng',
+            'ContributingCorporation' => 'Contributing, Inc.',
+            'CreatingCorporation' => 'Creating, Inc.',
+            'ThesisDateAccepted' => '1999-12-31',
+            'Edition' => 2,
+            'Issue' => 1,
+            'Volume' => 2,
+            'PageFirst' => 1,
+            'PageLast' => 465,
+            'PageNumber' => 465,
+            'CompletedYear' => 1996,
+            'CompletedDate' => '1996-10-02',
+            'BelongsToBibliography' => 1,
+            'EmbargoDate' => '2010-01-04',
+            'PersonAuthor' => [
+                'Opus_Person', [
+                    'FirstName' => 'John',
+                    'LastName' => 'Doe',
+                ]
+            ],
+            'TitleMain' => [
+                'Value' => 'A Monograph On Indexing',
+                'Type' => 'main',
                 'Language' => 'eng'
-			)
-		),
-		'report' => array(
-			'Type' => 'report',
-			'Language' => 'fra',
-			'ContributingCorporation' => 'Contributing, Inc.',
-			'CreatingCorporation' => 'Creating, Inc.',
-			'ThesisDateAccepted' => '1999-12-31',
-			'Edition' => 2,
-			'Issue' => 1,
-			'Volume' => 2,
-			'PageFirst' => 1,
-			'PageLast' => 465,
-			'PageNumber' => 465,
-			'CompletedYear' => 1996,
-			'CompletedDate' => '1996-10-02',
-			'BelongsToBibliography' => 1,
-			'EmbargoDate' => '2010-01-04'
-		)
-	);
+            ]
+        ],
+        'report' => [
+            'Type' => 'report',
+            'Language' => 'fra',
+            'ContributingCorporation' => 'Contributing, Inc.',
+            'CreatingCorporation' => 'Creating, Inc.',
+            'ThesisDateAccepted' => '1999-12-31',
+            'Edition' => 2,
+            'Issue' => 1,
+            'Volume' => 2,
+            'PageFirst' => 1,
+            'PageLast' => 465,
+            'PageNumber' => 465,
+            'CompletedYear' => 1996,
+            'CompletedDate' => '1996-10-02',
+            'BelongsToBibliography' => 1,
+            'EmbargoDate' => '2010-01-04'
+        ]
+    ];
 
 
 
-	/**
-	 * @return array
-	 */
-	public static function documentPropertiesProvider() {
-		return self::$documentPropertySets;
-	}
+    /**
+     * @return array
+     */
+    public static function documentPropertiesProvider()
+    {
+        return self::$documentPropertySets;
+    }
 
-	/**
-	 * @param $name
-	 * @return mixed
-	 */
-	public static function getDocumentDescriptionByName( $name ) {
-		if ( !array_key_exists( $name, self::$documentPropertySets ) ) {
-			throw new InvalidArgumentException( "unknown document description" );
-		}
+    /**
+     * @param $name
+     * @return mixed
+     */
+    public static function getDocumentDescriptionByName($name)
+    {
+        if (! array_key_exists($name, self::$documentPropertySets)) {
+            throw new InvalidArgumentException("unknown document description");
+        }
 
-		return self::$documentPropertySets[$name];
-	}
+        return self::$documentPropertySets[$name];
+    }
 
-	/**
-	 * Creates document in local storage (SQL DB) according to provided
-	 * description.
-	 *
-	 * @param array $documentProperties map of a document's properties into values
-	 * @return Opus_Document created document
-	 * @throws Exception
-	 */
-	protected function createDocument( $documentProperties = null ) {
-		if ( is_null( $documentProperties ) ) {
-			$documentProperties = self::$documentPropertySets['article'];
-		} if ( is_string( $documentProperties ) ) {
-			$documentProperties = self::$documentPropertySets[$documentProperties];
-		}
+    /**
+     * Creates document in local storage (SQL DB) according to provided
+     * description.
+     *
+     * @param array $documentProperties map of a document's properties into values
+     * @return Opus_Document created document
+     * @throws Exception
+     */
+    protected function createDocument($documentProperties = null)
+    {
+        if (is_null($documentProperties)) {
+            $documentProperties = self::$documentPropertySets['article'];
+        } if (is_string($documentProperties)) {
+            $documentProperties = self::$documentPropertySets[$documentProperties];
+        }
 
-		$document = new Opus_Document();
+        $document = new Opus_Document();
 
 
-		/*
+        /*
 		 * set all defined internal properties of document
 		 */
 
-		foreach ( $documentProperties as $property => $value ) {
-			if ( !is_array( $value ) ) {
-				// got value of some document-internal field
-				$method = 'set' . $property;
-				$document->$method( $value );
-			}
-		}
+        foreach ($documentProperties as $property => $value) {
+            if (! is_array($value)) {
+                // got value of some document-internal field
+                $method = 'set' . $property;
+                $document->$method( $value );
+            }
+        }
 
-		$document->store();
+        $document->store();
 
-		$this->created[] = $document;
+        $this->created[] = $document;
 
 
-		/*
+        /*
 		 * add all defined dependent models of document
 		 */
 
-		foreach ( $documentProperties as $property => $value ) {
-			if ( is_array( $value ) ) {
-				// got some document-external/dependent field
-				if ( array_key_exists( 0, $value ) && is_string( $value[0] ) && is_array( $value[1] ) ) {
-					$pre   = new ReflectionClass( $value[0] );
-					$value = $value[1];
-				} else {
-					$pre = false;
-				}
+        foreach ($documentProperties as $property => $value) {
+            if (is_array($value)) {
+                // got some document-external/dependent field
+                if (array_key_exists(0, $value) && is_string($value[0]) && is_array($value[1])) {
+                    $pre   = new ReflectionClass($value[0]);
+                    $value = $value[1];
+                } else {
+                    $pre = false;
+                }
 
-				$copy = array_values( $value );
-				if ( !is_array( $copy[0] ) ) {
-					$value = array( $value );
-				}
+                $copy = array_values($value);
+                if (! is_array($copy[0])) {
+                    $value = [ $value ];
+                }
 
-				$adder = 'add' . $property;
+                $adder = 'add' . $property;
 
-				// add another dependent model for every given description
-				foreach ( $value as $set ) {
-					/** @var Opus_Model_Dependent_Abstract $related */
-					if ( $pre ) {
-						$related = $pre->newInstance();
-					} else {
-						$related = $document->$adder();
-					}
+                // add another dependent model for every given description
+                foreach ($value as $set) {
+                    /** @var Opus_Model_Dependent_Abstract $related */
+                    if ($pre) {
+                        $related = $pre->newInstance();
+                    } else {
+                        $related = $document->$adder();
+                    }
 
-					foreach ( $set as $name => $value ) {
-						$setter = 'set' . $name;
-						$related->$setter( $value );
-					}
+                    foreach ($set as $name => $value) {
+                        $setter = 'set' . $name;
+                        $related->$setter( $value );
+                    }
 
-					$related->store();
+                    $related->store();
 
-					$this->created[] = $related;
+                    $this->created[] = $related;
 
-					if ( $pre ) {
-						$document->$adder( $related );
-					}
-				}
-			}
-		}
+                    if ($pre) {
+                        $document->$adder( $related );
+                    }
+                }
+            }
+        }
 
-		// store document again e.g. for updating related caches
-		$document->store();
+        // store document again e.g. for updating related caches
+        $document->store();
 
-		return $document;
-	}
+        return $document;
+    }
 
-	public function qualifyTestFilename( $filename ) {
-		return APPLICATION_PATH . '/tests/fulltexts/' . basename( $filename );
-	}
+    public function qualifyTestFilename($filename)
+    {
+        return APPLICATION_PATH . '/tests/fulltexts/' . basename($filename);
+    }
 
-	public function getTestFile( $filename ) {
-		return file_get_contents( $this->qualifyTestFilename( $filename ) );
-	}
+    public function getTestFile($filename)
+    {
+        return file_get_contents($this->qualifyTestFilename($filename));
+    }
 
-	public function addFileToDocument( Opus_Document $document, $filename, $label, $visibleInFrontdoor ) {
-		$file = $document->addFile();
-		$file->setTempFile( $this->qualifyTestFilename( $filename ) );
-		$file->setPathName( $filename );
-		$file->setLabel( $label );
-		$file->setVisibleInFrontdoor( $visibleInFrontdoor ? '1' : '0' );
+    public function addFileToDocument(Opus_Document $document, $filename, $label, $visibleInFrontdoor)
+    {
+        $file = $document->addFile();
+        $file->setTempFile($this->qualifyTestFilename($filename));
+        $file->setPathName($filename);
+        $file->setLabel($label);
+        $file->setVisibleInFrontdoor($visibleInFrontdoor ? '1' : '0');
 
-		$document->store();
+        $document->store();
 
-		return $document;
-	}
+        return $document;
+    }
 
-	/**
-	 * Manages to delete all documents created in a test run.
-	 */
-	public function tearDown() {
-		parent::tearDown();
+    /**
+     * Manages to delete all documents created in a test run.
+     */
+    public function tearDown()
+    {
+        parent::tearDown();
 
-		$cache = new Opus_Model_Xml_Cache( false );
-		$files = APPLICATION_PATH . '/tests/workspace/files/';
+        $cache = new Opus_Model_Xml_Cache(false);
+        $files = APPLICATION_PATH . '/tests/workspace/files/';
 
-		foreach ( $this->created as $model ) {
-			/** @var Opus_Model_AbstractDb $model */
-			if ( $model instanceof Opus_Document ) {
-				// drop any model XML cached on document to delete next
-				$cache->removeAllEntriesWhereDocumentId( $model->getId() );
+        foreach ($this->created as $model) {
+            /** @var Opus_Model_AbstractDb $model */
+            if ($model instanceof Opus_Document) {
+                // drop any model XML cached on document to delete next
+                $cache->remove($model->getId());
 
-				// clear all files related to that document
-				$docFiles = $files . $model->getId();
-				if ( is_dir( $docFiles ) && is_readable( $docFiles ) ) {
-					foreach ( glob( $docFiles . '/*' ) as $file ) {
-						if ( is_readable( $file ) ) {
-							unlink( $file );
-						}
-					}
-				}
-			}
+                // clear all files related to that document
+                $docFiles = $files . $model->getId();
+                if (is_dir($docFiles) && is_readable($docFiles)) {
+                    foreach (glob($docFiles . '/*') as $file) {
+                        if (is_readable($file)) {
+                            unlink($file);
+                        }
+                    }
+                }
+            }
 
-			$model->delete();
-		}
-	}
+            $model->delete();
+        }
+    }
 }
