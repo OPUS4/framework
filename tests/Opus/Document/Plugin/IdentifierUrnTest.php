@@ -83,10 +83,6 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $model->addFile()->setVisibleInOai(0);
         $model->addFile()->setVisibleInOai(1);
 
-        $this->assertTrue(
-            $model->hasField('IdentifierUrn'),
-            'Model does not have field "IdentifierUrn"'
-        );
         $urns = $model->getIdentifierUrn();
 
         $this->assertNotNull($urns, 'IdentifierUrn is NULL');

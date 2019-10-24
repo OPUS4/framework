@@ -404,7 +404,7 @@ class Opus_Model_AbstractTest extends TestCase
 
         $data = $doc->toArray();
 
-        $this->assertCount(78, $data);
+        $this->assertCount(62, $data);
 
         $this->assertArrayNotHasKey('id', $data); // database id to part of array
         $this->assertArrayHasKey('PersonAuthor', $data);
