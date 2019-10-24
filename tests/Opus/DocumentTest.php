@@ -3600,44 +3600,6 @@ class Opus_DocumentTest extends TestCase
             'RegistrationTs' => '2018-10-12 13:45:21'
         ], $identifiers[1]);
 
-        $this->assertArrayHasKey('IdentifierIsbn', $data);
-        $identifiers = $data['IdentifierIsbn'];
-        unset($data['IdentifierIsbn']);
-        $this->assertCount(1, $identifiers);
-
-        $this->assertEquals([
-            'Value' => '123',
-            'Type' => 'isbn',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
-        ], $identifiers[0]);
-
-        $this->assertArrayHasKey('IdentifierDoi', $data);
-        $identifiers = $data['IdentifierDoi'];
-        unset($data['IdentifierDoi']);
-        $this->assertCount(1, $identifiers);
-
-        $this->assertEquals([
-            'Value' => 'abc',
-            'Type' => 'doi',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
-        ], $identifiers[0]);
-
-        // TODO get types from somewhere (dry)
-        $identifierTypes = [
-            'Old', 'Serial', 'Uuid', 'Urn', 'Handle', 'Url', 'Issn', 'StdDoi',
-            'CrisLink', 'SplashUrl', 'Opus3', 'Opac', 'Arxiv', 'Pubmed'
-        ];
-
-        foreach ($identifierTypes as $type) {
-            $fieldName = "Identifier$type";
-            $this->assertArrayHasKey($fieldName, $data);
-            $identifiers = $data[$fieldName];
-            unset($data[$fieldName]);
-            $this->assertEmpty($identifiers);
-        }
-
         // check references
 
         $this->assertArrayHasKey('Reference', $data);
@@ -4133,7 +4095,7 @@ class Opus_DocumentTest extends TestCase
         $id->setType('doi');
         $id->setValue('someVal');
 
-        $ids[] = [$id];
+        $ids = [$id];
         $doc->setIdentifierDoi($ids);
 
         $test1 = $doc->getIdentifier();

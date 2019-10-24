@@ -1091,12 +1091,26 @@ class Opus_Document extends Opus_Model_AbstractDb
                 }
             }
         }
+    }
 
-        $options = null;
-        if (array_key_exists('options', $this->_externalFields['IdentifierUrn'])) {
-            $options = $this->_externalFields['IdentifierUrn']['options'];
+    protected function _storeIdentifier($identifiers)
+    {
+        foreach ($identifiers as $identifier) {
+            switch ($identifier->getType()) {
+                case 'urn':
+                    $this->_storeIdentifierUrn($identifiers);
+                    break;
+                case 'uuid':
+                    $this->_storeIdentifierUuid($identifiers);
+                    break;
+                default:
+            }
         }
-        $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
+        $options = null;
+        if (array_key_exists('options', $this->_externalFields['Identifier'])) {
+            $options = $this->_externalFields['Identifier']['options'];
+        }
+        $this->_storeExternal($this->_fields['Identifier']->getValue(), $options);
     }
 
     private function isIdentifierSet($identifiers)
@@ -1126,12 +1140,6 @@ class Opus_Document extends Opus_Model_AbstractDb
             $uuidModel->setValue(Opus_Identifier_UUID::generate());
             $this->setIdentifierUuid($uuidModel);
         }
-
-        $options = null;
-        if (array_key_exists('options', $this->_externalFields['IdentifierUuid']) === true) {
-            $options = $this->_externalFields['IdentifierUuid']['options'];
-        }
-        $this->_storeExternal($this->_fields['IdentifierUuid']->getValue(), $options);
     }
 
     /**
