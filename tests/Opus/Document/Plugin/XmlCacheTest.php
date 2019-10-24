@@ -70,7 +70,7 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase
         $this->markTestSkipped('Cache is re-enabled');
         $doc = new Opus_Document();
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $doc->unregisterPlugin('Opus_Document_Plugin_XmlCache');
         $this->fail('Plugin should stay disabled.');
     }

@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -57,10 +57,10 @@ class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway
      * @var array $_referenceMap
      */
     protected $_referenceMap = [
-            'Documents' => [
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => ['document_id', 'year', 'month', 'type'],
-                ],
-            ];
+        'Documents' => [
+            'columns' => 'document_id',
+            'refTableClass' => 'Opus_Db_Documents',
+            'refColumns' => ['document_id', 'year', 'month', 'type']
+        ]
+    ];
 }

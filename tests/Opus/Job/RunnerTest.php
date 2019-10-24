@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,9 +27,8 @@
  * @category    Tests
  * @package     Opus_Job
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -57,6 +55,7 @@ class Opus_Job_RunnerTest extends TestCase
 
     public function testRunIndexWorkerWithInvalidJob()
     {
+        $this->markTestSkipped('Search related and needs to be moved to opus-search');
 
         $document = new Opus_Document();
         $document->setServerState('published');
@@ -85,6 +84,7 @@ class Opus_Job_RunnerTest extends TestCase
 
     public function testRunIndexWorkerWithValidJob()
     {
+        $this->markTestSkipped('Search related and needs to be moved to opus-search');
 
         $document = new Opus_Document();
         $document->setServerState('published');

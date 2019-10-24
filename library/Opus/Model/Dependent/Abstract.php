@@ -88,7 +88,7 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
      *
      * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
      * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
-     * @throws Opus_Model_Exception     Thrown if passed id is invalid.
+     * @throws Opus\Model\Exception     Thrown if passed id is invalid.
      * @see Opus_Model_AbstractDb#__construct()
      */
     public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
@@ -149,21 +149,19 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
     /**
      * Set up the foreign key of the parent before storing.
      *
-     * @throws Opus_Model_Exception Thrown if trying to store without parent.
+     * @throws Opus\Model\Exception Thrown if trying to store without parent.
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store()
     {
         if (null === $this->_parentId) {
-            throw new Opus_Model_Exception(
-                'Dependent Model ' . get_class($this)
-                . ' without parent cannot be persisted.'
+            throw new Opus\Model\Exception(
+                'Dependent Model ' . get_class($this) . ' without parent cannot be persisted.'
             );
         }
         if (null === $this->_parentColumn) {
-            throw new Opus_Model_Exception(
-                'Dependent Model ' . get_class($this)
-                . ' needs to know name of the parent-id column.'
+            throw new Opus\Model\Exception(
+                'Dependent Model ' . get_class($this) . ' needs to know name of the parent-id column.'
             );
         }
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
@@ -190,14 +188,15 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
      *
      * @param string $token Delete token as returned by previous call to delete()
      * @return void
+     * @throws Opus\Model\Exception
      */
     public function doDelete($token)
     {
         if ($this->_deletionToken === null) {
-            throw new Opus_Model_Exception('No deletion token set. Call delete() prior to doDelete().');
+            throw new Opus\Model\Exception('No deletion token set. Call delete() prior to doDelete().');
         }
         if ($this->_deletionToken !== $token) {
-            throw new Opus_Model_Exception('Invalid deletion token passed.');
+            throw new Opus\Model\Exception('Invalid deletion token passed.');
         }
         parent::delete();
     }

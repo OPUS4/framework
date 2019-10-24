@@ -290,7 +290,7 @@ class Opus_Statistic_LocalCounter
         $xmlAccess = $dom->getElementsByTagName("access")->item(0);
         if (is_null($xmlAccess)) {
             $message = 'Error loading click-log "' . $tempDir . '~localstat.xml"';
-            throw new Opus_Model_Exception($message);
+            throw new Opus\Model\Exception($message);
         }
 
         //if global file access timestamp too old, the whole log file can be removed
@@ -348,7 +348,7 @@ class Opus_Statistic_LocalCounter
         $return = $dom->save($tempDir . '~localstat.xml');
         if ($return === false) {
             $message = 'Error saving click-log "' . $tempDir . '~localstat.xml"';
-            throw new Opus_Model_Exception($message);
+            throw new Opus\Model\Exception($message);
         }
 
         return $doubleClick;

@@ -15,14 +15,20 @@
  * @package     Opus_Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2009-2010
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
+ *
+ * TODO add interface (database implementation just one option)
  */
 
-class Opus_Model_Xml_Cache
+class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
 {
+
+    use \Opus\LoggingTrait;
 
     /**
      * Holds gateway instance to document xml cache table
@@ -39,20 +45,21 @@ class Opus_Model_Xml_Cache
     private $_reindexDocumentAfterAddingCacheEntry = true;
 
     /**
-     * Logger object.
-     * @var null
+     * Plugin for updating the index.
+     * @var
+     *
+     * TODO this is a temporary hack - see _postPut below
      */
-    private $_logger = null;
+    private static $indexPluginClass = null;
 
     /**
      *
      *
      * @return void
      */
-    public function __construct($reindexDocumentAfterAddingCacheEntry = true)
+    public function __construct()
     {
-        $this->_table = new Opus_Db_DocumentXmlCache;
-        $this->_reindexDocumentAfterAddingCacheEntry = $reindexDocumentAfterAddingCacheEntry;
+        $this->_table = new Opus_Db_DocumentXmlCache();
     }
 
     /**
@@ -60,7 +67,7 @@ class Opus_Model_Xml_Cache
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
-     * @throws Opus_Model_Exception in case an XML processing error occurred
+     * @throws Opus\Model\Exception in case an XML processing error occurred
      * @return DOMDocument
      */
     public function get($documentId, $xmlVersion)
@@ -84,7 +91,7 @@ class Opus_Model_Xml_Cache
                         'line:column: ' . $error->line . ':' . $error->column;
                 }
                 Zend_Registry::get('Zend_Log')->err($errMsg);
-                throw new Opus_Model_Exception($errMsg);
+                throw new Opus\Model\Exception($errMsg);
             }
         }
 
@@ -117,7 +124,6 @@ class Opus_Model_Xml_Cache
      */
     public function getAllEntries()
     {
-
         $rows = $this->_table->fetchAll();
 
         if ($rows->count() > 0) {
@@ -157,7 +163,6 @@ class Opus_Model_Xml_Cache
      */
     public function hasValidEntry($documentId, $xmlVersion, $serverDateModified)
     {
-
         $select = $this->_table->select()->from($this->_table);
         $select->where('document_id = ?', $documentId)
             ->where('xml_version = ?', $xmlVersion)
@@ -213,19 +218,25 @@ class Opus_Model_Xml_Cache
      * @param mixed $documentId
      * @param mixed $xmlVersion
      * @return boolean
+     *
+     * TODO simplify (remove all entries for document-id)
      */
-    public function remove($documentId, $xmlVersion)
+    public function remove($documentId, $xmlVersion = null)
     {
-        $rowSet = $this->_table->find($documentId, $xmlVersion);
+        if (is_null($xmlVersion)) {
+            $this->removeAllEntriesWhereDocumentId($documentId);
+        } else {
+            $rowSet = $this->_table->find($documentId, $xmlVersion);
 
-        if (1 === $rowSet->count()) {
-            $result = $rowSet->current()->delete();
-            if (1 === $result) {
-                return true;
+            if (1 === $rowSet->count()) {
+                $result = $rowSet->current()->delete();
+                if (1 !== $result) {
+                    return false;
+                }
             }
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -258,7 +269,7 @@ class Opus_Model_Xml_Cache
      *
      * @return void
      */
-    public function removeAllEntries()
+    public function clear()
     {
         $db = Zend_Db_Table::getDefaultAdapter();
         $db->query('truncate table document_xml_cache');
@@ -283,10 +294,13 @@ class Opus_Model_Xml_Cache
      * document in a consistent state after cache update.
      *
      * @param int $documentId Id of document to process
+     *
+     * TODO cache and index should be indenpendent from each other (refactor)
+     *      Currently this is the easiest way to keep OPUS 4 working properly.
      */
     protected function _postPut($documentId)
     {
-        if (! $this->_reindexDocumentAfterAddingCacheEntry) {
+        if (! $this->_reindexDocumentAfterAddingCacheEntry || is_null(self::$indexPluginClass)) {
             return;
         }
 
@@ -297,19 +311,14 @@ class Opus_Model_Xml_Cache
             return;
         }
 
-        $indexPlugin = new Opus_Document_Plugin_Index();
+        $pluginClass = self::$indexPluginClass;
+
+        $indexPlugin = new $pluginClass();
         $indexPlugin->postStore($doc);
     }
 
-    /**
-     * Returns logger.
-     * @return Zend_Log
-     */
-    public function getLogger()
+    public static function setIndexPluginClass($pluginClass)
     {
-        if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
-        }
-        return $this->_logger;
+        self::$indexPluginClass = $pluginClass;
     }
 }

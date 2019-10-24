@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -62,20 +62,20 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway
      * @var array $_referenceMap
      */
     protected $_referenceMap = [
-            'Documents' => [
-                            'columns' => 'document_id',
-                            'refTableClass' => 'Opus_Db_Documents',
-                            'refColumns' => 'id',
-            ],
-            'Collections' => [
-                            'columns' => 'collection_id',
-                            'refTableClass' => 'Opus_Db_Collections',
-                            'refColumns' => 'id'
-            ],
-            'CollectionRoles' => [
-                            'columns' => 'role_id',
-                            'refTableClass' => 'Opus_Db_CollectionsRoles',
-                            'refColumns' => 'id'
-            ],
+        'Documents' => [
+            'columns' => 'document_id',
+            'refTableClass' => 'Opus_Db_Documents',
+            'refColumns' => 'id',
+        ],
+        'Collections' => [
+            'columns' => 'collection_id',
+            'refTableClass' => 'Opus_Db_Collections',
+            'refColumns' => 'id'
+        ],
+        'CollectionRoles' => [
+            'columns' => 'role_id',
+            'refTableClass' => 'Opus_Db_CollectionsRoles',
+            'refColumns' => 'id'
+        ]
     ];
 }

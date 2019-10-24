@@ -37,7 +37,8 @@
  *
  * @category Tests
  */
-class SimpleTestCase extends PHPUnit_Framework_TestCase {
+class SimpleTestCase extends PHPUnit_Framework_TestCase
+{
 
     private $config_backup;
 
@@ -55,21 +56,22 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase {
      * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
      * @return Zend_Config reference on previously set configuration
      */
-    protected function adjustConfiguration( $overlay, $callback = null ) {
-        $previous = Zend_Registry::get( 'Zend_Config' );
-        $updated  = new Zend_Config( array(), true );
+    protected function adjustConfiguration($overlay, $callback = null)
+    {
+        $previous = Zend_Registry::get('Zend_Config');
+        $updated  = new Zend_Config([], true);
 
         $updated
-            ->merge( $previous )
-            ->merge( new Zend_Config( $overlay ) );
+            ->merge($previous)
+            ->merge(new Zend_Config($overlay));
 
-        if ( is_callable( $callback ) ) {
-            $updated = call_user_func( $callback, $updated );
+        if (is_callable($callback)) {
+            $updated = call_user_func($callback, $updated);
         }
 
         $updated->setReadOnly();
 
-        Zend_Registry::set( 'Zend_Config', $updated );
+        Zend_Registry::set('Zend_Config', $updated);
 
         Opus_Search_Config::dropCached();
 
@@ -82,7 +84,8 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase {
      * setup due to using that deprecated configuration in preference.
      *
      */
-    protected function dropDeprecatedConfiguration() {
+    protected function dropDeprecatedConfiguration()
+    {
         $config = Opus_Config::get()->searchengine;
 
         unset(
@@ -102,17 +105,19 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
 
         $config = Zend_Registry::get('Zend_Config');
-        if (!is_null($config)) {
+        if (! is_null($config)) {
             $this->config_backup = clone $config;
         }
     }
 
-    protected function  tearDown() {
-        if (!is_null($this->config_backup)) {
+    protected function tearDown()
+    {
+        if (! is_null($this->config_backup)) {
             Zend_Registry::set('Zend_Config', $this->config_backup);
         }
 

@@ -1150,7 +1150,7 @@ class Opus_PersonTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage unknown field 'IdentifierIntern' for update
      */
     public function testUpdateAllBadChanges()
@@ -1771,7 +1771,7 @@ class Opus_PersonTest extends TestCase
     /**
      * OPUSVIER-3764
      *
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage No Opus_Db_Documents with id
      */
     public function testDeleteAssignedPerson()

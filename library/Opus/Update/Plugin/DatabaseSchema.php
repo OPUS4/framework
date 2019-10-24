@@ -44,6 +44,9 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
      */
     public function run()
     {
+        $this->clearCache();
+        Zend_Db_Table_Abstract::setDefaultMetadataCache(null);
+
         $database = new Opus_Database();
 
         $version = $database->getVersion();
@@ -90,5 +93,13 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
     public function getTargetVersion()
     {
         return $this->_targetVersion;
+    }
+
+    public function clearCache()
+    {
+        $cache = Zend_Db_Table_Abstract::getDefaultMetadataCache();
+        if (! is_null($cache)) {
+            $cache->clean(Zend_Cache::CLEANING_MODE_ALL);
+        }
     }
 }

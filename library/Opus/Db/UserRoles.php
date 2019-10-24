@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -55,7 +55,7 @@ class Opus_Db_UserRoles extends Opus_Db_TableGateway
      * @var array $_dependantTables
      */
     protected $_dependentTables = [
-            'Opus_Db_LinkAccountsRoles',
-            'Opus_Db_LinkIprangesRoles',
-            ];
+        'Opus_Db_LinkAccountsRoles',
+        'Opus_Db_LinkIprangesRoles'
+    ];
 }

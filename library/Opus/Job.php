@@ -291,6 +291,6 @@ class Opus_Job extends Opus_Model_AbstractDb
     public static function deleteAll()
     {
         $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $table->getAdapter()->query('TRUNCATE TABLE jobs');
+        $table->getAdapter()->query('DELETE from jobs');
     }
 }

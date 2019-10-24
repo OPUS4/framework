@@ -18,9 +18,9 @@
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
-
 
 /**
  * Table gateway class to table 'document_title_abstracts'.
@@ -43,5 +43,5 @@ class Opus_Db_DocumentXmlCache extends Opus_Db_TableGateway
      *
      * @var string
      */
-    protected $_primary = [ 'document_id', 'xml_version'];
+    protected $_primary = ['document_id', 'xml_version'];
 }

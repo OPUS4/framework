@@ -27,15 +27,18 @@
  * @category    Tests
  * @package     Opus_Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Validates the structure of a NestedSet in the database.
  */
-class NestedSetValidator {
+class NestedSetValidator
+{
+
+    use \Opus\LoggingTrait;
 
     /**
      * Database table adapter.
@@ -49,27 +52,20 @@ class NestedSetValidator {
      */
     private $counter;
 
-    /**
-     * Logging object.
-     * @var Zend_Log
-     */
-    private $logger;
-
-    public function __construct($table) {
-        if (!is_null($table) && $table instanceof Opus_Db_NestedSet) {
+    public function __construct($table)
+    {
+        if (! is_null($table) && $table instanceof Opus_Db_NestedSet) {
             $this->table = $table;
+        } else {
+            throw new Opus\Model\Exception('object must be instance of Opus_Db_NestedSet');
         }
-        else {
-            throw new Opus_Model_Exception('object must be instance of Opus_Db_NestedSet');
-        }
-
-        $this->logger = Zend_Registry::get('Zend_Log');
     }
 
     /**
      * Check structure of nested set.
      */
-    public function validate($rootId) {
+    public function validate($rootId)
+    {
         $select = $this->table->select()->where('id = ?', $rootId);
         $node = $this->table->fetchRow($select);
         $this->counter = $node['left_id'];
@@ -81,20 +77,22 @@ class NestedSetValidator {
      * @param $nodeId ID for node in NestedSet
      * @return bool true - valid, false - invalid
      */
-    public function validateNode($nodeId) {
+    public function validateNode($nodeId)
+    {
+        $logger = $this->getLogger();
+
         $select = $this->table->select()->where('id = ?', $nodeId);
         $node = $this->table->fetchRow($select);
         $leftId = $node['left_id'];
         $rightId = $node['right_id'];
 
-        $this->logger->err("{$this->counter}, $nodeId: $leftId, $rightId");
+        $logger->err("{$this->counter}, $nodeId: $leftId, $rightId");
 
         if ($leftId != $this->counter) {
             // invalid
-            $this->logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid (left_id)");
+            $logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid (left_id)");
             return false;
-        }
-        else {
+        } else {
             $this->counter++;
         }
 
@@ -103,34 +101,32 @@ class NestedSetValidator {
         if ($distance === 1) {
             $this->counter++;
             return true;
-        }
-        else if ($distance > 1) {
+        } elseif ($distance > 1) {
             // node
-           if ($distance & 1) {
-               // odd; valid
-               $selectChildren = $this->table->select()->where('parent_id  = ?', $nodeId)->order('left_id ASC');
-               $children = $this->table->fetchAll($selectChildren);
-               foreach ($children as $child) {
-                   if ($this->validateNode($child['id']) === false) {
-                       return false;
-                   }
-               }
-               $this->counter++;
-           }
-           else {
-               // even; invalid
-               $this->logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid");
-               return false;
-           }
-        }
-        else if ($distance < 1) {
+            if ($distance & 1) {
+                // odd; valid
+                $selectChildren = $this->table->select()->where(
+                    'parent_id  = ?',
+                    $nodeId
+                )->order('left_id ASC');
+                 $children = $this->table->fetchAll($selectChildren);
+                foreach ($children as $child) {
+                    if ($this->validateNode($child['id']) === false) {
+                        return false;
+                    }
+                }
+                 $this->counter++;
+            } else {
+                // even; invalid
+                $logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid");
+                return false;
+            }
+        } elseif ($distance < 1) {
             // invalid
-            $this->logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid");
+            $logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid");
             return false;
         }
 
         return true;
     }
-
 }
-

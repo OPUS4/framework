@@ -58,14 +58,12 @@ class Opus_Model_Dependent_AbstractTest extends TestCase
      */
     private $_mockTableGateway = null;
 
-
     /**
      * Zend_Db_Table_Row mockup
      *
      * @var Zend_Db_Table_Row
      */
     private $_mockTableRow = null;
-
 
     /**
      * Zend_Db_Adapter mockup
@@ -147,7 +145,7 @@ class Opus_Model_Dependent_AbstractTest extends TestCase
         // plugin relies on table gateway class which is not available
         try {
             $this->_cut->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
         }
     }
 
@@ -187,7 +185,7 @@ class Opus_Model_Dependent_AbstractTest extends TestCase
      */
     public function testInvalidDeletionTokenThrowsException()
     {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->_cut->delete();
         $this->_cut->doDelete('foo');
     }
@@ -199,7 +197,7 @@ class Opus_Model_Dependent_AbstractTest extends TestCase
      */
     public function testMissingDeletionTokenThrowsException()
     {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->_cut->doDelete(null);
     }
 
@@ -214,7 +212,7 @@ class Opus_Model_Dependent_AbstractTest extends TestCase
         try {
             $token = $this->_cut->delete();
             $this->_cut->doDelete($token);
-        } catch (Opus_Model_Exception $ex) {
+        } catch (Opus\Model\Exception $ex) {
             $this->fail('Valid deletion token rejected with Exception: '.$ex->getMessage());
         }
     }
