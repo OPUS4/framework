@@ -465,7 +465,7 @@ class Opus_Document extends Opus_Model_AbstractDb
     ];
 
 
-    protected $_identifierMapping = array(
+    protected $_identifierMapping = [
         'Old' => 'old',
         'Serial' => 'serial',
         'Uuid' => 'uuid',
@@ -482,7 +482,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         'Opac' => 'opac-id',
         'Arxiv' => 'arxiv',
         'Pubmed' => 'pmid'
-    );
+    ];
 
     /**
      * Initialize the document's fields.  The language field needs special
@@ -1606,21 +1606,18 @@ class Opus_Document extends Opus_Model_AbstractDb
         $fieldname = substr($name, 3);
 
 
-        if (!in_array($accessor, array('set', 'get', 'add')))
-        {
+        if (! in_array($accessor, ['set', 'get', 'add'])) {
             return parent::__call($name, $arguments);
         }
 
         if (substr($fieldname, 0, 10) !== 'Identifier' || $fieldname === 'Identifier') {
             return parent::__call($name, $arguments);
-        }
-        else {
+        } else {
             $type = $this->_identifierMapping[substr($fieldname, 10)];
 
             if (count($arguments) > 0) {
                 $argument = $arguments[0];
-            }
-            else {
+            } else {
                 $argument = null;
             }
 
@@ -1652,8 +1649,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         if ($identifier instanceof Opus_Identifier) {
             $identifier->setType($type);
             parent::addIdentifier($identifier);
-        }
-        else {
+        } else {
             $identifier = parent::addIdentifier($identifier);
             $identifier->setType($type);
         }
@@ -1668,15 +1664,15 @@ class Opus_Document extends Opus_Model_AbstractDb
         $type = strtolower($type);
 
         // remove old value with matching type
-        $all = array_filter($all, function($value) use ($type) {
+        $all = array_filter($all, function ($value) use ($type) {
             return $value->getType() !== $type;
         });
 
-        if (!is_array($new)) {
-            $new = array($new);
+        if (! is_array($new)) {
+            $new = [$new];
         }
 
-        array_walk($new, function($value) use ($type) {
+        array_walk($new, function ($value) use ($type) {
             $value->setType($type);
         });
 
@@ -1687,7 +1683,7 @@ class Opus_Document extends Opus_Model_AbstractDb
     {
         $identifier = $this->getIdentifier();
 
-        $values = array_filter($identifier, function($value) use ($type) {
+        $values = array_filter($identifier, function ($value) use ($type) {
             return $value->getType() === strtolower($type);
         });
 
@@ -1698,5 +1694,4 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         return $filteredField->getValue($index);
     }
-
 }

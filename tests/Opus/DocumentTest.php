@@ -2621,6 +2621,7 @@ class Opus_DocumentTest extends TestCase
         $test1 = $doc->getIdentifier();
         $test2 = $doc->getIdentifierDoi();
 
+        $this->assertCount(1, $test2);
         $this->assertEquals($test1, $test2);
     }
 
@@ -4077,26 +4078,6 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals('deleted', $doc->getServerState());
         $this->assertEquals('2nd', $doc->getEdition());
     }
-    /**
-     * OPUSVIER-3860 Regression test.
-     */
-    public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
-    {
-        $doc = new Opus_Document();
-        $doc->store();
-        $id = new Opus_Identifier();
-        $id->setType('doi');
-        $id->setValue('someVal');
-        $ids = $doc->getIdentifier();
-        $ids[] = $id;
-        $doc->setIdentifier($ids);
-
-        $test1 = $doc->getIdentifier();
-        $test2 = $doc->getIdentifierDoi();
-
-        $this->assertCount(1, $test2);
-        $this->assertEquals($test1, $test2);
-    }
 
     public function getIdentifierTypes()
     {
@@ -4104,8 +4085,8 @@ class Opus_DocumentTest extends TestCase
 
         $types = array_keys($identifier->getField('Type')->getDefault());
 
-        $types = array_map(function($value) {
-            return array($value);
+        $types = array_map(function ($value) {
+            return [$value];
         }, $types);
 
         return $types;
@@ -4127,12 +4108,11 @@ class Opus_DocumentTest extends TestCase
         $ids[] = $id;
         $doc->setIdentifier($ids);
 
-        $specialNames = array('pmid' => 'Pubmed', 'opus3-id' => 'Opus3', 'opac-id' => 'Opac');
+        $specialNames = ['pmid' => 'Pubmed', 'opus3-id' => 'Opus3', 'opac-id' => 'Opac'];
 
         if (array_key_exists($type, $specialNames)) {
             $typeName = $specialNames[$type];
-        }
-        else {
+        } else {
             $typeName = str_replace('-', '', ucwords($type, '-'));
         }
 
@@ -4153,7 +4133,7 @@ class Opus_DocumentTest extends TestCase
         $id->setType('doi');
         $id->setValue('someVal');
 
-        $ids[] = array($id);
+        $ids[] = [$id];
         $doc->setIdentifierDoi($ids);
 
         $test1 = $doc->getIdentifier();
@@ -4179,7 +4159,7 @@ class Opus_DocumentTest extends TestCase
         $id3->setType('issn');
         $id3->setValue('someVal3');
 
-        $doc->setIdentifier(array($id, $id3, $id2));
+        $doc->setIdentifier([$id, $id3, $id2]);
 
         $doc = new Opus_Document($doc->store());
 
@@ -4204,7 +4184,7 @@ class Opus_DocumentTest extends TestCase
         $id2->setType('doi');
         $id2->setValue('someVal2');
 
-        $doc->setIdentifier(array($id, $id2));
+        $doc->setIdentifier([$id, $id2]);
 
         $value = $doc->getIdentifierByType('doi', 1);
 
@@ -4260,12 +4240,11 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertCount(3, $all);
 
-        $doc->setIdentifiersForType('doi', array());
+        $doc->setIdentifiersForType('doi', []);
 
         $all = $doc->getIdentifier();
 
         $this->assertCount(1, $all);
         $this->assertEquals('issn', $all[0]->getType());
     }
-
 }
