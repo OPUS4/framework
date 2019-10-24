@@ -78,6 +78,29 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
     protected static $_tableGatewayClass = 'Opus_Db_DocumentIdentifiers';
 
     /**
+     * Mapping between identifier type and field name.
+     * @var array
+     */
+    private static $identifierMapping = [
+        'Old' => 'old',
+        'Serial' => 'serial',
+        'Uuid' => 'uuid',
+        'Isbn' => 'isbn',
+        'Urn' => 'urn',
+        'Doi' => 'doi',
+        'Handle' => 'handle',
+        'Url' => 'url',
+        'Issn' => 'issn',
+        'StdDoi' => 'std-doi',
+        'CrisLink' => 'cris-link',
+        'SplashUrl' => 'splash-url',
+        'Opus3' => 'opus3-id',
+        'Opac' => 'opac-id',
+        'Arxiv' => 'arxiv',
+        'Pubmed' => 'pmid'
+    ];
+
+    /**
      * Initialize model with the following fields:
      * - Value
      * - Label
@@ -91,28 +114,14 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
             ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($value);
 
+        $typeDefaults = array_values(self::$identifierMapping);
+        $typeDefaults = array_combine($typeDefaults, $typeDefaults);
+
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(true)
                 ->setSelection(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
-                ->setDefault([
-                    'old' => 'old',
-                    'serial' => 'serial',
-                    'uuid' => 'uuid',
-                    'isbn' => 'isbn',
-                    'urn' => 'urn',
-                    'doi' => 'doi',
-                    'handle' => 'handle',
-                    'url' => 'url',
-                    'issn' => 'issn',
-                    'std-doi' => 'std-doi',
-                    'cris-link' => 'cris-link',
-                    'splash-url' => 'splash-url',
-                    'opus3-id' => 'opus3-id',
-                    'opac-id' => 'opac-id',
-                    'pmid' => 'pmid',
-                    'arxiv' => 'arxiv'
-                ]);
+                ->setDefault($typeDefaults);
         $this->addField($type);
 
         // zwei Felder, die ausschließlich für Identifier vom Typ DOI genutzt werden
@@ -327,5 +336,15 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         if (count($docIds) == 1 and ! is_null($this->getParentId()) and ! in_array($this->getParentId(), $docIds)) {
             throw $exception;
         }
+    }
+
+    public static function getTypeForFieldname($fieldname)
+    {
+        return self::$identifierMapping[substr($fieldname, 10)];
+    }
+
+    public static function getFieldnameForType($type)
+    {
+        return 'Identifier' . array_search($type, self::$identifierMapping);
     }
 }

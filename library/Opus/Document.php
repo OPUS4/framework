@@ -464,26 +464,6 @@ class Opus_Document extends Opus_Model_AbstractDb
         ]
     ];
 
-
-    protected $_identifierMapping = [
-        'Old' => 'old',
-        'Serial' => 'serial',
-        'Uuid' => 'uuid',
-        'Isbn' => 'isbn',
-        'Urn' => 'urn',
-        'Doi' => 'doi',
-        'Handle' => 'handle',
-        'Url' => 'url',
-        'Issn' => 'issn',
-        'StdDoi' => 'std-doi',
-        'CrisLink' => 'cris-link',
-        'SplashUrl' => 'splash-url',
-        'Opus3' => 'opus3-id',
-        'Opac' => 'opac-id',
-        'Arxiv' => 'arxiv',
-        'Pubmed' => 'pmid'
-    ];
-
     /**
      * Initialize the document's fields.  The language field needs special
      * treatment to initialize the default values.
@@ -1621,7 +1601,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         if (substr($fieldname, 0, 10) !== 'Identifier' || $fieldname === 'Identifier') {
             return parent::__call($name, $arguments);
         } else {
-            $type = $this->_identifierMapping[substr($fieldname, 10)];
+            $type = Opus_Identifier::getTypeForFieldname($fieldname);
 
             if (count($arguments) > 0) {
                 $argument = $arguments[0];
