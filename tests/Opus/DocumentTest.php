@@ -853,16 +853,15 @@ class Opus_DocumentTest extends TestCase
     {
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
+        $doc->addIdentifierUrn(new Opus_Identifier());
         $id = $doc->store();
-        $doc2 = new Opus_Document($id);
 
-        // TODO: Cannot check Urn if we did not add it...
-        $this->markTestSkipped('TODO: analyze');
+        $doc2 = new Opus_Document($id);
 
         $this->assertNotNull($doc2->getIdentifierUrn(0));
         $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
-        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
         $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
     }
 
@@ -874,18 +873,25 @@ class Opus_DocumentTest extends TestCase
     public function testStoringOfMultipleIdentifierUrnField()
     {
         $doc = new Opus_Document();
+        $doc->addIdentifierUrn(new Opus_Identifier());
+        $doc->addIdentifierUrn(new Opus_Identifier());
         $doc->setType("doctoral_thesis");
 
-        // TODO: Cannot check Urn if we did not add it...
-        $this->markTestSkipped('TODO: analyze');
+        $this->assertCount(2, $doc->getIdentifier());
 
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
+
         $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
-        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
         $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
-        $this->assertEquals(1, count($doc2->getIdentifierUrn()), 'On an empty multiple field only 2 URN value should be stored.');
+        $this->assertCount(1, $doc2->getIdentifier());
+        $this->assertEquals(
+            1,
+            count($doc2->getIdentifierUrn()),
+            'On an empty multiple field only one URN value should be stored.'
+        );
     }
 
     /**
@@ -2607,8 +2613,6 @@ class Opus_DocumentTest extends TestCase
      */
     public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
     {
-        $this->markTestSkipped('TODO OPUSVIER-3860 Regression test - not fixed yet');
-
         $doc = new Opus_Document();
         $doc->store();
         $id = new Opus_Identifier();
