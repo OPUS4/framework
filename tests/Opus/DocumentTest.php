@@ -2621,6 +2621,7 @@ class Opus_DocumentTest extends TestCase
         $test1 = $doc->getIdentifier();
         $test2 = $doc->getIdentifierDoi();
 
+        $this->assertCount(1, $test2);
         $this->assertEquals($test1, $test2);
     }
 
@@ -3599,44 +3600,6 @@ class Opus_DocumentTest extends TestCase
             'RegistrationTs' => '2018-10-12 13:45:21'
         ], $identifiers[1]);
 
-        $this->assertArrayHasKey('IdentifierIsbn', $data);
-        $identifiers = $data['IdentifierIsbn'];
-        unset($data['IdentifierIsbn']);
-        $this->assertCount(1, $identifiers);
-
-        $this->assertEquals([
-            'Value' => '123',
-            'Type' => 'isbn',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
-        ], $identifiers[0]);
-
-        $this->assertArrayHasKey('IdentifierDoi', $data);
-        $identifiers = $data['IdentifierDoi'];
-        unset($data['IdentifierDoi']);
-        $this->assertCount(1, $identifiers);
-
-        $this->assertEquals([
-            'Value' => 'abc',
-            'Type' => 'doi',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
-        ], $identifiers[0]);
-
-        // TODO get types from somewhere (dry)
-        $identifierTypes = [
-            'Old', 'Serial', 'Uuid', 'Urn', 'Handle', 'Url', 'Issn', 'StdDoi',
-            'CrisLink', 'SplashUrl', 'Opus3', 'Opac', 'Arxiv', 'Pubmed'
-        ];
-
-        foreach ($identifierTypes as $type) {
-            $fieldName = "Identifier$type";
-            $this->assertArrayHasKey($fieldName, $data);
-            $identifiers = $data[$fieldName];
-            unset($data[$fieldName]);
-            $this->assertEmpty($identifiers);
-        }
-
         // check references
 
         $this->assertArrayHasKey('Reference', $data);
@@ -4076,5 +4039,174 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertEquals('deleted', $doc->getServerState());
         $this->assertEquals('2nd', $doc->getEdition());
+    }
+
+    public function getIdentifierTypes()
+    {
+        $identifier = new Opus_Identifier();
+
+        $types = array_keys($identifier->getField('Type')->getDefault());
+
+        $types = array_map(function ($value) {
+            return [$value];
+        }, $types);
+
+        return $types;
+    }
+
+    /**
+     * @dataProvider getIdentifierTypes
+     */
+    public function testGetIdentifierDiffersFromGetIdentiferForType($type)
+    {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $id = new Opus_Identifier();
+        $id->setType($type);
+        $id->setValue('someVal');
+
+        $ids = $doc->getIdentifier();
+        $ids[] = $id;
+        $doc->setIdentifier($ids);
+
+        $specialNames = ['pmid' => 'Pubmed', 'opus3-id' => 'Opus3', 'opac-id' => 'Opac'];
+
+        if (array_key_exists($type, $specialNames)) {
+            $typeName = $specialNames[$type];
+        } else {
+            $typeName = str_replace('-', '', ucwords($type, '-'));
+        }
+
+        $funcName = 'getIdentifier' . ucfirst($typeName);
+
+        $identifiers = $doc->getIdentifier();
+        $identifiersForType = $doc->$funcName();
+
+        $this->assertEquals($identifiers, $identifiersForType);
+    }
+
+    public function testSettingIdentifierDoiChangesIdentifier()
+    {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+
+        $ids = [$id];
+        $doc->setIdentifierDoi($ids);
+
+        $test1 = $doc->getIdentifier();
+        $test2 = $doc->getIdentifierDoi();
+
+        $this->assertCount(1, $test1);
+        $this->assertEquals($test1, $test2);
+    }
+
+    public function testGetIdentifierByType()
+    {
+        $doc = new Opus_Document();
+
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+
+        $id2 = new Opus_Identifier();
+        $id2->setType('doi');
+        $id2->setValue('someVal2');
+
+        $id3 = new Opus_Identifier();
+        $id3->setType('issn');
+        $id3->setValue('someVal3');
+
+        $doc->setIdentifier([$id, $id3, $id2]);
+
+        $doc = new Opus_Document($doc->store());
+
+        $values = $doc->getIdentifierByType('doi');
+
+        $this->assertCount(2, $values);
+
+        $values = $doc->getIdentifierByType('issn');
+
+        $this->assertCount(1, $values);
+    }
+
+    public function testGetIdentifierByTypeWithIndex()
+    {
+        $doc = new Opus_Document();
+
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+
+        $id2 = new Opus_Identifier();
+        $id2->setType('doi');
+        $id2->setValue('someVal2');
+
+        $doc->setIdentifier([$id, $id2]);
+
+        $value = $doc->getIdentifierByType('doi', 1);
+
+        $this->assertNotNull($value);
+        $this->assertEquals('someVal2', $value->getValue());
+    }
+
+    public function testAddIdentifierForType()
+    {
+        $doc = new Opus_Document();
+
+        $identifier = $doc->addIdentifierForType('doi');
+
+        $this->assertNotNull($identifier);
+        $this->assertInstanceOf('Opus_Identifier', $identifier);
+        $this->assertEquals('doi', $identifier->getType());
+    }
+
+    public function testAddIdentifierDoi()
+    {
+        $doc = new Opus_Document();
+
+        $identifier = $doc->addIdentifierDoi();
+
+        $this->assertNotNull($identifier);
+        $this->assertInstanceOf('Opus_Identifier', $identifier);
+        $this->assertEquals('doi', $identifier->getType());
+    }
+
+    public function testSetIdentifiersForType()
+    {
+        $doc = new Opus_Document();
+
+        $ident = new Opus_Identifier();
+        $ident->setType('doi');
+        $ident->setValue('doi-value1');
+
+        $doc->addIdentifier($ident);
+
+        $ident = new Opus_Identifier();
+        $ident->setType('issn');
+        $ident->setValue('issn-value1');
+
+        $doc->addIdentifier($ident);
+
+        $ident = new Opus_Identifier();
+        $ident->setType('doi');
+        $ident->setValue('doi-value2');
+
+        $doc->addIdentifier($ident);
+
+        $all = $doc->getIdentifier();
+
+        $this->assertCount(3, $all);
+
+        $doc->setIdentifiersForType('doi', []);
+
+        $all = $doc->getIdentifier();
+
+        $this->assertCount(1, $all);
+        $this->assertEquals('issn', $all[0]->getType());
     }
 }
