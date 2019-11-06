@@ -4012,6 +4012,8 @@ class Opus_DocumentTest extends TestCase
     /**
      * @expectedException  Opus_Model_DbException
      * @expectedExceptionMessage Data too long
+     *
+     * TODO originally tested problem during deletePermanent (which triggered a store in delete function)
      */
     public function testTruncateExceptionForTooLongValue()
     {
@@ -4025,7 +4027,7 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $patent->setNumber(str_repeat('0123456789', 26));
-        $doc->deletePermanent();
+        $doc->store();
     }
 
     public function testDeleteSavesChanges()
