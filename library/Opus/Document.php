@@ -1178,6 +1178,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         $this->setServerState('deleted');
         $this->store();
 
+        // TODO removes document from cache - that should not be necessary for basic delete (hide)
         $this->callPluginMethod('postDelete', $this->getId());
     }
 
@@ -1193,7 +1194,11 @@ class Opus_Document extends Opus_Model_AbstractDb
     {
         $docId = $this->getId();
 
-        $this->delete();
+        // run plugins for regular delete (hide) operation first
+        $this->callPluginMethod('preDelete');
+        // TODO moved here instead of calling $this->delete(); - keeps old behavoir, but should maybe moved down
+        // TODO removes document from cache - that should not be necessary for basic delete (hide)
+        $this->callPluginMethod('postDelete', $this->getId());
 
         // remove all files permanently
         $files = $this->getFile();
