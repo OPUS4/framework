@@ -29,7 +29,7 @@
  * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -505,13 +505,21 @@ class Opus_SeriesTest extends TestCase
 
         $d = new Opus_Document();
         $d->addSeries($s)->setNumber('1');
-        $d->store();
+        $docId1 = $d->store();
 
         $d = new Opus_Document();
         $d->addSeries($s)->setNumber('1');
+        $docId2 = $d->store();
 
-        $this->setExpectedException('Opus_Model_DbConstrainViolationException');
-        $d->store();
+        $doc1 = new Opus_Document($docId1);
+        $doc2 = new Opus_Document($docId2);
+
+        $seriesLink1 = $doc1->getSeries(0);
+        $seriesLink2 = $doc2->getSeries(0);
+
+        $this->assertNotNull($seriesLink1);
+        $this->assertNotNull($seriesLink2);
+        $this->assertEquals($seriesLink1->getNumber(), $seriesLink2->getNumber());
     }
 
     public function testAssignDocSortOrderForDocuments()
