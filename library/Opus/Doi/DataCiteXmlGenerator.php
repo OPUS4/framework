@@ -43,7 +43,23 @@ class Opus_Doi_DataCiteXmlGenerator
 
     const STYLESHEET_FILENAME = 'datacite.xslt';
 
+    const USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT = true;
+
     private $doiLog;
+
+    // wenn true, dann werden für bestimmte DataCite-XML-Pflichtfelder, die nicht mit Inhalt belegt werden können,
+    // alternativ Platzhalterwerte verwendet
+    private $usePlaceholdersForEmptyValues;
+
+    /**
+     * Opus_Doi_DataCiteXmlGenerator constructor.
+     * @param boolean $usePlaceholdersForEmptyValues
+     */
+    public function __construct($usePlaceholdersForEmptyValues = self::USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT)
+    {
+        $this->usePlaceholdersForEmptyValues = $usePlaceholdersForEmptyValues;
+    }
+
 
     public function getDoiLog()
     {
@@ -70,6 +86,7 @@ class Opus_Doi_DataCiteXmlGenerator
      * @param $skipTestOfRequiredFields bool wenn true, dann wird der Pflichtfeld-Existenztest bei der XML-Generierung
      *                                       übersprungen
      * @return string XML for DataCite registration
+     * @throws Opus_Doi_DataCiteXmlGenerationException
      */
     public function getXml($doc, $allowInvalidXml = false, $skipTestOfRequiredFields = false)
     {
@@ -273,13 +290,17 @@ class Opus_Doi_DataCiteXmlGenerator
      * In dem übergebenen Dokument muss mindestens ein Autor mit einem nicht-leeren LastName oder FirstName
      * oder eine nicht leere CreatingCorporation existieren.
      *
-     * @param $doc das zu prüfende Dokument
+     * @param Opus_Document $doc das zu prüfende Dokument
      *
-     * @return bool gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
-     *              Array der gefundene Fehler
+     * @return array gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
+     *               Array der gefundene Fehler
      */
     private function checkExistenceOfCreator($doc)
     {
+        if ($this->usePlaceholdersForEmptyValues) {
+            return []; // keine Prüfung erforderlich, weil Platzhalter im Bedarfsfall genutzt wird
+        }
+
         $authorOk = false;
         $authors = $doc->getPersonAuthor();
 
@@ -303,13 +324,17 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * In dem übergebenen Dokument muss mindestens ein nicht leerer Titel existieren.
      *
-     * @param $doc das zu prüfende Dokument
+     * @param Opus_Document $doc das zu prüfende Dokument
      *
-     * @return bool gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
-     *              Array der gefundene Fehler
+     * @return array gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
+     *               Array der gefundene Fehler
      */
     private function checkExistenceOfTitle($doc)
     {
+        if ($this->usePlaceholdersForEmptyValues) {
+            return []; // keine Prüfung erforderlich, weil Platzhalter im Bedarfsfall genutzt wird
+        }
+
         // mindestens ein nicht-leerer TitleMain oder TitleSub
         $titleOk = false;
         $titles = $doc->getTitleMain();
@@ -342,27 +367,38 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * In dem übergebenen Dokument muss genau ein Publisher existieren.
      *
-     * @param $doc das zu prüfende Dokument
-     * @return bool gibt ein leeres Array zurück, wenn genau ein nicht leerer Titel gefunden wurde; andernfalls
-     *              steht im Array der gefundene Fehler
+     * @param Opus_Document $doc das zu prüfende Dokument
+     * @return array gibt ein leeres Array zurück, wenn genau ein nicht leerer Titel gefunden wurde; andernfalls
+     *               steht im Array der gefundene Fehler
      */
     private function checkExistenceOfPublisher($doc)
     {
-        $publisherOk = false;
-        if ($doc->getPublisherName() != '') {
-            $publisherOk = true;
+        if ($this->usePlaceholdersForEmptyValues) {
+            return []; // keine Prüfung erforderlich, weil Platzhalter im Bedarfsfall genutzt wird
         }
 
-        $thesisPublishers = $doc->getThesisPublisher();
-        foreach ($thesisPublishers as $thesisPublisher) {
-            if ($thesisPublisher->getName() != '') {
-                if ($publisherOk) {
-                    // mehr als einen nicht leeren Publisher gefunden
-                    return ['multiple_publishers'];
-                }
+        $publisherOk = $doc->getPublisherName() != '';
 
-                $publisherOk = true;
+        if (! $publisherOk) {
+            $thesisPublishers = $doc->getThesisPublisher();
+            foreach ($thesisPublishers as $thesisPublisher) {
+                if ($thesisPublisher->getName() != '') {
+                    if ($publisherOk) {
+                        // mehr als einen nicht leeren ThesisPublisher gefunden
+                        return ['multiple_publishers'];
+                    }
+
+                    $publisherOk = true;
+                }
             }
+        }
+
+        if (! $publisherOk) {
+            $publisherOk = $doc->getCreatingCorporation() != '';
+        }
+
+        if (! $publisherOk) {
+            $publisherOk = $doc->getContributingCorporation() != '';
         }
 
         if (! $publisherOk) {
