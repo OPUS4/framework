@@ -53,7 +53,7 @@
 
     <xsl:template match="Opus_Document">
         <xsl:element name="resource">
-            <xsl:attribute name="xsi:schemaLocation">http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd</xsl:attribute>
+            <xsl:attribute name="xsi:schemaLocation">https://schema.datacite.org/meta/kernel-4.3/ https://schema.datacite.org/meta/kernel-4.3/</xsl:attribute>
 
             <!-- die bei DataCite zu registrierende DOI (muss eine lokale DOI sein) -->
             <xsl:apply-templates select="Identifier[@Type='doi']"/>
