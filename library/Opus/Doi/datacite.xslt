@@ -59,42 +59,42 @@
             <xsl:apply-templates select="Identifier[@Type='doi']"/>
 
             <!-- Pflichtangabe: Element creators mit Kindelement creator mit Kindelement creatorName -->
-			<!-- Gibt es weder Autoren noch eine urhebende Koerperschaft, wird der Herausgeber,
-					ansonsten der Platzhalter "(:unav)" (unavailable, possibly unknown) ausgegeben -->
-			<xsl:element name="creators">
-				<xsl:choose>
-					<xsl:when test="PersonAuthor or @CreatingCorporation">
-						<xsl:apply-templates select="PersonAuthor"/>
-						<xsl:apply-templates select="@CreatingCorporation"/>
-					</xsl:when>
-					<xsl:when test="PersonEditor">
-						<xsl:apply-templates select="PersonEditor" mode="creator"/>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:element name="creator">
-							<xsl:element name="creatorName">
-								<xsl:text>(:unav)</xsl:text>
-							</xsl:element>
-						</xsl:element>
-					</xsl:otherwise>                
-				</xsl:choose>
-			</xsl:element>
+            <!-- Gibt es weder Autoren noch eine urhebende Koerperschaft, wird der Herausgeber,
+                ansonsten der Platzhalter "(:unav)" (unavailable, possibly unknown) ausgegeben -->
+            <xsl:element name="creators">
+                <xsl:choose>
+                    <xsl:when test="PersonAuthor or @CreatingCorporation">
+                        <xsl:apply-templates select="PersonAuthor"/>
+                        <xsl:apply-templates select="@CreatingCorporation"/>
+                    </xsl:when>
+                    <xsl:when test="PersonEditor">
+                        <xsl:apply-templates select="PersonEditor" mode="creator"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:element name="creator">
+                            <xsl:element name="creatorName">
+                                <xsl:text>(:unav)</xsl:text>
+                            </xsl:element>
+                        </xsl:element>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
 
             <!-- Pflichtangabe: Element titles mit Kindelement title -->
-			<!-- Ist kein Titel vorhanden, wird der Platzhalter "(:unas)" (unassigned) ausgegeben -->
+            <!-- Ist kein Titel vorhanden, wird der Platzhalter "(:unas)" (unassigned) ausgegeben -->
             <xsl:element name="titles">
-				<xsl:choose>
-					<xsl:when test="TitleMain or TitleSub">
-						<xsl:apply-templates select="TitleMain"/>
-						<xsl:apply-templates select="TitleSub"/>
-					</xsl:when>
-					<xsl:otherwise>
-					    <xsl:element name="title">
-							<xsl:text>(:unas)</xsl:text>
-						</xsl:element>
-					</xsl:otherwise>
-				</xsl:choose>
-			</xsl:element>			
+                <xsl:choose>
+                    <xsl:when test="TitleMain or TitleSub">
+                        <xsl:apply-templates select="TitleMain"/>
+                        <xsl:apply-templates select="TitleSub"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:element name="title">
+                            <xsl:text>(:unas)</xsl:text>
+                        </xsl:element>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
 
             <!-- Pflichtangabe: Auswertungsreihenfolge mit BSZ abgesprochen -->
             <!-- es kann pro Dokument mehr als einen ThesisPublisher geben: die Reihenfolge der ThesisPublisher
@@ -103,26 +103,26 @@
                  da das Element publisher in DataCite-XML nicht wiederholbar ist, kann nur ein TP ausgewählt werden
                  aufgrund der oben beschriebenen Tatsache ist das immer der TP mit dem kleinsten Schlüsselwert, der
                  dem aktuellen Dokument zugeordnet ist -->
-			<!-- Gibt es weder einen Verlag noch einen ThesisPublisher, werden Koerperschaften,
-					ansonsten der Platzhalter "(:unav)" (unavailable, possibly unknown) ausgegeben -->
+            <!-- Gibt es weder einen Verlag noch einen ThesisPublisher, werden Koerperschaften,
+                    ansonsten der Platzhalter "(:unav)" (unavailable, possibly unknown) ausgegeben -->
             <xsl:element name="publisher">
-				<xsl:choose>
-					<xsl:when test="@PublisherName != ''">
-						<xsl:value-of select="@PublisherName"/>
-					</xsl:when>
-					<xsl:when test="ThesisPublisher/@Name != ''">
-						<xsl:value-of select="ThesisPublisher/@Name"/>
-					</xsl:when>
-					<xsl:when test="@CreatingCorporation">
-						<xsl:value-of select="@CreatingCorporation"/>
-					</xsl:when>
-					<xsl:when test="@ContributingCorporation">
-						<xsl:value-of select="@ContributingCorporation"/>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:text>(:unav)</xsl:text>
-					</xsl:otherwise>
-				</xsl:choose>
+                <xsl:choose>
+                    <xsl:when test="@PublisherName != ''">
+                        <xsl:value-of select="@PublisherName"/>
+                    </xsl:when>
+                    <xsl:when test="ThesisPublisher/@Name != ''">
+                        <xsl:value-of select="ThesisPublisher/@Name"/>
+                    </xsl:when>
+                    <xsl:when test="@CreatingCorporation">
+                        <xsl:value-of select="@CreatingCorporation"/>
+                    </xsl:when>
+                    <xsl:when test="@ContributingCorporation">
+                        <xsl:value-of select="@ContributingCorporation"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>(:unav)</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:element>
 
             <!-- Pflichtangabe -->
@@ -140,11 +140,11 @@
             </xsl:if>
 
             <xsl:if test="PersonEditor">
-				<xsl:if test="PersonAuthor or @CreatingCorporation">
-					<xsl:element name="contributors">
-						<xsl:apply-templates select="PersonEditor"/>
-					</xsl:element>
-				</xsl:if>
+                <xsl:if test="PersonAuthor or @CreatingCorporation">
+                    <xsl:element name="contributors">
+                        <xsl:apply-templates select="PersonEditor"/>
+                    </xsl:element>
+                </xsl:if>
             </xsl:if>
 
             <xsl:apply-templates select="ServerDateCreated"/>
@@ -307,15 +307,7 @@
             </xsl:if>
 
             <xsl:if test="@IdentifierOrcid != ''">
-                <xsl:element name="nameIdentifier">
-                    <xsl:attribute name="schemeURI">
-                        <xsl:text>https://orcid.org/</xsl:text>
-                    </xsl:attribute>
-                    <xsl:attribute name="nameIdentifierScheme">
-                        <xsl:text>ORCID</xsl:text>
-                    </xsl:attribute>
-                    <xsl:value-of select="@IdentifierOrcid"/>
-                </xsl:element>
+                <xsl:apply-templates select="@IdentifierOrcid"/>
             </xsl:if>
         </xsl:element>
     </xsl:template>
@@ -341,15 +333,34 @@
                 <xsl:value-of select="@FirstName"/>
             </xsl:element>
             <xsl:if test="@IdentifierOrcid != ''">
-                <xsl:element name="nameIdentifier">
-                    <xsl:attribute name="schemeURI">
-                        <xsl:text>https://orcid.org/</xsl:text>
-                    </xsl:attribute>
-                    <xsl:attribute name="nameIdentifierScheme">
-                        <xsl:text>ORCID</xsl:text>
-                    </xsl:attribute>
-                    <xsl:value-of select="@IdentifierOrcid"/>
+                <xsl:apply-templates select="@IdentifierOrcid"/>
+            </xsl:if>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="PersonEditor" mode="creator">
+        <xsl:element name="creator">
+            <xsl:element name="creatorName">
+                <xsl:value-of select="@LastName"/>
+                <xsl:if test="@LastName and @FirstName">
+                    <xsl:text>, </xsl:text>
+                </xsl:if>
+                <xsl:value-of select="@FirstName"/>
+                <xsl:text> (Ed.)</xsl:text>
+            </xsl:element>
+            <xsl:if test="@FirstName">
+                <xsl:element name="givenName">
+                    <xsl:value-of select="@FirstName"/>
                 </xsl:element>
+            </xsl:if>
+            <xsl:if test="@LastName">
+                <xsl:element name="familyName">
+                    <xsl:value-of select="@LastName"/>
+                </xsl:element>
+            </xsl:if>
+
+            <xsl:if test="@IdentifierOrcid != ''">
+                <xsl:apply-templates select="@IdentifierOrcid"/>
             </xsl:if>
         </xsl:element>
     </xsl:template>
@@ -530,6 +541,18 @@
 
     <xsl:template match="File/@MimeType">
         <xsl:element name="format">
+            <xsl:value-of select="."/>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="@IdentifierOrcid">
+        <xsl:element name="nameIdentifier">
+            <xsl:attribute name="schemeURI">
+                <xsl:text>https://orcid.org/</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="nameIdentifierScheme">
+                <xsl:text>ORCID</xsl:text>
+            </xsl:attribute>
             <xsl:value-of select="."/>
         </xsl:element>
     </xsl:template>
