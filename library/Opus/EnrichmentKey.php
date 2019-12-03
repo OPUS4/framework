@@ -276,7 +276,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     }
 
     /**
-     * Returns names for all enrichments.
+     * Returns names of all enrichment keys.
      * @return array
      * @throws Zend_Db_Select_Exception
      */
