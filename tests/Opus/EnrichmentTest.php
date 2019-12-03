@@ -410,4 +410,27 @@ class Opus_EnrichmentTest extends TestCase
         $this->assertEmpty(array_diff($expectedValues, $enrichmentKeyNames), 'array values are not the same');
     }
 
+    public function testGetAllUsedEnrichmentKeyNamesWithDuplicateKeyName()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue1');
+        $this->_doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue2');
+        $this->_doc->addEnrichment($enrichment);
+
+        $this->_doc->store();
+
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        // duplicate key names are filtered out
+        $this->assertCount(2, $enrichmentKeyNames);
+
+        $expectedValues = ['valid', 'unregisteredKey'];
+        // check that both arrays have the same values (order is irrelevant)
+        $this->assertEmpty(array_diff($enrichmentKeyNames, $expectedValues), 'array values are not the same');
+        $this->assertEmpty(array_diff($expectedValues, $enrichmentKeyNames), 'array values are not the same');
+    }
 }
