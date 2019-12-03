@@ -139,12 +139,12 @@
                 </xsl:element>
             </xsl:if>
 
-            <xsl:if test="PersonEditor">
-                <xsl:if test="PersonAuthor or @CreatingCorporation">
-                    <xsl:element name="contributors">
-                        <xsl:apply-templates select="PersonEditor"/>
-                    </xsl:element>
-                </xsl:if>
+            <!-- PersonEditor nur dann ausgeben, wenn nicht bereits im Element creator ausgegeben:
+                 das ist nicht der Fall, wenn PersonAuthor oder CreatingCorporation existiert -->
+            <xsl:if test="PersonEditor and (PersonAuthor or @CreatingCorporation)">
+                <xsl:element name="contributors">
+                    <xsl:apply-templates select="PersonEditor"/>
+                </xsl:element>
             </xsl:if>
 
             <xsl:apply-templates select="ServerDateCreated"/>
