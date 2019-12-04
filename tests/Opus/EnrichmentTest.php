@@ -346,4 +346,91 @@ class Opus_EnrichmentTest extends TestCase
         $this->assertEquals('MyKey', $enrichment->getKeyName());
         $this->assertEquals('test', $enrichment->getValue());
     }
+
+    public function testGetEnrichmentKey()
+    {
+        $enrichments = $this->_doc->getEnrichment();
+        $this->assertEquals(1, count($enrichments));
+        $enrichment = $enrichments[0];
+        $enrichmentKey = $enrichment->getEnrichmentKey();
+        $this->assertInstanceOf('Opus_EnrichmentKey', $enrichmentKey);
+        $this->assertEquals('valid', $enrichmentKey->getName());
+        $this->assertEquals('valid', $enrichment->getKeyName());
+        $this->assertEquals('value', $enrichment->getValue());
+    }
+
+    public function testGetEnrichmentKeyWithUnregisteredKey()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue');
+        $this->_doc->addEnrichment($enrichment);
+        $docId = $this->_doc->store();
+
+        $this->_doc = new Opus_Document($docId);
+        $enrichments = $this->_doc->getEnrichment();
+
+        $this->assertEquals(2, count($enrichments));
+
+        $enrichment = $enrichments[0];
+        $enrichmentKey = $enrichment->getEnrichmentKey();
+        $this->assertInstanceOf('Opus_EnrichmentKey', $enrichmentKey);
+        $this->assertEquals('valid', $enrichmentKey->getName());
+        $this->assertEquals('valid', $enrichment->getKeyName());
+        $this->assertEquals('value', $enrichment->getValue());
+
+        $enrichment = $enrichments[1];
+        $enrichmentKey = $enrichment->getEnrichmentKey();
+        $this->assertNull($enrichmentKey);
+        $this->assertEquals('unregisteredKey', $enrichment->getKeyName());
+        $this->assertEquals('unregisteredKeyValue', $enrichment->getValue());
+    }
+
+    public function testGetAllUsedEnrichmentKeyNames()
+    {
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        $this->assertCount(1, $enrichmentKeyNames);
+        $this->assertEquals('valid', $enrichmentKeyNames[0]);
+    }
+
+    public function testGetAllUsedEnrichmentKeyNamesWithUnregisteredKey()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue');
+        $this->_doc->addEnrichment($enrichment);
+        $this->_doc->store();
+
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        $this->assertCount(2, $enrichmentKeyNames);
+
+        $expectedValues = ['valid', 'unregisteredKey'];
+        // check that both arrays have the same values (order is irrelevant)
+        $this->assertEmpty(array_diff($enrichmentKeyNames, $expectedValues), 'array values are not the same');
+        $this->assertEmpty(array_diff($expectedValues, $enrichmentKeyNames), 'array values are not the same');
+    }
+
+    public function testGetAllUsedEnrichmentKeyNamesWithDuplicateKeyName()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue1');
+        $this->_doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue2');
+        $this->_doc->addEnrichment($enrichment);
+
+        $this->_doc->store();
+
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        // duplicate key names are filtered out
+        $this->assertCount(2, $enrichmentKeyNames);
+
+        $expectedValues = ['valid', 'unregisteredKey'];
+        // check that both arrays have the same values (order is irrelevant)
+        $this->assertEmpty(array_diff($enrichmentKeyNames, $expectedValues), 'array values are not the same');
+        $this->assertEmpty(array_diff($expectedValues, $enrichmentKeyNames), 'array values are not the same');
+    }
 }
