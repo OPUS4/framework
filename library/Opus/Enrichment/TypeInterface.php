@@ -87,7 +87,7 @@ interface Opus_Enrichment_TypeInterface
      * Übersetzt die vom Benutzer eingegebene textuelle Typkonfiguration auf die
      * interne Felder
      *
-     * @param $string
+     * @param string|array $string
      *
      */
     public function setOptionsFromString($string);
@@ -102,6 +102,13 @@ interface Opus_Enrichment_TypeInterface
      */
     public function getOptionsAsString();
 
+
+    /**
+     * Sollen bereits vorhandene Werte für ein Enrichment dieses Typs vor der Speicherung validiert werden?
+     *
+     * @return bool
+     */
+    public function applyValidation();
 
     /**
      * liefert die Namen der Properties, die für die Erzeugung des JSON relevant sind
