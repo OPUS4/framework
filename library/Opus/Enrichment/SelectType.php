@@ -58,6 +58,9 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
      */
     public function getValidation()
     {
+        if (is_null($this->values)) {
+            return null; // wenn keine Werteliste definiert ist, braucht auch keine Validierung spezifiziert werden
+        }
         return $this->validation;
     }
 

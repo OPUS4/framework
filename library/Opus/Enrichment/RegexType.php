@@ -52,15 +52,23 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
      */
     public function getValidation()
     {
+        if (is_null($this->regex)) {
+            return null; // wenn kein Regex gesetzt, dann braucht auch keine Validierung spezifiziert werden
+        }
+
         return $this->validation;
     }
 
     /**
-     * @param bool $validation
+     * @param bool|string $validation
      */
     public function setValidation($validation)
     {
-        $this->validation = $validation ? 'strict' : 'none';
+        if (is_bool($validation)) {
+            $this->validation = $validation ? 'strict' : 'none';
+        } else {
+            $this->validation = $validation;
+        }
     }
 
     public function getFormElement($value = null)

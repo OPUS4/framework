@@ -41,6 +41,7 @@ class Opus_Enrichment_TextTypeTest extends TestCase
 
         $this->assertNull($textType->getOptions());
         $this->assertNull($textType->getOptionsAsString());
+        $this->assertFalse($textType->applyValidation());
     }
 
     public function testGetDescription()
