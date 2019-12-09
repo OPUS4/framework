@@ -41,6 +41,8 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
      */
     private $values = null;
 
+    private $validation = 'none';
+
     public function getValues()
     {
         return $this->values;
@@ -49,6 +51,29 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
     public function setValues($values)
     {
         $this->values = $values;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValidation()
+    {
+        if (is_null($this->values)) {
+            return null; // wenn keine Werteliste definiert ist, braucht auch keine Validierung spezifiziert werden
+        }
+        return $this->validation;
+    }
+
+    /**
+     * @param bool|string $validation
+     */
+    public function setValidation($validation)
+    {
+        if (is_bool($validation)) {
+            $this->validation = $validation ? 'strict' : 'none';
+        } else {
+            $this->validation = $validation;
+        }
     }
 
     public function getFormElementName()
@@ -107,6 +132,11 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
      */
     public function setOptionsFromString($string)
     {
+        if (is_array($string)) {
+            $this->setValidation(array_key_exists('validation', $string) && $string['validation'] === '1');
+            $string = $string['options'];
+        }
+
         $separator = "\r\n";
         $line = strtok($string, $separator);
         while ($line !== false) {
@@ -120,8 +150,13 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
         }
     }
 
+    public function isStrictValidation()
+    {
+        return $this->validation === 'strict';
+    }
+
     public function getOptionProperties()
     {
-        return ['values'];
+        return ['values', 'validation'];
     }
 }

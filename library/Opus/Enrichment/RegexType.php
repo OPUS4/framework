@@ -35,6 +35,8 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
 {
     private $regex = null;
 
+    private $validation = 'none';
+
     public function getRegex()
     {
         return $this->regex;
@@ -43,6 +45,30 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
     public function setRegex($regex)
     {
         $this->regex = $regex;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValidation()
+    {
+        if (is_null($this->regex)) {
+            return null; // wenn kein Regex gesetzt, dann braucht auch keine Validierung spezifiziert werden
+        }
+
+        return $this->validation;
+    }
+
+    /**
+     * @param bool|string $validation
+     */
+    public function setValidation($validation)
+    {
+        if (is_bool($validation)) {
+            $this->validation = $validation ? 'strict' : 'none';
+        } else {
+            $this->validation = $validation;
+        }
     }
 
     public function getFormElement($value = null)
@@ -71,6 +97,11 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
             return; // nothing to check
         }
 
+        if (is_array($string)) {
+            $this->setValidation(array_key_exists('validation', $string) && $string['validation'] === '1');
+            $string = $string['options'];
+        }
+
         // check if given option string is a valid regular expression
 
         // turn off error reporting and save current value for later restore
@@ -91,8 +122,13 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
         error_reporting($old_error);
     }
 
+    public function isStrictValidation()
+    {
+        return $this->validation === 'strict';
+    }
+
     public function getOptionProperties()
     {
-        return ['regex'];
+        return ['regex', 'validation'];
     }
 }
