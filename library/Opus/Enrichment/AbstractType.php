@@ -172,7 +172,7 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
         return null;
     }
 
-    public function applyValidation()
+    public function isStrictValidation()
     {
         return false;
     }

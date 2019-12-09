@@ -71,7 +71,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
         $this->assertEquals("1\n2\n3", $selectType->getOptionsAsString());
         $this->assertEquals('strict', $selectType->getValidation());
-        $this->assertTrue($selectType->applyValidation());
+        $this->assertTrue($selectType->isStrictValidation());
     }
 
     public function testSetOptionsWithValuesAndNoValidation()
@@ -92,7 +92,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
         $this->assertEquals("1\n2\n3", $selectType->getOptionsAsString());
         $this->assertEquals('none', $selectType->getValidation());
-        $this->assertFalse($selectType->applyValidation());
+        $this->assertFalse($selectType->isStrictValidation());
     }
 
     public function testSetOptionFromStringsWithWindowsLinebreaks()

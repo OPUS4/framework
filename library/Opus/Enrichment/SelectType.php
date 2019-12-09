@@ -150,7 +150,7 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
         }
     }
 
-    public function applyValidation()
+    public function isStrictValidation()
     {
         return $this->validation === 'strict';
     }

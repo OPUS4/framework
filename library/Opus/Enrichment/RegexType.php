@@ -122,7 +122,7 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
         error_reporting($old_error);
     }
 
-    public function applyValidation()
+    public function isStrictValidation()
     {
         return $this->validation === 'strict';
     }

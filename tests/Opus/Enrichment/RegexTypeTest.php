@@ -63,7 +63,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
         $this->assertEquals($regex, $regexType->getOptionsAsString());
         $this->assertEquals('strict', $regexType->getValidation());
-        $this->assertTrue($regexType->applyValidation());
+        $this->assertTrue($regexType->isStrictValidation());
     }
 
     public function testSetOptionsWithRegexAndNoValidation()
@@ -80,7 +80,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
         $this->assertEquals($regex, $regexType->getOptionsAsString());
         $this->assertEquals('none', $regexType->getValidation());
-        $this->assertFalse($regexType->applyValidation());
+        $this->assertFalse($regexType->isStrictValidation());
     }
 
     public function testSetOptionsFromStringWithInvalidRegex()

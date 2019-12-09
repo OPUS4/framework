@@ -108,7 +108,7 @@ interface Opus_Enrichment_TypeInterface
      *
      * @return bool
      */
-    public function applyValidation();
+    public function isStrictValidation();
 
     /**
      * liefert die Namen der Properties, die für die Erzeugung des JSON relevant sind
