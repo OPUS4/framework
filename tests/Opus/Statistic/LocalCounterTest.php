@@ -28,9 +28,9 @@
  * @package     Opus_Statistic
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -108,6 +108,10 @@ class Opus_Statistic_LocalCounterTest extends TestCase
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'statistics' => ['localCounterEnabled' => 1]
+        ]));
+
         $docId = $this->_document->getId();
 
         // issue counting request
@@ -130,6 +134,10 @@ class Opus_Statistic_LocalCounterTest extends TestCase
     public function testCountSingleFrontdoorClick()
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'statistics' => ['localCounterEnabled' => 1]
+        ]));
 
         $docId = $this->_document->getId();
 

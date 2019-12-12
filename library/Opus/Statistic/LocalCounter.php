@@ -451,8 +451,8 @@ class Opus_Statistic_LocalCounter
     public function isLocalCounterEnabled()
     {
         $config = Opus_Config::get();
-        if (isset($config->statistics->localCounterEnabled) &&
-            filter_var($config->statistics->localCounterEnabled, FILTER_VALIDATE_BOOLEAN)) {
+        if (isset($config->statistics->localCounterEnabled)) {
+            return filter_var($config->statistics->localCounterEnabled, FILTER_VALIDATE_BOOLEAN);
         } else {
             return false;
         }
