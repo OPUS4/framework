@@ -64,14 +64,12 @@ class Opus_FileTest extends TestCase
         mkdir($this->_dest_path, 0777, true);
         mkdir($this->_dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
-        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
-            new Zend_Config([
-                'workspacePath' => $this->_dest_path,
-                'checksum' => [
-                    'maxVerificationSize' => 1,
-                ],
-            ])
-        ));
+        $config->merge(new Zend_Config([
+            'workspacePath' => $this->_dest_path,
+            'checksum' => [
+                'maxVerificationSize' => 1,
+            ],
+        ]));
     }
 
     /**
@@ -941,5 +939,69 @@ class Opus_FileTest extends TestCase
         // $this->assertFalse($file->getVisibleInOai()); // return value is string '0'
         $this->assertEquals(0, $file->getVisibleInOai());
         // $this->assertEquals(false, $file->getVisibleInOai()); // return value is string '0'
+    }
+
+    public function testVisibleInOaiDefaultNotConfigured()
+    {
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $doc->addFile($file);
+        $doc = new Opus_Document($doc->store()); // reload stored document
+
+        $file = $doc->getFile(0);
+
+        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertEquals(1, $file->getVisibleInOai());
+    }
+
+    public function testVisibleInOaiDefaultConfigurable()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'files' => ['visibleInOaiDefault' => 0]
+        ]));
+
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $doc->addFile($file);
+
+        $doc = new Opus_Document($doc->store()); // reload stored document
+
+        $file = $doc->getFile(0);
+
+        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertEquals(0, $file->getVisibleInOai());
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'files' => ['visibleInOaiDefault' => 1]
+        ]));
+
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $doc->addFile($file);
+
+        $doc = new Opus_Document($doc->store()); // reload stored document
+
+        $file = $doc->getFile(0);
+
+        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertEquals(1, $file->getVisibleInOai());
     }
 }
