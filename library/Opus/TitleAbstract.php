@@ -72,7 +72,7 @@ class Opus_TitleAbstract extends Opus_Title
         $type->setMandatory(false);
         $type->setSelection(true);
         $type->setDefault([self::TYPE_ABSTRACT => self::TYPE_ABSTRACT]);
-        $type->setValue(self::TYPE_ABSTRACT); // TODO this does not work - why?
+        $type->setValue(self::TYPE_ABSTRACT); // TODO this does not work - why? because modified flag gets reset afterwards
     }
 
     public function updateFromArray($data)

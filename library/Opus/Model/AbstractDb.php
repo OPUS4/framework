@@ -88,6 +88,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
         $this->_fetchValues();
 
         $this->_clearFieldsModifiedFlag();
+
+        $this->_setDefaults();
     }
 
     /**
@@ -772,5 +774,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
             Zend_Registry::get('Zend_Log')->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
             return null;
         }
+    }
+
+    /**
+     * TODO refactor and document
+     */
+    public function _setDefaults()
+    {
     }
 }
