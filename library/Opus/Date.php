@@ -401,7 +401,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      */
     public function isValidDate()
     {
-        return  checkdate(
+        return checkdate(
             $this->values[self::FIELD_MONTH],
             $this->values[self::FIELD_DAY],
             $this->values[self::FIELD_YEAR]
@@ -467,14 +467,14 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 
         if (is_null($thisDateTime)) {
             $dateStr = htmlspecialchars($this->__toString());
-            throw new Opus_Model_Exception("Date '$dateStr' is invalid.");
+            throw new Opus\Model\Exception("Date '$dateStr' is invalid.");
         }
 
         $dateTime = $date->getDateTime('Z');
 
         if (is_null($dateTime)) {
             $dateStr = htmlspecialchars($date->__toString());
-            throw new Opus_Model_Exception("Date '$dateStr' is invalid.");
+            throw new Opus\Model\Exception("Date '$dateStr' is invalid.");
         }
 
         $thisTimestamp = $thisDateTime->getTimestamp();
