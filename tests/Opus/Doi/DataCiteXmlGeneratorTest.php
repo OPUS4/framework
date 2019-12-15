@@ -355,7 +355,9 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     {
         $docId = $this->createDocWithRequiredFields();
         $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
         $doc->setServerDatePublished(null);
+        // kein $doc->store() aufrufen, weil sonst serverDatePublished auf das aktuelle Datum gesetzt wird
 
         $generator = new Opus_Doi_DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
@@ -367,6 +369,27 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
             'titles' => true,
             'publisher' => true,
             'publicationYear' => 'publication_date_missing',
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsInvalidServerDatePublishedInPublishedDoc()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerDatePublished('');
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => 'publication_year_missing',
             'resourceType' => true], $result);
     }
 

@@ -422,7 +422,7 @@ class Opus_Doi_DataCiteXmlGenerator
         }
 
         $publicationYear = $publicationDate->getYear();
-        if (is_null($publicationYear) || $publicationYear == 0) {
+        if (is_null($publicationYear) || $publicationYear == 0 || preg_match('/^[\d]{4}$/', $publicationYear) !== 1) {
             // dieser Fall kann nicht auftreten, wenn das Freischaltungsdatum automatisch vom System gesetzt wird
             return ['publication_year_missing'];
         }
