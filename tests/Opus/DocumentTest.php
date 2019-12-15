@@ -1538,6 +1538,7 @@ class Opus_DocumentTest extends TestCase
         $document->setPageFirst('III');
         $document->setPageLast('IV');
         $document->setPageNumber('II');
+        $document->setArticleNumber('X');
 
         $document->store();
 
@@ -1553,6 +1554,8 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertNotEquals('0', $document->getPageNumber());
         $this->assertEquals('II', $document->getPageNumber());
+
+        $this->assertEquals('X', $document->getArticleNumber());
     }
 
     public function testSortOrderForAddPersonAuthors()
@@ -2924,6 +2927,9 @@ class Opus_DocumentTest extends TestCase
         $pageNumber = 11;
         $doc->setPageNumber($pageNumber);
 
+        $articleNumber = 99;
+        $doc->setArticleNumber($articleNumber);
+
         $publishedYear = 2015;
         $doc->setPublishedYear($publishedYear);
 
@@ -3248,6 +3254,7 @@ class Opus_DocumentTest extends TestCase
         $this->checkArrayEntry('PageFirst', $pageFirst, $data);
         $this->checkArrayEntry('PageLast', $pageLast, $data);
         $this->checkArrayEntry('PageNumber', $pageNumber, $data);
+        $this->checkArrayEntry('ArticleNumber', $articleNumber, $data);
         $this->checkArrayEntry('PublishedYear', $publishedYear, $data);
         $this->checkArrayEntry('PublisherName', $publisherName, $data);
         $this->checkArrayEntry('PublisherPlace', $publisherPlace, $data);

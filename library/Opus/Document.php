@@ -86,6 +86,9 @@
  * @method void setPageNumber(string $pageNumber)
  * @method string getPageNumber()
  *
+ * @method void setArticleNumber(string $articleNumber)
+ * @method string getArticleNumber()
+ *
  * @method void setPublishedDate(Opus_Date $date)
  * @method Opus_Date getPublishedDate()
  *
@@ -482,7 +485,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             'EmbargoDate',
             'Issue',
             'Language',
-            'PageFirst', 'PageLast', 'PageNumber',
+            'PageFirst', 'PageLast', 'PageNumber', 'ArticleNumber',
             'PublishedDate', 'PublishedYear',
             'PublisherName', 'PublisherPlace',
             'PublicationState',
