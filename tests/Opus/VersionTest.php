@@ -105,7 +105,7 @@ class Opus_VersionTest extends TestCase
         $this->assertEquals(
             $version,
             $scriptVersion,
-            'Schema version in opus4schema.sql should match highest number used for an update script.'
+            'Schema version in \'schema_version.version\' should match highest number used for an update script.'
         );
     }
 }
