@@ -175,47 +175,37 @@ class Opus_Doi_DataCiteXmlGenerator
         $status = [];
 
         $result = $this->checkExistenceOfLocalDoi($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element identifier');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element identifier');
+            return false;
         }
         $this->setStatusEntry($status, 'identifier', $result);
 
         $result = $this->checkExistenceOfCreator($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creators');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creators');
+            return false;
         }
         $this->setStatusEntry($status, 'creators', $result);
 
         $result = $this->checkExistenceOfTitle($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element titles');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element titles');
+            return false;
         }
         $this->setStatusEntry($status, 'titles', $result);
 
         $result = $this->checkExistenceOfPublisher($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
+            return false;
         }
         $this->setStatusEntry($status, 'publisher', $result);
 
         $result = $this->checkExistenceOfPublicationYear($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
+            return false;
         }
         $this->setStatusEntry($status, 'publicationYear', $result);
 
@@ -409,9 +399,11 @@ class Opus_Doi_DataCiteXmlGenerator
     }
 
     /**
-     * In dem übergebenen Dokument muss ein Publikationsjahr existieren.
+     * In dem übergebenen Dokument muss ein Publikationsjahr existieren. Dieses wird aus dem Feld
+     * ServerDatePublished abgeleitet, das bei der Freischaltung eines OPUS-Dokuments automatisch
+     * gesetzt wird.
      *
-     * @param $doc das zu prüfende Dokument
+     * @param Opus_Document $doc das zu prüfende Dokument
      *
      * @return bool gibt ein leeres Array zurück, wenn ein Publikationsjahr gefunden wurde; andernfalls
      *              steht im Array der gefundene Fehler
@@ -420,11 +412,18 @@ class Opus_Doi_DataCiteXmlGenerator
     {
         $publicationDate = $doc->getServerDatePublished();
         if (is_null($publicationDate)) {
+            // dieser Fall kann eigentlich nur eintreten, wenn das Dokument noch nicht freigeschaltet wurde
+            if ($doc->getServerState() !== 'published') {
+                return ['publication_date_missing_non_published'];
+            }
+
+            // wenn ein freigeschaltetes Dokument kein Freischaltungsdatum hat, dann ist das ein Fehler
             return ['publication_date_missing'];
         }
 
         $publicationYear = $publicationDate->getYear();
-        if (is_null($publicationYear) || $publicationYear == 0) {
+        if (is_null($publicationYear) || $publicationYear == 0 || preg_match('/^[\d]{4}$/', $publicationYear) !== 1) {
+            // dieser Fall kann nicht auftreten, wenn das Freischaltungsdatum automatisch vom System gesetzt wird
             return ['publication_year_missing'];
         }
 

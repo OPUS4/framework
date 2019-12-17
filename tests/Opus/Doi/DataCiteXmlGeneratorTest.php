@@ -310,6 +310,89 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
             'resourceType' => true], $result);
     }
 
+    public function testCheckRequiredFieldsUnpublishedDoc()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsMissingServerDatePublishedUnpublishedDoc()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('unpublished');
+        $doc->setServerDatePublished(null);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => 'publication_date_missing_non_published',
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsMissingServerDatePublishedInPublishedDoc()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerDatePublished(null);
+        // kein $doc->store() aufrufen, weil sonst serverDatePublished auf das aktuelle Datum gesetzt wird
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => 'publication_date_missing',
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsInvalidServerDatePublishedInPublishedDoc()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerDatePublished('');
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => 'publication_year_missing',
+            'resourceType' => true], $result);
+    }
+
     /**
      * Hilfsfunktion zum Setzen eines ThesisPublisher im übergebenen Dokument.
      *
