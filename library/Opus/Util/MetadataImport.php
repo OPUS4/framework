@@ -243,6 +243,7 @@ class Opus_Util_MetadataImport
             'PageFirst',
             'PageLast',
             'PageNumber',
+            'ArticleNumber',
             'PublisherName',
             'PublisherPlace',
             'Type',
