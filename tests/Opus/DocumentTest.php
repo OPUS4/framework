@@ -117,6 +117,7 @@ class Opus_DocumentTest extends TestCase
         'PageFirst' => 1,
         'PageLast' => 297,
         'PageNumber' => 297,
+        'ArticleNumber' => 42,
         'CompletedYear' => 1960,
         'CompletedDate' => '1901-01-01',
         'BelongsToBibliography' => 1,
@@ -381,7 +382,6 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals($document->getLicence(0)->getNameLong(), 'Creative Commons');
         $this->assertEquals($document->getLicence(0)->getPodAllowed(), 1);
         $this->assertEquals($document->getLicence(0)->getSortOrder(), 0);
-        $thesisPublishers = $document->getThesisPublisher();
         $this->assertEquals($document->getThesisPublisher(0)->getName(), 'Forschungsinstitut für Code Coverage');
         $this->assertEquals($document->getThesisPublisher(0)->getCity(), 'Calisota');
         $this->assertEquals($document->getThesisGrantor(0)->getName(), 'Forschungsinstitut für Code Coverage');
@@ -1546,15 +1546,9 @@ class Opus_DocumentTest extends TestCase
 
         $document = new Opus_Document($docId);
 
-        $this->assertNotEquals('0', $document->getPageFirst());
         $this->assertEquals('III', $document->getPageFirst());
-
-        $this->assertNotEquals('0', $document->getPageLast());
         $this->assertEquals('IV', $document->getPageLast());
-
-        $this->assertNotEquals('0', $document->getPageNumber());
         $this->assertEquals('II', $document->getPageNumber());
-
         $this->assertEquals('X', $document->getArticleNumber());
     }
 

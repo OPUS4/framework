@@ -100,6 +100,24 @@ class Opus_Util_MetadataImportTest extends TestCase
         $this->documentImported = true;
     }
 
+    public function testImportOfDocumentAttributes()
+    {
+        $this->filename = 'test_import_document_attributes.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+        $importer->run();
+
+        $finder = new Opus_DocumentFinder();
+        $docId = $finder->ids()[0];
+        $doc = new Opus_Document($docId);
+        $this->assertEquals(1, $doc->getPageFirst());
+        $this->assertEquals(2, $doc->getPageLast());
+        $this->assertEquals(3, $doc->getPageNumber());
+        $this->assertEquals(4, $doc->getArticleNumber());
+
+        $this->documentImported = true;
+    }
+
     public function testSkippedDocumentsException()
     {
         $this->filename = 'test_import_invalid_collectionid.xml';
