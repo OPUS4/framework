@@ -1429,4 +1429,28 @@ class Opus_CollectionTest extends TestCase
         $this->assertEquals('1', $col->getVisible());
         $this->assertEquals('1', $col->getVisiblePublish());
     }
+
+    /**
+     * If a collection already exists an object for that collection should be created.
+     */
+    public function testFromArrayUseExistingCollection()
+    {
+        $this->markTestIncomplete('not implemented yet');
+
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName('Test');
+        $collectionRole->setOaiName('Test');
+        $collection = $collectionRole->addRootCollection();
+        $collectionRole->store();
+
+        $colId = $collection->getId();
+
+        // var_dump($collection->toArray());
+
+        $col = Opus_Collection::fromArray([
+            'Id' => $colId
+        ]);
+
+        // var_dump($col);
+    }
 }

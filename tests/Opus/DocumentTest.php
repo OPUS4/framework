@@ -3760,7 +3760,33 @@ class Opus_DocumentTest extends TestCase
      */
     public function testFromArray()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $data = [
+            'Type' => 'article',
+            'TitleMain' => [
+                [
+                    'Type' => 'Main',
+                    'Language' => 'eng',
+                    'Value' => 'Test Title'
+                ],
+                [
+                    'Type' => 'Main',
+                    'Language' => 'deu',
+                    'Value' => 'Testtitel'
+                ]
+            ]
+        ];
+
+        $document = Opus_Document::fromArray($data);
+
+        $this->assertNotNull($document);
+        $this->assertInstanceOf('Opus_Document', $document);
+        $this->assertEquals('article', $document->getType());
+
+        $titles = $document->getTitleMain();
+
+        $this->assertCount(2, $titles);
+
+
     }
 
     public function testUpdateFrom()
@@ -4215,5 +4241,18 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertCount(1, $all);
         $this->assertEquals('issn', $all[0]->getType());
+    }
+
+    public function testCompareDocuments()
+    {
+        $this->markTestIncomplete('not implemented yet');
+    }
+
+    /**
+     * TODO My assumption is, that a Collection gets modified when a document is stored. For instance its name.
+     */
+    public function testModifingCollectionWhenStoringDocument()
+    {
+        $this->markTestIncomplete('not implemented yet');
     }
 }

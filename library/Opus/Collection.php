@@ -1297,4 +1297,30 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
         return $table->isVisible($colId);
     }
+
+    /**
+     * Creates collection object from data in array.
+     *
+     * If array contains 'Id' the corresponding existing collection is used.
+     *
+     * TODO If 'Id' is from a different system the wrong collection might be used.
+     *      How can we deal with the possible problems? Does it make more sense to
+     *      handle reuse of existing objects outside the fromArray function?
+     *      Would it make more sense if we generte new objects and then apply
+     *      another function that maps the attributes of a document to existing
+     *      objects in the database. It seems this really depends on the type of
+     *      object in question.
+     *
+     * TODO Collections should probably never be created as part of an import. When
+     *      a document is stored the connected collections should already exist. If
+     *      not the storing operation should fail.
+     *
+     * @return mixed|void
+     */
+    public static function fromArray($data)
+    {
+        return parent::fromArray($data);
+        // TODO check if collection exists
+        // TODO create new object if not
+    }
 }
