@@ -2,6 +2,7 @@ FROM ubuntu:16.04
 
 # Update Ubuntu
 RUN apt-get update
+RUN apt-get update
 
 # Install system-packages
 RUN apt-get install -y debconf-utils\
