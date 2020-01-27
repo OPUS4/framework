@@ -30,7 +30,7 @@ pipeline {
         stage('Prepare Opus4') {
             steps {
                 sh 'ant prepare-workspace prepare-config lint -DdbUserPassword=root -DdbAdminPassword=root'
-                sh 'pecl install xdebug && echo "zend_extension=/usr/lib/php/20151012/xdebug.so" >> /etc/php/7.0/cli/php.ini'
+                // sh 'pecl install xdebug && echo "zend_extension=/usr/lib/php/20151012/xdebug.so" >> /etc/php/7.0/cli/php.ini'
                 sh 'sudo useradd opus4 && chown -R opus4:opus4 .'
             }
         }
