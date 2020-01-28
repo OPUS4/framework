@@ -634,8 +634,13 @@ class Opus_Collection extends Opus_Model_AbstractDb
             'Id' => $this->getId(),
             'RoleId' => $this->getRoleId(),
             'RoleName' => $role->getDisplayName(),
-            'DisplayBrowsing' => $this->getDisplayName('browsing'),
-            'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
+            'Name' => $this->getName(),
+            'Number' => $this->getNumber(),
+            'OaiSubset' => $this->getOaiSubset(),
+            'RoleDisplayFrontdoor' => $role->getDisplayFrontdoor(),
+            'RoleDisplayBrowsing' => $role->getDisplayBrowsing(),
+            'DisplayFrontdoor' => $this->getDisplayName('Frontdoor'),
+            'DisplayBrowsing' => $this->getDisplayName('Browsing')
         ];
     }
 
@@ -1319,8 +1324,23 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public static function fromArray($data)
     {
-        return parent::fromArray($data);
-        // TODO check if collection exists
-        // TODO create new object if not
+        $col = null;
+
+        if (isset($data['Id'])) {
+            try {
+                $col = new Opus_Collection($data['Id']);
+
+                // TODO update from array not supported (handling of roleId)
+                // $col->updateFromArray($data);
+            } catch (Opus_Model_NotFoundException $omnfe) {
+                // TODO handle it
+            }
+        }
+
+        if (is_null($col)) {
+            $col = parent::fromArray($data);
+        }
+
+        return $col;
     }
 }

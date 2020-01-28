@@ -1372,6 +1372,7 @@ class Opus_CollectionTest extends TestCase
         $root->setName('colA');
         $root->setNumber('VI');
         $root->setVisible('1');
+        $root->setOaiSubset('testoai');
 
         $role = new Opus_CollectionRole($role->store());
 
@@ -1383,8 +1384,63 @@ class Opus_CollectionTest extends TestCase
             'Id' => $root->getId(),
             'RoleId' => $role->getId(),
             'RoleName' => $role->getName(),
-            'DisplayBrowsing' => 'colA',
-            'DisplayFrontdoor' => 'VI'
+            'Name' => 'colA',
+            'Number' => 'VI',
+            'OaiSubset' => 'testoai',
+            'RoleDisplayFrontdoor' => 'Number',
+            'RoleDisplayBrowsing' => 'Name',
+            'DisplayFrontdoor' => 'VI',
+            'DisplayBrowsing' => 'colA'
+        ], $data);
+    }
+
+    public function testToArrayForChildCollection()
+    {
+        $root = $this->object;
+        $role = $this->role_fixture;
+
+        $role->setDisplayFrontdoor('Number');
+        $role->setDisplayBrowsing('Name');
+
+        $root->setName('TestCol');
+        $root->setNumber('6');
+        $root->setVisible(0);
+
+        $role = new Opus_CollectionRole($role->store());
+
+        $root = $role->getRootCollection();
+
+        $col = Opus_Collection::fromArray([
+            'Name' => 'OPUS',
+            'Number' => '2',
+            'OaiSubset' => 'opus4',
+            'DisplayBrowsing' => 1,
+            'DisplayFrontdoor' => 1
+        ]);
+
+        $root->addFirstChild($col);
+
+        $root->store();
+
+        $children = $root->getVisibleChildren();
+
+        $this->assertCount(1, $children);
+
+        $col = $children[0];
+
+        $data = $col->toArray();
+
+        $this->assertEquals([
+            'Id' => $col->getId(),
+            'RoleId' => $role->getId(),
+            'RoleName' => $role->getName(),
+            'DisplayBrowsing' => 'OPUS',
+            'DisplayFrontdoor' => 2,
+            'OaiSubset' => 'opus4',
+            'Name' => 'OPUS',
+            'Number' => '2',
+            'RoleDisplayBrowsing' => 'Name',
+            'RoleDisplayFrontdoor' => 'Number'
         ], $data);
     }
 
@@ -1406,6 +1462,7 @@ class Opus_CollectionTest extends TestCase
         $this->assertEquals('opus4', $col->getOaiSubset());
         $this->assertEquals('1', $col->getVisible());
         $this->assertEquals('1', $col->getVisiblePublish());
+        $this->assertNull($col->getId());
     }
 
     public function testUpdateFromArray()
@@ -1435,8 +1492,6 @@ class Opus_CollectionTest extends TestCase
      */
     public function testFromArrayUseExistingCollection()
     {
-        $this->markTestIncomplete('not implemented yet');
-
         $collectionRole = new Opus_CollectionRole();
         $collectionRole->setName('Test');
         $collectionRole->setOaiName('Test');
@@ -1445,12 +1500,71 @@ class Opus_CollectionTest extends TestCase
 
         $colId = $collection->getId();
 
-        // var_dump($collection->toArray());
-
         $col = Opus_Collection::fromArray([
             'Id' => $colId
         ]);
 
-        // var_dump($col);
+        $this->assertEquals($col->getId(), $colId);
+    }
+
+    public function testFromArrayUsingExistingIdWithChangedValues()
+    {
+        $role = $this->role_fixture;
+        $root = $this->object;
+
+        $root->setName('TestName');
+        $root->setNumber('TestNumber');
+        $root->store();
+
+        $colId = $root->getId();
+        $roleId = $root->getRoleId();
+
+        $col = Opus_Collection::fromArray([
+            'Id' => $colId,
+            'Name' => 'ChangedName',
+            'Number' => 'ChangedNumber'
+        ]);
+
+        $this->assertNotNull($col);
+        $this->assertInstanceOf('Opus_Collection', $col);
+        $this->assertEquals($colId, $col->getId());
+        $this->assertEquals($roleId, $col->getRoleId());
+
+        // TODO update not supported right now (handling of roleId!)
+        // $this->assertEquals('ChangedName', $col->getName());
+        // $this->assertEquals('ChangedNumber', $col->getNumber());
+    }
+
+    public function testFromArrayUsingUnknownId()
+    {
+        $col = Opus_Collection::fromArray([
+            'Id' => 99,
+            'Name' => 'OPUS',
+            'Number' => '4',
+            'OaiSubset' => 'opus4',
+            'Visible' => 1,
+            'VisiblePublish' => 1,
+        ]);
+
+        $this->assertNull($col->getId());
+    }
+
+    public function testFromArrayUsingExistingIdWithMismatchedRoleId()
+    {
+
+    }
+
+    public function testFromArrayForNewCollectionUsingExistingRole()
+    {
+        $role = new Opus_CollectionRole();
+
+        $col = Opus_Collection::fromArray([
+            'Id' => 99,
+            'Name' => 'OPUS',
+            'Number' => '4',
+            'OaiSubset' => 'opus4',
+            'Visible' => 1,
+            'VisiblePublish' => 1,
+        ]);
     }
 }
