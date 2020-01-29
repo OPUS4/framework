@@ -88,7 +88,8 @@ pipeline {
                 $class: 'hudson.plugins.pmd.PmdPublisher',
                 pattern: 'build/logs/pmd.xml'
             ])
-            step([$class: 'WsCleanup'])
+            sh "chmod -R 777 ."
+            step([$class: 'WsCleanup', externalDelete: 'rm -rf *'])
         }
     }
 }
