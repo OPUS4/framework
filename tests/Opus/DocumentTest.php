@@ -3785,8 +3785,6 @@ class Opus_DocumentTest extends TestCase
         $titles = $document->getTitleMain();
 
         $this->assertCount(2, $titles);
-
-
     }
 
     public function testUpdateFrom()

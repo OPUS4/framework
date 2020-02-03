@@ -1551,7 +1551,6 @@ class Opus_CollectionTest extends TestCase
 
     public function testFromArrayUsingExistingIdWithMismatchedRoleId()
     {
-
     }
 
     public function testFromArrayForNewCollectionUsingExistingRole()
