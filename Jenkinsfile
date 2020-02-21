@@ -79,7 +79,7 @@ pipeline {
             step([
                 $class: 'CloverPublisher',
                 cloverReportDir: 'build',
-                cloverReportFileName: 'clover.xml"'
+                cloverReportFileName: 'clover.xml'
             ])
             step([$class: 'WsCleanup', externalDelete: 'rm -rf *'])
         }
