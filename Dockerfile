@@ -11,7 +11,8 @@ RUN apt-get update \
     unzip\
     ant\
     openjdk-8-jdk\
-    sudo
+    sudo \
+    curl\
 
 # Install PHP
 && apt-get install -y php\
@@ -20,4 +21,7 @@ RUN apt-get update \
        php-mbstring\
        php-mysql\
        php-curl
+
+# Add User Opus4
+RUN sudo useradd opus4
 
