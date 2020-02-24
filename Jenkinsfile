@@ -14,7 +14,7 @@ pipeline {
     // Set agent -> Where the pipeline is executed -> Docker build from dockerfile and run as root (necessary)
     agent { dockerfile {args "-u root -v /var/run/docker.sock:/var/run/docker.sock"}}
 
-    // Set trigger if build is long -> Firday 21:00
+    // Set trigger if build is long -> Every day 03:00
     triggers {
         cron( buildType.equals('long') ? 'H 3 * * *' : '')
     }
