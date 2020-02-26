@@ -22,9 +22,6 @@ jobs:
       - name: Prepare
         run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
 
-      - name: Test
-        run: php composer.phar test
-
       - name: Coding-Style
         run: php composer.phar cs-check
 
@@ -36,4 +33,6 @@ jobs:
 
       - name: PHP CPD
         run: php composer.phar phpcpd
-
+        
+      - name: Test
+        run: php composer.phar test
