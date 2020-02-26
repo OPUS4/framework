@@ -20,7 +20,7 @@ jobs:
         run: sudo bash bin/install_mysql_docker.sh
 
       - name: Prepare
-        run: ant prepare-workspace prepare-config lint -DdbUserPassword=root -DdbAdminPassword=root
+        run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
 
       - name: Test
         run: php composer.phar test
