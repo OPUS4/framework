@@ -1,0 +1,29 @@
+name: PHP Composer
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-16.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Change to PHP7.0
+        run: sudo update-alternatives --set php /usr/bin/php7.0
+
+      - name: Install Composer and Dependencies
+        run: sudo apt-get update && curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
+
+      - name: MySQL
+        run: sudo bash bin/install_mysql_docker.sh
+
+      - name: Prepare
+        run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
+
+      - name: Coding-Style
+        run: php composer.phar cs-check
+
+      - name: Test
+        run: php composer.phar test
