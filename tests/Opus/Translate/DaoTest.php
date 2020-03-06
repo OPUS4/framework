@@ -506,4 +506,30 @@ class Opus_Translate_DaoTest extends TestCase
         $translations = $dao->getTranslation('testkey1');
         $this->assertEquals($data2, $translations);
     }
+
+    public function testSetSpecialTranslation()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'de' => 'Jump to',
+            'en' => 'Gehe zu'
+        ];
+
+        $dao->setTranslation('admin-actionbox-goto-section', $data);
+
+        $translations = $dao->getTranslation('admin-actionbox-goto-section');
+
+        var_dump($translations);
+    }
+
+    public function testGetTranslationsWithModules()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'de' => 'Deutsch',
+            'en' => 'Englisch'
+        ];
+    }
 }

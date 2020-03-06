@@ -307,4 +307,27 @@ class Opus_Translate_Dao
 
         $database->commit();
     }
+
+    public function getTranslationsWithModules()
+    {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+
+        $select = $table->getAdapter()->select()
+            ->from(['t' => 'translations'], ['keys.key', 'locale', 'value', 'keys.module'])
+            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
+
+        $rows = $table->getAdapter()->fetchAll($select);
+
+        $result = [];
+
+        foreach ($rows as $row) {
+            $key = $row['key'];
+            $locale = $row['locale'];
+            $value = $row['value'];
+
+            $result[$key][$locale] = $value;
+        }
+
+        return $result;
+    }
 }
