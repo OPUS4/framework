@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -43,8 +43,12 @@
  * TODO is it necessary to support same key for multiple modules?
  * TODO how to handle same key in default and module translations is not clear yet. What if a key needs to be edited in
  *      the administration? How to decide which module is meant?
+ *
+ * TODO merge getTranslations and getTranslationsByModule
+ *      This is functionality for the management user interface. The translations are always needed with the module
+ *      information.
  */
-class Opus_Translate_Dao
+class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
 {
 
     public function remove($key, $module = null)
@@ -324,10 +328,27 @@ class Opus_Translate_Dao
             $key = $row['key'];
             $locale = $row['locale'];
             $value = $row['value'];
+            $module = $row['module'];
 
-            $result[$key][$locale] = $value;
+            $result[$key]['module'] = $module;
+            $result[$key]['values'][$locale] = $value;
         }
 
         return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getModules()
+    {
+        $table = OPus_Db_TableGateway::getInstance('Opus_Db_Translations');
+
+        $select = $table->getAdapter()->select()
+            ->from(['keys' => 'translationkeys'], ['keys.module'])->distinct();
+
+        $rows = $table->getAdapter()->fetchCol($select);
+
+        return $rows;
     }
 }

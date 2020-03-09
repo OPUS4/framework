@@ -531,5 +531,53 @@ class Opus_Translate_DaoTest extends TestCase
             'de' => 'Deutsch',
             'en' => 'Englisch'
         ];
+
+        $dao->setTranslation('testKey', $data, 'setup');
+
+        $translations = $dao->getTranslationsWithModules();
+
+        $this->assertNotNull($translations);
+        $this->assertArrayHasKey('testKey', $translations);
+
+        $testKey = $translations['testKey'];
+
+        $this->assertArrayHasKey('module', $testKey);
+        $this->assertEquals('setup', $testKey['module']);
+        $this->assertArrayHasKey('values', $testKey);
+        $this->assertEquals($data, $testKey['values']);
+    }
+
+    public function testGetModules()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $dao->setTranslation('testKey1', [
+            'en' => 'test key 1',
+            'de' => 'Testschlüssel 1'
+        ]);
+
+        $dao->setTranslation('testKey2', [
+            'en' => 'test key 2',
+            'de' => 'Testschlüssel 2'
+        ], 'home');
+
+        $dao->setTranslation('testKey3', [
+            'en' => 'test key 3',
+            'de' => 'Testschlüssel 3'
+        ], 'admin');
+
+        $dao->setTranslation('testKey3', [
+            'en' => 'test key 4',
+            'de' => 'Testschlüssel 4'
+        ], 'admin');
+
+        $modules = $dao->getModules();
+
+        $this->assertCount(3, $modules);
+        $this->assertEquals([
+            'default',
+            'home',
+            'admin'
+        ], $modules);
     }
 }
