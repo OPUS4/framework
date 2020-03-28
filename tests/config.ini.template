@@ -50,9 +50,6 @@ opusdb.params.admin.password = @db.admin.password@
 
 db.debug = 1
 
-opusdb.params.admin.name = @db.admin.name@
-opusdb.params.admin.password = @db.admin.password@
-
 ;OPUS SETTINGS
 workspacePath = APPLICATION_PATH "/tests/workspace"
 resources.locale.default = 'de'
