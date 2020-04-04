@@ -520,7 +520,7 @@ class Opus_Translate_DaoTest extends TestCase
 
         $translations = $dao->getTranslation('admin-actionbox-goto-section');
 
-        var_dump($translations);
+        $this->assertEquals($data, $translations);
     }
 
     public function testGetTranslationsWithModules()
@@ -545,6 +545,45 @@ class Opus_Translate_DaoTest extends TestCase
         $this->assertEquals('setup', $testKey['module']);
         $this->assertArrayHasKey('values', $testKey);
         $this->assertEquals($data, $testKey['values']);
+    }
+
+    public function testGetTranslationsWithModulesFilteredByModules()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $keyData = ['en' => 'keyEN', 'de' => 'keyDE'];
+        $defaultKeyData = ['en' => 'defaultKeyEN', 'de' => 'defaultKeyDE'];
+        $publishKeyData = ['en' => 'publishKeyEN', 'de' => 'publishKeyDE'];
+        $adminKeyData = ['en' => 'adminKeyEN', 'de' => 'adminKeyDE'];
+
+        $dao->setTranslation('key', $keyData);
+        $dao->setTranslation('default_key', $defaultKeyData, 'default');
+        $dao->setTranslation('publish_key', $publishKeyData, 'publish');
+        $dao->setTranslation('admin_key', $adminKeyData, 'admin');
+
+        // test no module specified
+        $translations = $dao->getTranslationsWithModules();
+
+        $this->assertCount(4, $translations);
+
+        // test single module
+        $translations = $dao->getTranslationsWithModules('default');
+
+        $this->assertCount(2, $translations);
+        $this->assertArrayHasKey('key', $translations);
+        $this->assertArrayHasKey('default_key', $translations);
+
+        // test multiple modules
+        $translations = $dao->getTranslationsWithModules(['publish', 'admin']);
+
+        $this->assertCount(2, $translations);
+        $this->assertArrayHasKey('publish_key', $translations);
+        $this->assertArrayHasKey('admin_key', $translations);
+
+        // test unknown module
+        $translations = $dao->getTranslationsWithModules('unknown857');
+
+        $this->assertCount(0, $translations);
     }
 
     public function testGetModules()

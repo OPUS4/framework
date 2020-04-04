@@ -312,13 +312,21 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
         $database->commit();
     }
 
-    public function getTranslationsWithModules()
+    public function getTranslationsWithModules($modules = null)
     {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
         $select = $table->getAdapter()->select()
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value', 'keys.module'])
             ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
+
+        if (! is_null($modules)) {
+            if (is_array($modules)) {
+                $select->where('keys.module IN (?)', $modules);
+            } else {
+                $select->where('keys.module = ?', $modules);
+            }
+        }
 
         $rows = $table->getAdapter()->fetchAll($select);
 
