@@ -491,7 +491,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements
 
         try {
             // ensure file is basically available and extracting is supported
-            if (! $file->exists()) {
+            if (! $file->isReadable()) {
                 throw new Opus_Storage_FileNotFoundException($file->getPath() . ' does not exist.');
             }
 

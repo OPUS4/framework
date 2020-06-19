@@ -216,7 +216,7 @@ class Opus_FileTest extends TestCase
         $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
-        $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+        $this->assertTrue($file->isReadable(), "File->exists should return true on saved files.");
     }
 
     /**
@@ -233,10 +233,10 @@ class Opus_FileTest extends TestCase
         $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
-        $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+        $this->assertTrue($file->isReadable(), "File->exists should return true on saved files.");
 
         @unlink($file->getPath());
-        $this->assertFalse($file->exists(), "File->exists should return false on deleted files.");
+        $this->assertFalse($file->isReadable(), "File->exists should return false on deleted files.");
     }
 
     /**
@@ -255,7 +255,7 @@ class Opus_FileTest extends TestCase
 
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
-        $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+        $this->assertTrue($file->isReadable(), "File->exists should return true on saved files.");
 
         $token = $file->delete();
         $this->assertNotNull($token, 'No deletion token returned.');
@@ -655,7 +655,7 @@ class Opus_FileTest extends TestCase
         $fileId = $doc->getFile(0)->getId();
         $this->assertNotNull($fileId);
         $file = new Opus_File($fileId);
-        $this->assertTrue($file->exists());
+        $this->assertTrue($file->isReadable());
     }
 
     /**

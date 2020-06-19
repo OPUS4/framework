@@ -382,7 +382,7 @@ class Opus_SolrSearch_Index_Indexer
     private function getFileContent(Opus_File $file)
     {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
-        if (! $file->exists()) {
+        if (! $file->isReadable()) {
             $this->log->err($file->getPath() . ' does not exist.');
             throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' does not exist.');
         }
