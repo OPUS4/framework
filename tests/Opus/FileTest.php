@@ -28,9 +28,8 @@
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -42,6 +41,7 @@ class Opus_FileTest extends TestCase
 {
 
     protected $_src_path = '';
+
     protected $_dest_path = '';
 
     /**
@@ -64,14 +64,12 @@ class Opus_FileTest extends TestCase
         mkdir($this->_dest_path, 0777, true);
         mkdir($this->_dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
-        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
-            new Zend_Config([
-                            'workspacePath' => $this->_dest_path,
-                            'checksum' => [
-                                'maxVerificationSize' => 1,
-                            ],
-            ])
-        ));
+        $config->merge(new Zend_Config([
+            'workspacePath' => $this->_dest_path,
+            'checksum' => [
+                'maxVerificationSize' => 1,
+            ],
+        ]));
     }
 
     /**
@@ -418,7 +416,7 @@ class Opus_FileTest extends TestCase
             @chmod($path, 0777);
 
             $this->fail('Expected exception not thrown.');
-        } catch (Opus_Model_Exception $e) {
+        } catch (Opus\Model\Exception $e) {
             @chmod($path, 0777);
             $expectedMessage = 'Could not rename file from';
             $this->assertStringStartsWith($expectedMessage, $e->getMessage(), 'Caught wrong exception!');
@@ -614,34 +612,33 @@ class Opus_FileTest extends TestCase
 
         Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
             new Zend_Config([
-                            'workspacePath' => $this->_dest_path,
-                            'checksum' => [
-                                'maxVerificationSize' => 0,
-                            ],
+                'workspacePath' => $this->_dest_path,
+                'checksum' => [
+                    'maxVerificationSize' => 0,
+                ],
             ])
         ));
 
-                        $doc = $this->_createDocumentWithFile("foobar.pdf");
-                        $file = $doc->getFile(0);
-                        $doc->store();
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
 
-                        $this->assertFalse($file->canVerify());
+        $this->assertFalse($file->canVerify());
 
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
+            new Zend_Config([
+                'workspacePath' => $this->_dest_path,
+                'checksum' => [
+                    'maxVerificationSize' => -1,
+                ],
+            ])
+        ));
 
-                        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
-                            new Zend_Config([
-                            'workspacePath' => $this->_dest_path,
-                            'checksum' => [
-                                'maxVerificationSize' => -1,
-                            ],
-                            ])
-                        ));
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
 
-                        $doc = $this->_createDocumentWithFile("foobar.pdf");
-                        $file = $doc->getFile(0);
-                        $doc->store();
-
-                        $this->assertTrue($file->canVerify());
+        $this->assertTrue($file->canVerify());
     }
 
     /**
@@ -681,7 +678,7 @@ class Opus_FileTest extends TestCase
         $file->setPathName('copied-' . $filename);
         $file->setLabel('Volltextdokument-2 (PDF)');
 
-        $this->setExpectedException("Opus_Model_Exception");
+        $this->setExpectedException('Opus\Model\Exception');
         $doc->store();
 
         // This code is not reached if the expected exception is thrown
@@ -942,5 +939,69 @@ class Opus_FileTest extends TestCase
         // $this->assertFalse($file->getVisibleInOai()); // return value is string '0'
         $this->assertEquals(0, $file->getVisibleInOai());
         // $this->assertEquals(false, $file->getVisibleInOai()); // return value is string '0'
+    }
+
+    public function testVisibleInOaiDefaultNotConfigured()
+    {
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $doc->addFile($file);
+        $doc = new Opus_Document($doc->store()); // reload stored document
+
+        $file = $doc->getFile(0);
+
+        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertEquals(1, $file->getVisibleInOai());
+    }
+
+    public function testVisibleInOaiDefaultConfigurable()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'files' => ['visibleInOaiDefault' => 0]
+        ]));
+
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $doc->addFile($file);
+
+        $doc = new Opus_Document($doc->store()); // reload stored document
+
+        $file = $doc->getFile(0);
+
+        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertEquals(0, $file->getVisibleInOai());
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'files' => ['visibleInOaiDefault' => 1]
+        ]));
+
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $doc->addFile($file);
+
+        $doc = new Opus_Document($doc->store()); // reload stored document
+
+        $file = $doc->getFile(0);
+
+        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertEquals(1, $file->getVisibleInOai());
     }
 }

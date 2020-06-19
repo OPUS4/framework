@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -47,6 +46,7 @@ class Opus_Db_Accounts extends Opus_Db_TableGateway
      * @var string
      */
     protected $_name = 'accounts';
+
     /**
      * All dependant Tables,
      * i.e. those that contain a role_id as a foreign key.
@@ -54,6 +54,6 @@ class Opus_Db_Accounts extends Opus_Db_TableGateway
      * @var array $_dependantTables
      */
     protected $_dependentTables = [
-            'Opus_Db_LinkAccountsRoles',
-            ];
+        'Opus_Db_LinkAccountsRoles',
+    ];
 }

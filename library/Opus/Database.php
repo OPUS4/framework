@@ -37,9 +37,12 @@
  * This class is used to drop and create the database schema and also import the master data and the test data.
  *
  * TODO more logging
+ * TODO is admin level access to schema always necessary? distinguish?
  */
 class Opus_Database
 {
+
+    use \Opus\LoggingTrait;
 
     /**
      * Path to folder containing SQL files for updates.

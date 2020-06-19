@@ -88,6 +88,12 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
         $this->addField($value);
     }
 
+    /**
+     * Returns the associated enrichment key or null if it does not exist.
+     *
+     * @return Opus_EnrichmentKey|null
+     * @throws \Opus\Model\Exception
+     */
     public function getEnrichmentKey()
     {
         $keyName = $this->getField('KeyName')->getValue();
@@ -96,5 +102,21 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
         }
 
         return Opus_EnrichmentKey::fetchByName($keyName);
+    }
+
+    /**
+     * Returns the names of all enrichment keys that are currently used by enrichments.
+     * This function does not distinguish between enrichment keys that are
+     * registered and enrichment keys that are only referenced by name.
+     */
+    public static function getAllUsedEnrichmentKeyNames()
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $db = $table->getAdapter();
+        $select = $db->select()->from('document_enrichments');
+        $select->reset('columns');
+        $select->columns('key_name');
+        $select->distinct(true); // we do not want to consider keys more than once
+        return $db->fetchCol($select);
     }
 }

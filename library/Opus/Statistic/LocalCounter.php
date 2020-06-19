@@ -28,11 +28,10 @@
  * @category    Framework
  * @package     Opus_Statistic
  * @author      Tobias Leidinger <tobias.leidinger@gmail.com>
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
-
 
 /**
  * Controller for Opus Applications.
@@ -163,6 +162,10 @@ class Opus_Statistic_LocalCounter
      */
     public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null)
     {
+        if (! $this->isLocalCounterEnabled()) {
+            return 0;
+        }
+
         if ($type != 'frontdoor' && $type != 'files') {
             //print('type not defined');
             return 0;
@@ -253,7 +256,8 @@ class Opus_Statistic_LocalCounter
             print ($e->getMessage());
             return 0;
         }
-              return 0;
+
+        return 0;
     }
 
     /**
@@ -290,7 +294,7 @@ class Opus_Statistic_LocalCounter
         $xmlAccess = $dom->getElementsByTagName("access")->item(0);
         if (is_null($xmlAccess)) {
             $message = 'Error loading click-log "' . $tempDir . '~localstat.xml"';
-            throw new Opus_Model_Exception($message);
+            throw new Opus\Model\Exception($message);
         }
 
         //if global file access timestamp too old, the whole log file can be removed
@@ -348,7 +352,7 @@ class Opus_Statistic_LocalCounter
         $return = $dom->save($tempDir . '~localstat.xml');
         if ($return === false) {
             $message = 'Error saving click-log "' . $tempDir . '~localstat.xml"';
-            throw new Opus_Model_Exception($message);
+            throw new Opus\Model\Exception($message);
         }
 
         return $doubleClick;
@@ -438,5 +442,19 @@ class Opus_Statistic_LocalCounter
             $result = 0;
         }
         return $result;
+    }
+
+    /**
+     * @return bool
+     * TODO review OPUSVIER-4200 and decide if code gets reactivated or removed
+     */
+    public function isLocalCounterEnabled()
+    {
+        $config = Opus_Config::get();
+        if (isset($config->statistics->localCounterEnabled)) {
+            return filter_var($config->statistics->localCounterEnabled, FILTER_VALIDATE_BOOLEAN);
+        } else {
+            return false;
+        }
     }
 }

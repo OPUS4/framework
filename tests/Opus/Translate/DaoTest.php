@@ -506,4 +506,117 @@ class Opus_Translate_DaoTest extends TestCase
         $translations = $dao->getTranslation('testkey1');
         $this->assertEquals($data2, $translations);
     }
+
+    public function testSetSpecialTranslation()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'de' => 'Jump to',
+            'en' => 'Gehe zu'
+        ];
+
+        $dao->setTranslation('admin-actionbox-goto-section', $data);
+
+        $translations = $dao->getTranslation('admin-actionbox-goto-section');
+
+        $this->assertEquals($data, $translations);
+    }
+
+    public function testGetTranslationsWithModules()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'de' => 'Deutsch',
+            'en' => 'Englisch'
+        ];
+
+        $dao->setTranslation('testKey', $data, 'setup');
+
+        $translations = $dao->getTranslationsWithModules();
+
+        $this->assertNotNull($translations);
+        $this->assertArrayHasKey('testKey', $translations);
+
+        $testKey = $translations['testKey'];
+
+        $this->assertArrayHasKey('module', $testKey);
+        $this->assertEquals('setup', $testKey['module']);
+        $this->assertArrayHasKey('values', $testKey);
+        $this->assertEquals($data, $testKey['values']);
+    }
+
+    public function testGetTranslationsWithModulesFilteredByModules()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $keyData = ['en' => 'keyEN', 'de' => 'keyDE'];
+        $defaultKeyData = ['en' => 'defaultKeyEN', 'de' => 'defaultKeyDE'];
+        $publishKeyData = ['en' => 'publishKeyEN', 'de' => 'publishKeyDE'];
+        $adminKeyData = ['en' => 'adminKeyEN', 'de' => 'adminKeyDE'];
+
+        $dao->setTranslation('key', $keyData);
+        $dao->setTranslation('default_key', $defaultKeyData, 'default');
+        $dao->setTranslation('publish_key', $publishKeyData, 'publish');
+        $dao->setTranslation('admin_key', $adminKeyData, 'admin');
+
+        // test no module specified
+        $translations = $dao->getTranslationsWithModules();
+
+        $this->assertCount(4, $translations);
+
+        // test single module
+        $translations = $dao->getTranslationsWithModules('default');
+
+        $this->assertCount(2, $translations);
+        $this->assertArrayHasKey('key', $translations);
+        $this->assertArrayHasKey('default_key', $translations);
+
+        // test multiple modules
+        $translations = $dao->getTranslationsWithModules(['publish', 'admin']);
+
+        $this->assertCount(2, $translations);
+        $this->assertArrayHasKey('publish_key', $translations);
+        $this->assertArrayHasKey('admin_key', $translations);
+
+        // test unknown module
+        $translations = $dao->getTranslationsWithModules('unknown857');
+
+        $this->assertCount(0, $translations);
+    }
+
+    public function testGetModules()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $dao->setTranslation('testKey1', [
+            'en' => 'test key 1',
+            'de' => 'Testschlüssel 1'
+        ]);
+
+        $dao->setTranslation('testKey2', [
+            'en' => 'test key 2',
+            'de' => 'Testschlüssel 2'
+        ], 'home');
+
+        $dao->setTranslation('testKey3', [
+            'en' => 'test key 3',
+            'de' => 'Testschlüssel 3'
+        ], 'admin');
+
+        $dao->setTranslation('testKey3', [
+            'en' => 'test key 4',
+            'de' => 'Testschlüssel 4'
+        ], 'admin');
+
+        $modules = $dao->getModules();
+
+        $this->assertCount(3, $modules);
+        $this->assertEquals([
+            'default',
+            'home',
+            'admin'
+        ], $modules);
+    }
 }

@@ -42,13 +42,46 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
         $regexType->setOptionsFromString($regex);
 
         $json = $regexType->getOptions();
-        $this->assertEquals('{"regex":"' . $regex . '"}', $json);
+        $this->assertEquals('{"regex":"' . $regex . '","validation":"none"}', $json);
 
         $this->assertEquals($regex, $regexType->getRegex());
 
         $this->assertEquals($regex, $regexType->getOptionsAsString());
     }
 
+    public function testSetOptionsWithRegexAndStrictValidation()
+    {
+        $regex = "^.*$";
+
+        $regexType = new Opus_Enrichment_RegexType();
+        $regexType->setOptionsFromString(['options' => $regex, 'validation' => '1']);
+
+        $json = $regexType->getOptions();
+        $this->assertEquals('{"regex":"' . $regex . '","validation":"strict"}', $json);
+
+        $this->assertEquals($regex, $regexType->getRegex());
+
+        $this->assertEquals($regex, $regexType->getOptionsAsString());
+        $this->assertEquals('strict', $regexType->getValidation());
+        $this->assertTrue($regexType->isStrictValidation());
+    }
+
+    public function testSetOptionsWithRegexAndNoValidation()
+    {
+        $regex = "^.*$";
+
+        $regexType = new Opus_Enrichment_RegexType();
+        $regexType->setOptionsFromString(['options' => $regex, 'validation' => '0']);
+
+        $json = $regexType->getOptions();
+        $this->assertEquals('{"regex":"' . $regex . '","validation":"none"}', $json);
+
+        $this->assertEquals($regex, $regexType->getRegex());
+
+        $this->assertEquals($regex, $regexType->getOptionsAsString());
+        $this->assertEquals('none', $regexType->getValidation());
+        $this->assertFalse($regexType->isStrictValidation());
+    }
 
     public function testSetOptionsFromStringWithInvalidRegex()
     {
@@ -81,7 +114,19 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
     {
         $regexType = new Opus_Enrichment_RegexType();
 
-        $regexAsJson = '{"regex":"^foo.*$"}';
+        $regexAsJson = '{"regex":"^foo.*$","validation":"none"}';
+
+        $regexType->setOptions($regexAsJson);
+
+        $this->assertEquals($regexAsJson, $regexType->getOptions());
+        $this->assertEquals("^foo.*$", $regexType->getOptionsAsString());
+    }
+
+    public function testSetOptionsWithStrictValidation()
+    {
+        $regexType = new Opus_Enrichment_RegexType();
+
+        $regexAsJson = '{"regex":"^foo.*$","validation":"strict"}';
 
         $regexType->setOptions($regexAsJson);
 
@@ -98,14 +143,14 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
         $regexType->setRegex("^.*$");
         $json = $regexType->getOptions();
-        $this->assertEquals('{"regex":"^.*$"}', $json);
+        $this->assertEquals('{"regex":"^.*$","validation":"none"}', $json);
     }
 
     public function testGetOptionProperties()
     {
         $regexType = new Opus_Enrichment_RegexType();
         $props = $regexType->getOptionProperties();
-        $this->assertEquals(['regex'], $props);
+        $this->assertEquals(['regex', 'validation'], $props);
     }
 
     public function testGetFormElementName()

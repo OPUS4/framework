@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -129,7 +129,7 @@ class Opus_EnrichmentTest extends TestCase
     public function testStoreEnrichmentWithoutValue()
     {
         $this->_doc->addEnrichment()->setKeyName('valid');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->_doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
@@ -345,5 +345,92 @@ class Opus_EnrichmentTest extends TestCase
 
         $this->assertEquals('MyKey', $enrichment->getKeyName());
         $this->assertEquals('test', $enrichment->getValue());
+    }
+
+    public function testGetEnrichmentKey()
+    {
+        $enrichments = $this->_doc->getEnrichment();
+        $this->assertEquals(1, count($enrichments));
+        $enrichment = $enrichments[0];
+        $enrichmentKey = $enrichment->getEnrichmentKey();
+        $this->assertInstanceOf('Opus_EnrichmentKey', $enrichmentKey);
+        $this->assertEquals('valid', $enrichmentKey->getName());
+        $this->assertEquals('valid', $enrichment->getKeyName());
+        $this->assertEquals('value', $enrichment->getValue());
+    }
+
+    public function testGetEnrichmentKeyWithUnregisteredKey()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue');
+        $this->_doc->addEnrichment($enrichment);
+        $docId = $this->_doc->store();
+
+        $this->_doc = new Opus_Document($docId);
+        $enrichments = $this->_doc->getEnrichment();
+
+        $this->assertEquals(2, count($enrichments));
+
+        $enrichment = $enrichments[0];
+        $enrichmentKey = $enrichment->getEnrichmentKey();
+        $this->assertInstanceOf('Opus_EnrichmentKey', $enrichmentKey);
+        $this->assertEquals('valid', $enrichmentKey->getName());
+        $this->assertEquals('valid', $enrichment->getKeyName());
+        $this->assertEquals('value', $enrichment->getValue());
+
+        $enrichment = $enrichments[1];
+        $enrichmentKey = $enrichment->getEnrichmentKey();
+        $this->assertNull($enrichmentKey);
+        $this->assertEquals('unregisteredKey', $enrichment->getKeyName());
+        $this->assertEquals('unregisteredKeyValue', $enrichment->getValue());
+    }
+
+    public function testGetAllUsedEnrichmentKeyNames()
+    {
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        $this->assertCount(1, $enrichmentKeyNames);
+        $this->assertEquals('valid', $enrichmentKeyNames[0]);
+    }
+
+    public function testGetAllUsedEnrichmentKeyNamesWithUnregisteredKey()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue');
+        $this->_doc->addEnrichment($enrichment);
+        $this->_doc->store();
+
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        $this->assertCount(2, $enrichmentKeyNames);
+
+        $expectedValues = ['valid', 'unregisteredKey'];
+        // check that both arrays have the same values (order is irrelevant)
+        $this->assertEmpty(array_diff($enrichmentKeyNames, $expectedValues), 'array values are not the same');
+        $this->assertEmpty(array_diff($expectedValues, $enrichmentKeyNames), 'array values are not the same');
+    }
+
+    public function testGetAllUsedEnrichmentKeyNamesWithDuplicateKeyName()
+    {
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue1');
+        $this->_doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('unregisteredKey');
+        $enrichment->setValue('unregisteredKeyValue2');
+        $this->_doc->addEnrichment($enrichment);
+
+        $this->_doc->store();
+
+        $enrichmentKeyNames = Opus_Enrichment::getAllUsedEnrichmentKeyNames();
+        // duplicate key names are filtered out
+        $this->assertCount(2, $enrichmentKeyNames);
+
+        $expectedValues = ['valid', 'unregisteredKey'];
+        // check that both arrays have the same values (order is irrelevant)
+        $this->assertEmpty(array_diff($enrichmentKeyNames, $expectedValues), 'array values are not the same');
+        $this->assertEmpty(array_diff($expectedValues, $enrichmentKeyNames), 'array values are not the same');
     }
 }

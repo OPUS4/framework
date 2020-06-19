@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -29,17 +28,17 @@
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 class Opus_Util_MetadataImport
 {
 
-    private $logfile;
+    use \Opus\LoggingTrait;
 
-    private $logger;
+    private $logfile;
 
     private $xml;
 
@@ -51,8 +50,12 @@ class Opus_Util_MetadataImport
 
     public function __construct($xml, $isFile = false, $logger = null, $logfile = null)
     {
-        $this->logger = $logger;
+        if (! is_null($logger)) {
+            $this->setLogger($logger);
+        }
+
         $this->logfile = $logfile;
+
         if ($isFile) {
             $this->xmlFile = $xml;
         } else {
@@ -142,7 +145,7 @@ class Opus_Util_MetadataImport
     {
         // Enable user error handling while validating input
         libxml_clear_errors();
-        libxml_use_internal_errors(true);
+        $useInternalErrors = libxml_use_internal_errors(true);
 
         $this->log("Load XML ...");
         $xml = new DOMDocument();
@@ -150,19 +153,21 @@ class Opus_Util_MetadataImport
         if (! is_null($this->xmlFile)) {
             if (! $xml->load($this->xmlFile)) {
                 $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
-                $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed." . $errMsg);
+                $this->log(
+                    "... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed. $errMsg"
+                );
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
         } else {
             if (! $xml->loadXML($this->xmlString)) {
                 $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
-                $this->log("... ERROR: Cannot load XML document: make sure it is well-formed." . $errMsg);
+                $this->log("... ERROR: Cannot load XML document: make sure it is well-formed. $errMsg");
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
         }
 
         $this->log('... OK');
-        libxml_use_internal_errors(false);
+        libxml_use_internal_errors($useInternalErrors);
         libxml_clear_errors();
         return $xml;
     }
@@ -206,8 +211,7 @@ class Opus_Util_MetadataImport
      */
     private function resetDocument($doc)
     {
-        $fieldsToDelete = array_diff(
-            [
+        $fieldsToDelete = array_diff([
             'TitleMain',
             'TitleAbstract',
             'TitleParent',
@@ -239,6 +243,7 @@ class Opus_Util_MetadataImport
             'PageFirst',
             'PageLast',
             'PageNumber',
+            'ArticleNumber',
             'PublisherName',
             'PublisherPlace',
             'Type',
@@ -250,9 +255,7 @@ class Opus_Util_MetadataImport
             'ServerDateModified',
             'ServerDatePublished',
             'ServerDateDeleted'
-            ],
-            $this->fieldsToKeepOnUpdate
-        );
+        ], $this->fieldsToKeepOnUpdate);
 
         $doc->deleteFields($fieldsToDelete);
     }

@@ -80,7 +80,7 @@ class Opus_Model_AbstractTest extends TestCase
     public function testSetCallToInternalFieldThrowsException()
     {
         $model = new Opus_Model_ModelWithHiddenField(null);
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $model->setHiddenField('value');
     }
 
@@ -92,7 +92,7 @@ class Opus_Model_AbstractTest extends TestCase
     public function testGetCallToInternalFieldThrowsException()
     {
         $model = new Opus_Model_ModelWithHiddenField(null);
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $model->getHiddenField();
     }
 
@@ -104,7 +104,7 @@ class Opus_Model_AbstractTest extends TestCase
     public function testAddCallToInternalFieldThrowsException()
     {
         $model = new Opus_Model_ModelWithHiddenField(null);
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $model->addHiddenField();
     }
 
@@ -116,7 +116,7 @@ class Opus_Model_AbstractTest extends TestCase
     public function testGetInternalFieldThrowsException()
     {
         $model = new Opus_Model_ModelWithHiddenField(null);
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $model->getField('HiddenField');
     }
 
@@ -404,7 +404,7 @@ class Opus_Model_AbstractTest extends TestCase
 
         $data = $doc->toArray();
 
-        $this->assertCount(78, $data);
+        $this->assertCount(63, $data);
 
         $this->assertArrayNotHasKey('id', $data); // database id to part of array
         $this->assertArrayHasKey('PersonAuthor', $data);

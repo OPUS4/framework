@@ -601,4 +601,14 @@ class Opus_IdentifierTest extends TestCase
         $this->assertEquals(0, $doc->getServerDateModified()->compare($modified));
         $this->assertEquals($timestamp, $doc->getIdentifier(0)->getRegistrationTs());
     }
+
+    public function testGetFieldnameForType()
+    {
+        $this->assertEquals('IdentifierPubmed', Opus_Identifier::getFieldnameForType('pmid'));
+    }
+
+    public function testGetTypeForFieldname()
+    {
+        $this->assertEquals('pmid', Opus_Identifier::getTypeForFieldname('IdentifierPubmed'));
+    }
 }

@@ -26,9 +26,8 @@
  *
  * @category    Framework
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,18 +37,18 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract
+class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
 {
 
-    private $_logger;
+    use \Opus\LoggingTrait;
 
     /**
      * Post-store hook will be called right after the document has been stored
      * to the database.
      *
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model)
+    public function postStore(Opus\Model\ModelInterface $model)
     {
         // only index Opus_File instances
         if (false === ($model instanceof Opus_File)) {
@@ -83,19 +82,5 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract
                 $accessRole->store();
             }
         }
-    }
-
-    public function setLogger($logger)
-    {
-        $this->_logger = $logger;
-    }
-
-    public function getLogger()
-    {
-        if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
-        }
-
-        return $this->_logger;
     }
 }

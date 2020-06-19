@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,18 +24,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    TODO
- * @package     TODO
+ * @category    Test
+ * @package     Framework
  * @author      Edouard Simon (edouard.simon@zib.de)
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  *
  */
-class Opus_Model_Plugin_Mock extends Opus_Model_Plugin_Abstract
+class Opus_Model_Plugin_Mock extends Opus\Model\Plugin\AbstractPlugin
 {
 
     /**
@@ -45,55 +44,55 @@ class Opus_Model_Plugin_Mock extends Opus_Model_Plugin_Abstract
     public $calledHooks = [];
 
     /**
-     * @see {Opus_Model_Plugin_Interface::preStore}
+     * @see {Opus\Model\Plugin\PluginInterface::preStore}
      */
-    public function preStore(Opus_Model_AbstractDb $model)
+    public function preStore(Opus\Model\ModelInterface $model)
     {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::preFetch}
+     * @see {Opus\Model\Plugin\PluginInterface::preFetch}
      */
-    public function preFetch(Opus_Model_AbstractDb $model)
+    public function preFetch(Opus\Model\ModelInterface $model)
     {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model)
+    public function postStore(Opus\Model\ModelInterface $model)
     {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStoreInternal}
+     * @see {Opus\Model\Plugin\PluginInterface::postStoreInternal}
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    public function postStoreInternal(Opus\Model\ModelInterface $model)
     {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStoreExternal}
+     * @see {Opus\Model\Plugin\PluginInterface::postStoreExternal}
      */
-    public function postStoreExternal(Opus_Model_AbstractDb $model)
+    public function postStoreExternal(Opus\Model\ModelInterface $model)
     {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::preDelete}
+     * @see {Opus\Model\Plugin\PluginInterface::preDelete}
      */
-    public function preDelete(Opus_Model_AbstractDb $model)
+    public function preDelete(Opus\Model\ModelInterface $model)
     {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postDelete}
+     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
      */
     public function postDelete($modelId)
     {

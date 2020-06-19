@@ -172,6 +172,11 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
         return null;
     }
 
+    public function isStrictValidation()
+    {
+        return false;
+    }
+
     public function getOptionProperties()
     {
         return [];

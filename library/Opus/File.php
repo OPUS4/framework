@@ -47,7 +47,8 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  *
- * @method string getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
+ * @method boolean getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
+ * @method boolean getVisibleInOai()
  * @method string getMimeType() retrieves value of field MimeType
  */
 class Opus_File extends Opus_Model_Dependent_Abstract
@@ -186,7 +187,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract
         }
 
         if (is_null($this->getParentId())) {
-            throw new Opus_Model_Exception('ParentId is not set!');
+            throw new Opus\Model\Exception('ParentId is not set!');
         }
 
         $config = Zend_Registry::get('Zend_Config');
@@ -436,5 +437,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);
+    }
+
+    public function _setDefaults()
+    {
+        $config = Zend_Registry::get('Zend_Config');
+
+        if (isset($config->files->visibleInOaiDefault)) {
+            $this->setVisibleInOai(filter_var($config->files->visibleInOaiDefault, FILTER_VALIDATE_BOOLEAN));
+        }
     }
 }

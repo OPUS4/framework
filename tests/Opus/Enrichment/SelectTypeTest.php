@@ -41,7 +41,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
         $selectType->setOptionsFromString("1\n2\n3");
 
         $json = $selectType->getOptions();
-        $this->assertEquals('{"values":["1","2","3"]}', $json);
+        $this->assertEquals('{"values":["1","2","3"],"validation":"none"}', $json);
 
         $values = $selectType->getValues();
 
@@ -53,6 +53,48 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
         $this->assertEquals("1\n2\n3", $selectType->getOptionsAsString());
     }
 
+    public function testSetOptionsWithValuesAndStrictValidation()
+    {
+        $selectType = new Opus_Enrichment_SelectType();
+
+        $selectType->setOptionsFromString(['options' => "1\n2\n3", 'validation' => '1']);
+
+        $json = $selectType->getOptions();
+        $this->assertEquals('{"values":["1","2","3"],"validation":"strict"}', $json);
+
+        $values = $selectType->getValues();
+
+        $this->assertEquals(3, count($values));
+        $this->assertEquals("1", $values[0]);
+        $this->assertEquals("2", $values[1]);
+        $this->assertEquals("3", $values[2]);
+
+        $this->assertEquals("1\n2\n3", $selectType->getOptionsAsString());
+        $this->assertEquals('strict', $selectType->getValidation());
+        $this->assertTrue($selectType->isStrictValidation());
+    }
+
+    public function testSetOptionsWithValuesAndNoValidation()
+    {
+        $selectType = new Opus_Enrichment_SelectType();
+
+        $selectType->setOptionsFromString(['options' => "1\n2\n3", 'validation' => '0']);
+
+        $json = $selectType->getOptions();
+        $this->assertEquals('{"values":["1","2","3"],"validation":"none"}', $json);
+
+        $values = $selectType->getValues();
+
+        $this->assertEquals(3, count($values));
+        $this->assertEquals("1", $values[0]);
+        $this->assertEquals("2", $values[1]);
+        $this->assertEquals("3", $values[2]);
+
+        $this->assertEquals("1\n2\n3", $selectType->getOptionsAsString());
+        $this->assertEquals('none', $selectType->getValidation());
+        $this->assertFalse($selectType->isStrictValidation());
+    }
+
     public function testSetOptionFromStringsWithWindowsLinebreaks()
     {
         $selectType = new Opus_Enrichment_SelectType();
@@ -60,7 +102,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
         $selectType->setOptionsFromString("1\r\n2\r\n3");
 
         $json = $selectType->getOptions();
-        $this->assertEquals('{"values":["1","2","3"]}', $json);
+        $this->assertEquals('{"values":["1","2","3"],"validation":"none"}', $json);
 
         $values = $selectType->getValues();
 
@@ -87,7 +129,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
     {
         $selectType = new Opus_Enrichment_SelectType();
 
-        $valuesAsJson = '{"values":["foo","bar","baz"]}';
+        $valuesAsJson = '{"values":["foo","bar","baz"],"validation":"none"}';
 
         $selectType->setOptions($valuesAsJson);
 
@@ -95,6 +137,17 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
         $this->assertEquals("foo\nbar\nbaz", $selectType->getOptionsAsString());
     }
 
+    public function testSetOptionsWithStrictValidation()
+    {
+        $selectType = new Opus_Enrichment_SelectType();
+
+        $valuesAsJson = '{"values":["foo","bar","baz"],"validation":"strict"}';
+
+        $selectType->setOptions($valuesAsJson);
+
+        $this->assertEquals($valuesAsJson, $selectType->getOptions());
+        $this->assertEquals("foo\nbar\nbaz", $selectType->getOptionsAsString());
+    }
 
     public function testGetOptions()
     {
@@ -105,14 +158,14 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
         $selectType->setValues(["1", "2", "3"]);
         $json = $selectType->getOptions();
 
-        $this->assertEquals('{"values":["1","2","3"]}', $json);
+        $this->assertEquals('{"values":["1","2","3"],"validation":"none"}', $json);
     }
 
     public function testGetOptionProperties()
     {
         $selectType = new Opus_Enrichment_SelectType();
         $props = $selectType->getOptionProperties();
-        $this->assertEquals(['values'], $props);
+        $this->assertEquals(['values', 'validation'], $props);
     }
 
     public function testGetFormElementName()

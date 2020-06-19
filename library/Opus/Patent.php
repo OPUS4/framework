@@ -90,7 +90,7 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $yearApplied = new Opus_Model_Field('YearApplied');
-        $yearApplied->setValidator(new Opus_Validate_Year());
+        $yearApplied->setValidator(new \Opus\Validate\Year());
 
         $application = new Opus_Model_Field('Application');
 

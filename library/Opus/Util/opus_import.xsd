@@ -65,6 +65,7 @@
                     <xs:attribute name="pageFirst" type="xs:string"/>
                     <xs:attribute name="pageLast" type="xs:string"/>
                     <xs:attribute name="pageNumber" type="xs:string"/>
+                    <xs:attribute name="articleNumber" type="xs:string"/>
                     <xs:attribute name="edition" type="xs:string"/>
                     <xs:attribute name="volume" type="xs:string"/>
                     <xs:attribute name="issue" type="xs:string"/>

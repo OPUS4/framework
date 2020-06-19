@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -32,7 +32,7 @@
  * @author      Michael Lang <lang@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -106,26 +106,23 @@ class Opus_DocumentTest extends TestCase
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
      * associative array that represents valid document data.
      */
-    protected static $_validDocumentData = [
-        [
-            [
-                'Language' => 'de',
-                'ContributingCorporation' => 'Contributing, Inc.',
-                'CreatingCorporation' => 'Creating, Inc.',
-                'ThesisDateAccepted' => '1901-01-01',
-                'Edition' => 2,
-                'Issue' => 3,
-                'Volume' => 1,
-                'PageFirst' => 1,
-                'PageLast' => 297,
-                'PageNumber' => 297,
-                'CompletedYear' => 1960,
-                'CompletedDate' => '1901-01-01',
-                'BelongsToBibliography' => 1,
-                'EmbargoDate' => '1902-01-01',
-            ]
-        ]
-    ];
+    protected static $_validDocumentData = [[[
+        'Language' => 'de',
+        'ContributingCorporation' => 'Contributing, Inc.',
+        'CreatingCorporation' => 'Creating, Inc.',
+        'ThesisDateAccepted' => '1901-01-01',
+        'Edition' => 2,
+        'Issue' => 3,
+        'Volume' => 1,
+        'PageFirst' => 1,
+        'PageLast' => 297,
+        'PageNumber' => 297,
+        'ArticleNumber' => 42,
+        'CompletedYear' => 1960,
+        'CompletedDate' => '1901-01-01',
+        'BelongsToBibliography' => 1,
+        'EmbargoDate' => '1902-01-01',
+    ]]];
 
     /**
      * Valid document data provider
@@ -200,7 +197,7 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if storing a document wich has a linked model doesnt throw
-     * an Opus_Model_Exception.
+     * an Opus\Model\Exception.
      *
      * @return void
      *
@@ -243,7 +240,7 @@ class Opus_DocumentTest extends TestCase
      */
     public function testUndefinedFetchMethodForFieldValueClassNotExtendingAbstractModelThrowsException()
     {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $document = new Opus_Model_ModelWithNonAbstractExtendingClassField;
     }
 
@@ -385,7 +382,6 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals($document->getLicence(0)->getNameLong(), 'Creative Commons');
         $this->assertEquals($document->getLicence(0)->getPodAllowed(), 1);
         $this->assertEquals($document->getLicence(0)->getSortOrder(), 0);
-        $thesisPublishers = $document->getThesisPublisher();
         $this->assertEquals($document->getThesisPublisher(0)->getName(), 'Forschungsinstitut für Code Coverage');
         $this->assertEquals($document->getThesisPublisher(0)->getCity(), 'Calisota');
         $this->assertEquals($document->getThesisGrantor(0)->getName(), 'Forschungsinstitut für Code Coverage');
@@ -857,16 +853,15 @@ class Opus_DocumentTest extends TestCase
     {
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
+        $doc->addIdentifierUrn(new Opus_Identifier());
         $id = $doc->store();
-        $doc2 = new Opus_Document($id);
 
-        // TODO: Cannot check Urn if we did not add it...
-        $this->markTestSkipped('TODO: analyze');
+        $doc2 = new Opus_Document($id);
 
         $this->assertNotNull($doc2->getIdentifierUrn(0));
         $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
-        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
         $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
     }
 
@@ -878,18 +873,25 @@ class Opus_DocumentTest extends TestCase
     public function testStoringOfMultipleIdentifierUrnField()
     {
         $doc = new Opus_Document();
+        $doc->addIdentifierUrn(new Opus_Identifier());
+        $doc->addIdentifierUrn(new Opus_Identifier());
         $doc->setType("doctoral_thesis");
 
-        // TODO: Cannot check Urn if we did not add it...
-        $this->markTestSkipped('TODO: analyze');
+        $this->assertCount(2, $doc->getIdentifier());
 
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
+
         $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
-        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
         $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
-        $this->assertEquals(1, count($doc2->getIdentifierUrn()), 'On an empty multiple field only 2 URN value should be stored.');
+        $this->assertCount(1, $doc2->getIdentifier());
+        $this->assertEquals(
+            1,
+            count($doc2->getIdentifierUrn()),
+            'On an empty multiple field only one URN value should be stored.'
+        );
     }
 
     /**
@@ -1109,7 +1111,6 @@ class Opus_DocumentTest extends TestCase
         $filter->setModel($doc);
 
         $docXml = $doc->toXml([], new Opus_Model_Xml_Version1());
-        $xml = $docXml->saveXML();
         $serverDatePublElements = $docXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'document xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'document xml field "ServerDatePublished" should have attributes');
@@ -1537,6 +1538,7 @@ class Opus_DocumentTest extends TestCase
         $document->setPageFirst('III');
         $document->setPageLast('IV');
         $document->setPageNumber('II');
+        $document->setArticleNumber('X');
 
         $document->store();
 
@@ -1544,14 +1546,10 @@ class Opus_DocumentTest extends TestCase
 
         $document = new Opus_Document($docId);
 
-        $this->assertNotEquals('0', $document->getPageFirst());
         $this->assertEquals('III', $document->getPageFirst());
-
-        $this->assertNotEquals('0', $document->getPageLast());
         $this->assertEquals('IV', $document->getPageLast());
-
-        $this->assertNotEquals('0', $document->getPageNumber());
         $this->assertEquals('II', $document->getPageNumber());
+        $this->assertEquals('X', $document->getArticleNumber());
     }
 
     public function testSortOrderForAddPersonAuthors()
@@ -2111,7 +2109,7 @@ class Opus_DocumentTest extends TestCase
     public function testHasPlugins()
     {
         $doc = new Opus_Document();
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered');
+        // $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered'); // TODO OPUSVIER-3871 plugin not part of framework anymore
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
@@ -2144,7 +2142,7 @@ class Opus_DocumentTest extends TestCase
 
         try {
             $redoc->store();
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
             $this->fail($ome->getMessage());
         }
     }
@@ -2612,8 +2610,6 @@ class Opus_DocumentTest extends TestCase
      */
     public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
     {
-        $this->markTestSkipped('TODO OPUSVIER-3860 Regression test - not fixed yet');
-
         $doc = new Opus_Document();
         $doc->store();
         $id = new Opus_Identifier();
@@ -2626,6 +2622,7 @@ class Opus_DocumentTest extends TestCase
         $test1 = $doc->getIdentifier();
         $test2 = $doc->getIdentifierDoi();
 
+        $this->assertCount(1, $test2);
         $this->assertEquals($test1, $test2);
     }
 
@@ -2756,7 +2753,7 @@ class Opus_DocumentTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage unknown enrichment key
      */
     public function testGetEnrichmentValueBadKey()
@@ -2923,6 +2920,9 @@ class Opus_DocumentTest extends TestCase
 
         $pageNumber = 11;
         $doc->setPageNumber($pageNumber);
+
+        $articleNumber = 99;
+        $doc->setArticleNumber($articleNumber);
 
         $publishedYear = 2015;
         $doc->setPublishedYear($publishedYear);
@@ -3248,6 +3248,7 @@ class Opus_DocumentTest extends TestCase
         $this->checkArrayEntry('PageFirst', $pageFirst, $data);
         $this->checkArrayEntry('PageLast', $pageLast, $data);
         $this->checkArrayEntry('PageNumber', $pageNumber, $data);
+        $this->checkArrayEntry('ArticleNumber', $articleNumber, $data);
         $this->checkArrayEntry('PublishedYear', $publishedYear, $data);
         $this->checkArrayEntry('PublisherName', $publisherName, $data);
         $this->checkArrayEntry('PublisherPlace', $publisherPlace, $data);
@@ -3604,44 +3605,6 @@ class Opus_DocumentTest extends TestCase
             'RegistrationTs' => '2018-10-12 13:45:21'
         ], $identifiers[1]);
 
-        $this->assertArrayHasKey('IdentifierIsbn', $data);
-        $identifiers = $data['IdentifierIsbn'];
-        unset($data['IdentifierIsbn']);
-        $this->assertCount(1, $identifiers);
-
-        $this->assertEquals([
-            'Value' => '123',
-            'Type' => 'isbn',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
-        ], $identifiers[0]);
-
-        $this->assertArrayHasKey('IdentifierDoi', $data);
-        $identifiers = $data['IdentifierDoi'];
-        unset($data['IdentifierDoi']);
-        $this->assertCount(1, $identifiers);
-
-        $this->assertEquals([
-            'Value' => 'abc',
-            'Type' => 'doi',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
-        ], $identifiers[0]);
-
-        // TODO get types from somewhere (dry)
-        $identifierTypes = [
-            'Old', 'Serial', 'Uuid', 'Urn', 'Handle', 'Url', 'Issn', 'StdDoi',
-            'CrisLink', 'SplashUrl', 'Opus3', 'Opac', 'Arxiv', 'Pubmed'
-        ];
-
-        foreach ($identifierTypes as $type) {
-            $fieldName = "Identifier$type";
-            $this->assertArrayHasKey($fieldName, $data);
-            $identifiers = $data[$fieldName];
-            unset($data[$fieldName]);
-            $this->assertEmpty($identifiers);
-        }
-
         // check references
 
         $this->assertArrayHasKey('Reference', $data);
@@ -3797,7 +3760,31 @@ class Opus_DocumentTest extends TestCase
      */
     public function testFromArray()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $data = [
+            'Type' => 'article',
+            'TitleMain' => [
+                [
+                    'Type' => 'Main',
+                    'Language' => 'eng',
+                    'Value' => 'Test Title'
+                ],
+                [
+                    'Type' => 'Main',
+                    'Language' => 'deu',
+                    'Value' => 'Testtitel'
+                ]
+            ]
+        ];
+
+        $document = Opus_Document::fromArray($data);
+
+        $this->assertNotNull($document);
+        $this->assertInstanceOf('Opus_Document', $document);
+        $this->assertEquals('article', $document->getType());
+
+        $titles = $document->getTitleMain();
+
+        $this->assertCount(2, $titles);
     }
 
     public function testUpdateFrom()
@@ -3927,7 +3914,6 @@ class Opus_DocumentTest extends TestCase
         $document = new Opus_Document();
 
         $this->assertEquals([
-            'Opus_Document_Plugin_Index',
             'Opus_Document_Plugin_XmlCache',
             'Opus_Document_Plugin_IdentifierUrn',
             'Opus_Document_Plugin_IdentifierDoi'
@@ -4051,6 +4037,8 @@ class Opus_DocumentTest extends TestCase
     /**
      * @expectedException  Opus_Model_DbException
      * @expectedExceptionMessage Data too long
+     *
+     * TODO originally tested problem during deletePermanent (which triggered a store in delete function)
      */
     public function testTruncateExceptionForTooLongValue()
     {
@@ -4064,7 +4052,7 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $patent->setNumber(str_repeat('0123456789', 26));
-        $doc->deletePermanent();
+        $doc->store();
     }
 
     public function testDeleteSavesChanges()
@@ -4082,5 +4070,187 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertEquals('deleted', $doc->getServerState());
         $this->assertEquals('2nd', $doc->getEdition());
+    }
+
+    public function getIdentifierTypes()
+    {
+        $identifier = new Opus_Identifier();
+
+        $types = array_keys($identifier->getField('Type')->getDefault());
+
+        $types = array_map(function ($value) {
+            return [$value];
+        }, $types);
+
+        return $types;
+    }
+
+    /**
+     * @dataProvider getIdentifierTypes
+     */
+    public function testGetIdentifierDiffersFromGetIdentiferForType($type)
+    {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $id = new Opus_Identifier();
+        $id->setType($type);
+        $id->setValue('someVal');
+
+        $ids = $doc->getIdentifier();
+        $ids[] = $id;
+        $doc->setIdentifier($ids);
+
+        $specialNames = ['pmid' => 'Pubmed', 'opus3-id' => 'Opus3', 'opac-id' => 'Opac'];
+
+        if (array_key_exists($type, $specialNames)) {
+            $typeName = $specialNames[$type];
+        } else {
+            $typeName = str_replace('-', '', ucwords($type, '-'));
+        }
+
+        $funcName = 'getIdentifier' . ucfirst($typeName);
+
+        $identifiers = $doc->getIdentifier();
+        $identifiersForType = $doc->$funcName();
+
+        $this->assertEquals($identifiers, $identifiersForType);
+    }
+
+    public function testSettingIdentifierDoiChangesIdentifier()
+    {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+
+        $ids = [$id];
+        $doc->setIdentifierDoi($ids);
+
+        $test1 = $doc->getIdentifier();
+        $test2 = $doc->getIdentifierDoi();
+
+        $this->assertCount(1, $test1);
+        $this->assertEquals($test1, $test2);
+    }
+
+    public function testGetIdentifierByType()
+    {
+        $doc = new Opus_Document();
+
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+
+        $id2 = new Opus_Identifier();
+        $id2->setType('doi');
+        $id2->setValue('someVal2');
+
+        $id3 = new Opus_Identifier();
+        $id3->setType('issn');
+        $id3->setValue('someVal3');
+
+        $doc->setIdentifier([$id, $id3, $id2]);
+
+        $doc = new Opus_Document($doc->store());
+
+        $values = $doc->getIdentifierByType('doi');
+
+        $this->assertCount(2, $values);
+
+        $values = $doc->getIdentifierByType('issn');
+
+        $this->assertCount(1, $values);
+    }
+
+    public function testGetIdentifierByTypeWithIndex()
+    {
+        $doc = new Opus_Document();
+
+        $id = new Opus_Identifier();
+        $id->setType('doi');
+        $id->setValue('someVal');
+
+        $id2 = new Opus_Identifier();
+        $id2->setType('doi');
+        $id2->setValue('someVal2');
+
+        $doc->setIdentifier([$id, $id2]);
+
+        $value = $doc->getIdentifierByType('doi', 1);
+
+        $this->assertNotNull($value);
+        $this->assertEquals('someVal2', $value->getValue());
+    }
+
+    public function testAddIdentifierForType()
+    {
+        $doc = new Opus_Document();
+
+        $identifier = $doc->addIdentifierForType('doi');
+
+        $this->assertNotNull($identifier);
+        $this->assertInstanceOf('Opus_Identifier', $identifier);
+        $this->assertEquals('doi', $identifier->getType());
+    }
+
+    public function testAddIdentifierDoi()
+    {
+        $doc = new Opus_Document();
+
+        $identifier = $doc->addIdentifierDoi();
+
+        $this->assertNotNull($identifier);
+        $this->assertInstanceOf('Opus_Identifier', $identifier);
+        $this->assertEquals('doi', $identifier->getType());
+    }
+
+    public function testSetIdentifiersForType()
+    {
+        $doc = new Opus_Document();
+
+        $ident = new Opus_Identifier();
+        $ident->setType('doi');
+        $ident->setValue('doi-value1');
+
+        $doc->addIdentifier($ident);
+
+        $ident = new Opus_Identifier();
+        $ident->setType('issn');
+        $ident->setValue('issn-value1');
+
+        $doc->addIdentifier($ident);
+
+        $ident = new Opus_Identifier();
+        $ident->setType('doi');
+        $ident->setValue('doi-value2');
+
+        $doc->addIdentifier($ident);
+
+        $all = $doc->getIdentifier();
+
+        $this->assertCount(3, $all);
+
+        $doc->setIdentifiersForType('doi', []);
+
+        $all = $doc->getIdentifier();
+
+        $this->assertCount(1, $all);
+        $this->assertEquals('issn', $all[0]->getType());
+    }
+
+    public function testCompareDocuments()
+    {
+        $this->markTestIncomplete('not implemented yet');
+    }
+
+    /**
+     * TODO My assumption is, that a Collection gets modified when a document is stored. For instance its name.
+     */
+    public function testModifingCollectionWhenStoringDocument()
+    {
+        $this->markTestIncomplete('not implemented yet');
     }
 }

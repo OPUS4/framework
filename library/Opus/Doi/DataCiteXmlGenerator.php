@@ -43,7 +43,23 @@ class Opus_Doi_DataCiteXmlGenerator
 
     const STYLESHEET_FILENAME = 'datacite.xslt';
 
+    const USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT = true;
+
     private $doiLog;
+
+    // wenn true, dann werden für bestimmte DataCite-XML-Pflichtfelder, die nicht mit Inhalt belegt werden können,
+    // alternativ Platzhalterwerte verwendet
+    private $usePlaceholdersForEmptyValues;
+
+    /**
+     * Opus_Doi_DataCiteXmlGenerator constructor.
+     * @param boolean $usePlaceholdersForEmptyValues
+     */
+    public function __construct($usePlaceholdersForEmptyValues = self::USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT)
+    {
+        $this->usePlaceholdersForEmptyValues = $usePlaceholdersForEmptyValues;
+    }
+
 
     public function getDoiLog()
     {
@@ -70,6 +86,7 @@ class Opus_Doi_DataCiteXmlGenerator
      * @param $skipTestOfRequiredFields bool wenn true, dann wird der Pflichtfeld-Existenztest bei der XML-Generierung
      *                                       übersprungen
      * @return string XML for DataCite registration
+     * @throws Opus_Doi_DataCiteXmlGenerationException
      */
     public function getXml($doc, $allowInvalidXml = false, $skipTestOfRequiredFields = false)
     {
@@ -158,47 +175,37 @@ class Opus_Doi_DataCiteXmlGenerator
         $status = [];
 
         $result = $this->checkExistenceOfLocalDoi($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element identifier');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element identifier');
+            return false;
         }
         $this->setStatusEntry($status, 'identifier', $result);
 
         $result = $this->checkExistenceOfCreator($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creators');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creators');
+            return false;
         }
         $this->setStatusEntry($status, 'creators', $result);
 
         $result = $this->checkExistenceOfTitle($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element titles');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element titles');
+            return false;
         }
         $this->setStatusEntry($status, 'titles', $result);
 
         $result = $this->checkExistenceOfPublisher($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
+            return false;
         }
         $this->setStatusEntry($status, 'publisher', $result);
 
         $result = $this->checkExistenceOfPublicationYear($doc);
-        if (! empty($result)) {
-            if ($lazyChecking) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
-                return false;
-            }
+        if (! empty($result) && $lazyChecking) {
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
+            return false;
         }
         $this->setStatusEntry($status, 'publicationYear', $result);
 
@@ -273,13 +280,17 @@ class Opus_Doi_DataCiteXmlGenerator
      * In dem übergebenen Dokument muss mindestens ein Autor mit einem nicht-leeren LastName oder FirstName
      * oder eine nicht leere CreatingCorporation existieren.
      *
-     * @param $doc das zu prüfende Dokument
+     * @param Opus_Document $doc das zu prüfende Dokument
      *
-     * @return bool gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
-     *              Array der gefundene Fehler
+     * @return array gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
+     *               Array der gefundene Fehler
      */
     private function checkExistenceOfCreator($doc)
     {
+        if ($this->usePlaceholdersForEmptyValues) {
+            return []; // keine Prüfung erforderlich, weil Platzhalter im Bedarfsfall genutzt wird
+        }
+
         $authorOk = false;
         $authors = $doc->getPersonAuthor();
 
@@ -303,13 +314,17 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * In dem übergebenen Dokument muss mindestens ein nicht leerer Titel existieren.
      *
-     * @param $doc das zu prüfende Dokument
+     * @param Opus_Document $doc das zu prüfende Dokument
      *
-     * @return bool gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
-     *              Array der gefundene Fehler
+     * @return array gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
+     *               Array der gefundene Fehler
      */
     private function checkExistenceOfTitle($doc)
     {
+        if ($this->usePlaceholdersForEmptyValues) {
+            return []; // keine Prüfung erforderlich, weil Platzhalter im Bedarfsfall genutzt wird
+        }
+
         // mindestens ein nicht-leerer TitleMain oder TitleSub
         $titleOk = false;
         $titles = $doc->getTitleMain();
@@ -342,27 +357,38 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * In dem übergebenen Dokument muss genau ein Publisher existieren.
      *
-     * @param $doc das zu prüfende Dokument
-     * @return bool gibt ein leeres Array zurück, wenn genau ein nicht leerer Titel gefunden wurde; andernfalls
-     *              steht im Array der gefundene Fehler
+     * @param Opus_Document $doc das zu prüfende Dokument
+     * @return array gibt ein leeres Array zurück, wenn genau ein nicht leerer Titel gefunden wurde; andernfalls
+     *               steht im Array der gefundene Fehler
      */
     private function checkExistenceOfPublisher($doc)
     {
-        $publisherOk = false;
-        if ($doc->getPublisherName() != '') {
-            $publisherOk = true;
+        if ($this->usePlaceholdersForEmptyValues) {
+            return []; // keine Prüfung erforderlich, weil Platzhalter im Bedarfsfall genutzt wird
         }
 
-        $thesisPublishers = $doc->getThesisPublisher();
-        foreach ($thesisPublishers as $thesisPublisher) {
-            if ($thesisPublisher->getName() != '') {
-                if ($publisherOk) {
-                    // mehr als einen nicht leeren Publisher gefunden
-                    return ['multiple_publishers'];
-                }
+        $publisherOk = $doc->getPublisherName() != '';
 
-                $publisherOk = true;
+        if (! $publisherOk) {
+            $thesisPublishers = $doc->getThesisPublisher();
+            foreach ($thesisPublishers as $thesisPublisher) {
+                if ($thesisPublisher->getName() != '') {
+                    if ($publisherOk) {
+                        // mehr als einen nicht leeren ThesisPublisher gefunden
+                        return ['multiple_publishers'];
+                    }
+
+                    $publisherOk = true;
+                }
             }
+        }
+
+        if (! $publisherOk) {
+            $publisherOk = $doc->getCreatingCorporation() != '';
+        }
+
+        if (! $publisherOk) {
+            $publisherOk = $doc->getContributingCorporation() != '';
         }
 
         if (! $publisherOk) {
@@ -373,9 +399,11 @@ class Opus_Doi_DataCiteXmlGenerator
     }
 
     /**
-     * In dem übergebenen Dokument muss ein Publikationsjahr existieren.
+     * In dem übergebenen Dokument muss ein Publikationsjahr existieren. Dieses wird aus dem Feld
+     * ServerDatePublished abgeleitet, das bei der Freischaltung eines OPUS-Dokuments automatisch
+     * gesetzt wird.
      *
-     * @param $doc das zu prüfende Dokument
+     * @param Opus_Document $doc das zu prüfende Dokument
      *
      * @return bool gibt ein leeres Array zurück, wenn ein Publikationsjahr gefunden wurde; andernfalls
      *              steht im Array der gefundene Fehler
@@ -384,11 +412,18 @@ class Opus_Doi_DataCiteXmlGenerator
     {
         $publicationDate = $doc->getServerDatePublished();
         if (is_null($publicationDate)) {
+            // dieser Fall kann eigentlich nur eintreten, wenn das Dokument noch nicht freigeschaltet wurde
+            if ($doc->getServerState() !== 'published') {
+                return ['publication_date_missing_non_published'];
+            }
+
+            // wenn ein freigeschaltetes Dokument kein Freischaltungsdatum hat, dann ist das ein Fehler
             return ['publication_date_missing'];
         }
 
         $publicationYear = $publicationDate->getYear();
-        if (is_null($publicationYear) || $publicationYear == 0) {
+        if (is_null($publicationYear) || $publicationYear == 0 || preg_match('/^[\d]{4}$/', $publicationYear) !== 1) {
+            // dieser Fall kann nicht auftreten, wenn das Freischaltungsdatum automatisch vom System gesetzt wird
             return ['publication_year_missing'];
         }
 

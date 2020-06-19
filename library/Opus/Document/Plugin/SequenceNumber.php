@@ -55,13 +55,13 @@
  * TODO use function to get logger
  * todo use funtion to get config object
  */
-class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract
+class Opus_Document_Plugin_SequenceNumber extends Opus\Model\Plugin\AbstractPlugin
 {
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    public function postStoreInternal(Opus\Model\ModelInterface $model)
     {
         $log = Zend_Registry::get('Zend_Log');
         $log->debug('Opus_Document_Plugin_SequenceNumber::postStore() with id ' . $model->getId());

@@ -86,6 +86,9 @@
  * @method void setPageNumber(string $pageNumber)
  * @method string getPageNumber()
  *
+ * @method void setArticleNumber(string $articleNumber)
+ * @method string getArticleNumber()
+ *
  * @method void setPublishedDate(Opus_Date $date)
  * @method Opus_Date getPublishedDate()
  *
@@ -246,7 +249,6 @@ class Opus_Document extends Opus_Model_AbstractDb
                 self::$defaultPlugins = $plugins->toArray();
             } else {
                 self::$defaultPlugins = [
-                    'Opus_Document_Plugin_Index',
                     'Opus_Document_Plugin_XmlCache',
                     'Opus_Document_Plugin_IdentifierUrn',
                     'Opus_Document_Plugin_IdentifierDoi'
@@ -299,77 +301,9 @@ class Opus_Document extends Opus_Model_AbstractDb
             'model' => 'Opus_Identifier',
             'fetch' => 'lazy'
         ],
-        'IdentifierOld' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'old'],
-            'fetch' => 'lazy'
-        ],
-        'IdentifierSerial' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'serial'],
-            'fetch' => 'lazy'
-        ],
-        'IdentifierUuid' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'uuid'],
-            'fetch' => 'lazy'
-        ],
-        'IdentifierIsbn' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'isbn'],
-            'fetch' => 'lazy'
-        ],
-        'IdentifierUrn' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'urn']
-        ],
-        'IdentifierDoi' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'doi']
-        ],
-        'IdentifierHandle' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'handle']
-        ],
-        'IdentifierUrl' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'url']
-        ],
-        'IdentifierIssn' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'issn']
-        ],
-        'IdentifierStdDoi' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'std-doi']
-        ],
-        'IdentifierCrisLink' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'cris-link']
-        ],
-        'IdentifierSplashUrl' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'splash-url']
-        ],
-        'IdentifierOpus3' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'opus3-id']
-        ],
-        'IdentifierOpac' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'opac-id']
-        ],
         'Reference' => [
             'model' => 'Opus_Reference',
             'fetch' => 'lazy'
-        ],
-        'IdentifierArxiv' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'arxiv']
-        ],
-        'IdentifierPubmed' => [
-            'model' => 'Opus_Identifier',
-            'options' => ['type' => 'pmid']
         ],
         'ReferenceIsbn' => [
             'model' => 'Opus_Reference',
@@ -432,71 +366,71 @@ class Opus_Document extends Opus_Model_AbstractDb
         'Person' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonAdvisor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'advisor'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'advisor'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonAuthor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'author'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'author'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonContributor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'contributor'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'contributor'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonEditor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'editor'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'editor'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonReferee' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'referee'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'referee'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonOther' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'other'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'other'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonTranslator' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'translator'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'translator'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
         'PersonSubmitter' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => ['role' => 'submitter'],
-                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+            'options'  => ['role' => 'submitter'],
+            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
         ],
@@ -513,12 +447,10 @@ class Opus_Document extends Opus_Model_AbstractDb
             'model' => 'Opus_File',
             'fetch' => 'lazy'
         ],
-
         'Collection' => [
             'model' => 'Opus_Collection',
             'fetch' => 'lazy'
         ],
-
         'ThesisPublisher' => [
             'model' => 'Opus_DnbInstitute',
             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
@@ -526,7 +458,6 @@ class Opus_Document extends Opus_Model_AbstractDb
             'addprimarykey' => ['publisher'],
             'fetch' => 'lazy'
         ],
-
         'ThesisGrantor' => [
             'model' => 'Opus_DnbInstitute',
             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
@@ -545,28 +476,29 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected function _init()
     {
         $fields = [
-            "BelongsToBibliography",
-            "CompletedDate", "CompletedYear",
-            "ContributingCorporation",
-            "CreatingCorporation",
-            "ThesisDateAccepted", "ThesisYearAccepted",
-            "Edition",
-            "EmbargoDate",
-            "Issue",
-            "Language",
-            "PageFirst", "PageLast", "PageNumber",
-            "PublishedDate", "PublishedYear",
-            "PublisherName",  "PublisherPlace",
-            "PublicationState",
-            "ServerDateCreated",
-            "ServerDateModified",
-            "ServerDatePublished",
-            "ServerDateDeleted",
-            "ServerState",
-            "Type",
-            "Volume"
+            'BelongsToBibliography',
+            'CompletedDate', 'CompletedYear',
+            'ContributingCorporation',
+            'CreatingCorporation',
+            'ThesisDateAccepted', 'ThesisYearAccepted',
+            'Edition',
+            'EmbargoDate',
+            'Issue',
+            'Language',
+            'PageFirst', 'PageLast', 'PageNumber', 'ArticleNumber',
+            'PublishedDate', 'PublishedYear',
+            'PublisherName', 'PublisherPlace',
+            'PublicationState',
+            'ServerDateCreated',
+            'ServerDateModified',
+            'ServerDatePublished',
+            'ServerDateDeleted',
+            'ServerState',
+            'Type',
+            'Volume'
         ];
 
+        // create internal fields
         foreach ($fields as $fieldname) {
             if (isset($this->_externalFields[$fieldname])) {
                 throw new Exception("Field $fieldname exists in _externalFields");
@@ -576,6 +508,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             $this->addField($field);
         }
 
+        // create external fields
         foreach (array_keys($this->_externalFields) as $fieldname) {
             $field = new Opus_Model_Field($fieldname);
             $field->setMultiplicity('*');
@@ -587,10 +520,10 @@ class Opus_Document extends Opus_Model_AbstractDb
         $dateFields = [
             'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
             'ServerDateCreated',
-            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate'];
+            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate'
+        ];
         foreach ($dateFields as $fieldName) {
-            $this->getField($fieldName)
-                    ->setValueModelClass('Opus_Date');
+            $this->getField($fieldName)->setValueModelClass('Opus_Date');
         }
 
         $this->initFieldOptionsForDisplayAndValidation();
@@ -620,27 +553,25 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         // Add the server (publication) state as a field
         $this->getField('ServerState')
-                ->setDefault(
-                    [
+                ->setDefault([
                     'unpublished' => 'unpublished',
                     'published' => 'published',
                     'deleted' => 'deleted',
                     'restricted' => 'restricted',
                     'audited' => 'audited',
-                    'inprogress' => 'inprogress']
-                )
+                    'inprogress' => 'inprogress'
+                ])
                 ->setSelection(true);
 
         // Add the allowed values for publication_state column
         $this->getField('PublicationState')
-                ->setDefault(
-                    [
+                ->setDefault([
                     'draft' => 'draft',
                     'accepted' => 'accepted',
                     'submitted' => 'submitted',
                     'published' => 'published',
-                    'updated' => 'updated']
-                )
+                    'updated' => 'updated'
+                ])
                 ->setSelection(true);
 
         // Initialize available publishers
@@ -710,7 +641,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      * Returns all document that are in a specific server (publication) state.
      *
      * @param  string  $state The state to check for.
-     * @throws Opus_Model_Exception Thrown if an unknown state is encountered.
+     * @throws Opus\Model\Exception Thrown if an unknown state is encountered.
      * @return array The list of documents in the specified state.
      *
      * @deprecated
@@ -1143,12 +1074,26 @@ class Opus_Document extends Opus_Model_AbstractDb
                 }
             }
         }
+    }
 
-        $options = null;
-        if (array_key_exists('options', $this->_externalFields['IdentifierUrn'])) {
-            $options = $this->_externalFields['IdentifierUrn']['options'];
+    protected function _storeIdentifier($identifiers)
+    {
+        foreach ($identifiers as $identifier) {
+            switch ($identifier->getType()) {
+                case 'urn':
+                    $this->_storeIdentifierUrn($identifiers);
+                    break;
+                case 'uuid':
+                    $this->_storeIdentifierUuid($identifiers);
+                    break;
+                default:
+            }
         }
-        $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
+        $options = null;
+        if (array_key_exists('options', $this->_externalFields['Identifier'])) {
+            $options = $this->_externalFields['Identifier']['options'];
+        }
+        $this->_storeExternal($this->_fields['Identifier']->getValue(), $options);
     }
 
     private function isIdentifierSet($identifiers)
@@ -1178,12 +1123,6 @@ class Opus_Document extends Opus_Model_AbstractDb
             $uuidModel->setValue(Opus_Identifier_UUID::generate());
             $this->setIdentifierUuid($uuidModel);
         }
-
-        $options = null;
-        if (array_key_exists('options', $this->_externalFields['IdentifierUuid']) === true) {
-            $options = $this->_externalFields['IdentifierUuid']['options'];
-        }
-        $this->_storeExternal($this->_fields['IdentifierUuid']->getValue(), $options);
     }
 
     /**
@@ -1242,6 +1181,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         $this->setServerState('deleted');
         $this->store();
 
+        // TODO removes document from cache - that should not be necessary for basic delete (hide)
         $this->callPluginMethod('postDelete', $this->getId());
     }
 
@@ -1255,7 +1195,13 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     public function deletePermanent()
     {
-        $this->delete();
+        $docId = $this->getId();
+
+        // run plugins for regular delete (hide) operation first
+        $this->callPluginMethod('preDelete');
+        // TODO moved here instead of calling $this->delete(); - keeps old behavoir, but should maybe moved down
+        // TODO removes document from cache - that should not be necessary for basic delete (hide)
+        $this->callPluginMethod('postDelete', $this->getId());
 
         // remove all files permanently
         $files = $this->getFile();
@@ -1265,11 +1211,13 @@ class Opus_Document extends Opus_Model_AbstractDb
                 $file->doDelete($file->delete());
             } catch (Opus_Storage_FileNotFoundException $osfnfe) {
                 // if the file was not found (permant delete still succeeds)
-                $this->logger($osfnfe->getMessage());
+                $this->log($osfnfe->getMessage());
             }
         }
 
         parent::delete();
+
+        $this->callPluginMethod('postDeletePermanent', $docId);
     }
 
     /**
@@ -1415,6 +1363,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      * Log document errors.  Prefixes every log entry with document id.
      *
      * @param string $message
+     *
+     * TODO rename function to log(
      */
     protected function logger($message)
     {
@@ -1555,7 +1505,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @param $key Name of enrichment
      * @return mixed
-     * @throws Opus_Model_Exception If the enrichment key does not exist
+     * @throws Opus\Model\Exception If the enrichment key does not exist
      * @throws Opus_Security_Exception
      */
     public function getEnrichmentValue($key)
@@ -1574,7 +1524,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             $enrichmentKey = Opus_EnrichmentKey::fetchByName($key);
 
             if (is_null($enrichmentKey)) {
-                throw new Opus_Model_Exception('unknown enrichment key');
+                throw new Opus\Model\Exception('unknown enrichment key');
             } else {
                 return null;
             }
@@ -1645,5 +1595,99 @@ class Opus_Document extends Opus_Model_AbstractDb
     public function getServerStateChanged()
     {
         return $this->serverStateChanged;
+    }
+    public function __call($name, array $arguments)
+    {
+        $accessor = substr($name, 0, 3);
+        $fieldname = substr($name, 3);
+
+
+        if (! in_array($accessor, ['set', 'get', 'add'])) {
+            return parent::__call($name, $arguments);
+        }
+
+        if (substr($fieldname, 0, 10) !== 'Identifier' || $fieldname === 'Identifier') {
+            return parent::__call($name, $arguments);
+        } else {
+            $type = Opus_Identifier::getTypeForFieldname($fieldname);
+
+            if (count($arguments) > 0) {
+                $argument = $arguments[0];
+            } else {
+                $argument = null;
+            }
+
+            switch ($accessor) {
+                case 'add':
+                    return $this->addIdentifierForType($type, $argument);
+
+                case 'get':
+                    return $this->getIdentifierByType($type, $argument);
+
+                case 'set':
+                    return $this->setIdentifiersForType($type, $argument);
+
+                default:
+                    return parent::__call($name, $arguments);
+            }
+        }
+    }
+
+    /**
+     * @param $type
+     * @param null $identifier
+     * @return null
+     *
+     * TODO handle error cases
+     */
+    public function addIdentifierForType($type, $identifier = null)
+    {
+        if ($identifier instanceof Opus_Identifier) {
+            $identifier->setType($type);
+            parent::addIdentifier($identifier);
+        } else {
+            $identifier = parent::addIdentifier($identifier);
+            $identifier->setType($type);
+        }
+
+        return $identifier;
+    }
+
+    public function setIdentifiersForType($type, $new)
+    {
+        $all = $this->getIdentifier();
+
+        $type = strtolower($type);
+
+        // remove old value with matching type
+        $all = array_filter($all, function ($value) use ($type) {
+            return $value->getType() !== $type;
+        });
+
+        if (! is_array($new)) {
+            $new = [$new];
+        }
+
+        array_walk($new, function ($value) use ($type) {
+            $value->setType($type);
+        });
+
+        return $this->setIdentifier(array_merge($all, $new));
+    }
+
+    public function getIdentifierByType($type, $index = null)
+    {
+        $identifier = $this->getIdentifier();
+
+        $values = array_filter($identifier, function ($value) use ($type) {
+            return $value->getType() === strtolower($type);
+        });
+
+        // use Opus_Model_Field for value handling
+        $filteredField = new Opus_Model_Field('FilteredIdentifier');
+        $filteredField->setMultiplicity('*');
+        $filteredField->setValue($values);
+
+        return $filteredField->getValue($index);
     }
 }

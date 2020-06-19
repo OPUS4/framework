@@ -338,7 +338,6 @@ class Opus_DateTest extends TestCase
      */
     public function testSetFromStringErrorHandling()
     {
-
         $invalidStrings = [
             '',
             null,
@@ -700,7 +699,7 @@ class Opus_DateTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage Cannot compare Zend_Config with Opus_Date object.
      */
     public function testCompareWithOtherObjectType()

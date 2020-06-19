@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,15 +25,19 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Model_Xml
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Second implementation of Opus XML representation.
+ *
+ * Simple fields are expressed as child elements.
+ *
+ * TODO Version2 does not seem to be used - What was the intend?
  */
 class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
 {
@@ -81,9 +84,8 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
             $fieldValue = $fieldNode->nodeValue;
 
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception(
-                    'Field ' . $fieldName . ' not defined. Model class: '
-                    . get_class($model)
+                throw new Opus\Model\Exception(
+                    'Field ' . $fieldName . ' not defined. Model class: ' . get_class($model)
                 );
             } else {
                 $fieldObj = $model->getField($fieldName);
@@ -118,6 +120,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
                 }
             }
         }
+
         return $model;
     }
 
@@ -127,6 +130,6 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
      */
     public function updateFromXml($xml)
     {
-        throw new Opus_Model_Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
+        throw new Opus\Model\Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
     }
 }
