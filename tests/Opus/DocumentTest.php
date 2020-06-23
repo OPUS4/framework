@@ -4253,4 +4253,24 @@ class Opus_DocumentTest extends TestCase
     {
         $this->markTestIncomplete('not implemented yet');
     }
+
+    public function testSortingMoreThan255Authors()
+    {
+        $doc = new Opus_Document();
+
+        $authorsCount = 300;
+
+        for ($index = 1; $index <= $authorsCount; $index++) {
+            $author = new Opus_Person();
+            $lastName = sprintf('author%1$03d', $index);
+            $author->setLastName($lastName);
+            $doc->addPersonAuthor($author);
+        }
+
+        $doc = new Opus_Document($doc->store());
+
+        $authors = $doc->getPersonAuthor();
+
+        $this->assertCount($authorsCount, $authors);
+    }
 }
