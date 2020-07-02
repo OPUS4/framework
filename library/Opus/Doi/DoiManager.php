@@ -798,7 +798,7 @@ class Opus_Doi_DoiManager
         $index = 2;
         $filename = "$basename.xml";
 
-        while (is_readable($path . $filename)) {
+        while (file_exists($path . $filename)) {
             $filename = "$basename-$index.xml";
             $index++;
         }
