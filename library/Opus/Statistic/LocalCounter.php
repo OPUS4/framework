@@ -284,7 +284,7 @@ class Opus_Statistic_LocalCounter
         $filetype = 'pdf';
 
         $dom = new DOMDocument();
-        if (file_exists($tempDir . '~localstat.xml') === false) {
+        if (is_readable($tempDir . '~localstat.xml') === false) {
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);
         } else {
