@@ -95,7 +95,7 @@ class Opus_Doi_DataCiteXmlGenerator
         $xsltPath = $this->getStylesheetPath();
 
         $success = false;
-        if (file_exists($xsltPath)) {
+        if (is_readable($xsltPath)) {
             $success = $xslt->load($xsltPath);
         }
 
@@ -140,7 +140,7 @@ class Opus_Doi_DataCiteXmlGenerator
         // Registrierungsversuch einen HTTP Fehler 400 auslöst
         if (! $allowInvalidXml) {
             $xsdPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'metadata.xsd';
-            if (! file_exists($xsdPath)) {
+            if (! is_readable($xsdPath)) {
                 $message = 'could not load schema file from ' . $xsdPath;
                 $log->err($message);
                 throw new Opus_Doi_DataCiteXmlGenerationException($message);
