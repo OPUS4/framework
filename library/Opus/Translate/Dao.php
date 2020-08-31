@@ -350,7 +350,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function getModules()
     {
-        $table = OPus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
         $select = $table->getAdapter()->select()
             ->from(['keys' => 'translationkeys'], ['keys.module'])->distinct();
