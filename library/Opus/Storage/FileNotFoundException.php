@@ -54,7 +54,7 @@ class Opus_Storage_FileNotFoundException extends Opus_Storage_Exception
         if (! empty($message)) {
             parent::__construct($message);
         } else {
-            parent::__construct('File ' . $filename . ' does not exist!');
+            parent::__construct("File not found ($filename)");
         }
         $this->filename = $filename;
     }
