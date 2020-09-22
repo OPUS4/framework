@@ -45,7 +45,7 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase
     {
         $exception = new Opus_Storage_FileNotFoundException('test.txt');
         $this->assertEquals('test.txt', $exception->getFilename());
-        $this->assertEquals('File test.txt does not exist!', $exception->getMessage());
+        $this->assertEquals('File not found (test.txt)', $exception->getMessage());
     }
 
     /**
@@ -66,6 +66,6 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase
     {
         $exception = new Opus_Storage_FileNotFoundException();
         $this->assertEquals(null, $exception->getFilename());
-        $this->assertEquals('File  does not exist!', $exception->getMessage());
+        $this->assertEquals('File not found ()', $exception->getMessage());
     }
 }
