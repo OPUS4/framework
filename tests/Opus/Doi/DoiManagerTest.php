@@ -32,6 +32,8 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+use Opus\Log\LogService;
+
 class Opus_Doi_DoiManagerTest extends TestCase
 {
 
@@ -59,6 +61,51 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->adaptDoiConfiguration(['prefix' => '']);
         $doiManager = new Opus_Doi_DoiManager();
         $this->assertNotNull($doiManager);
+    }
+
+    public function testGetDoiLogger()
+    {
+        $logService = LogService::getInstance();
+        $logService->getConfig()->merge(new Zend_Config([
+            'logging' => ['log' => [
+                'opus-doi' => [
+                    'format' => '%timestamp% %message%',
+                    'file' => 'opus-doi.log',
+                    'level' => 'INFO'
+                ]
+            ]]
+        ]));
+
+        $doiManager = new Opus_Doi_DoiManager();
+        $doiLogger = $doiManager->getDoiLogger();
+
+        $logger = $logService->getLog('opus-doi');
+
+        $this->assertNotNull($doiLogger);
+        $this->assertSame($logger, $doiLogger);
+
+        $debugMessage = 'debug level message';
+        $doiLogger->debug($debugMessage);
+        $this->assertNotContains($debugMessage, $this->readLogFile('opus-doi.log'));
+
+        $infoMessage = 'info level message';
+        $logger->info($infoMessage);
+
+        $content = $this->readLogFile('opus-doi.log');
+
+        $this->assertContains($infoMessage, $content);
+        $this->assertEquals($infoMessage, trim($content));
+    }
+
+    protected function readLogFile($name)
+    {
+        $logService = LogService::getInstance();
+        $path = $logService->getPath() . DIRECTORY_SEPARATOR . $name;
+        if (file_exists($path)) {
+            return file_get_contents($path);
+        } else {
+            throw new \Exception("log file '$name' not found");
+        }
     }
 
     public function testRegisterMissingArg()

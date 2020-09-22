@@ -38,7 +38,7 @@ class Opus_Doi_DoiManager
 {
 
     /**
-     * Logger for DOI specific information kept separat for convenience, easy access.
+     * Logger for DOI specific information kept separate for convenience, easy access.
      * @var Zend_Log
      */
     private $doiLog;
