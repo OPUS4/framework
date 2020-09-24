@@ -66,10 +66,11 @@ class Opus_Doi_DoiManagerTest extends TestCase
     public function testGetDoiLogger()
     {
         $logService = LogService::getInstance();
+        $logService->setConfig(new \Zend_Config([], true));
         $logService->getConfig()->merge(new Zend_Config([
             'logging' => ['log' => [
                 'opus-doi' => [
-                    'format' => '%timestamp% %message%',
+                    'format' => '%timestamp% %priorityName% (ID %runId%): %message%',
                     'file' => 'opus-doi.log',
                     'level' => 'INFO'
                 ]
@@ -94,7 +95,6 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $content = $this->readLogFile('opus-doi.log');
 
         $this->assertContains($infoMessage, $content);
-        $this->assertEquals($infoMessage, trim($content));
     }
 
     protected function readLogFile($name)
