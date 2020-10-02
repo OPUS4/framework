@@ -477,7 +477,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
         $this->setExpectedException(InvalidArgumentException::class, 'Model argument must not be null');
 
-        $properties->setProperty(null,  null , 'testvalue');
+        $properties->setProperty(null, null, 'testvalue');
     }
 
     public function testSetPropertyUnknownModel()

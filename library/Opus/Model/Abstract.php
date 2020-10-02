@@ -581,12 +581,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_PropertySupportInterfac
 
     public function setProperty($key, $value)
     {
-
     }
 
     public function getProperty($key)
     {
-
     }
 
     public function getModelType()
