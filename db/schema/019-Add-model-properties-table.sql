@@ -17,11 +17,19 @@ CREATE TABLE IF NOT EXISTS `propertykeys` (
     COMMENT = 'Valid keys of model properties';
 
 CREATE TABLE IF NOT EXISTS `model_properties` (
-    `model_type` ENUM('document', 'file', 'identifier') NOT NULL COMMENT 'Type of model object',
+    `model_type_id` INT UNSIGNED NOT NULL COMMENT 'ID of model type',
     `model_id` INT UNSIGNED NOT NULL COMMENT 'ID of model object',
-    `key_name` VARCHAR(30) NOT NULL COMMENT 'Name of property',
+    `key_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to propertykeys.id',
     `value` MEDIUMTEXT NOT NULL COMMENT 'Value of property',
-    PRIMARY KEY (`model_type`, `model_id`, `key_name`)
+    PRIMARY KEY (`model_type_id`, `model_id`, `key_id`),
+    CONSTRAINT `fk_model_properties_propertykeys`
+        FOREIGN KEY (`key_id`)
+            REFERENCES `propertykeys` (`id`)
+            ON DELETE CASCADE,
+    CONSTRAINT `fk_model_properties_model_types`
+        FOREIGN KEY (`model_type_id`)
+            REFERENCES `model_types` (`id`)
+            ON DELETE CASCADE
 )
     COMMENT = 'Holds internal properties for OPUS model objects.';
 
