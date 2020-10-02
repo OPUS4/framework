@@ -1,6 +1,20 @@
 START TRANSACTION;
 
--- Add table "model_properties" OPUSVIER-4368
+-- Add tables for storing model properties (OPUSVIER-4368)
+
+CREATE TABLE IF NOT EXISTS `model_types` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+    `type` VARCHAR(50) NOT NULL UNIQUE COMMENT 'Type of supported models',
+    PRIMARY KEY (`id`)
+)
+    COMMENT = 'Model types supported by properties.';
+
+CREATE TABLE IF NOT EXISTS `propertykeys` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key',
+    `name` VARCHAR(50) NOT NULL UNIQUE COMMENT 'Property key name',
+    PRIMARY KEY (`id`)
+)
+    COMMENT = 'Valid keys of model properties';
 
 CREATE TABLE IF NOT EXISTS `model_properties` (
     `model_type` ENUM('document', 'file', 'identifier') NOT NULL COMMENT 'Type of model object',
