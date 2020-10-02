@@ -576,7 +576,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_PropertySupportInterfac
 
     public function getId()
     {
-        return $this->__call('getId');
+        return $this->__call('getId', []);
     }
 
     public function setProperty($key, $value)

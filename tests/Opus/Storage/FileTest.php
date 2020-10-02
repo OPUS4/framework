@@ -199,7 +199,7 @@ class Opus_Storage_FileTest extends TestCase
 
         $rand = rand(1, 100);
         for ($i = 0; $i < $rand; $i++) {
-            fwrite($fh, ".");
+            fwrite($fh, "t");
         }
 
         fclose($fh);
