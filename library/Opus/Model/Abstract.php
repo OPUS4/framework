@@ -41,7 +41,7 @@
  * @category    Framework
  * @package     Opus_Model
  */
-abstract class Opus_Model_Abstract
+abstract class Opus_Model_Abstract implements Opus_Model_PropertySupportInterface
 {
 
     use \Opus\LoggingTrait;
@@ -572,5 +572,23 @@ abstract class Opus_Model_Abstract
         foreach ($this->_fields as $fieldName => $field) {
             $field->setValue(null);
         }
+    }
+
+    public function getId()
+    {
+        return $this->__call('getId', []);
+    }
+
+    public function setProperty($key, $value)
+    {
+    }
+
+    public function getProperty($key)
+    {
+    }
+
+    public function getModelType()
+    {
+        return null;
     }
 }

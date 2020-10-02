@@ -100,7 +100,7 @@
  * @method void setOpusId(string $internalId)
  * @method string getOpusId()
  */
-class Opus_Person extends Opus_Model_AbstractDb
+class Opus_Person extends Opus_Model_AbstractDb implements Opus_Model_PropertySupportInterface
 {
 
     /**
@@ -821,5 +821,10 @@ class Opus_Person extends Opus_Model_AbstractDb
                 $select->where("p.$column IS NULL");
             }
         }
+    }
+
+    public function getModelType()
+    {
+        return 'person';
     }
 }

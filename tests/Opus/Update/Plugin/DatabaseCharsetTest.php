@@ -47,7 +47,7 @@ class Opus_Update_Plugin_DatabaseCharsetTest extends TestCase
     {
         $tables = $this->plugin->getAllTables();
 
-        $this->assertCount(39, $tables);
+        $this->assertCount(42, $tables);
 
         $this->assertContains('documents', $tables);
         $this->assertContains('link_persons_documents', $tables);

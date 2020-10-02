@@ -25,56 +25,45 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @package     Opus_Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
- * Provide Opus Framework Version.
+ * Interface for model classes supporting internal properties.
  *
- * @category    Framework
- * @package     Opus
- *
+ * TODO pass through some exceptions from Opus_Model_Properties?
  */
-class Opus_Version
+interface Opus_Model_PropertySupportInterface
 {
 
     /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.7';
-
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '19';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
+     * Returns identifier for model.
+     * @return int|null
      *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
+     * TODO rename to getModelId ?
      */
-    public static function compareVersion($version)
-    {
-        return version_compare($version, self::VERSION);
-    }
+    public function getId();
 
     /**
-     * Returns required database schema version.
+     * Sets property for model.
+     * @param string $key Name of property
+     * @param string $value Value of property
+     */
+    public function setProperty($key, $value);
+
+    /**
+     * Returns value of property.
+     * @param string $key Name of property
+     * @return string|null
+     */
+    public function getProperty($key);
+
+    /**
+     * Returns identifier for model type.
      * @return string
-     *
-     * TODO determine schema version from update scripts?
      */
-    public static function getSchemaVersion()
-    {
-        return self::SCHEMA_VERSION;
-    }
+    public function getModelType();
 }

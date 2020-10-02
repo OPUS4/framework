@@ -25,56 +25,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @package     Opus_Db
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
- * Provide Opus Framework Version.
+ * Class Opus_Db_Properties
  *
- * @category    Framework
- * @package     Opus
- *
+ * TODO get rid of this class? Do we need it?
  */
-class Opus_Version
+class Opus_Db_Properties extends Opus_Db_TableGateway
 {
 
-    /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.7';
+    protected $_name = 'model_properties';
 
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '19';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
-     *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
-     */
-    public static function compareVersion($version)
-    {
-        return version_compare($version, self::VERSION);
-    }
-
-    /**
-     * Returns required database schema version.
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
-    {
-        return self::SCHEMA_VERSION;
-    }
+    protected $_primary = ['model_type_id', 'model_id', 'key_id'];
 }
