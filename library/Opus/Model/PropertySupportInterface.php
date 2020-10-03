@@ -33,8 +33,6 @@
 
 /**
  * Interface for model classes supporting internal properties.
- *
- * TODO pass through some exceptions from Opus_Model_Properties?
  */
 interface Opus_Model_PropertySupportInterface
 {

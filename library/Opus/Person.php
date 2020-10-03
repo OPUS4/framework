@@ -100,7 +100,7 @@
  * @method void setOpusId(string $internalId)
  * @method string getOpusId()
  */
-class Opus_Person extends Opus_Model_AbstractDb implements Opus_Model_PropertySupportInterface
+class Opus_Person extends Opus_Model_AbstractDb
 {
 
     /**

@@ -611,4 +611,10 @@ class Opus_IdentifierTest extends TestCase
     {
         $this->assertEquals('pmid', Opus_Identifier::getTypeForFieldname('IdentifierPubmed'));
     }
+
+    public function testGetModelType()
+    {
+        $identifier = new Opus_Identifier();
+        $this->assertEquals('identifier', $identifier->getModelType());
+    }
 }

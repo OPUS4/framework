@@ -1004,4 +1004,10 @@ class Opus_FileTest extends TestCase
         $this->assertInstanceOf('Opus_File', $file);
         $this->assertEquals(1, $file->getVisibleInOai());
     }
+
+    public function testGetModelType()
+    {
+        $file = new Opus_File();
+        $this->assertEquals('file', $file->getModelType());
+    }
 }

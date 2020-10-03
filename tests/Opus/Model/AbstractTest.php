@@ -519,4 +519,59 @@ class Opus_Model_AbstractTest extends TestCase
         $this->assertInstanceOf('Opus_Date', $date);
         $this->assertEquals('2018-10-12', $date->__toString());
     }
+
+    public function testGetModelType()
+    {
+        $model = new Opus_Language();
+
+        $this->setExpectedException(
+            Opus_Model_UnknownModelTypeException::class,
+            'Properties not supported for Opus_Language'
+        );
+
+        $model->getModelType();
+    }
+
+    public function testSetProperty()
+    {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $key = 'indexed';
+        $value = 'true';
+
+        $doc->setProperty($key, $value);
+
+        $this->assertEquals($value, $doc->getProperty($key));
+    }
+
+    public function testGetProperty()
+    {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $key = 'indexed';
+        $value = 'true';
+
+        $key2 = 'source';
+        $value2 = 'sword';
+
+        $doc->setProperty($key, $value);
+        $doc->setProperty($key2, $value2);
+
+        $this->assertEquals($value, $doc->getProperty($key));
+        $this->assertEquals($value2, $doc->getProperty($key2));
+    }
+
+    public function testSetPropertyModelWithoutId()
+    {
+        $doc = new Opus_Document();
+
+        $key = 'source';
+        $value = 'sword';
+
+        $this->setExpectedException(Opus_Model_PropertiesException::class, 'Model ID is null');
+
+        $doc->setProperty($key, $value);
+    }
 }

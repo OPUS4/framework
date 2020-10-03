@@ -447,4 +447,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract
             $this->setVisibleInOai(filter_var($config->files->visibleInOaiDefault, FILTER_VALIDATE_BOOLEAN));
         }
     }
+
+    public function getModelType()
+    {
+        return 'file';
+    }
 }

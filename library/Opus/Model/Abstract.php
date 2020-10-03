@@ -38,6 +38,22 @@
  * It implements set and get accessors for field handling and rendering
  * of an array and an xml representation as well.
  *
+ * Properties
+ *
+ * The PropertySupportInterface defines functions that allow setting and
+ * getting properties for model objects. Each property has a key and a
+ * value. The values are strings. Keys can be up to 50 characters long.
+ *
+ * The properties are for storing system information that needs to be
+ * associated with a model, like the extraction status of file or the
+ * source of a document.
+ *
+ * The difference to a Enrichment is that a property is for system data
+ * while an Enrichment stores actual content metadata about a document.
+ * Properties are defined by developers, while an Enrichment is defined
+ * by the institutions running OPUS 4.
+ *
+ *
  * @category    Framework
  * @package     Opus_Model
  */
@@ -62,6 +78,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_PropertySupportInterfac
      * @var array
      */
     protected $_internalFields = [];
+
+    /**
+     * @var Opus_Model_Properties Access object for internal properties associated with model
+     */
+    private static $propertiesService;
 
     /**
      * Call to _init().
@@ -574,21 +595,77 @@ abstract class Opus_Model_Abstract implements Opus_Model_PropertySupportInterfac
         }
     }
 
+    /**
+     * Part of PropertySupportInterface.
+     * @return int|null ID of model
+     * @throws Opus_Security_Exception
+     * @throws \Opus\Model\Exception
+     */
     public function getId()
     {
         return $this->__call('getId', []);
     }
 
+    /**
+     * Set a property for a model.
+     * @param string $key Name of property
+     * @param string $value Value of property
+     * @throws Opus_Model_UnknownModelTypeException
+     * @throws Opus_Model_UnknownPropertyKeyException
+     */
     public function setProperty($key, $value)
     {
+        $properties = self::getPropertiesService();
+
+        $properties->setProperty($this, $key, $value);
     }
 
+    /**
+     * Returns value of a property stored for a model.
+     * @param string $key Name of property
+     * @return string|null
+     * @throws Opus_Model_PropertiesException
+     * @throws Opus_Model_UnknownModelTypeException
+     * @throws Opus_Model_UnknownPropertyKeyException
+     */
     public function getProperty($key)
     {
+        $properties = self::getPropertiesService();
+
+        return $properties->getProperty($this, $key);
     }
 
+    /**
+     * Returns identifier for model type.
+     *
+     * This needs to be overwritten by class that wants to support model properties.
+     *
+     * @return string|null
+     *
+     * TODO use protected variable for defining type in subclasses?
+     */
     public function getModelType()
     {
-        return null;
+        $className = get_class($this);
+        throw new Opus_Model_UnknownModelTypeException("Properties not supported for $className");
+    }
+
+    /**
+     * Returns access object for model properties.
+     *
+     * @return mixed
+     *
+     * TODO should probably handled in separate class (revisit with ZF3)
+     */
+    private static function getPropertiesService()
+    {
+        if (self::$propertiesService === null) {
+            $service = new Opus_Model_Properties();
+            $service->setAutoRegisterTypeEnabled(true);
+            $service->setAutoRegisterKeyEnabled(true);
+            self::$propertiesService = $service;
+        }
+
+        return self::$propertiesService;
     }
 }
