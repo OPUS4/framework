@@ -194,7 +194,7 @@
  * @method void setPerson(Opus_Model_Dependent_Link_DocumentPerson[] $persons)
  * @method Opus_Model_Dependent_Link_DocumentPerson[] getPerson()
  */
-class Opus_Document extends Opus_Model_AbstractDb implements Opus_Model_PropertySupportInterface
+class Opus_Document extends Opus_Model_AbstractDb
 {
 
     /**

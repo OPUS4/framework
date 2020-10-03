@@ -1995,4 +1995,10 @@ class Opus_PersonTest extends TestCase
         $this->assertEquals('B', $person->getIdentifierMisc());
         $this->assertEquals('2', $person->getOpusId());
     }
+
+    public function testGetModelType()
+    {
+        $person = new Opus_Person();
+        $this->assertEquals('person', $person->getModelType());
+    }
 }

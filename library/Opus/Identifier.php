@@ -347,4 +347,9 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
     {
         return 'Identifier' . array_search($type, self::$identifierMapping);
     }
+
+    public function getModelType()
+    {
+        return 'identifier';
+    }
 }

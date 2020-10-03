@@ -4273,4 +4273,10 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertCount($authorsCount, $authors);
     }
+
+    public function testGetModelType()
+    {
+        $doc = new Opus_Document();
+        $this->assertEquals('document', $doc->getModelType());
+    }
 }
