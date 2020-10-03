@@ -38,6 +38,22 @@
  * It implements set and get accessors for field handling and rendering
  * of an array and an xml representation as well.
  *
+ * Properties
+ *
+ * The PropertySupportInterface defines functions that allow setting and
+ * getting properties for model objects. Each property has a key and a
+ * value. The values are strings. Keys can be up to 50 characters long.
+ *
+ * The properties are for storing system information that needs to be
+ * associated with a model, like the extraction status of file or the
+ * source of a document.
+ *
+ * The difference to a Enrichment is that a property is for system data
+ * while an Enrichment stores actual content metadata about a document.
+ * Properties are defined by developers, while an Enrichment is defined
+ * by the institutions running OPUS 4.
+ *
+ *
  * @category    Framework
  * @package     Opus_Model
  */
