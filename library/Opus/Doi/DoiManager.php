@@ -85,8 +85,9 @@ class Opus_Doi_DoiManager
     public function getDoiLogger()
     {
         if (is_null($this->doiLog)) {
+            $format = '%timestamp% %priorityName%: %message%' . PHP_EOL;
             $logService = LogService::getInstance();
-            $this->doiLog = $logService->getLog('opus-doi');
+            $this->doiLog = $logService->createLog('opus-doi', null, $format, null);
         }
 
         return $this->doiLog;
