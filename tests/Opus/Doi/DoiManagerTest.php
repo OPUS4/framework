@@ -120,11 +120,6 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertSame($logger, $doiLogger);
     }
 
-    /**
-     * @throws Exception
-     *
-     * TODO Default priority is INFO, so this test should pass but it doesn't.
-     */
     public function testGetDoiLoggerFilters()
     {
         $doiManager = new Opus_Doi_DoiManager();
