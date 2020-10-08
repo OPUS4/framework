@@ -22,6 +22,18 @@ The database access parameters are stored in `tests/config.ini`.
 
 ### Solr Server
 
+### Directory 
+
+The directory for testing can be created by using 
+
+    ant prepare-workspace
+    
+### Configuration
+
+The config file (config.ini) for the testing configurations in the framework can be created using
+
+    ant prepare-config
+
 ## Testing
 
     ant phpunit-fast
