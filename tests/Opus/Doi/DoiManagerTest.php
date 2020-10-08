@@ -36,41 +36,6 @@ use Opus\Log\LogService;
 
 class Opus_Doi_DoiManagerTest extends TestCase
 {
-    private $logService;
-
-    private $tempFolder;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $tempFolder = $this->createTempFolder();
-        $this->tempFolder = $tempFolder;
-        $this->createFolder('log');
-
-        $this->logService = LogService::getInstance();
-        $this->logService->setConfig(new \Zend_Config([
-            'workspacePath' => $tempFolder,
-            'log' => [
-                'format' => $this->logService->getDefaultFormat()
-            ]
-        ], true));
-    }
-
-    public function tearDown()
-    {
-        // reset singleton, because otherwise settings will carry over to next test
-        $singleton = LogService::getInstance();
-        $reflection = new \ReflectionClass($singleton);
-        $instance = $reflection->getProperty('instance');
-        $instance->setAccessible(true);
-        $instance->setValue(null, null);
-        $instance->setAccessible(false);
-
-        $this->removeFolder($this->tempFolder);
-
-        parent::tearDown();
-    }
 
     public function testConstructor()
     {
@@ -100,95 +65,11 @@ class Opus_Doi_DoiManagerTest extends TestCase
 
     public function testGetDoiLogger()
     {
-        $logService = $this->getLogService();
-        $logService->getConfig()->merge(new \Zend_Config([
-            'logging' => ['log' => [
-                'opus-doi' => [
-                    'format' => '%timestamp% %priorityName%: %message%' . PHP_EOL,
-                    'file' => 'opus-doi.log',
-                    'level' => 'INFO'
-                ]
-            ]]
-        ], true));
-
         $doiManager = new Opus_Doi_DoiManager();
         $doiLogger = $doiManager->getDoiLogger();
-
-        $logger = $logService->getLog('opus-doi');
 
         $this->assertNotNull($doiLogger);
-        $this->assertSame($logger, $doiLogger);
-    }
-
-    public function testGetDoiLoggerFilters()
-    {
-        $doiManager = new Opus_Doi_DoiManager();
-        $doiLogger = $doiManager->getDoiLogger();
-
-        $debugMessage = 'Debug level message';
-        $doiLogger->debug($debugMessage);
-
-        $infoMessage = 'Info level message';
-        $doiLogger->info($infoMessage);
-
-        $content = $this->readLogFile('opus-doi.log');
-
-        $this->assertNotContains($debugMessage, $content);
-        $this->assertContains($infoMessage, $content);
-    }
-
-    protected function getLogService()
-    {
-        return $this->logService;
-    }
-
-    protected function readLogFile($name)
-    {
-        $logService = LogService::getInstance();
-        $path = $logService->getPath() . DIRECTORY_SEPARATOR . $name;
-        if (file_exists($path)) {
-            return file_get_contents($path);
-        } else {
-            throw new \Exception("log file '$name' not found");
-        }
-    }
-
-    protected function createTempFolder()
-    {
-        $path = sys_get_temp_dir();
-        $path = $path . DIRECTORY_SEPARATOR . uniqid('opus4-framework_test_');
-        mkdir($path, 0777, true);
-        return $path;
-    }
-
-    /**
-     * @param string $folderName
-     * @return string
-     *
-     * TODO Should move it from LogServiceTest so that it can be used without again writing it here.
-     */
-    protected function createFolder($folderName)
-    {
-        $path = $this->tempFolder . DIRECTORY_SEPARATOR . $folderName;
-        mkdir($path, 0777, true);
-        return $path;
-    }
-
-    protected function removeFolder($path)
-    {
-        if (! is_null($path) && file_exists($path)) {
-            if (is_dir($path)) {
-                $iterator = new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS);
-                foreach ($iterator as $file) {
-                    if ($file->isDir()) {
-                        $this->removeFolder($file->getPathname());
-                    } else {
-                        unlink($file->getPathname());
-                    }
-                }
-                rmdir($path);
-            }
-        }
+        $this->assertInstanceOf(\Zend_Log::class, $doiLogger);
     }
 
     public function testRegisterMissingArg()
