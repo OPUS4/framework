@@ -24,7 +24,7 @@ The database access parameters are stored in `tests/config.ini`.
 
 ### Directory 
 
-The directory for testing can be created by using 
+The workspace directory for testing can be created by using 
 
     ant prepare-workspace
     
