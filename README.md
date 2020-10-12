@@ -20,8 +20,6 @@ The database schema can be created using the `createdb.php` script.
 
 The database access parameters are stored in `tests/config.ini`.
 
-### Solr Server
-
 ### Directory 
 
 The workspace directory for testing can be created by using 
