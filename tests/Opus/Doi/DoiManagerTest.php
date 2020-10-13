@@ -32,7 +32,6 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-use Opus\Log\LogService;
 
 class Opus_Doi_DoiManagerTest extends TestCase
 {
@@ -70,6 +69,24 @@ class Opus_Doi_DoiManagerTest extends TestCase
 
         $this->assertNotNull($doiLogger);
         $this->assertInstanceOf(\Zend_Log::class, $doiLogger);
+    }
+
+    /**
+     * TODO Use helper function from OPUSVIER-4400 to read file
+     */
+    public function testGetDoiLoggerFilters()
+    {
+        $doiManager = new Opus_Doi_DoiManager();
+        $doiLogger = $doiManager->getDoiLogger();
+
+        $debugMessage = 'debug level message';
+        $doiLogger->debug($debugMessage);
+
+        $config = \Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus-doi.log';
+        $content = file_get_contents($path);
+
+        $this->assertContains($debugMessage, $content);
     }
 
     public function testRegisterMissingArg()
