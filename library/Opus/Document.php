@@ -60,6 +60,9 @@ use Opus\Storage\FileNotFoundException;
  *
  * The following are the magic methods for the simple fields of Opus\Document.
  *
+ * @method Document new()
+ * @method Document get(int $docId)
+ *
  * @method void setCompletedDate(Date $date)
  * @method Date getCompletedDate()
  *

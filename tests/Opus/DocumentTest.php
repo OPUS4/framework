@@ -4314,4 +4314,22 @@ class DocumentTest extends TestCase
         $doc = new Document();
         $this->assertEquals('document', $doc->getModelType());
     }
+
+    public function testNew()
+    {
+        $doc = Document::new();
+
+        $this->assertInstanceOf(Document::class, $doc);
+    }
+
+    public function testGet()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $doc = Document::get($docId);
+
+        $this->assertInstanceOf(Document::class, $doc);
+        $this->assertEquals($docId, $doc->getId());
+    }
 }
