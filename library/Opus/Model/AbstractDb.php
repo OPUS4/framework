@@ -47,7 +47,7 @@ use Opus\Model\Dependent\Link\AbstractLinkModel;
  * @category    Framework
  * @package     Opus\Model
  */
-abstract class AbstractDb extends AbstractModel implements ModificationTracking,ModelInterface
+abstract class AbstractDb extends AbstractModel implements ModificationTracking, ModelInterface
 {
 
     use PluginsTrait;

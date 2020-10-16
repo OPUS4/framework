@@ -58,7 +58,7 @@ class AbstractDbMock extends AbstractDb
     protected static $_tableGatewayClass = 'OpusTest\Model\Mock\AbstractTableProvider';
 
 
-    public function __construct($id = null,\Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = [])
+    public function __construct($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = [])
     {
         foreach ($plugins as $plugin) {
             $this->registerPlugin($plugin);

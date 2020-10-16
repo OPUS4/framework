@@ -109,7 +109,7 @@ class AuthAdapterTest extends TestCase
         $result = $this->_auth_adapter->authenticate();
         $this->assertNotNull($result, 'Authentication result should not be null.');
         $this->assertInstanceOf('Zend_Auth_Result', $result, 'Authentication result should be of type\Zend_Auth_Result.');
-        $this->assertEquals($result->getCode(),\Zend_Auth_Result::SUCCESS, 'Authentication should be successful.');
+        $this->assertEquals($result->getCode(), \Zend_Auth_Result::SUCCESS, 'Authentication should be successful.');
     }
 
     /**

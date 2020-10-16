@@ -32,6 +32,7 @@
  */
 
 namespace Opus\Db;
+
 /**
  * Table gateway class to table 'collections'.
  *

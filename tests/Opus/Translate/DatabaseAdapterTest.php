@@ -44,18 +44,18 @@ class DatabaseAdapterTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->cache =\Zend_Translate::getCache();
+        $this->cache = \Zend_Translate::getCache();
     }
 
     public function tearDown()
     {
-       \Zend_Translate::setCache($this->cache);
+        \Zend_Translate::setCache($this->cache);
         parent::tearDown();
     }
 
     public function testUsingAdapter()
     {
-       \Zend_Translate::clearCache();
+        \Zend_Translate::clearCache();
 
         $database = new Dao();
 
@@ -100,7 +100,7 @@ class DatabaseAdapterTest extends TestCase
             ]
         );
 
-       \Zend_Translate::clearCache(); // clear cache between test runs
+        \Zend_Translate::clearCache(); // clear cache between test runs
 
         $translate = new \Zend_Translate(
             [
@@ -138,7 +138,7 @@ class DatabaseAdapterTest extends TestCase
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
         // it is necessary to clear the cache before updates
-       \Zend_Translate::clearCache();
+        \Zend_Translate::clearCache();
 
         $translate = new \Zend_Translate(
             [
@@ -155,7 +155,7 @@ class DatabaseAdapterTest extends TestCase
     // check behaviour with cache
     public function testUsingAdapterWithoutCache()
     {
-       \Zend_Translate::clearCache();
+        \Zend_Translate::clearCache();
 
         $database = new Dao();
 

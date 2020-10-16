@@ -65,14 +65,14 @@ class Mysqlutf8Test extends TestCase
         $config = \Zend_Registry::get('Zend_Config');
 
         // Backup existing adapter
-        $this->dba_backup =\Zend_Db_Table::getDefaultAdapter();
+        $this->dba_backup = \Zend_Db_Table::getDefaultAdapter();
 
         // Use\Zend_Db factory to create a database adapter and make it default.
         if (is_null($config) or is_null($config->db)) {
             throw new \Exception("Config does not exist.");
         }
-        $db =\Zend_Db::factory($config->db);
-       \Zend_Db_Table::setDefaultAdapter($db);
+        $db = \Zend_Db::factory($config->db);
+        \Zend_Db_Table::setDefaultAdapter($db);
 
         // Register the adapter within\Zend_Registry.
         \Zend_Registry::getInstance()->set('db_adapter', $db);
@@ -86,13 +86,13 @@ class Mysqlutf8Test extends TestCase
     public function tearDown()
     {
         // Close connection for clean transaction state.
-        $dba =\Zend_Db_Table::getDefaultAdapter();
+        $dba = \Zend_Db_Table::getDefaultAdapter();
         if (! is_null($dba)) {
             $dba->closeConnection();
         }
 
         // Restore existing adapter
-       \Zend_Db_Table::setDefaultAdapter($this->dba_backup);
+        \Zend_Db_Table::setDefaultAdapter($this->dba_backup);
         \Zend_Registry::getInstance()->set('db_adapter', $this->dba_backup);
 
         parent::tearDown();
@@ -105,7 +105,7 @@ class Mysqlutf8Test extends TestCase
      */
     public function testStartNestingTransactions()
     {
-        $dba =\Zend_Db_Table::getDefaultAdapter();
+        $dba = \Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         try {
             $dba->beginTransaction();
@@ -121,7 +121,7 @@ class Mysqlutf8Test extends TestCase
      */
     public function testCommitNestedTransactions()
     {
-        $dba =\Zend_Db_Table::getDefaultAdapter();
+        $dba = \Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         $dba->beginTransaction();
         $dba->beginTransaction();
@@ -148,7 +148,7 @@ class Mysqlutf8Test extends TestCase
      */
     public function testRollbackNestedTransactions()
     {
-        $dba =\Zend_Db_Table::getDefaultAdapter();
+        $dba = \Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         $dba->beginTransaction();
         $dba->beginTransaction();

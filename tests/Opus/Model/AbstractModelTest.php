@@ -234,7 +234,7 @@ class AbstractModelTest extends TestCase
     public function testValidationErrorsAreObtainable()
     {
         $model = new AbstractModelMock;
-$model->getField('Value')->setMandatory(true);
+        $model->getField('Value')->setMandatory(true);
         $model->getField('Value')->setValidator(new \Zend_Validate_NotEmpty());
         // Model field "Value" is empty.
         $this->assertFalse($model->isValid(), 'Validation should fail.');
@@ -250,7 +250,7 @@ $model->getField('Value')->setMandatory(true);
     public function testValidationErrorsAreObtainablePerField()
     {
         $model = new AbstractModelMock;
-$model->getField('Value')->setMandatory(true);
+        $model->getField('Value')->setMandatory(true);
         $model->getField('Value')->setValidator(new \Zend_Validate_NotEmpty());
         $model->isValid();
 
@@ -268,7 +268,7 @@ $model->getField('Value')->setMandatory(true);
     {
         $submodel = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
         $model = new AbstractModelMock();
-$field = new Field('Submodel');
+        $field = new Field('Submodel');
         $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock')
             ->setMandatory(true)
             ->setValue($submodel);
@@ -323,7 +323,7 @@ $field = new Field('Submodel');
     {
         $submodel = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
         $model = new AbstractModelMock;
-$field = new Field('Submodel');
+        $field = new Field('Submodel');
         $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock')
             ->setMandatory(true)
             ->setValue($submodel);

@@ -151,7 +151,7 @@ class Version1Test extends TestCase
     public function testXmlSubElementsHaveFieldNamesAsDefinedInTheModel()
     {
         $model = new AbstractModelMock;
-$model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
+        $model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
         $model->setValue(new AbstractModelMock());
         $xml = new Xml;
         $xml->setModel($model);
@@ -298,7 +298,7 @@ $model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\AbstractModel
     {
         // set up mock models and xml helper
         $model = new AbstractModelMock;
-$model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
+        $model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->setValue(new ModelAbstractDbMock());
         $xml = new Xml;
         $xml->setModel($model);
@@ -401,7 +401,7 @@ $model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\ModelAbstract
         // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
         // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
         $model = new AbstractModelMock;
-$field = new Field('LinkField');
+        $field = new Field('LinkField');
         $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
         $link = new ModelDependentLinkMock();
@@ -433,7 +433,7 @@ $field = new Field('LinkField');
         // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
         // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
         $model = new AbstractModelMock;
-$field = new Field('LinkField');
+        $field = new Field('LinkField');
         $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
         $link = new ModelDependentLinkMock();
@@ -464,7 +464,7 @@ $field = new Field('LinkField');
         // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
         // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
         $model = new AbstractModelMock;
-$field = new Field('LinkField');
+        $field = new Field('LinkField');
         $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
         $link = new ModelDependentLinkMock();
@@ -506,7 +506,7 @@ $field = new Field('LinkField');
     public function testEmptyModelsAreNotSerialized()
     {
         $model = new AbstractModelMock;
-$model->getField('Value')->setValueModelClass('something');
+        $model->getField('Value')->setValueModelClass('something');
         $model->setValue(null);
 
         $xml = new Xml;
@@ -528,8 +528,8 @@ $model->getField('Value')->setValueModelClass('something');
     public function testReferencedSubmodelIsRepresentedByXmlElement()
     {
         $model = new AbstractModelMock;
-$submodel = new AbstractModelMock;
-$submodel->addField(new Field('CommodityField'));
+        $submodel = new AbstractModelMock;
+        $submodel->addField(new Field('CommodityField'));
         $submodel->setCommodityField('Value! There is a Value!');
         $model->getField('Value')->setValueModelClass(get_class($submodel));
         $model->setValue($submodel);
@@ -563,12 +563,12 @@ $submodel->addField(new Field('CommodityField'));
         // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
         // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
         $model = new AbstractModelMock;
-$field = new Field('LinkField');
+        $field = new Field('LinkField');
         $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
         $model->addField($field);
 
         $linkedModel = new AbstractModelMock;
-$linkedModel->setValue('LinkedModelsValue');
+        $linkedModel->setValue('LinkedModelsValue');
 
         $link = new ModelDependentLinkMock();
         $link->setModelClass(get_class($linkedModel));
@@ -609,7 +609,7 @@ $linkedModel->setValue('LinkedModelsValue');
     public function testLinkModelFieldNotShown()
     {
         $model = new AbstractModelMock;
-$field = new Field('LinkField');
+        $field = new Field('LinkField');
         $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
         $link = new ModelDependentLinkMock();
@@ -886,7 +886,7 @@ $field = new Field('LinkField');
         $invalidValue = "foo... " . self::createInvalidUTF8String() . " ...bar";
 
         $model = new AbstractModelMock;
-$model->setValue($invalidValue);
+        $model->setValue($invalidValue);
 
         // Serialize model to XML.
         $xml = new Xml;
