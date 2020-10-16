@@ -12,25 +12,25 @@
          syntaxCheck="true">
 
     <testsuite name="FrameworkTests">
-        <directory>./</directory>
+        <directory>./tests</directory>
     </testsuite>
 
     <logging>
-        <log type="junit" target="../build/logs/phpunit.xml" logIncompleteSkipped="true" />
+        <log type="junit" target="./build/logs/phpunit.xml" logIncompleteSkipped="true" />
     </logging>
 
     <!-- Define directories/files filter for code coverage. -->
     <filter>
         <!-- Per default, skip all files. -->
         <blacklist>
-            <directory suffix=".php">..</directory>
+            <directory suffix=".php">.</directory>
         </blacklist>
 
         <!-- Define directories to include. -->
         <whitelist>
-            <directory suffix=".php">../library/Opus</directory>
+            <directory suffix=".php">./library/Opus</directory>
             <exclude>
-                <!-- <file>../library/Opus/...</file> -->
+                <!-- <file>./library/Opus/...</file> -->
             </exclude>
         </whitelist>
     </filter>
