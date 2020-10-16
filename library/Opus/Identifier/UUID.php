@@ -26,13 +26,14 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Identifier
+ * @package     Opus\Identifier
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  *              Original implementation: http://us2.php.net/manual/en/function.uniqid.php#88400
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Identifier;
 
 /**
  * @brief Generates a Universally Unique IDentifier, version 4.
@@ -43,7 +44,7 @@
  * @see http://en.wikipedia.org/wiki/UUID
  * @return string A UUID, made up of 32 hex digits and 4 hyphens.
  */
-class Opus_Identifier_UUID
+class UUID
 {
 
     public static function generate()

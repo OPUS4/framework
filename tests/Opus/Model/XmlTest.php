@@ -25,32 +25,36 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace OpusTest\Model;
+
+use Opus\Model\Xml;
+use OpusTest\TestAsset\TestCase;
 
 /**
  * Test creation XML from models and creation of models by valid XML respectivly.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  *
  * @group XmlTest
  */
-class Opus_Model_XmlTest extends TestCase
+class XmlTest extends TestCase
 {
 
     /**
-     * Initial test for Opus_Model_Xml. Needed for code coverage
+     * Initial test for Opus\Model\Xml. Needed for code coverage
      *
      * @return void
      */
     public function testInitiateXml()
     {
-        $xml = new Opus_Model_Xml;
-        $this->assertNotNull($xml, 'Initiate test for Opus_Model_Xml.');
+        $xml = new Xml();
+        $this->assertNotNull($xml, 'Initiate test for Opus\Model\Xml.');
     }
 }

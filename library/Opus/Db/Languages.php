@@ -26,20 +26,22 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'languages'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  */
-class Opus_Db_Languages extends Opus_Db_TableGateway
+class Languages extends TableGateway
 {
 
     /**

@@ -27,19 +27,23 @@
  * @category    Framework
  * @package     Opus
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
 
 /**
  * Domain model for hashvalues in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  */
-class Opus_HashValues extends Opus_Model_Dependent_Abstract
+class HashValues extends AbstractDependentModel
 {
 
     /**
@@ -52,14 +56,14 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus_Db_FileHashvalues';
+    protected static $_tableGatewayClass  = 'Opus\Db\FileHashvalues';
 
     /** Plugins to load
      *
      * Plugin InvalidateDocumentCache should stay disabled here since this model is not directly related to
-     * Opus_Document, therefore 'Opus_Model_Plugin_InvalidateDocumentCache' should not be used.
+     * Opus\Document, therefore 'Opus\Model\Plugin\InvalidateDocumentCache' should not be used.
      *
      * @var array
      */
@@ -77,13 +81,13 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $hashtype = new Opus_Model_Field('Type');
+        $hashtype = new Field('Type');
         $hashtype->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $hashvalue = new Opus_Model_Field('Value');
+        $hashvalue = new Field('Value');
         $hashvalue->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
         $this->addField($hashtype)
             ->addField($hashvalue);

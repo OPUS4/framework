@@ -25,22 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'document_enrichments'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-
-class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway
+class DocumentEnrichments extends TableGateway
 {
 
     /**
@@ -59,12 +60,12 @@ class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway
     protected $_referenceMap = [
         'EnrichmentKeys' => [
             'columns' => 'key_name',
-            'refTableClass' => 'Opus_Db_EnrichmentKeys',
+            'refTableClass' => 'Opus\Db\EnrichmentKeys',
             'refColumns' => 'name'
         ],
         'Documents' => [
             'columns' => 'document_id',
-            'refTableClass' => 'Opus_Db_Documents',
+            'refTableClass' => 'Opus\Db\Documents',
             'refColumns' => 'id'
         ]
     ];

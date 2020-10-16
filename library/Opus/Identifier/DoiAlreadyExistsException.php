@@ -25,12 +25,16 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Identifier
+ * @package     Opus\Identifier
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Identifier_DoiAlreadyExistsException extends \Opus\Model\Exception
+namespace Opus\Identifier;
+
+use Opus\Model\ModelException;
+
+class DoiAlreadyExistsException extends ModelException
 {
 }

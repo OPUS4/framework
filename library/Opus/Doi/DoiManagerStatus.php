@@ -31,7 +31,9 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiManagerStatus
+namespace Opus\Doi;
+
+class DoiManagerStatus
 {
 
     private $docsWithDoiStatus = [];

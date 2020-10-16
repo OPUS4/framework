@@ -32,6 +32,8 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
 /**
  * Provide Opus Framework Version.
  *
@@ -39,7 +41,7 @@
  * @package     Opus
  *
  */
-class Opus_Version
+class Version
 {
 
     /**
@@ -54,7 +56,7 @@ class Opus_Version
 
     /**
      * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
+     * with the current Opus\Version::VERSION of the Zend Framework.
      *
      * @param  string  $version  A version string (e.g. "0.7.1").
      * @return integer           -1 if the $version is older,

@@ -27,16 +27,20 @@
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Job;
+
+use Opus\Job;
+use Opus\Job\Worker\WorkerInterface;
 
 /**
  * Deliver jobs to worker objects.
  *
  * @category    Framework
- * @package     Opus_Job
+ * @package     Opus\Job
  */
-class Opus_Job_Runner
+class Runner
 {
 
     /**
@@ -64,17 +68,17 @@ class Opus_Job_Runner
     /**
      * Holds the instance of the current logger.
      *
-     * @var Zend_Log
+     * @var \Zend_Log
      */
     protected $_logger = null;
 
     /**
      * Register a new worker process.
      *
-     * @param Opus_Job_Worker_Interface $worker Worker instance to register.
+     * @param WorkerInterface $worker Worker instance to register.
      * @return void
      */
-    public function registerWorker(Opus_Job_Worker_Interface $worker)
+    public function registerWorker(WorkerInterface $worker)
     {
         $this->_workers[$worker->getActivationLabel()] = $worker;
     }
@@ -82,10 +86,10 @@ class Opus_Job_Runner
     /**
      * Set the current logger instance.
      *
-     * @param Zend_Log $log Logger.
-     * @return Opus_Job_Runner Fluent interface.
+     * @param \Zend_Log $log Logger.
+     * @return Runner Fluent interface.
      */
-    public function setLogger(Zend_Log $logger)
+    public function setLogger(\Zend_Log $logger)
     {
         $this->_logger = $logger;
     }
@@ -126,7 +130,7 @@ class Opus_Job_Runner
      */
     public function run()
     {
-        $jobs = Opus_Job::getByLabels(array_keys($this->_workers), $this->_limit, Opus_Job::STATE_UNDEFINED);
+        $jobs = Job::getByLabels(array_keys($this->_workers), $this->_limit, Job::STATE_UNDEFINED);
 
         if (null !== $this->_logger) {
             $this->_logger->info('Found ' . count($jobs). ' job(s)');
@@ -150,10 +154,10 @@ class Opus_Job_Runner
     /**
      * Execute a job and remove it from the jobs table on success.
      *
-     * @param Opus_Job $job Job description model.
+     * @param Job $job Job description model.
      * @return boolean Returns true if a job is consumend false if not
      */
-    protected function consume(Opus_Job $job)
+    protected function consume(Job $job)
     {
         $label = $job->getLabel();
 
@@ -168,7 +172,7 @@ class Opus_Job_Runner
                 $this->_logger->info('Processing ' . $label);
             }
 
-            $job->setState(Opus_Job::STATE_PROCESSING);
+            $job->setState(Job::STATE_PROCESSING);
             $job->store();
 
             try {
@@ -176,7 +180,7 @@ class Opus_Job_Runner
                 $worker->work($job);
                 $job->delete();
                 sleep($this->_delay);
-            } catch (Exception $ex) {
+            } catch (\Exception $ex) {
                 if (null !== $this->_logger) {
                     $msg = get_class($worker) . ': ' . $ex->getMessage();
                     $this->_logger->err($msg);
@@ -186,7 +190,7 @@ class Opus_Job_Runner
                    'message'  => $ex->getMessage(),
                    'trace' => $ex->getTraceAsString()
                 ]));
-                $job->setState(Opus_Job::STATE_FAILED);
+                $job->setState(Job::STATE_FAILED);
                 $job->store();
                 return false;
             }

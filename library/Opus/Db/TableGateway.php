@@ -26,21 +26,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Implements the singleton pattern for table gateway classes.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
+abstract class TableGateway extends \Zend_Db_Table_Abstract
 {
     /**
      * Holds all table gateway instances.
@@ -54,7 +56,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @param  mixed  $class The class name of the instance to get.
      *
-     * @return Opus_Db_TableGateway
+     * @return TableGateway
      */
     final public static function getInstance($class)
     {
@@ -157,7 +159,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
 
     /**
      * FIXME: Constructor should be private due to singleton pattern. This
-     * conflicts with the signature of the Zend_Db_Table_Abstract contructor.
+     * conflicts with the signature of the \Zend_Db_Table_Abstract contructor.
      * private function __construct() {}
      */
 

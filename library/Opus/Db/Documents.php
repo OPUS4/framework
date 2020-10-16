@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,14 +33,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'documents'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_Documents extends Opus_Db_TableGateway
+class Documents extends TableGateway
 {
 
     /**
@@ -57,16 +59,16 @@ class Opus_Db_Documents extends Opus_Db_TableGateway
      * @var array $_dependantTables
      */
     protected $_dependentTables = [
-        'Opus_Db_DocumentTitleAbstracts',
-        'Opus_Db_DocumentSubjects',
-        'Opus_Db_DocumentStatistics',
-        'Opus_Db_DocumentNotes',
-        'Opus_Db_DocumentPatents',
-        'Opus_Db_DocumentEnrichments',
-        'Opus_Db_DocumentFiles',
-        'Opus_Db_DocumentIdentifiers',
-        'Opus_Db_LinkDocumentsDnbInstitutes',
-        'Opus_Db_LinkPersonsDocuments',
-        'Opus_Db_LinkDocumentsLicences'
+        'Opus\Db\DocumentTitleAbstracts',
+        'Opus\Db\DocumentSubjects',
+        'Opus\Db\DocumentStatistics',
+        'Opus\Db\DocumentNotes',
+        'Opus\Db\DocumentPatents',
+        'Opus\Db\DocumentEnrichments',
+        'Opus\Db\DocumentFiles',
+        'Opus\Db\DocumentIdentifiers',
+        'Opus\Db\LinkDocumentsDnbInstitutes',
+        'Opus\Db\LinkPersonsDocuments',
+        'Opus\Db\LinkDocumentsLicences'
     ];
 }

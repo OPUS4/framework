@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,14 +33,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'document_subjects'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_DocumentLicences extends Opus_Db_TableGateway
+class DocumentLicences extends TableGateway
 {
 
     /**
@@ -56,5 +58,5 @@ class Opus_Db_DocumentLicences extends Opus_Db_TableGateway
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = ['Opus_Db_LinkDocumentsLicences'];
+    protected $_dependentTables = ['Opus\Db\LinkDocumentsLicences'];
 }

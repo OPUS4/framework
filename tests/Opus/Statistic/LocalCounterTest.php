@@ -25,29 +25,36 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Statistic
+ * @package     Opus\Statistic
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest\Statistic;
+
+use Opus\Db\TableGateway;
+use Opus\Document;
+use Opus\Statistic\LocalCounter;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Test for Opus_Statistic_LocalCounter.
+ * Test for Opus\Statistic\LocalCounter.
  *
- * @package Opus_Statistic
+ * @package Opus\Statistic
  * @category Tests
  *
  * @group LocalCounterTest
  */
-class Opus_Statistic_LocalCounterTest extends TestCase
+class LocalCounterTest extends TestCase
 {
 
     /**
      * Document to count on :)
      *
-     * @var Opus_Document
+     * @var Opus\Document
      */
     protected $_document = null;
 
@@ -61,10 +68,10 @@ class Opus_Statistic_LocalCounterTest extends TestCase
     {
         parent::setUp();
 
-        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
+        $path = \Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);
 
-        $this->_document = new Opus_Document();
+        $this->_document = new Document();
         $this->_document->setType("doctoral_thesis");
         $this->_document->store();
 
@@ -83,7 +90,7 @@ class Opus_Statistic_LocalCounterTest extends TestCase
     {
         parent::tearDown();
 
-        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
+        $path = \Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);
     }
 
@@ -94,9 +101,9 @@ class Opus_Statistic_LocalCounterTest extends TestCase
      */
     public function testGetInstance()
     {
-        $lc = Opus_Statistic_LocalCounter::getInstance();
+        $lc = LocalCounter::getInstance();
         $this->assertNotNull($lc, 'Expected instance');
-        $this->assertInstanceOf('Opus_Statistic_LocalCounter', $lc, 'Expected object of type Opus_Statistic_LocalCounter.');
+        $this->assertInstanceOf('Opus\Statistic\LocalCounter', $lc, 'Expected object of type Opus\Statistic\LocalCounter.');
     }
 
     /**
@@ -108,18 +115,18 @@ class Opus_Statistic_LocalCounterTest extends TestCase
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'statistics' => ['localCounterEnabled' => 1]
         ]));
 
         $docId = $this->_document->getId();
 
         // issue counting request
-        $lc = Opus_Statistic_LocalCounter::getInstance();
+        $lc = LocalCounter::getInstance();
         $lc->count($docId, 1, 'files');
 
         // check database table for counting value
-        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
+        $ods = TableGateway::getInstance('Opus\Db\DocumentStatistics');
         $rows = $ods->fetchAll()->toArray();
 
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
@@ -135,18 +142,18 @@ class Opus_Statistic_LocalCounterTest extends TestCase
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'statistics' => ['localCounterEnabled' => 1]
         ]));
 
         $docId = $this->_document->getId();
 
         // issue counting request
-        $lc = Opus_Statistic_LocalCounter::getInstance();
+        $lc = LocalCounter::getInstance();
         $lc->count($docId, null, 'frontdoor');
 
         // check database table for counting value
-        $ods = Opus_Db_TableGateway::getInstance("Opus_Db_DocumentStatistics");
+        $ods = TableGateway::getInstance("Opus\Db\DocumentStatistics");
         $rows = $ods->fetchAll()->toArray();
 
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');

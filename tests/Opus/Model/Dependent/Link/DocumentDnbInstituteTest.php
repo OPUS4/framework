@@ -31,36 +31,43 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
+namespace OpusTest\Model\Dependent\Link;
+
+use Opus\DnbInstitute;
+use Opus\Document;
+use Opus\Model\Dependent\Link\DocumentDnbInstitute;
+use OpusTest\TestAsset\TestCase;
+
+class DocumentDnbInstituteTest extends TestCase
 {
 
     /**
-     * @expectedException Opus\Model\Exception
+     * @expectedException \Opus\Model\ModelException
      * @expectedExceptionMessage Access to internal field not allowed: Role
      */
     public function testRoleFieldNoSetAccess()
     {
-        $institute = new Opus_Model_Dependent_Link_DocumentDnbInstitute();
+        $institute = new DocumentDnbInstitute();
 
         $institute->setRole('grantor');
     }
 
     /**
-     * @expectedException Opus\Model\Exception
+     * @expectedException \Opus\Model\ModelException
      * @expectedExceptionMessage Access to internal field not allowed: Role
      */
     public function testRoleFieldNoGetAccess()
     {
-        $institute = new Opus_Model_Dependent_Link_DocumentDnbInstitute();
+        $institute = new DocumentDnbInstitute();
 
         $role = $institute->getRole();
     }
 
     public function testToArray()
     {
-        $institute = new Opus_Model_Dependent_Link_DocumentDnbInstitute();
+        $institute = new DocumentDnbInstitute();
 
-        $institute->setModel(new Opus_DnbInstitute());
+        $institute->setModel(new DnbInstitute());
         $institute->setName('Solutions');
         $institute->setDepartment('Big Solutions');
         $institute->setAddress('Research Street');
@@ -87,7 +94,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
 
     public function testFromArray()
     {
-        $institute = Opus_Model_Dependent_Link_DocumentDnbInstitute::fromArray([
+        $institute = DocumentDnbInstitute::fromArray([
             'Name' => 'Solutions',
             'Department' => 'Big Solutions',
             'Address' => 'Research Street',
@@ -100,7 +107,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
         ]);
 
         $this->assertNotNull($institute);
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentDnbInstitute', $institute);
+        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentDnbInstitute', $institute);
 
         $this->assertEquals('Solutions', $institute->getName());
         $this->assertEquals('Big Solutions', $institute->getDepartment());
@@ -114,7 +121,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $institute = new Opus_Model_Dependent_Link_DocumentDnbInstitute();
+        $institute = new DocumentDnbInstitute();
 
         $institute->updateFromArray([
             'Name' => 'Solutions',
@@ -129,7 +136,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
         ]);
 
         $this->assertNotNull($institute);
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentDnbInstitute', $institute);
+        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentDnbInstitute', $institute);
 
         $this->assertEquals('Solutions', $institute->getName());
         $this->assertEquals('Big Solutions', $institute->getDepartment());
@@ -152,9 +159,9 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
     {
         $this->markTestSkipped('Not the current behaviour.');
 
-        $institute = new Opus_Model_Dependent_Link_DocumentDnbInstitute();
+        $institute = new DocumentDnbInstitute();
 
-        $institute->setModel(new Opus_DnbInstitute());
+        $institute->setModel(new DnbInstitute());
         $institute->setName('Solutions');
         $institute->setDepartment('Big Solutions');
         $institute->setAddress('Research Street');
@@ -164,7 +171,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
         $institute->setIsGrantor(0);
         $institute->setIsPublisher(1);
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->addThesisGrantor($institute);
 
         $data = $institute->toArray();

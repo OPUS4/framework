@@ -25,25 +25,29 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Model;
+
+use Opus\Db\TableGateway;
 
 /**
  * Trait for database functionality.
  *
  * @TODO only used for refactoring right now as a step to get database out of model classes without disruption
  */
-trait Opus_Model_DatabaseTrait
+trait DatabaseTrait
 {
 
     /**
      * Holds the primary database table row. The concrete class is responsible
      * for any additional table rows it might need.
      *
-     * @var Zend_Db_Table_Row
+     * @var \Zend_Db_Table_Row
      */
     protected $_primaryTableRow;
 
@@ -51,7 +55,7 @@ trait Opus_Model_DatabaseTrait
     /**
      * Holds the name of the models table gateway class.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = null;
 
@@ -70,29 +74,29 @@ trait Opus_Model_DatabaseTrait
     protected $_isNewRecord = true;
 
     /**
-     * @throws Opus\Model\Exception
+     * @throws ModelException
      */
-    protected function initDatabase($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
+    protected function initDatabase($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
         $gatewayClass = self::getTableGatewayClass();
 
         // Ensure that a default table gateway class is set
         if ((is_null($gatewayClass) === true) and (is_null($tableGatewayModel) === true)) {
-            throw new Opus\Model\Exception(
+            throw new ModelException(
                 'No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this)
             );
         }
 
         if ($tableGatewayModel === null) {
             // Try to query table gateway from internal attribute
-            $tableGatewayModel = Opus_Db_TableGateway::getInstance($gatewayClass);
+            $tableGatewayModel = TableGateway::getInstance($gatewayClass);
         }
 
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
-        } elseif ($id instanceof Zend_Db_Table_Row) {
+        } elseif ($id instanceof \Zend_Db_Table_Row) {
             if ($id->getTableClass() !== $gatewayClass) {
-                throw new Opus\Model\Exception(
+                throw new ModelException(
                     'Mistyped table row passed. Expected row from ' .
                     $gatewayClass . ', got row from ' . $id->getTableClass() . '.'
                 );
@@ -109,7 +113,7 @@ trait Opus_Model_DatabaseTrait
             $rowset = call_user_func_array([&$tableGatewayModel, 'find'], $idTupel);
 
             if (false == ($rowset->count() > 0)) {
-                throw new Opus_Model_NotFoundException(
+                throw new NotFoundException(
                     'No ' . get_class($tableGatewayModel)
                     . " with id $idString in database."
                 );
@@ -120,13 +124,13 @@ trait Opus_Model_DatabaseTrait
         }
 
         // Paranoid programming, sorry!  Check if proper row has been created.
-        if (! $this->_primaryTableRow instanceof Zend_Db_Table_Row) {
-            throw new Opus\Model\Exception("Invalid row object for class " . get_class($this));
+        if (! $this->_primaryTableRow instanceof \Zend_Db_Table_Row) {
+            throw new ModelException("Invalid row object for class " . get_class($this));
         }
     }
 
     /**
-     * Retrieve all instances of a particular Opus_Model that are known
+     * Retrieve all instances of a particular Opus\Model that are known
      * to the database.
      *
      * @param string $modelClassName        Name of the model class.
@@ -137,7 +141,7 @@ trait Opus_Model_DatabaseTrait
      * @param string $orderBy               A column name to order by.
      *
      * @return array List of all known model entities.
-     * @throws InvalidArgumentException When not passing class names.
+     * @throws \InvalidArgumentException When not passing class names.
      *
      * TODO: Include options array to parametrize query.
      */
@@ -151,12 +155,12 @@ trait Opus_Model_DatabaseTrait
         // As we are in static context, we have no chance to retrieve
         // those class names.
         if ((is_null($modelClassName) === true) or (is_null($tableGatewayClass) === true)) {
-            throw new InvalidArgumentException('Both model class and table gateway class must be given.');
+            throw new \InvalidArgumentException('Both model class and table gateway class must be given.');
         }
 
         // As this is calling from static context we cannot
         // use the instance variable $_tableGateway here.
-        $table = Opus_Db_TableGateway::getInstance($tableGatewayClass);
+        $table = TableGateway::getInstance($tableGatewayClass);
 
         // Fetch all entries in one query and pass result table rows
         // directly to models.
@@ -188,14 +192,14 @@ trait Opus_Model_DatabaseTrait
     /**
      * Get current table row object.
      *
-     * @return Zend_Db_Table_Row
+     * @return \Zend_Db_Table_Row
      *
-     * @throws Opus\Model\Exception on invalid row object.
+     * @throws ModelException on invalid row object.
      */
     protected function getTableRow()
     {
-        if (! $this->_primaryTableRow instanceof Zend_Db_Table_Row) {
-            throw new Opus\Model\Exception(
+        if (! $this->_primaryTableRow instanceof \Zend_Db_Table_Row) {
+            throw new ModelException(
                 "Invalid row object for class " . get_class($this) . " -- got class "
                 . get_class($this->_primaryTableRow)
             );
@@ -268,7 +272,7 @@ trait Opus_Model_DatabaseTrait
     {
         if (false === is_null($this->_primaryTableRow)) {
             $tableclass = $this->_primaryTableRow->getTableClass();
-            $table = Opus_Db_TableGateway::getInstance($tableclass);
+            $table = TableGateway::getInstance($tableclass);
             $this->_primaryTableRow->setTable($table);
         }
     }

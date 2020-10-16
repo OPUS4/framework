@@ -31,7 +31,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
+namespace Opus\Update\Plugin;
+
+use Opus\Database;
+use Opus\Util\ConsoleColors;
+
+class DatabaseCharset extends AbstractUpdatePlugin
 {
 
     private $pdo;
@@ -42,7 +47,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
     {
         $this->convertDatabase();
 
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = new ConsoleColors();
 
         $this->log();
         $this->log($colors->yellow(
@@ -75,8 +80,8 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
         // set character set and collation for entire database
         $database->execWithoutDbName(
             'ALTER DATABASE `' . $database->getName() . '`'
-            . ' character set = ' . Opus_Database::DEFAULT_CHARACTER_SET
-            . ' collate = ' . Opus_Database::DEFAULT_COLLATE
+            . ' character set = ' . Database::DEFAULT_CHARACTER_SET
+            . ' collate = ' . Database::DEFAULT_COLLATE
         );
 
         $tables = $this->getAllTables();
@@ -92,7 +97,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
     /**
      * Returns database object.
-     * @return PDO
+     * @return \PDO
      */
     public function getPdo()
     {
@@ -107,7 +112,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
     public function getDatabase()
     {
         if (is_null($this->database)) {
-            $this->database = new Opus_Database();
+            $this->database = new Database();
         }
 
         return $this->database;
@@ -173,7 +178,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
     {
         $pdo = $this->getPdo();
 
-        $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+        $tables = $pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN);
 
         return $tables;
     }

@@ -33,15 +33,22 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use Opus\Document;
+use Opus\Licence;
+use Opus\Model\Xml\Cache;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Test cases for class Opus_Licence.
+ * Test cases for class Opus\Licence.
  *
  * @package Opus
  * @category Tests
  *
  * @group LicenceTest
  */
-class Opus_LicenceTest extends TestCase
+class LicenceTest extends TestCase
 {
 
     /**
@@ -51,16 +58,16 @@ class Opus_LicenceTest extends TestCase
      */
     public function testRetrieveAllLicences()
     {
-        $lics[] = new Opus_Licence();
-        $lics[] = new Opus_Licence();
-        $lics[] = new Opus_Licence();
+        $lics[] = new Licence();
+        $lics[] = new Licence();
+        $lics[] = new Licence();
 
         foreach ($lics as $lic) {
             $lic->setNameLong('LongName');
             $lic->setLinkLicence('http://long.org/licence');
             $lic->store();
         }
-        $result = Opus_Licence::getAll();
+        $result = Licence::getAll();
         $this->assertEquals(count($lics), count($result), 'Wrong number of objects retrieved.');
     }
 
@@ -71,7 +78,7 @@ class Opus_LicenceTest extends TestCase
      */
     public function testDisplayNameMatchesLongName()
     {
-        $lic = new Opus_Licence();
+        $lic = new Licence();
         $lic->setNameLong('MyLongName');
         $this->assertEquals($lic->getNameLong(), $lic->getDisplayName(), 'Displayname does not match long name.');
     }
@@ -81,17 +88,17 @@ class Opus_LicenceTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $lic = new Opus_Licence();
+        $lic = new Licence();
         $lic->setNameLong('MyLongName');
         $lic->setLinkLicence('http://licence.link');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setLicence($lic);
         $docId = $doc->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
         $lic->setNameLong('EvenLongerName');
         $lic->store();
@@ -106,13 +113,13 @@ class Opus_LicenceTest extends TestCase
     {
         $fields = ['SortOrder', 'CommentInternal', 'PodAllowed'];
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licenceId = $licence
                 ->setNameLong('Test')
                 ->setLinkLicence('http://test')
                         ->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setLicence($licence);
@@ -122,7 +129,7 @@ class Opus_LicenceTest extends TestCase
 
         sleep(1);
 
-        $licence = new Opus_Licence($licenceId);
+        $licence = new Licence($licenceId);
         foreach ($fields as $fieldName) {
             $oldValue = $licence->{'get' . $fieldName}();
             $licence->{'set' . $fieldName}(1);
@@ -134,7 +141,7 @@ class Opus_LicenceTest extends TestCase
         }
 
         $licence->store();
-        $docReloaded = new Opus_Document($docId);
+        $docReloaded = new Document($docId);
 
         $this->assertEquals(
             (string)$serverDateModified,
@@ -145,13 +152,13 @@ class Opus_LicenceTest extends TestCase
 
     public function testStoreName()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('Short name');
         $licence->setNameLong('Long name');
         $licence->setLinkLicence('link');
         $licenceId = $licence->store();
 
-        $licence = new Opus_Licence($licenceId);
+        $licence = new Licence($licenceId);
 
         $this->assertEquals('Short name', $licence->getName());
         $this->assertEquals('Long name', $licence->getNameLong());
@@ -159,44 +166,44 @@ class Opus_LicenceTest extends TestCase
 
     public function testFetchByName()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = Opus_Licence::fetchByName('CC BY 4.0');
+        $licence = Licence::fetchByName('CC BY 4.0');
 
         $this->assertNotNull($licence);
-        $this->assertInstanceOf('Opus_Licence', $licence);
+        $this->assertInstanceOf('Opus\Licence', $licence);
     }
 
     public function testFetchByNameUnknown()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = Opus_Licence::fetchByName('CC BY 3.0');
+        $licence = Licence::fetchByName('CC BY 3.0');
 
         $this->assertNull($licence);
     }
 
     /**
-     * @expectedException Opus_Model_DbConstrainViolationException
+     * @expectedException \Opus\Model\DbConstrainViolationException
      * @expectedExceptionMessage Duplicate entry
      */
     public function testNameUnique()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
         $licence->setLinkLicence('link 2');
@@ -208,12 +215,12 @@ class Opus_LicenceTest extends TestCase
      */
     public function testNameNullNotUnique()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
         $licence->setLinkLicence('link 2');
         $licence->store();
@@ -221,7 +228,7 @@ class Opus_LicenceTest extends TestCase
 
     public function testToArray()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
 
         $licence->setActive(1);
         $licence->setCommentInternal('A comment about this licence.');
@@ -258,7 +265,7 @@ class Opus_LicenceTest extends TestCase
 
     public function testFromArray()
     {
-        $licence = Opus_Licence::fromArray([
+        $licence = Licence::fromArray([
             'Active' => 1,
             'CommentInternal' => 'A comment about this licence.',
             'DescMarkup' => '<b>Licence Description Markup</b>',
@@ -291,7 +298,7 @@ class Opus_LicenceTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
 
         $licence->updateFromArray([
             'Active' => 1,
@@ -326,7 +333,7 @@ class Opus_LicenceTest extends TestCase
 
     public function testIsUsed()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->updateFromArray([
             'NameLong' => 'Licence',
             'Name' => 'L',
@@ -337,7 +344,7 @@ class Opus_LicenceTest extends TestCase
 
         $this->assertFalse($licence->isUsed());
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addLicence($licence);
         $doc->store();
 
@@ -346,7 +353,7 @@ class Opus_LicenceTest extends TestCase
 
     public function testGetDocumentCount()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->updateFromArray([
             'NameLong' => 'Licence',
             'Name' => 'L',
@@ -357,13 +364,13 @@ class Opus_LicenceTest extends TestCase
 
         $this->assertEquals(0, $licence->getDocumentCount());
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addLicence($licence);
         $doc->store();
 
         $this->assertEquals(1, $licence->getDocumentCount());
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addLicence($licence);
         $doc->store();
 

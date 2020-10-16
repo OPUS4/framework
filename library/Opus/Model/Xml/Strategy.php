@@ -25,25 +25,29 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Model\Xml;
+
+use Opus\Model\AbstractModel;
+use Opus\Model\ModelException;
 
 /**
  * General interface for Opus XML representations.
  */
-interface Opus_Model_Xml_Strategy
+interface Strategy
 {
 
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
      *
-     * @throws Opus\Model\Exception Thrown if no Model is given.
-     * @return DOMDocument DOM representation of the current Model.
+     * @throws ModelException Thrown if no Model is given.
+     * @return \DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument();
 
@@ -51,8 +55,8 @@ interface Opus_Model_Xml_Strategy
      * Return the current Model instance if there is any. If there is an XML representation set up,
      * a new model is created by unserialising it from the XML data.
      *
-     * @throws Opus\Model\Exception If an error occured during deserialisation
-     * @return Opus_Model_Abstract Deserialised or previously set Model.
+     * @throws ModelException If an error occured during deserialisation
+     * @return AbstractModel Deserialised or previously set Model.
      */
     public function getModel();
 
@@ -66,24 +70,24 @@ interface Opus_Model_Xml_Strategy
     /**
      * Set a DomDocument instance.
      *
-     * @param DOMDocument $dom DomDocument representing a model.
+     * @param \DOMDocument $dom DomDocument representing a model.
      * @return void
      */
-    public function setDomDocument(DOMDocument $dom);
+    public function setDomDocument(\DOMDocument $dom);
 
     /**
      * Setup a representation with a configuration.
      *
-     * @param Opus_Model_Xml_Conf $conf
+     * @param Conf $conf
      * @return void
      */
-    public function setup(Opus_Model_Xml_Conf $conf);
+    public function setup(Conf $conf);
 
     /**
      * Set XML model representation.
      *
      * @param string $xml XML string representing a model.
-     * @throws Opus\Model\Exception Thrown if XML loading failed.
+     * @throws ModelException Thrown if XML loading failed.
      * @return void
      */
     public function setXml($xml);

@@ -25,17 +25,25 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Doi
+ * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest\Doi;
+
+use Opus\Document;
+use Opus\Doi\ConfigRecipientProvider;
+use Opus\Doi\DoiMailNotification;
+use Opus\Identifier;
+use OpusTest\TestAsset\TestCase;
+
 /**
  * TODO this test class sends actual emails - that might cause problems with system/network administrator
  */
-class Opus_Doi_DoiMailNotificationTest extends TestCase
+class DoiMailNotificationTest extends TestCase
 {
 
     private $doiMailNotification;
@@ -44,10 +52,10 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     {
         parent::setUp();
 
-        $this->doiMailNotification = new Opus_Doi_DoiMailNotification();
+        $this->doiMailNotification = new DoiMailNotification();
 
         // use recipients configured in INI files for testing
-        $this->doiMailNotification->setRecipientProvider(new Opus_Doi_ConfigRecipientProvider());
+        $this->doiMailNotification->setRecipientProvider(new ConfigRecipientProvider());
     }
 
     public function testConstructMissingConfig()
@@ -126,7 +134,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
 
     public function testSendMailSingle()
     {
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4'
         ]));
 
@@ -144,7 +152,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
 
     public function testSendMailMultiple()
     {
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4'
         ]));
 
@@ -169,14 +177,14 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
 
     private function adaptDoiConfiguration($doiConfig)
     {
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['doi' => $doiConfig]));
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['doi' => $doiConfig]));
     }
 
     private function createTestDocWithDoi($doiValue)
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $doi = new Opus_Identifier();
+        $doi = new Identifier();
         $doi->setType('doi');
         $doi->setValue($doiValue);
         $doc->setIdentifier([$doi]);
@@ -188,7 +196,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
 
     private function getDoi($docId)
     {
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $dois = $doc->getIdentifier();
         return $dois[0];
     }

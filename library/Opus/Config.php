@@ -31,19 +31,21 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
 /**
  * TODO sinnvoll? Should be injected in classes?
  * TODO function to verify syntax of INI files?
  */
-class Opus_Config
+class Config
 {
 
     /**
-     * @return Zend_Config
-     * @throws Zend_Exception
+     * @return \Zend_Config
+     * @throws \Zend_Exception
      */
     public static function get()
     {
-        return Zend_Registry::get('Zend_Config');
+        return \Zend_Registry::get('Zend_Config');
     }
 }

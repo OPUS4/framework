@@ -31,21 +31,23 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Doi;
+
 /**
  * Provides array with recipients for DOI notifications from application configuration.
  *
- * This class is not really needed. The code was originally part of Opus_Doi_DoiMailNotification. However it made
+ * This class is not really needed. The code was originally part of Opus\Doi\DoiMailNotification. However it made
  * sense to untie getting the recipients from that class. The old mechanism was transferred to this class, however
  * it is unlikely to be used again, because the configuration will move into the database more and more.
  *
  * TODO not really needed (however it is tested) :-)
  */
-class Opus_Doi_ConfigRecipientProvider implements Opus_Doi_NotificationRecipientProvider
+class ConfigRecipientProvider implements NotificationRecipientProvider
 {
 
     public function getRecipients()
     {
-        $config = Zend_Registry::get('Zend_Config'); // TODO use Trait or Application_Configuration
+        $config = \Zend_Registry::get('Zend_Config'); // TODO use Trait or Application_Configuration
 
         $recipientAddresses = [];
 

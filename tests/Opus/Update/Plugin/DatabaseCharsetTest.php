@@ -25,13 +25,18 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Update_Plugin
+ * @package     Opus\Update\Plugin
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseCharsetTest extends TestCase
+namespace OpusTest\Update\Plugin;
+
+use Opus\Update\Plugin\DatabaseCharset;
+use OpusTest\TestAsset\TestCase;
+
+class DatabaseCharsetTest extends TestCase
 {
 
     private $plugin;
@@ -40,7 +45,7 @@ class Opus_Update_Plugin_DatabaseCharsetTest extends TestCase
     {
         parent::setUp();
 
-        $this->plugin = new Opus_Update_Plugin_DatabaseCharset();
+        $this->plugin = new DatabaseCharset();
     }
 
     public function testGetAllTables()

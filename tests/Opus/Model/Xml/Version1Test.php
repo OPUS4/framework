@@ -25,23 +25,36 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace OpusTest\Model\Xml;
+
+use Opus\Model\AbstractModel;
+use Opus\Model\Field;
+use Opus\Model\Filter;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Version1;
+use OpusTest\Model\Mock\AbstractModelMock;
+use OpusTest\Model\Mock\AbstractModelWithoutIdMock;
+use OpusTest\Model\Mock\ModelAbstractDbMock;
+use OpusTest\Model\Mock\ModelDependentLinkMock;
+use OpusTest\Model\Mock\ModelDependentMock;
+use OpusTest\TestAsset\TestCase;
 
 /**
  * Test creation XML (version1) from models and creation of models by valid XML respectivly.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  *
  * @group XmlVersion1Test
  */
-class Opus_Model_Xml_Version1Test extends TestCase
+class Version1Test extends TestCase
 {
 
     /**
@@ -56,7 +69,7 @@ class Opus_Model_Xml_Version1Test extends TestCase
 
     public function testGetVersion()
     {
-        $strategy = new Opus_Model_Xml_Version1();
+        $strategy = new Version1();
         $this->assertEquals('1.0', $strategy->getVersion());
     }
 
@@ -67,8 +80,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testGetModelRetrievesModelSetBeforeBySetModel()
     {
-        $xml = new Opus_Model_Xml();
-        $model = new Opus_Model_ModelAbstract();
+        $xml = new Xml();
+        $model = new AbstractModelMock();
         $xml->setModel($model);
         $this->assertEquals($model, $xml->getModel(), 'Returned Model does not equal given Model.');
     }
@@ -80,9 +93,9 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testXmlFromEmptyModelThrowsException()
     {
-        $xml = new Opus_Model_Xml();
+        $xml = new Xml();
         $xml->setModel(null);
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException('Opus\Model\ModelException');
         $xml->getDomDocument();
     }
 
@@ -93,8 +106,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testGetDomDocumentReturnsDomDocument()
     {
-        $xml = new Opus_Model_Xml();
-        $model = new Opus_Model_ModelAbstract();
+        $xml = new Xml();
+        $model = new AbstractModelMock();
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
         $this->assertInstanceOf('DomDocument', $dom, 'Returned object is of wrong type.');
@@ -107,8 +120,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testCreateXmlFromModel()
     {
-        $xml = new Opus_Model_Xml();
-        $model = new Opus_Model_ModelAbstract();
+        $xml = new Xml();
+        $model = new AbstractModelMock();
         $model->setValue('FooBar');
         $dom = $xml->setModel($model)->getDomDocument();
 
@@ -116,7 +129,11 @@ class Opus_Model_Xml_Version1Test extends TestCase
         $this->assertEquals('Opus', $dom->documentElement->localName, 'Root element should be named "Opus".');
 
         // Assert that first child represents serialized model
-        $this->assertEquals(get_class($model), $dom->documentElement->firstChild->localName, 'Node name does not equal Model class name');
+        $this->assertEquals(
+            preg_replace('/\\\\/', '_', get_class($model)),
+            $dom->documentElement->firstChild->localName,
+            'Node name does not equal Model class name'
+        );
 
         // There is an attribute "Value" with the value "FooBar"
         $value = $dom->documentElement->firstChild->attributes->getNamedItem('Value');
@@ -133,10 +150,10 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testXmlSubElementsHaveFieldNamesAsDefinedInTheModel()
     {
-        $model = new Opus_Model_ModelAbstract;
-        $model->getField('Value')->setValueModelClass('Opus_Model_ModelAbstract');
-        $model->setValue(new Opus_Model_ModelAbstract);
-        $xml = new Opus_Model_Xml;
+        $model = new AbstractModelMock;
+$model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
+        $model->setValue(new AbstractModelMock());
+        $xml = new Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
 
@@ -153,10 +170,10 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testOneChildElementPerSubModel()
     {
-        $model = new Opus_Model_ModelAbstract;
-        $model->getField('Value')->setValueModelClass('Opus_Model_ModelAbstract');
-        $model->setValue(new Opus_Model_ModelAbstract);
-        $xml = new Opus_Model_Xml;
+        $model = new AbstractModelMock;
+        $model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
+        $model->setValue(new AbstractModelMock());
+        $xml = new Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
 
@@ -173,12 +190,12 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testFieldsFromExcludeListAreNotSerialized()
     {
-        $model = new Opus_Model_ModelAbstract;
-        $model->addField(new Opus_Model_Field('TestField'));
+        $model = new AbstractModelMock;
+        $model->addField(new Field('TestField'));
         $model->setTestField(4711)
             ->setValue('Foo');
 
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model)
             ->exclude(['TestField']);
         $dom = $xml->getDomDocument();
@@ -195,16 +212,16 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testEmptyFieldsAreNotSerialized()
     {
-        $model = new Opus_Model_ModelAbstract;
+        $model = new AbstractModelMock;
         $model->setValue(null);
 
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model)
             ->excludeEmptyFields();
         $dom = $xml->getDomDocument();
 
         // assert that testField is not there
-        $element = $dom->getElementsByTagName('Opus_Model_ModelAbstract')->item(0);
+        $element = $dom->getElementsByTagName('OpusTest_Model_Mock_AbstractModelMock')->item(0);
         $this->assertFalse($element->hasAttribute('Value'), 'Empty field has not been excluded.');
     }
 
@@ -215,15 +232,15 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testEmptyFieldsAreSerializedIfWanted()
     {
-        $model = new Opus_Model_ModelAbstract;
+        $model = new AbstractModelMock;
         $model->setValue(null);
 
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
 
         // assert that testField is not there
-        $element = $dom->getElementsByTagName('Opus_Model_ModelAbstract')->item(0);
+        $element = $dom->getElementsByTagName('OpusTest_Model_Mock_AbstractModelMock')->item(0);
         $this->assertTrue($element->hasAttribute('Value'), 'Empty field has not been included.');
     }
 
@@ -234,16 +251,16 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function xmlModelDataProvider()
     {
-        // $this->markTestIncomplete( 'Skipped: Unknown field: Id for Opus_Model_ModelAbstract' );
+        // $this->markTestIncomplete( 'Skipped: Unknown field: Id for OpusTest\Model\Mock\AbstractModelMock' );
 
         // one-field model
-        $model1 = new Opus_Model_ModelAbstract();
+        $model1 = new AbstractModelMock();
         $model1->setValue('Foo');
 
         return [
-            ['<Opus><Opus_Model_ModelAbstract Value="Foo" /></Opus>', $model1, 'Model array representations differ.'],
+            ['<Opus><OpusTest_Model_Mock_AbstractModelMock Value="Foo" /></Opus>', $model1, 'Model array representations differ.'],
             ['<Opus>
-                    <Opus_Model_ModelAbstract Value="Foo" />
+                    <OpusTest_Model_Mock_AbstractModelMock Value="Foo" />
                    </Opus>', $model1, 'Incorrect handling of XML containing spaces and line breaks.'],
             [$model1->toXml(), $model1, 'Build invalid model from before generated XML representation.']
         ];
@@ -252,8 +269,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
     /**
      * Create a model using its XML representation.
      *
-     * @param DomDocument|string  $xml   XML representation of a model.
-     * @param Opus_Model_Abstract $model A model corresponding to the given XML representation.
+     * @param \DomDocument|string  $xml   XML representation of a model.
+     * @param AbstractModel $model A model corresponding to the given XML representation.
      * @param string              $msg   Error message given on test failure.
      * @return void
      *
@@ -261,8 +278,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testCreateFromXml($xml, $model, $msg)
     {
-        $xmlHelper = new Opus_Model_Xml;
-        if ($xml instanceof DomDocument) {
+        $xmlHelper = new Xml;
+        if ($xml instanceof\DOMDocument) {
             $xmlHelper->setDomDocument($xml);
         } else {
             $xmlHelper->setXml($xml);
@@ -280,15 +297,15 @@ class Opus_Model_Xml_Version1Test extends TestCase
     public function testReferencePersistedSubModelsWithXlink()
     {
         // set up mock models and xml helper
-        $model = new Opus_Model_ModelAbstract;
-        $model->getField('Value')->setValueModelClass('Opus_Model_ModelAbstractDbMock');
-        $model->setValue(new Opus_Model_ModelAbstractDbMock);
-        $xml = new Opus_Model_Xml;
+        $model = new AbstractModelMock;
+$model->getField('Value')->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
+        $model->setValue(new ModelAbstractDbMock());
+        $xml = new Xml;
         $xml->setModel($model);
 
         // set up model URI mapping
         $baseUri = 'http://www.localhost.de';
-        $resourceMap = ['Opus_Model_ModelAbstractDbMock' => 'dbmock'];
+        $resourceMap = ['OpusTest\Model\Mock\ModelAbstractDbMock' => 'dbmock'];
 
         $xml->setXlinkBaseUri($baseUri)
             ->setResourceNameMap($resourceMap);
@@ -314,8 +331,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testXmlEncodingIsUtf8()
     {
-        $xml = new Opus_Model_Xml;
-        $xml->setModel(new Opus_Model_ModelAbstract);
+        $xml = new Xml;
+        $xml->setModel(new AbstractModelMock());
         $dom = $xml->getDomDocument();
 
         $this->assertEquals('UTF-8', $dom->xmlEncoding, 'XML encoding expected to be UTF-8.');
@@ -328,8 +345,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testXlinkNamespaceIsSpecified()
     {
-        $xml = new Opus_Model_Xml;
-        $xml->setModel(new Opus_Model_ModelAbstract);
+        $xml = new Xml;
+        $xml->setModel(new AbstractModelMock());
         $dom = $xml->getDomDocument();
         $root = $dom->documentElement;
         // workaround for hasAttribute bug
@@ -338,23 +355,23 @@ class Opus_Model_Xml_Version1Test extends TestCase
     }
 
     /**
-     * Test if using a Opus_Model_Dependent_Link_* as field value get
+     * Test if using a Opus\Model\Dependent\Link\* as field value get
      * properly resolved by serialization to the associated model of the link.
      *
-     * Therefore Opus_Model_Xml needs to call getLinkedModelId() instead of getId() on this model.
+     * Therefore Opus\Model\Xml needs to call getLinkedModelId() instead of getId() on this model.
      *
      * @return void
      */
     public function testLinkModelsTunnelGetIdCallsToAssociatedModel()
     {
-        $model = new Opus_Model_ModelAbstractDbMock;
-        $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $model = new ModelAbstractDbMock();
+        $field = new Field('LinkField');
+        $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
         $model->addField($field);
 
         // create mock to track calls
-        $link = $this->getMock('Opus_Model_ModelDependentLinkMock', ['getId', 'getLinkedModelId', 'describeAll']);
-        $link->setModelClass('Opus_Model_ModelAbstract');
+        $link = $this->getMock('OpusTest\Model\Mock\ModelDependentLinkMock', ['getId', 'getLinkedModelId', 'describeAll']);
+        $link->setModelClass('OpusTest\Model\Mock\AbstractModelMock');
         $model->setLinkField($link);
 
         // expect getLinkedModelId() has been called in instead of getId()
@@ -366,9 +383,9 @@ class Opus_Model_Xml_Version1Test extends TestCase
         $link->expects($this->never())->method('getId');
 
         // trigger behavior
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model)->setResourceNameMap(
-            ['Opus_Model_ModelAbstract' => 'dbmockresource']
+            ['OpusTest\Model\Mock\AbstractModelMock' => 'dbmockresource']
         );
         $xml->getDomDocument();
     }
@@ -381,21 +398,21 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testResourceNameMappingUsesAssociatedModelClassWithLinkedModels()
     {
-        // set up a model with a linked Opus_Model_ModelAbstractDbMock
-        // use linking via Opus_Model_ModelDependentLinkMock
-        $model = new Opus_Model_ModelAbstract;
-        $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
+        // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
+        // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
+        $model = new AbstractModelMock;
+$field = new Field('LinkField');
+        $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
-        $link = new Opus_Model_ModelDependentLinkMock;
-        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
-        $link->setModel(new Opus_Model_ModelAbstractDbMock);
+        $link = new ModelDependentLinkMock();
+        $link->setModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
+        $link->setModel(new ModelAbstractDbMock());
         $model->setLinkField($link);
 
         // generate XML
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model)->setResourceNameMap(
-            ['Opus_Model_ModelAbstractDbMock' => 'dbmockresource']
+            ['OpusTest\Model\Mock\ModelAbstractDbMock' => 'dbmockresource']
         );
         $dom = $xml->getDomDocument();
 
@@ -413,21 +430,21 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testLinkModelFieldAreMappedToAttributesForLinkedModels()
     {
-        // set up a model with a linked Opus_Model_ModelAbstractDbMock
-        // use linking via Opus_Model_ModelDependentLinkMock
-        $model = new Opus_Model_ModelAbstract;
-        $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
+        // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
+        // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
+        $model = new AbstractModelMock;
+$field = new Field('LinkField');
+        $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
-        $link = new Opus_Model_ModelDependentLinkMock;
-        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
-        $link->setModel(new Opus_Model_ModelAbstractDbMock);
-        $link->addField(new Opus_Model_Field('LinkModelField'));
+        $link = new ModelDependentLinkMock();
+        $link->setModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
+        $link->setModel(new ModelAbstractDbMock());
+        $link->addField(new Field('LinkModelField'));
         $link->setLinkModelField('SomeValue');
         $model->setLinkField($link);
 
         // generate XML
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
 
@@ -444,23 +461,23 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testLinkModelFieldAreMappedToAttributesForLinkedModelsWhenXlinked()
     {
-        // set up a model with a linked Opus_Model_ModelAbstractDbMock
-        // use linking via Opus_Model_ModelDependentLinkMock
-        $model = new Opus_Model_ModelAbstract;
-        $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
+        // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
+        // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
+        $model = new AbstractModelMock;
+$field = new Field('LinkField');
+        $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
-        $link = new Opus_Model_ModelDependentLinkMock;
-        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
-        $link->setModel(new Opus_Model_ModelAbstractDbMock);
-        $link->addField(new Opus_Model_Field('LinkModelField'));
+        $link = new ModelDependentLinkMock();
+        $link->setModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
+        $link->setModel(new ModelAbstractDbMock());
+        $link->addField(new Field('LinkModelField'));
         $link->setLinkModelField('SomeValue');
         $model->setLinkField($link);
 
         // generate XML
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model)->setResourceNameMap(
-            ['Opus_Model_ModelAbstractDbMock' => 'dbmockresource']
+            ['OpusTest\Model\Mock\ModelAbstractDbMock' => 'dbmockresource']
         );
         $dom = $xml->getDomDocument();
 
@@ -476,8 +493,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testLoadInvalidXmlThrowsException()
     {
-        $omx = new Opus_Model_Xml;
-        $this->setExpectedException('Opus\Model\Exception');
+        $omx = new Xml;
+        $this->setExpectedException('Opus\Model\ModelException');
         $omx->setXml('<Opus attr/>');
     }
 
@@ -488,11 +505,11 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testEmptyModelsAreNotSerialized()
     {
-        $model = new Opus_Model_ModelAbstract;
-        $model->getField('Value')->setValueModelClass('something');
+        $model = new AbstractModelMock;
+$model->getField('Value')->setValueModelClass('something');
         $model->setValue(null);
 
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model)
             ->excludeEmptyFields();
         $dom = $xml->getDomDocument();
@@ -510,14 +527,14 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testReferencedSubmodelIsRepresentedByXmlElement()
     {
-        $model = new Opus_Model_ModelAbstract;
-        $submodel = new Opus_Model_ModelAbstract;
-        $submodel->addField(new Opus_Model_Field('CommodityField'));
+        $model = new AbstractModelMock;
+$submodel = new AbstractModelMock;
+$submodel->addField(new Field('CommodityField'));
         $submodel->setCommodityField('Value! There is a Value!');
         $model->getField('Value')->setValueModelClass(get_class($submodel));
         $model->setValue($submodel);
 
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
 
@@ -543,24 +560,24 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testLinkedModelIsRepresentedByXmlElement()
     {
-        // set up a model with a linked Opus_Model_ModelAbstractDbMock
-        // use linking via Opus_Model_ModelDependentLinkMock
-        $model = new Opus_Model_ModelAbstract;
-        $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        // set up a model with a linked OpusTest\Model\Mock\ModelAbstractDbMock
+        // use linking via OpusTest\Model\Mock\ModelDependentLinkMock
+        $model = new AbstractModelMock;
+$field = new Field('LinkField');
+        $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock');
         $model->addField($field);
 
-        $linkedModel = new Opus_Model_ModelAbstract;
-        $linkedModel->setValue('LinkedModelsValue');
+        $linkedModel = new AbstractModelMock;
+$linkedModel->setValue('LinkedModelsValue');
 
-        $link = new Opus_Model_ModelDependentLinkMock;
+        $link = new ModelDependentLinkMock();
         $link->setModelClass(get_class($linkedModel));
         $link->setModel($linkedModel);
 
         $model->setLinkField($link);
 
         // generate XML
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
 
@@ -591,26 +608,26 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testLinkModelFieldNotShown()
     {
-        $model = new Opus_Model_ModelAbstract;
-        $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
+        $model = new AbstractModelMock;
+$field = new Field('LinkField');
+        $field->setValueModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
         $model->addField($field);
-        $link = new Opus_Model_ModelDependentLinkMock;
-        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
-        $linkedModel = new Opus_Model_ModelAbstractDbMock;
-        $linkedModel->addField(new Opus_Model_Field('Value'));
+        $link = new ModelDependentLinkMock();
+        $link->setModelClass('OpusTest\Model\Mock\ModelAbstractDbMock');
+        $linkedModel = new ModelAbstractDbMock();
+        $linkedModel->addField(new Field('Value'));
         $linkedModel->setValue('Foo');
         $link->setModel($linkedModel);
-        $linkedField = new Opus_Model_Field('LinkFieldAttr');
+        $linkedField = new Field('LinkFieldAttr');
 
         $link->addField($linkedField);
         $link->setLinkFieldAttr('Blubb');
         $model->setLinkField($link);
 
         // generate XML
-        $xml = new Opus_Model_Xml;
+        $xml = new Xml;
         $xml->setModel($model);
-        $xml->setResourceNameMap(['Opus_Model_ModelAbstractDbMock' => 'dbmockresource']);
+        $xml->setResourceNameMap(['OpusTest\Model\Mock\ModelAbstractDbMock' => 'dbmockresource']);
         $dom = $xml->getDomDocument();
 
         // assert that there is a LinkField element with an xlink:href attribute
@@ -629,9 +646,9 @@ class Opus_Model_Xml_Version1Test extends TestCase
     public function testUpdateFromXmlAttributeValues()
     {
 
-        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1123"/></Opus>';
-        $omx = new Opus_Model_Xml;
-        $model = new Opus_Model_ModelAbstract();
+        $xmlData = '<Opus><OpusTest_Model_Mock_AbstractModelMock Value="1123"/></Opus>';
+        $omx = new Xml();
+        $model = new AbstractModelMock();
         $omx->setModel($model);
         $omx->updateFromXml($xmlData);
         $this->assertEquals(1123, $model->getValue());
@@ -645,25 +662,25 @@ class Opus_Model_Xml_Version1Test extends TestCase
     public function testUpdateFromXmlWithDependentModel()
     {
 
-        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1">';
+        $xmlData = '<Opus><OpusTest_Model_Mock_AbstractModelMock Value="1">';
         $xmlData .= '<ModelDependentMock FirstName="Chuck" LastName="Norris" />';
-        $xmlData .= '</Opus_Model_ModelAbstract></Opus>';
+        $xmlData .= '</OpusTest_Model_Mock_AbstractModelMock></Opus>';
 
 
-        $dependentModel = new Opus_Model_ModelDependentMock();
-        $dependentModel->addField(new Opus_Model_Field('FirstName'));
+        $dependentModel = new ModelDependentMock();
+        $dependentModel->addField(new Field('FirstName'));
         $dependentModel->setFirstName('Elvis');
-        $dependentModel->addField(new Opus_Model_Field('LastName'));
+        $dependentModel->addField(new Field('LastName'));
         $dependentModel->setLastName('Presley');
 
-        $field = new Opus_Model_Field('ModelDependentMock');
+        $field = new Field('ModelDependentMock');
         $field->setValueModelClass(get_class($dependentModel));
         $field->setValue($dependentModel);
 
-        $model = new Opus_Model_ModelAbstract();
+        $model = new AbstractModelMock();
         $model->addField($field);
 
-        $omx = new Opus_Model_Xml;
+        $omx = new Xml;
         $omx->setModel($model);
         $omx->updateFromXml($xmlData);
 
@@ -680,32 +697,32 @@ class Opus_Model_Xml_Version1Test extends TestCase
     public function testUpdateFromXmlWithDependentModels()
     {
 
-        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1">';
+        $xmlData = '<Opus><OpusTest_Model_Mock_AbstractModelMock Value="1">';
         $xmlData .= '<ModelDependentMock FirstName="Chuck" LastName="Norris" />';
         $xmlData .= '<ModelDependentMock FirstName="Kleiner" LastName="Muck" />';
-        $xmlData .= '</Opus_Model_ModelAbstract></Opus>';
+        $xmlData .= '</OpusTest_Model_Mock_AbstractModelMock></Opus>';
 
-        $dependentModel1 = new Opus_Model_ModelDependentMock();
-        $dependentModel1->addField(new Opus_Model_Field('FirstName'));
+        $dependentModel1 = new ModelDependentMock();
+        $dependentModel1->addField(new Field('FirstName'));
         $dependentModel1->setFirstName('Elvis');
-        $dependentModel1->addField(new Opus_Model_Field('LastName'));
+        $dependentModel1->addField(new Field('LastName'));
         $dependentModel1->setLastName('Presley');
 
-        $dependentModel2 = new Opus_Model_ModelDependentMock();
-        $dependentModel2->addField(new Opus_Model_Field('FirstName'));
+        $dependentModel2 = new ModelDependentMock();
+        $dependentModel2->addField(new Field('FirstName'));
         $dependentModel2->setFirstName('Hans');
-        $dependentModel2->addField(new Opus_Model_Field('LastName'));
+        $dependentModel2->addField(new Field('LastName'));
         $dependentModel2->setLastName('Glueck');
 
-        $field = new Opus_Model_Field('ModelDependentMock');
+        $field = new Field('ModelDependentMock');
         $field->setValueModelClass(get_class($dependentModel1));
         $field->setMultiplicity(2);
         $field->setValue([$dependentModel1, $dependentModel2]);
 
-        $model = new Opus_Model_ModelAbstract();
+        $model = new AbstractModelMock();
         $model->addField($field);
 
-        $omx = new Opus_Model_Xml;
+        $omx = new Xml;
         $omx->setModel($model);
         $omx->updateFromXml($xmlData);
 
@@ -724,8 +741,8 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testCreateModelFromXmlFillsCorrectAttributeValues()
     {
-        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1123"/></Opus>';
-        $omx = new Opus_Model_Xml;
+        $xmlData = '<Opus><OpusTest_Model_Mock_AbstractModelMock Value="1123"/></Opus>';
+        $omx = new Xml;
         $omx->setXml($xmlData);
         $model = $omx->getModel();
         $this->assertEquals(1123, $model->getValue(), 'Created model has wrong attribute value.');
@@ -740,27 +757,27 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testCreateModelFromXmlAssignsCorrectSubmodels()
     {
-        eval(
-            'class testCreateModelFromXmlAssignsCorrectSubmodels extends Opus_Model_Abstract {
+        eval('
+            class testCreateModelFromXmlAssignsCorrectSubmodels extends \Opus\Model\AbstractModel {
                 protected function _init() {
-                    $link = new Opus_Model_Field(\'Link\');
-                    $link->setValueModelClass(\'Opus_Model_ModelAbstract\');
+                    $link = new \Opus\Model\Field(\'Link\');
+                    $link->setValueModelClass(\'OpusTest\Model\Mock\AbstractModelMock\'); 
                     $this->addField($link);
                 }
-            }'
-        );
+            }
+        ');
 
         $xmlData =
             '<Opus><testCreateModelFromXmlAssignsCorrectSubmodels>' .
             '<Link Value="4711" />' .
             '</testCreateModelFromXmlAssignsCorrectSubmodels></Opus>';
 
-        $omx = new Opus_Model_Xml;
+        $omx = new Xml();
 
         $omx->setXml($xmlData);
         $model = $omx->getModel();
         $this->assertNotNull($model->getLink(), 'No linked model assigned.');
-        $this->assertInstanceOf('Opus_Model_ModelAbstract', $model->getLink(), 'Wrong model type.');
+        $this->assertInstanceOf('OpusTest\Model\Mock\AbstractModelMock', $model->getLink(), 'Wrong model type.');
         $this->assertEquals(4711, $model->getLink()->getValue(), 'Sub model initialised incorrectly.');
     }
 
@@ -771,15 +788,15 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels()
     {
-        $mockResolver = $this->getMock('Opus_Uri_Resolver', ['get']);
-        $xmlData = '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><Opus_Model_ModelAbstract xlink:href="www.example.org/item/12" /></Opus>';
+        $mockResolver = $this->getMock('Opus\Uri\Resolver', ['get']);
+        $xmlData = '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><OpusTest_Model_Mock_AbstractModelMock xlink:href="www.example.org/item/12" /></Opus>';
 
         $mockResolver->expects($this->once())
             ->method('get')
             ->with($this->equalTo('www.example.org/item/12'))
-            ->will($this->returnValue(new Opus_Model_ModelAbstract));
+            ->will($this->returnValue(new AbstractModelMock()));
 
-        $omx = new Opus_Model_Xml;
+        $omx = new Xml;
         $omx->setXlinkResolver($mockResolver)
             ->setXml($xmlData)
             ->getModel();
@@ -793,18 +810,19 @@ class Opus_Model_Xml_Version1Test extends TestCase
      */
     public function testCallToResolverWhenXlinkIsEncounteredForUpdatingSubModels()
     {
+        // TODO NAMESPACE review this code
         // Mock model class with external field
-        eval(
-            'class testCallToResolverWhenXlinkIsEncounteredForUpdatingModels extends Opus_Model_Abstract {
+        eval('
+            class testCallToResolverWhenXlinkIsEncounteredForUpdatingModels extends \Opus\Model\AbstractModel {
                 protected function _init() {
-                    $link = new Opus_Model_Field(\'Link\');
-                    $link->setValueModelClass(\'Opus_Model_ModelAbstract\');
+                    $link = new \Opus\Model\Field(\'Link\');
+                    $link->setValueModelClass(\'OpusTest\Model\Mock\AbstractModelMock\');
                     $this->addField($link);
                 }
-            }'
-        );
-        $preModel = new testCallToResolverWhenXlinkIsEncounteredForUpdatingModels;
-        $preModel->setLink(new Opus_Model_ModelAbstract);
+            }
+        ');
+        $preModel = new \testCallToResolverWhenXlinkIsEncounteredForUpdatingModels;
+        $preModel->setLink(new AbstractModelMock());
         $preModel->getLink()->setValue('before');
 
         // XML for update
@@ -814,17 +832,17 @@ class Opus_Model_Xml_Version1Test extends TestCase
             '</testCallToResolverWhenXlinkIsEncounteredForUpdatingModels></Opus>';
 
         // Mock resolver and model
-        $mockModel = new Opus_Model_ModelAbstract;
+        $mockModel = new AbstractModelMock();
         $mockModel->setValue('after');
 
-        $mockResolver = $this->getMock('Opus_Uri_Resolver', ['get']);
+        $mockResolver = $this->getMock('Opus\Uri\Resolver', ['get']);
         $mockResolver->expects($this->once())
             ->method('get')
             ->with($this->equalTo('www.example.org/mockitem'))
             ->will($this->returnValue($mockModel));
 
         // perform update
-        $omx = new Opus_Model_Xml;
+        $omx = new Xml();
         $omx->setXlinkResolver($mockResolver)
             ->setModel($preModel)
             ->updateFromXml($xmlData);
@@ -867,12 +885,12 @@ class Opus_Model_Xml_Version1Test extends TestCase
 
         $invalidValue = "foo... " . self::createInvalidUTF8String() . " ...bar";
 
-        $model = new Opus_Model_ModelAbstract;
-        $model->setValue($invalidValue);
+        $model = new AbstractModelMock;
+$model->setValue($invalidValue);
 
         // Serialize model to XML.
-        $xml = new Opus_Model_Xml;
-        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml = new Xml;
+        $xml->setStrategy(new Version1());
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
         $xmlString = $dom->saveXML();
@@ -885,32 +903,32 @@ class Opus_Model_Xml_Version1Test extends TestCase
         $this->assertNotRegExp('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $xmlString);
 
         // last, check that string can be serialized to model.
-        $xml = new Opus_Model_Xml;
-        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml = new Xml();
+        $xml->setStrategy(new Version1());
         $xml->setXml($xmlString);
 
         $model = $xml->getModel();
-        $this->assertInstanceOf('Opus_Model_ModelAbstract', $model);
+        $this->assertInstanceOf('OpusTest\Model\Mock\AbstractModelMock', $model);
 
         $this->assertContains('foo...', $model->getValue());
         $this->assertContains('...bar', $model->getValue());
     }
 
     /**
-     * Check that a Opus_Model_Filter gets an Id attribute in the XML output
-     * if the filtered object is of Opus_Model_AbstractDb
+     * Check that a Opus\Model\Filter gets an Id attribute in the XML output
+     * if the filtered object is of Opus\Model\AbstractDb
      *
      * @return void
      */
     public function testFilteredAbstractDbModelsGetId()
     {
-        $model = new Opus_Model_ModelAbstractDbMock;
+        $model = new ModelAbstractDbMock();
 
-        $filterModel = new Opus_Model_Filter();
+        $filterModel = new Filter();
         $filterModel->setModel($model);
 
-        $xml = new Opus_Model_Xml;
-        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml = new Xml;
+        $xml->setStrategy(new Version1);
         $xml->setModel($filterModel);
         $dom = $xml->getDomDocument();
 
@@ -920,14 +938,14 @@ class Opus_Model_Xml_Version1Test extends TestCase
     }
 
     /**
-     * Check that a Opus_Model_Filter gets an Id attribute in the XML output
-     * if the filtered object is of Opus_Model_AbstractDb
+     * Check that a Opus\Model\Filter gets an Id attribute in the XML output
+     * if the filtered object is of Opus\Model\AbstractDb
      *
      * @return void
      */
     public function testFilteredAbstractModelsGetId()
     {
-        $model = new Opus_Model_ModelAbstractWithoutId();
+        $model = new AbstractModelWithoutIdMock();
         $this->assertFalse(
             $model->hasField('Id'),
             'Test model must not have an "Id" field!'
@@ -937,11 +955,11 @@ class Opus_Model_Xml_Version1Test extends TestCase
             'Test model must have a "Value"field!'
         );
 
-        $filterModel = new Opus_Model_Filter();
+        $filterModel = new Filter();
         $filterModel->setModel($model);
 
-        $xml = new Opus_Model_Xml;
-        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml = new Xml;
+        $xml->setStrategy(new Version1);
         $xml->setModel($filterModel);
         $dom = $xml->getDomDocument();
 

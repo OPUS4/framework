@@ -31,10 +31,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Util;
+
 /**
  * Class for adding color to strings for output on console.
  */
-class Opus_Util_ConsoleColors
+class ConsoleColors
 {
 
     /**
@@ -149,7 +151,7 @@ class Opus_Util_ConsoleColors
      * @param $arguments Arguments of function call (message, $background = null)
      *
      * @return string
-     * @throws Exception
+     * @throws \Exception
      */
     public function __call($name, $arguments)
     {
@@ -173,6 +175,6 @@ class Opus_Util_ConsoleColors
             return $this->getColoredString($message, $color, $background);
         }
 
-        throw new Exception("Unknown function '$name'");
+        throw new \Exception("Unknown function '$name'");
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,23 +25,31 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Collection
+ * @package     Opus\Collection
  * @author      Edouard Simon (edouard.simon@zib.de)
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace OpusTest\Collection\Plugin;
+
+use Opus\Collection;
+use Opus\Collection\Plugin\DeleteSubTree;
+use Opus\CollectionRole;
+use Opus\Document;
+use Opus\Model\NotFoundException;
+use OpusTest\TestAsset\TestCase;
 
 /**
  *
  */
-class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase
+class DeleteSubTreeTest extends TestCase
 {
 
     public function testPreDelete()
     {
 
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->setName('testRole');
         $collectionRole->setOaiName('testRole');
         $collectionRole->setVisible(1);
@@ -59,27 +66,27 @@ class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase
         $child2CollectionId = $child2Collection->getId();
         $grandChildCollectionId = $grandChildCollection->getId();
 
-        $doc1 = new Opus_Document();
+        $doc1 = new Document();
         $doc1->addCollection($childCollection);
         $docId1 = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified();
 
-        $doc2 = new Opus_Document();
+        $doc2 = new Document();
         $doc2->addCollection($grandChildCollection);
         $docId2 = $doc2->store();
         $doc2ServerDateModified = $doc2->getServerDateModified();
 
-        $doc3 = new Opus_Document();
+        $doc3 = new Document();
         $doc3->addCollection($child2Collection);
         $docId3 = $doc3->store();
         $doc3ServerDateModified = $doc3->getServerDateModified();
 
-        $collectionReloaded = new Opus_Collection($collectionId);
+        $collectionReloaded = new Collection($collectionId);
 
         $childrenBefore = $collection->getChildren();
         $this->assertEquals(2, count($childrenBefore), 'Expected two children');
 
-        $plugin = new Opus_Collection_Plugin_DeleteSubTree();
+        $plugin = new DeleteSubTree();
 
         sleep(1);
 
@@ -89,33 +96,42 @@ class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase
         $this->assertEquals(0, count($childrenAfter), 'Expected no child');
 
         try {
-            new Opus_Collection($collectionId);
+            new Collection($collectionId);
             $this->fail('expected collection to be deleted');
-        } catch (Opus_Model_NotFoundException $e) {
+        } catch (NotFoundException $e) {
         }
         try {
-            new Opus_Collection($childCollectionId);
+            new Collection($childCollectionId);
             $this->fail('expected collection to be deleted');
-        } catch (Opus_Model_NotFoundException $e) {
+        } catch (NotFoundException $e) {
         }
         try {
-            new Opus_Collection($child2CollectionId);
+            new Collection($child2CollectionId);
             $this->fail('expected collection to be deleted');
-        } catch (Opus_Model_NotFoundException $e) {
+        } catch (NotFoundException $e) {
         }
         try {
-            new Opus_Collection($grandChildCollectionId);
+            new Collection($grandChildCollectionId);
             $this->fail('expected collection to be deleted');
-        } catch (Opus_Model_NotFoundException $e) {
+        } catch (NotFoundException $e) {
         }
 
-        $doc1Reloaded = new Opus_Document($docId1);
-        $this->assertTrue($doc1Reloaded->getServerDateModified()->getUnixTimestamp() > $doc1ServerDateModified->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+        $doc1Reloaded = new Document($docId1);
+        $this->assertTrue(
+            $doc1Reloaded->getServerDateModified()->getUnixTimestamp() > $doc1ServerDateModified->getUnixTimestamp(),
+            'Expected document server_date_modfied to be changed after deletion of collection'
+        );
 
-        $doc2Reloaded = new Opus_Document($docId2);
-        $this->assertTrue($doc2Reloaded->getServerDateModified()->getUnixTimestamp() > $doc2ServerDateModified->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+        $doc2Reloaded = new Document($docId2);
+        $this->assertTrue(
+            $doc2Reloaded->getServerDateModified()->getUnixTimestamp() > $doc2ServerDateModified->getUnixTimestamp(),
+            'Expected document server_date_modfied to be changed after deletion of collection'
+        );
 
-        $doc3Reloaded = new Opus_Document($docId3);
-        $this->assertTrue($doc3Reloaded->getServerDateModified()->getUnixTimestamp() > $doc3ServerDateModified->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+        $doc3Reloaded = new Document($docId3);
+        $this->assertTrue(
+            $doc3Reloaded->getServerDateModified()->getUnixTimestamp() > $doc3ServerDateModified->getUnixTimestamp(),
+            'Expected document server_date_modfied to be changed after deletion of collection'
+        );
     }
 }

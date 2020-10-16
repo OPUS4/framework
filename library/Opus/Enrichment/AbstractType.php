@@ -25,18 +25,22 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @package     Opus_Enrichment
+ * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
+namespace Opus\Enrichment;
+
+use Opus\Log;
+
+class AbstractType implements TypeInterface
 {
 
     public function getName()
     {
-        return substr(get_class($this), strlen('Opus_Enrichment_'));
+        return substr(get_class($this), strlen('Opus\Enrichment\\'));
     }
 
     public function getDescription()
@@ -81,7 +85,7 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
 
             $optionsArray = json_decode($options);
             if (is_null($optionsArray)) {
-                $log = Opus_Log::get();
+                $log = Log::get();
                 $log->err('could not decode JSON string: ' . $options);
                 return;
             }
@@ -92,7 +96,7 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
             if (method_exists($this, $setMethod)) {
                 $this->$setMethod($value);
             } else {
-                $log = Opus_Log::get();
+                $log = Log::get();
                 $log->err('method ' . $setMethod . ' does not exist on enrichment type ' . get_class($this));
             }
         }
@@ -145,9 +149,9 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
         foreach ($files as $file) {
             if (substr($file, strlen($file) - 4) == '.php') {
                 // found PHP file - try to instantiate
-                $className = 'Opus_Enrichment_' . substr($file, 0, strlen($file) - 4);
+                $className = 'Opus\Enrichment\\' . substr($file, 0, strlen($file) - 4);
                 $interfaces = class_implements($className);
-                if (in_array('Opus_Enrichment_TypeInterface', $interfaces)) {
+                if (in_array('Opus\Enrichment\TypeInterface', $interfaces)) {
                     $type = new $className();
                     if (! $rawNames) {
                         $typeName = $type->getName();

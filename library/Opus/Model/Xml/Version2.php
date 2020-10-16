@@ -25,12 +25,18 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model_Xml
+ * @package     Opus\Model\Xml
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Model\Xml;
+
+use Opus\Model\AbstractModel;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
 
 /**
  * Second implementation of Opus XML representation.
@@ -39,7 +45,7 @@
  *
  * TODO Version2 does not seem to be used - What was the intend?
  */
-class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
+class Version2 extends VersionAbstract
 {
 
     public function __construct()
@@ -48,7 +54,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field)
+    public function mapSimpleField(\DOMDocument $dom, \DOMNode $rootNode, Field $field)
     {
         $fieldName = $field->getName();
         $fieldValues = $this->getFieldValues($field);
@@ -65,11 +71,11 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
     /**
      * Recursively populates model's fields from an Xml DomElement.
      *
-     * @param  Opus_Model_Abstract  $model   The model to be populated.
-     * @param  DOMElement           $element The DomElement holding the field names and values.
-     * @return Opus_Model_Abstract  $model   The populated model.
+     * @param  AbstractModel  $model   The model to be populated.
+     * @param  \DOMElement           $element The DomElement holding the field names and values.
+     * @return AbstractModel  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    protected function _populateModelFromXml(AbstractModel $model, \DOMElement $element)
     {
         $fieldList = $model->describe();
 
@@ -84,7 +90,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
             $fieldValue = $fieldNode->nodeValue;
 
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus\Model\Exception(
+                throw new ModelException(
                     'Field ' . $fieldName . ' not defined. Model class: ' . get_class($model)
                 );
             } else {
@@ -126,10 +132,10 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
 
     /**
      * (non-PHPdoc)
-     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
+     * @see \Opus\Model\Xml\Strategy#updateFromXml()
      */
     public function updateFromXml($xml)
     {
-        throw new Opus\Model\Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
+        throw new ModelException('Method not implemented for strategy Opus\Model\Xml\Version2.');
     }
 }

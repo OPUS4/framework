@@ -32,13 +32,19 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Doi;
+
+use Opus\Document;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Version1;
+
 /**
- * Class Opus_Doi_DataCiteXmlGenerator
+ * Class Opus\Doi\DataCiteXmlGenerator
  *
  * TODO processing multiple documents requires getting logger and XSLT over and over again
  * TODO use LoggingTrait to get standard logger
  */
-class Opus_Doi_DataCiteXmlGenerator
+class DataCiteXmlGenerator
 {
 
     const STYLESHEET_FILENAME = 'datacite.xslt';
@@ -52,7 +58,7 @@ class Opus_Doi_DataCiteXmlGenerator
     private $usePlaceholdersForEmptyValues;
 
     /**
-     * Opus_Doi_DataCiteXmlGenerator constructor.
+     * Opus\Doi\DataCiteXmlGenerator constructor.
      * @param boolean $usePlaceholdersForEmptyValues
      */
     public function __construct($usePlaceholdersForEmptyValues = self::USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT)
@@ -65,13 +71,13 @@ class Opus_Doi_DataCiteXmlGenerator
     {
         if (is_null($this->doiLog)) {
             // use standard logger if nothing is set
-            $this->doiLog = Zend_Registry::get('Zend_Log');
+            $this->doiLog = \Zend_Registry::get('Zend_Log');
         }
 
         return $this->doiLog;
     }
 
-    public function setDoiLog(Zend_Log $logger)
+    public function setDoiLog(\Zend_Log $logger)
     {
         $this->doiLog = $logger;
     }
@@ -80,18 +86,18 @@ class Opus_Doi_DataCiteXmlGenerator
      * Erzeugt für das übergebene OPUS-Dokument eine XML-Repräsentation, die von DataCite als
      * Metadatenbeschreibung des Dokuments bei der DOI-Registrierung akzeptiert wird.
      *
-     * @param $doc Opus_Document
+     * @param $doc Document
      * @param $allowInvalidXml bool wenn true, dann erfolgt bei der XML-Generierung keine Prüfung des erzeugten Resultats
      *                              auf Validität, z.B. erwartete Pflichtfelder
      * @param $skipTestOfRequiredFields bool wenn true, dann wird der Pflichtfeld-Existenztest bei der XML-Generierung
      *                                       übersprungen
      * @return string XML for DataCite registration
-     * @throws Opus_Doi_DataCiteXmlGenerationException
+     * @throws DataCiteXmlGenerationException
      */
     public function getXml($doc, $allowInvalidXml = false, $skipTestOfRequiredFields = false)
     {
         // DataCite-XML wird mittels XSLT aus OPUS-XML erzeugt
-        $xslt = new DOMDocument();
+        $xslt = new \DOMDocument();
         $xsltPath = $this->getStylesheetPath();
 
         $success = false;
@@ -99,20 +105,20 @@ class Opus_Doi_DataCiteXmlGenerator
             $success = $xslt->load($xsltPath);
         }
 
-        $log = Zend_Registry::get('Zend_Log'); // TODO use LoggingTrait
+        $log = \Zend_Registry::get('Zend_Log'); // TODO use LoggingTrait
 
         if (! $success) {
             $message = "could not find XSLT file $xsltPath";
             $log->err($message);
-            throw new Opus_Doi_DataCiteXmlGenerationException($message);
+            throw new DataCiteXmlGenerationException($message);
         }
 
-        $proc = new XSLTProcessor();
-        $proc->registerPHPFunctions('Opus_Language::getLanguageCode');
+        $proc = new \XSLTProcessor();
+        $proc->registerPHPFunctions('Opus\Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
         if (! $skipTestOfRequiredFields && ! $allowInvalidXml && ! $this->checkRequiredFields($doc)) {
-            throw new Opus_Doi_DataCiteXmlGenerationException(
+            throw new DataCiteXmlGenerationException(
                 'required fields are missing in document ' . $doc->getId() . ' - check log for details'
             );
         }
@@ -129,7 +135,7 @@ class Opus_Doi_DataCiteXmlGenerator
             $message = 'errors occurred in XSLT transformation of document ' . $doc->getId();
             $log->err($message);
             $xmlErrors = $this->handleLibXmlErrors($log);
-            throw new Opus_Doi_DataCiteXmlGenerationException($message, $xmlErrors);
+            throw new DataCiteXmlGenerationException($message, $xmlErrors);
         }
 
         $log->debug('DataCite-XML: ' . $result->saveXML());
@@ -143,7 +149,7 @@ class Opus_Doi_DataCiteXmlGenerator
             if (! is_readable($xsdPath)) {
                 $message = 'could not load schema file from ' . $xsdPath;
                 $log->err($message);
-                throw new Opus_Doi_DataCiteXmlGenerationException($message);
+                throw new DataCiteXmlGenerationException($message);
             }
 
             $validationResult = $result->schemaValidate($xsdPath);
@@ -151,7 +157,7 @@ class Opus_Doi_DataCiteXmlGenerator
                 $message = 'generated DataCite XML for document ' . $doc->getId() . ' is NOT valid';
                 $log->err($message);
                 $xmlErrors = $this->handleLibXmlErrors($log);
-                throw new Opus_Doi_DataCiteXmlGenerationException($message, $xmlErrors);
+                throw new DataCiteXmlGenerationException($message, $xmlErrors);
             }
         }
 
@@ -159,7 +165,7 @@ class Opus_Doi_DataCiteXmlGenerator
     }
 
     /**
-     * @param $doc Opus_Document
+     * @param $doc Document
      * @param $lazyChecking wenn true, dann wird die Prüfung beendet, sobald ein fehlendes Pflichtfeld
      *                      festgestellt wurde; in diesem Modus gibt die Methode entweder true (alle
      *                      Pflichtfelder vorhanden) oder false zurück
@@ -280,7 +286,7 @@ class Opus_Doi_DataCiteXmlGenerator
      * In dem übergebenen Dokument muss mindestens ein Autor mit einem nicht-leeren LastName oder FirstName
      * oder eine nicht leere CreatingCorporation existieren.
      *
-     * @param Opus_Document $doc das zu prüfende Dokument
+     * @param Document $doc das zu prüfende Dokument
      *
      * @return array gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
      *               Array der gefundene Fehler
@@ -314,7 +320,7 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * In dem übergebenen Dokument muss mindestens ein nicht leerer Titel existieren.
      *
-     * @param Opus_Document $doc das zu prüfende Dokument
+     * @param Document $doc das zu prüfende Dokument
      *
      * @return array gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
      *               Array der gefundene Fehler
@@ -357,7 +363,7 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * In dem übergebenen Dokument muss genau ein Publisher existieren.
      *
-     * @param Opus_Document $doc das zu prüfende Dokument
+     * @param Document $doc das zu prüfende Dokument
      * @return array gibt ein leeres Array zurück, wenn genau ein nicht leerer Titel gefunden wurde; andernfalls
      *               steht im Array der gefundene Fehler
      */
@@ -403,7 +409,7 @@ class Opus_Doi_DataCiteXmlGenerator
      * ServerDatePublished abgeleitet, das bei der Freischaltung eines OPUS-Dokuments automatisch
      * gesetzt wird.
      *
-     * @param Opus_Document $doc das zu prüfende Dokument
+     * @param Document $doc das zu prüfende Dokument
      *
      * @return bool gibt ein leeres Array zurück, wenn ein Publikationsjahr gefunden wurde; andernfalls
      *              steht im Array der gefundene Fehler
@@ -447,21 +453,21 @@ class Opus_Doi_DataCiteXmlGenerator
 
     private function getModelXml($doc)
     {
-        $xmlDoc = new Opus_Model_Xml();
+        $xmlDoc = new Xml();
         $xmlDoc->setModel($doc);
         $xmlDoc->excludeEmptyFields();
-        $xmlDoc->setStrategy(new Opus_Model_Xml_Version1);
+        $xmlDoc->setStrategy(new Version1());
         return $xmlDoc->getDomDocument();
     }
 
     /**
      * Returns path to DataCite XSLT file.
      *
-     * TODO refactor getting Zend_Config and Zend_Log
+     * TODO refactor getting \Zend_Config and \Zend_Log
      */
     public function getStylesheetPath()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
 
         $stylesheetPath = null;
 
@@ -469,7 +475,7 @@ class Opus_Doi_DataCiteXmlGenerator
             $stylesheetPath = $config->datacite->stylesheetPath;
 
             if (! is_readable($stylesheetPath)) {
-                Zend_Registry::get('Zend_Log')->warn('Configured DataCite XSLT file not found');
+                \Zend_Registry::get('Zend_Log')->warn('Configured DataCite XSLT file not found');
                 $stylesheetPath = null;
             }
         }

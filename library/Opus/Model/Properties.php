@@ -25,11 +25,15 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Model;
+
+use Opus\Db\TableGateway;
 
 /**
  * Class for accessing/storing properties for model objects in database.
@@ -44,7 +48,7 @@
  * Model types are not class names to keep the stored properties independent of implementation details.
  * The names of classes can change while still representing the same model type, e.g. a document.
  *
- * Models need to implement `Opus_Model_PropertySupportInterface`.
+ * Models need to implement `Opus\Model\PropertySupportInterface`.
  *
  * Ideas for future development.
  * TODO support registering handlers for property conversion (e.g. array to json)
@@ -54,7 +58,7 @@
  * TODO cache key ids?
  * TODO see getTable function (the model class/interface should be database independent)
  */
-class Opus_Model_Properties
+class Properties
 {
 
     /**
@@ -91,7 +95,7 @@ class Opus_Model_Properties
      * Registers a model type.
      *
      * @param string $type Identifier for model type
-     * @throws Zend_Db_Adapter_Exception
+     * @throws \Zend_Db_Adapter_Exception
      */
     public function registerType($type)
     {
@@ -102,9 +106,9 @@ class Opus_Model_Properties
                 $adapter->beginTransaction();
                 $adapter->insert(self::TABLE_TYPES, ['type' => $type]);
                 $adapter->commit();
-            } catch (Zend_Db_Adapter_Exception $e) {
+            } catch (\Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack();
-                throw new Opus_Model_DbException($e);
+                throw new DbException($e);
             }
         }
     }
@@ -115,8 +119,8 @@ class Opus_Model_Properties
      * This also removes all the properties stored for the model type.
      *
      * @param string $type Model type to be removed
-     * @throws Opus_Model_DbException
-     * @throws Opus_Model_UnknownModelTypeException
+     * @throws DbException
+     * @throws UnknownModelTypeException
      */
     public function unregisterType($type)
     {
@@ -127,12 +131,12 @@ class Opus_Model_Properties
                 $adapter->beginTransaction();
                 $adapter->delete(self::TABLE_TYPES, ['type = ?' => $type]);
                 $adapter->commit();
-            } catch (Zend_Db_Adapter_Exception $e) {
+            } catch (\Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack(); // finish transaction without doing anything
-                throw new Opus_Model_DbException($e);
+                throw new DbException($e);
             }
         } else {
-            throw new Opus_Model_UnknownModelTypeException("Model type '$type' not found");
+            throw new UnknownModelTypeException("Model type '$type' not found");
         }
     }
 
@@ -157,7 +161,7 @@ class Opus_Model_Properties
      * would have to be updated if the key is already present in the table.
      *
      * @param string $key Name of property
-     * @throws Zend_Db_Adapter_Exception
+     * @throws \Zend_Db_Adapter_Exception
      */
     public function registerKey($key)
     {
@@ -170,9 +174,9 @@ class Opus_Model_Properties
                 $adapter->beginTransaction();
                 $adapter->insert(self::TABLE_KEYS, ['name' => $key]);
                 $adapter->commit();
-            } catch (Zend_Db_Adapter_Exception $e) {
+            } catch (\Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack();
-                throw new Opus_Model_DbException($e);
+                throw new DbException($e);
             }
         }
     }
@@ -193,12 +197,12 @@ class Opus_Model_Properties
                 $adapter->beginTransaction();
                 $adapter->delete(self::TABLE_KEYS, ['name = ?' => $key]);
                 $adapter->commit();
-            } catch (Zend_Db_Adapter_Exception $e) {
+            } catch (\Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack(); // finish transaction without doing anything
-                throw new Opus_Model_DbException($e);
+                throw new DbException($e);
             }
         } else {
-            throw new Opus_Model_UnknownPropertyKeyException("Property key '$key' not found");
+            throw new UnknownPropertyKeyException("Property key '$key' not found");
         }
     }
 
@@ -221,11 +225,11 @@ class Opus_Model_Properties
     /**
      * Stores a property for a model.
      *
-     * @param mixed $model Model object implementing Opus_Model_PropertySupportInterface
+     * @param mixed $model Model object implementing Opus\Model\PropertySupportInterface
      * @param string $key Name of property
      * @param string $value Value of property
-     * @throws Opus_Model_UnknownModelTypeException
-     * @throws Opus_Model_UnknownPropertyKeyException
+     * @throws UnknownModelTypeException
+     * @throws UnknownPropertyKeyException
      *
      * TODO transaction?
      */
@@ -256,8 +260,8 @@ class Opus_Model_Properties
      *
      * @param mixed $model Model object
      * @return array Associative array with property keys and values
-     * @throws Opus_Model_PropertiesException
-     * @throws Opus_Model_UnknownModelTypeException
+     * @throws PropertiesException
+     * @throws UnknownModelTypeException
      */
     public function getProperties($model)
     {
@@ -283,9 +287,9 @@ class Opus_Model_Properties
      * @param mixed $model Model object
      * @param string $key Name of property
      * @return string|null Value of property or null
-     * @throws Opus_Model_PropertiesException
-     * @throws Opus_Model_UnknownModelTypeException
-     * @throws Opus_Model_UnknownPropertyKeyException
+     * @throws PropertiesException
+     * @throws UnknownModelTypeException
+     * @throws UnknownPropertyKeyException
      */
     public function getProperty($model, $key)
     {
@@ -314,9 +318,9 @@ class Opus_Model_Properties
     /**
      * Removes all properties of a model.
      * @param mixed $model Model object
-     * @throws Opus_Model_DbException
-     * @throws Opus_Model_PropertiesException
-     * @throws Opus_Model_UnknownModelTypeException
+     * @throws DbException
+     * @throws PropertiesException
+     * @throws UnknownModelTypeException
      */
     public function removeProperties($model)
     {
@@ -333,9 +337,9 @@ class Opus_Model_Properties
                 'model_id = ?' => $modelId
             ]);
             $adapter->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $adapter->rollBack();
-            throw new Opus_Model_DbException($e);
+            throw new DbException($e);
         }
     }
 
@@ -343,10 +347,10 @@ class Opus_Model_Properties
      * Removes a property from a model.
      * @param mixed $model Model object
      * @param string $key Name of property
-     * @throws Opus_Model_DbException
-     * @throws Opus_Model_PropertiesException
-     * @throws Opus_Model_UnknownModelTypeException
-     * @throws Opus_Model_UnknownPropertyKeyException
+     * @throws DbException
+     * @throws PropertiesException
+     * @throws UnknownModelTypeException
+     * @throws UnknownPropertyKeyException
      */
     public function removeProperty($model, $key)
     {
@@ -365,23 +369,24 @@ class Opus_Model_Properties
                 'key_id = ?' => $keyId
             ]);
             $adapter->commit();
-        } catch (Zend_Db_Adapter_Exception $e) {
+        } catch (\Zend_Db_Adapter_Exception $e) {
             $adapter->rollBack();
-            throw new Opus_Model_DbException($e);
+            throw new DbException($e);
         }
     }
 
     public function findModels($key, $value, $type = null)
     {
         // TODO implement findModels
+        return [];
     }
 
     /**
      * Renames a key without removing the stored values.
      * @param string $oldKey Name of existing key
      * @param string $newKey New name of key
-     * @throws Opus_Model_DbException
-     * @throws Opus_Model_UnknownPropertyKeyException
+     * @throws DbException
+     * @throws UnknownPropertyKeyException
      */
     public function renameKey($oldKey, $newKey)
     {
@@ -399,9 +404,9 @@ class Opus_Model_Properties
                 "id = $keyId"
             ]);
             $adapter->commit();
-        } catch (Zend_Db_Adapter_Exception $e) {
+        } catch (\Zend_Db_Adapter_Exception $e) {
             $adapter->rollback();
-            throw new Opus_Model_DbException($e);
+            throw new DbException($e);
         }
     }
 
@@ -421,13 +426,13 @@ class Opus_Model_Properties
     public function setAutoRegisterTypeEnabled($enabled)
     {
         if ($enabled === null) {
-            throw new InvalidArgumentException('Argument must not be null');
+            throw new \InvalidArgumentException('Argument must not be null');
         }
 
         $bool = filter_var($enabled, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         if ($bool === null) {
-            throw new InvalidArgumentException('Argument must be boolean');
+            throw new \InvalidArgumentException('Argument must be boolean');
         }
 
         $this->autoRegisterType = $bool;
@@ -444,18 +449,18 @@ class Opus_Model_Properties
 
     /**
      * Enables/disables automatic registration of keys.
-     * @param $enabled Enable/disable auto registration
+     * @param $enabled bool Enable/disable auto registration
      */
     public function setAutoRegisterKeyEnabled($enabled)
     {
         if ($enabled === null) {
-            throw new InvalidArgumentException('Argument must not be null');
+            throw new \InvalidArgumentException('Argument must not be null');
         }
 
         $bool = filter_var($enabled, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         if ($bool === null) {
-            throw new InvalidArgumentException('Argument must be boolean');
+            throw new \InvalidArgumentException('Argument must be boolean');
         }
 
         $this->autoRegisterKey = $bool;
@@ -466,14 +471,14 @@ class Opus_Model_Properties
      *
      * @param mixed $model Model object
      * @return int Model identifier
-     * @throws Opus_Model_PropertiesException
+     * @throws PropertiesException
      */
     protected function getModelId($model)
     {
         $modelId = $model->getId();
 
         if ($modelId === null) {
-            throw new Opus_Model_PropertiesException('Model ID is null');
+            throw new PropertiesException('Model ID is null');
         }
 
         return $modelId;
@@ -483,12 +488,12 @@ class Opus_Model_Properties
      * Returns ID for a key.
      * @param string $key Name of property
      * @return int
-     * @throws Opus_Model_UnknownPropertyKeyException
+     * @throws UnknownPropertyKeyException
      */
     protected function getKeyId($key)
     {
         if ($key === null) {
-            throw new InvalidArgumentException('Key argument must not be null');
+            throw new \InvalidArgumentException('Key argument must not be null');
         }
 
         $adapter = $this->getAdapter();
@@ -504,7 +509,7 @@ class Opus_Model_Properties
                 $this->registerKey($key);
                 return $this->getKeyId($key);
             } else {
-                throw new Opus_Model_UnknownPropertyKeyException("Property key '$key' not found");
+                throw new UnknownPropertyKeyException("Property key '$key' not found");
             }
         }
     }
@@ -517,12 +522,12 @@ class Opus_Model_Properties
     protected function getModelType($model)
     {
         if ($model === null) {
-            throw new InvalidArgumentException('Model argument must not be null');
+            throw new \InvalidArgumentException('Model argument must not be null');
         }
 
-        if (! $model instanceof Opus_Model_PropertySupportInterface) {
-            throw new InvalidArgumentException(
-                'Model argument must be of type Opus_Model_PropertySupportInterface'
+        if (! $model instanceof PropertySupportInterface) {
+            throw new \InvalidArgumentException(
+                'Model argument must be of type Opus\Model\PropertySupportInterface'
             );
         }
 
@@ -533,8 +538,8 @@ class Opus_Model_Properties
      * Returns ID for model type.
      * @param string $type Model type
      * @return int
-     * @throws Opus_Model_UnknownModelTypeException
-     * @throws Zend_Db_Adapter_Exception
+     * @throws UnknownModelTypeException
+     * @throws \Zend_Db_Adapter_Exception
      */
     protected function getModelTypeId($type)
     {
@@ -551,7 +556,7 @@ class Opus_Model_Properties
                 $this->registerType($type);
                 return $this->getModelTypeId($type);
             } else {
-                throw new Opus_Model_UnknownModelTypeException("Model type '$type' not found");
+                throw new UnknownModelTypeException("Model type '$type' not found");
             }
         }
     }
@@ -563,25 +568,25 @@ class Opus_Model_Properties
     protected function validateKey($key)
     {
         if (preg_match(self::KEY_PATTERN, $key) === 0) {
-            throw new InvalidArgumentException("Key '$key' is not valid.");
+            throw new \InvalidArgumentException("Key '$key' is not valid.");
         }
     }
 
     /**
      * Returns database table class for properties table.
-     * @return Opus_Db_TableGateway Database class for table
+     * @return TableGateway Database class for table
      *
-     * TODO perhaps we could get rid of Opus_Db_Properties or more precise this class here should probably be
-     *      Opus_Db_Properties and there should be another Opus_Model_Properties that is database independent
+     * TODO perhaps we could get rid of Opus\Db\Properties or more precise this class here should probably be
+     *      Opus\Db\Properties and there should be another Opus\Model\Properties that is database independent
      */
     protected function getTable()
     {
-        return Opus_Db_TableGateway::getInstance('Opus_Db_Properties');
+        return TableGateway::getInstance('Opus\Db\Properties');
     }
 
     /**
      * Returns database adapter for queries.
-     * @return Zend_Db_Adapter_Abstract Database adapter
+     * @return \Zend_Db_Adapter_Abstract Database adapter
      */
     protected function getAdapter()
     {

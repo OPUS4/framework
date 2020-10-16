@@ -25,18 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model\Dependent\Link;
+
+use Opus\Date;
+use Opus\Model\Field;
+
 /**
  * Abstract class for link Person model in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  *
  * @method void setRole(string $role)
  * @method string getRole()
@@ -47,7 +52,7 @@
  * @method void setAllowEmailContact(boolean $allowContact)
  * @method boolean getAllowEmailContact()
  *
- * Methods proxied to Opus_Person
+ * Methods proxied to Opus\Person
  *
  * @method void setAcademicTitle(string $title)
  * @method string getAcademicTitle()
@@ -58,8 +63,8 @@
  * @method void setLastName(string $lastName)
  * @method string getLastName()
  *
- * @method void setDateOfBirth(Opus_Date $date)
- * @method Opus_Date getDateOfBirth()
+ * @method void setDateOfBirth(Date $date)
+ * @method Date getDateOfBirth()
  *
  * @method void setPlaceOfBirth(string $place)
  * @method string getPlaceOfBirth()
@@ -79,7 +84,7 @@
  * @method void setOpusId(string $internalId)
  * @method string getOpusId()
  */
-class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link_Abstract
+class DocumentPerson extends AbstractLinkModel
 {
 
     /**
@@ -101,14 +106,14 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Person';
+    protected $_modelClass = 'Opus\Person';
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkPersonsDocuments';
+    protected static $_tableGatewayClass = 'Opus\Db\LinkPersonsDocuments';
 
     /**
      * Fields that should not be displayed on a form.
@@ -136,7 +141,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
             $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
         }
 
-        $role = new Opus_Model_Field('Role');
+        $role = new Field('Role');
         $role->setSelection(true);
         $role->setMandatory(false); // TODO change later maybe
         $role->setDefault([
@@ -150,8 +155,8 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
             'submitter' => 'submitter'
         ]);
 
-        $sortOrder = new Opus_Model_Field('SortOrder');
-        $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
+        $sortOrder = new Field('SortOrder');
+        $allowEmailContact = new Field('AllowEmailContact');
         $allowEmailContact->setCheckbox(true);
 
         $this->addField($role)

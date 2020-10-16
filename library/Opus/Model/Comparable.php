@@ -25,16 +25,20 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model;
+
 /**
  * Interface for comparing objects.
+ *
+ * TODO NAMESPACE rename interface
  */
-interface Opus_Model_Comparable
+interface Comparable
 {
 
     /**

@@ -27,21 +27,27 @@
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_PatentTest extends TestCase
+namespace OpusTest;
+
+use Opus\Date;
+use Opus\Patent;
+use OpusTest\TestAsset\TestCase;
+
+class PatentTest extends TestCase
 {
 
     public function testToArray()
     {
-        $patent = new Opus_Patent();
+        $patent = new Patent();
         $patent->setYearApplied(2017);
         $patent->setNumber('A23');
         $patent->setCountries('Germany, France');
         $patent->setApplication('A wonderful new invention.');
-        $patent->setDateGranted(new Opus_Date('2018-02-21'));
+        $patent->setDateGranted(new Date('2018-02-21'));
 
         $data = $patent->toArray();
 
@@ -65,7 +71,7 @@ class Opus_PatentTest extends TestCase
 
     public function testFromArray()
     {
-        $patent = Opus_Patent::fromArray([
+        $patent = Patent::fromArray([
             'YearApplied' => 2015,
             'Countries' => 'Spain',
             'Application' => 'New gadget.',
@@ -74,7 +80,7 @@ class Opus_PatentTest extends TestCase
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf('Opus_Patent', $patent);
+        $this->assertInstanceOf('Opus\Patent', $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
@@ -85,7 +91,7 @@ class Opus_PatentTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $patent = new Opus_Patent();
+        $patent = new Patent();
 
         $patent->updateFromArray([
             'YearApplied' => 2015,
@@ -96,7 +102,7 @@ class Opus_PatentTest extends TestCase
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf('Opus_Patent', $patent);
+        $this->assertInstanceOf('Opus\Patent', $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());

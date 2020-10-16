@@ -31,12 +31,17 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
+namespace OpusTest\Update\Plugin;
+
+use Opus\Update\Plugin\DatabaseSchema;
+use OpusTest\TestAsset\TestCase;
+
+class DatabaseSchemaTest extends TestCase
 {
 
     public function testMapVersion()
     {
-        $plugin = new Opus_Update_Plugin_DatabaseSchema();
+        $plugin = new DatabaseSchema();
 
         $this->assertEquals(1, $plugin->mapVersion(null));
         $this->assertEquals(2, $plugin->mapVersion('4.5'));

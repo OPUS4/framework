@@ -608,7 +608,7 @@ CREATE TABLE IF NOT EXISTS `document_xml_cache` (
   `xml_data` MEDIUMTEXT,
   PRIMARY KEY (`document_id`, `xml_version`)
 )
-  COMMENT = 'Caches XML for Opus_Document objects.';
+  COMMENT = 'Caches XML for Document objects.';
 
 -- -----------------------------------------
 -- Table holding scheduled job information

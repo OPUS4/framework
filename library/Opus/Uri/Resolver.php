@@ -25,20 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Uri
+ * @package     Opus\Uri
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Uri;
 
 /**
  * Interface for classes resolving URIs to concrete content specified by the URI.
  *
  * @category    Framework
- * @package     Opus_Uri
+ * @package     Opus\Uri
+ *
+ * TODO NAMESPACE rename class
  */
-interface Opus_Uri_Resolver
+interface Resolver
 {
 
     /**

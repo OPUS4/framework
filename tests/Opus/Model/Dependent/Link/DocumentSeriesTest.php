@@ -32,66 +32,73 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
+namespace OpusTest\Model\Dependent\Link;
+
+use Opus\Document;
+use Opus\Model\Dependent\Link\DocumentSeries;
+use Opus\Series;
+use OpusTest\TestAsset\TestCase;
+
+class DocumentSeriesTest extends TestCase
 {
 
     public function testAssignDocSortOrder()
     {
-        $s = new Opus_Series();
+        $s = new Series();
         $s->setTitle('test_series');
         $s->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->addSeries($s)->setNumber('I.');
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '0');
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->addSeries($s)->setNumber('II.');
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '1');
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->addSeries($s)->setNumber('IV.')->setDocSortOrder(4);
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '4');
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->addSeries($s)->setNumber('V.');
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '5');
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->addSeries($s)->setNumber('III.')->setDocSortOrder(3);
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '3');
 
         $series[0]->setDocSortOrder(10);
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '10');
 
         $series[0]->setDocSortOrder(null);
         $d->store();
 
-        $d = new Opus_Document($d->getId());
+        $d = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertFalse($series[0]->getDocSortOrder() === '11');
         $this->assertTrue($series[0]->getDocSortOrder() === '6');
@@ -99,9 +106,9 @@ class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
 
     public function testToArray()
     {
-        $seriesLink = new Opus_Model_Dependent_Link_DocumentSeries();
+        $seriesLink = new DocumentSeries();
 
-        $seriesLink->setModel(new Opus_Series()); // Fields are proxied for Opus_Series object
+        $seriesLink->setModel(new Series()); // Fields are proxied for Opus\Series object
         $seriesLink->setNumber('VI');
         $seriesLink->setDocSortOrder(4);
         $seriesLink->setTitle('Schriftenreihe');
@@ -123,7 +130,7 @@ class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
 
     public function testFromArray()
     {
-        $seriesLink = Opus_Model_Dependent_Link_DocumentSeries::fromArray([
+        $seriesLink = DocumentSeries::fromArray([
             'Title' => 'Schriftenreihe',
             'Infobox' => 'Beschreibung',
             'Visible' => 1,
@@ -133,7 +140,7 @@ class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
         ]);
 
         $this->assertNotNull($seriesLink);
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentSeries', $seriesLink);
+        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentSeries', $seriesLink);
 
         $this->assertEquals('Schriftenreihe', $seriesLink->getTitle());
         $this->assertEquals('Beschreibung', $seriesLink->getInfobox());
@@ -145,7 +152,7 @@ class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $seriesLink = new Opus_Model_Dependent_Link_DocumentSeries();
+        $seriesLink = new DocumentSeries();
 
         $seriesLink->updateFromArray([
             'Title' => 'Schriftenreihe',
@@ -157,7 +164,7 @@ class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
         ]);
 
         $this->assertNotNull($seriesLink);
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentSeries', $seriesLink);
+        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentSeries', $seriesLink);
 
         $this->assertEquals('Schriftenreihe', $seriesLink->getTitle());
         $this->assertEquals('Beschreibung', $seriesLink->getInfobox());

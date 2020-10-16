@@ -25,18 +25,20 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model;
+
 /**
- * Exception type for Opus_Model.
+ * Exception type for Opus\Model.
  *
  * @category Framework
- * @package  Opus_Model
+ * @package  Opus\Model
  */
-class Opus_Model_DbException extends Opus\Model\Exception
+class DbException extends ModelException
 {
 }

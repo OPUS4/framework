@@ -31,6 +31,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Update\Plugin\DatabaseSchema;
+
 /**
  * Class for basic database operations.
  *
@@ -39,7 +43,7 @@
  * TODO more logging
  * TODO is admin level access to schema always necessary? distinguish?
  */
-class Opus_Database
+class Database
 {
 
     use \Opus\LoggingTrait;
@@ -60,12 +64,12 @@ class Opus_Database
     const DEFAULT_COLLATE = 'utf8mb4_unicode_ci';
 
     /**
-     * @var Zend_Config
+     * @var \Zend_Config
      */
     private $_config;
 
     /**
-     * @var Zend_Log
+     * @var \Zend_Log
      */
     private $_logger;
 
@@ -136,12 +140,12 @@ class Opus_Database
     /**
      * Imports SQL file or folder containing SQL files.
      * @param $path string Path to file or folder
-     * @throws Exception
+     * @throws \Exception
      */
     public function import($path)
     {
         if (! is_readable($path)) {
-            throw new Exception('Path not readable');
+            throw new \Exception('Path not readable');
         }
 
         $files = [];
@@ -176,7 +180,7 @@ class Opus_Database
     /**
      * Returns database connection object.
      * @param null $dbName string
-     * @return PDO
+     * @return \PDO
      */
     public function getPdo($dbName = null)
     {
@@ -196,8 +200,8 @@ class Opus_Database
             $connStr .= ";dbname=$dbName";
         }
 
-        $pdo = new PDO($connStr, $dbUser, $dbPwd);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo = new \PDO($connStr, $dbUser, $dbPwd);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         // TODO unit test for character encoding?
         $pdo->exec("SET CHARACTER SET `$defaultCharacterSet`");
 
@@ -253,7 +257,7 @@ class Opus_Database
             while ($statement->nextRowset()) {
                 // iterate through results until finished or exception thrown
             }
-        } catch (PDOException $pdoex) {
+        } catch (\PDOException $pdoex) {
             $message = $pdoex->getMessage();
             echo('Error executing SQL' . PHP_EOL);
             echo($message . PHP_EOL);
@@ -279,7 +283,7 @@ class Opus_Database
             while ($statement->nextRowset()) {
                 // iterate over rowsets until finished or exception is thrown
             }
-        } catch (PDOException $pdoex) {
+        } catch (\PDOException $pdoex) {
             echo(PHP_EOL . $pdoex->getMessage());
         }
     }
@@ -305,7 +309,7 @@ class Opus_Database
     {
         // TODO check $path
 
-        $files = new DirectoryIterator($path);
+        $files = new \DirectoryIterator($path);
 
         $sqlFiles = [];
 
@@ -336,14 +340,14 @@ class Opus_Database
     /**
      * Returns path to database schema file.
      * @return string Path to schema file
-     * @throws Exception
+     * @throws \Exception
      */
     public function getSchemaFile()
     {
         $path = $this->getBasePath() . self::SCHEMA_PATH;
 
         if (! is_file($path)) {
-            throw new Exception('could not find schema file');
+            throw new \Exception('could not find schema file');
         }
 
         return $path;
@@ -351,13 +355,13 @@ class Opus_Database
 
     /**
      * Returns application configuration.
-     * @return null|Zend_Config
-     * @throws Zend_Exception
+     * @return null|\Zend_Config
+     * @throws \Zend_Exception
      */
     public function getConfig()
     {
         if (is_null($this->_config)) {
-            $this->_config = Zend_Registry::get('Zend_Config');
+            $this->_config = \Zend_Registry::get('Zend_Config');
         }
 
         return $this->_config;
@@ -365,13 +369,13 @@ class Opus_Database
 
     /**
      * Returns logger.
-     * @return mixed|Zend_Log
-     * @throws Zend_Exception
+     * @return mixed|\Zend_Log
+     * @throws \Zend_Exception
      */
     public function getLogger()
     {
         if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
+            $this->_logger = \Zend_Registry::get('Zend_Log');
         }
 
         return $this->_logger;
@@ -394,7 +398,7 @@ class Opus_Database
             if (isset($result['version'])) {
                 $version = $result['version'];
             }
-        } catch (PDOException $pdoex) {
+        } catch (\PDOException $pdoex) {
             // TODO logging
         }
 
@@ -416,7 +420,7 @@ class Opus_Database
      */
     public function update($targetVersion = null)
     {
-        $schemaUpdate = new Opus_Update_Plugin_DatabaseSchema();
+        $schemaUpdate = new DatabaseSchema();
         $schemaUpdate->setTargetVersion($targetVersion);
         $schemaUpdate->run();
     }

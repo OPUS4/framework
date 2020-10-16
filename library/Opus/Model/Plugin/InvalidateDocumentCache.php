@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,24 +25,35 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model_Plugin
+ * @package     Opus\Model\Plugin
  * @author      Edouard Simon <edouard.simon@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2013-2018
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model\Plugin;
+
+use Opus\Date;
+use Opus\Document;
+use Opus\DocumentFinder;
+use Opus\DocumentFinder\DocumentFinderException;
+use Opus\Model\AbstractDb;
+use Opus\Model\Filter;
+use Opus\Model\ModelInterface;
+use Opus\Model\Xml\Cache;
+
 /**
  * Plugin deleting xml cache entries and updating the modification date of documents related to the model.
  *
- * This plugin is attached to all the model classes except Opus_Document that contain information that is part of the
+ * This plugin is attached to all the model classes except Opus\Document that contain information that is part of the
  * aggregated metadata of a document in OPUS 4.
  *
  * TODO filter configuration should only exclude from server_date_modified change (should check date) - OPUSVIER-3760
  * TODO models should define their own lists (decentralized, object-oriented) - OPUSVIER-3759
  * TODO cache should be transparent - important is updating ServerDateModified
  */
-class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\AbstractPlugin
+class InvalidateDocumentCache extends AbstractPlugin
 {
 
     /**
@@ -58,7 +68,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
      *
      * This configuration should be shared across all objects.
      *
-     * @var Zend_Config
+     * @var \Zend_Config
      */
     private static $_filterConfig;
 
@@ -71,7 +81,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
      *
      * TODO break up function
      */
-    public function preStore(Opus\Model\ModelInterface $model)
+    public function preStore(ModelInterface $model)
     {
         $modelClass = get_class($model);
 
@@ -80,7 +90,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
         if (isset($config->{$modelClass})) {
             $blacklist = $config->{$modelClass}->toArray();
 
-            $filter = new Opus_Model_Filter();
+            $filter = new Filter();
             $filter->setModel($model);
             $filter->setBlacklist($blacklist);
             $whitelist = $filter->describe();
@@ -119,7 +129,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
     /**
      * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus\Model\ModelInterface $model)
+    public function postStore(ModelInterface $model)
     {
         if ($this->_postStoreUpdateDocuments) {
             $this->invalidateDocumentCacheFor($model);
@@ -133,7 +143,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
      * If model is not persistent (i. e. modelId is not set and /or model states to be a new record)
      * preDelete operation is skipped.
      */
-    public function preDelete(Opus\Model\ModelInterface $model)
+    public function preDelete(ModelInterface $model)
     {
         $modelId = $model->getId();
         if (! $model->isNewRecord() && ! empty($modelId)) {
@@ -150,36 +160,36 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
      * NOTE: logically it is the reverse. The document has been modified (the date changes), therefore the cache
      *       needs to be invalidated.
      *
-     * @param Opus_Model_AbstractDb $model
-     * @throws Opus_DocumentFinder_Exception
+     * @param AbstractDb $model
+     * @throws DocumentFinderException
      */
-    protected function invalidateDocumentCacheFor(Opus\Model\ModelInterface $model)
+    protected function invalidateDocumentCacheFor(ModelInterface $model)
     {
-        $documentFinder = new Opus_DocumentFinder();
+        $documentFinder = new DocumentFinder();
 
         $documentFinder->setDependentModel($model);
         $select = $documentFinder->getSelectIds();
         $ids = $documentFinder->Ids();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($select);
 
         if ($this->_updateServerDateModified) {
-            $date = new Opus_Date();
+            $date = new Date();
             $date->setNow();
-            Opus_Document::setServerDateModifiedByIds($date, $ids);
+            Document::setServerDateModifiedByIds($date, $ids);
         }
     }
 
     /**
      * Return configuration of ignored model fields.
      *
-     * @return Zend_Config|Zend_Config_Ini
+     * @return \Zend_Config|\Zend_Config_Ini
      */
     public static function getFilterConfig()
     {
         if (is_null(self::$_filterConfig)) {
-            self::$_filterConfig = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
+            self::$_filterConfig = new \Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
         }
 
         return self::$_filterConfig;
@@ -188,7 +198,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\Abstra
     /**
      * Set global configuration fir ignored model fields.
      *
-     * @param $config null|Zend_Config
+     * @param $config null|\Zend_Config
      */
     public static function setFilterConfig($config)
     {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,10 +27,11 @@
  * @category    Tests
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
 // Setup error reporting.
 // TODO leave to Zend and config?
 error_reporting(E_ALL | E_STRICT);
@@ -47,31 +47,19 @@ define('APPLICATION_ENV', 'testing');
 // Configure include path.
 $scriptDir = dirname(__FILE__);
 
-set_include_path('.'
-        . PATH_SEPARATOR . $scriptDir // Skriptverzeichnis
-        . PATH_SEPARATOR . $scriptDir . DIRECTORY_SEPARATOR . 'support' // Support Klassen für Tests
-        . PATH_SEPARATOR . dirname($scriptDir) . DIRECTORY_SEPARATOR . 'library' // OPUS Klassen
-        . PATH_SEPARATOR . dirname($scriptDir) . DIRECTORY_SEPARATOR . 'vendor' // 3rd-party dependencies
-        . PATH_SEPARATOR . get_include_path()); // Standard Include-Pfad
-
-require_once 'autoload.php';
-
-// enable fallback autoloader for testing
-$autoloader = Zend_Loader_Autoloader::getInstance();
-$autoloader->suppressNotFoundWarnings(false);
-$autoloader->setFallbackAutoloader(true);
+require_once APPLICATION_PATH . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
 // Do test environment initializiation.
-$application = new Zend_Application(
+$application = new \Zend_Application(
     APPLICATION_ENV,
     [
-                "config" => [
-                    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'tests.ini',
-                    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini'
-                ]
-            ]
+        "config" => [
+            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'tests.ini',
+            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini'
+        ]
+    ]
 );
 
-Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+\Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
 $application->bootstrap(['Database','Temp','OpusLocale']);

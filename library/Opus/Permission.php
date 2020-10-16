@@ -27,23 +27,27 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
 
 /**
  * Class represents a permission in the OPUS 4 access control system.
  *
  * TODO this is just a quick start that needs review/refactoring
  */
-class Opus_Permission
+class Permission
 {
 
     /**
      * Returns user accounts that have a permission.
      *
      * @param $permission string Name of permission
-     * @return Opus_Account[]
+     * @return Account[]
      */
     public static function getAccounts($permission)
     {
@@ -51,7 +55,7 @@ class Opus_Permission
             return [];
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
+        $table = TableGateway::getInstance('Opus\Db\UserRoles');
 
         $adapter = $table->getAdapter();
 
@@ -79,7 +83,7 @@ class Opus_Permission
         $accounts = [];
 
         foreach ($accountIds as $id) {
-            $accounts[] = new Opus_Account($id);
+            $accounts[] = new Account($id);
         }
 
         return $accounts;

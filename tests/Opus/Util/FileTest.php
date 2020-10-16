@@ -25,14 +25,17 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Util
+ * @package     Opus\Util
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
 
-class Opus_Util_FileTest extends TestCase
+namespace OpusTest\Util;
+
+use OpusTest\TestAsset\TestCase;
+
+class FileTest extends TestCase
 {
 
     private $__src_path = '';
@@ -45,7 +48,7 @@ class Opus_Util_FileTest extends TestCase
     {
         parent::setUp();
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . '/' . uniqid();
 
         $this->__src_path = $path . '/src';
@@ -57,7 +60,7 @@ class Opus_Util_FileTest extends TestCase
      */
     protected function tearDown()
     {
-        Opus_Util_File::deleteDirectory($this->__src_path);
+        \Opus\Util\File::deleteDirectory($this->__src_path);
         parent::tearDown();
     }
 
@@ -67,7 +70,7 @@ class Opus_Util_FileTest extends TestCase
     public function testDeleteNonExistingDirectory()
     {
         $this->assertFalse(file_exists($this->__src_path));
-        $this->assertTrue(Opus_Util_File::deleteDirectory($this->__src_path));
+        $this->assertTrue(\Opus\Util\File::deleteDirectory($this->__src_path));
     }
 
     /**
@@ -76,7 +79,7 @@ class Opus_Util_FileTest extends TestCase
     public function testDeleteEmptyDirectory()
     {
         mkdir($this->__src_path, 0777, true);
-        $this->assertTrue(Opus_Util_File::deleteDirectory($this->__src_path));
+        $this->assertTrue(\Opus\Util\File::deleteDirectory($this->__src_path));
         $this->assertFalse(file_exists($this->__src_path));
     }
 
@@ -87,7 +90,7 @@ class Opus_Util_FileTest extends TestCase
     {
         mkdir($this->__src_path, 0777, true);
         touch($this->__src_path . '/' . 'test.txt');
-        $this->assertTrue(Opus_Util_File::deleteDirectory($this->__src_path));
+        $this->assertTrue(\Opus\Util\File::deleteDirectory($this->__src_path));
         $this->assertFalse(file_exists($this->__src_path));
         $this->assertFalse(file_exists($this->__src_path));
     }
@@ -100,7 +103,7 @@ class Opus_Util_FileTest extends TestCase
         mkdir($this->__src_path, 0777, true);
         $file = $this->__src_path . '/' . 'test.txt';
         touch($file);
-        $this->assertTrue(Opus_Util_File::deleteDirectory($file));
+        $this->assertTrue(\Opus\Util\File::deleteDirectory($file));
         $this->assertFalse(file_exists($file));
     }
 
@@ -112,7 +115,7 @@ class Opus_Util_FileTest extends TestCase
         $path = $this->__src_path;
         $this->assertEquals(
             $path . DIRECTORY_SEPARATOR,
-            Opus_Util_File::addDirectorySeparator($path)
+            \Opus\Util\File::addDirectorySeparator($path)
         );
     }
 
@@ -122,7 +125,7 @@ class Opus_Util_FileTest extends TestCase
     public function testAddDirectorySeparatorOnNull()
     {
         $path = null;
-        $this->assertEquals(null, Opus_Util_File::addDirectorySeparator($path));
+        $this->assertEquals(null, \Opus\Util\File::addDirectorySeparator($path));
     }
 
     /**
@@ -133,7 +136,7 @@ class Opus_Util_FileTest extends TestCase
         $path = $this->__src_path . DIRECTORY_SEPARATOR;
         $this->assertEquals(
             $path,
-            Opus_Util_File::addDirectorySeparator($path)
+            \Opus\Util\File::addDirectorySeparator($path)
         );
     }
 
@@ -145,7 +148,7 @@ class Opus_Util_FileTest extends TestCase
         $path = $this->__src_path . '   ';
         $this->assertEquals(
             $path . DIRECTORY_SEPARATOR,
-            Opus_Util_File::addDirectorySeparator($path)
+            \Opus\Util\File::addDirectorySeparator($path)
         );
     }
 }

@@ -25,23 +25,30 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Doi
+ * @package     Opus\Doi
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_UserRecipientProviderTest extends TestCase
+namespace OpusTest\Doi;
+
+use Opus\Account;
+use Opus\Doi\UserRecipientProvider;
+use Opus\UserRole;
+use OpusTest\TestAsset\TestCase;
+
+class UserRecipientProviderTest extends TestCase
 {
 
     public function testGetRecipients()
     {
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('DOI');
         $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->addRole($role);
         $account->setFirstName('John');
         $account->setLastName('Doe');
@@ -51,7 +58,7 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
         $account->store();
 
         // Account without name
-        $account = new Opus_Account();
+        $account = new Account();
         $account->addRole($role);
         $account->setEmail('jane@localhost');
         $account->setLogin('jane');
@@ -59,13 +66,13 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
         $account->store();
 
         // Account without permission
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('tom');
         $account->setPassword('123456');
         $account->store();
 
         // Account without email will not be included
-        $account = new Opus_Account();
+        $account = new Account();
         $account->addRole($role);
         $account->setFirstName('Paul');
         $account->setLastName('Miller');
@@ -73,7 +80,7 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
         $account->setPassword('123456');
         $account->store();
 
-        $provider = new Opus_Doi_UserRecipientProvider();
+        $provider = new UserRecipientProvider();
 
         $recipients = $provider->getRecipients();
 
@@ -87,12 +94,12 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
 
     public function testGetRecipientsFilterAccountsWithoutEmail()
     {
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('DOI');
         $role->appendAccessModule('doi_notification');
         $role->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->addRole($role);
         $account->setFirstName('Paul');
         $account->setLastName('Miller');
@@ -100,7 +107,7 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
         $account->setPassword('123456');
         $account->store();
 
-        $provider = new Opus_Doi_UserRecipientProvider();
+        $provider = new UserRecipientProvider();
 
         $recipients = $provider->getRecipients();
 
@@ -110,7 +117,7 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
 
     public function testGetRecipientsNone()
     {
-        $provider = new Opus_Doi_UserRecipientProvider();
+        $provider = new UserRecipientProvider();
 
         $recipients = $provider->getRecipients();
 

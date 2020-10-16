@@ -25,15 +25,17 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model;
+
 /**
- * Exceptions thrown by Opus_Model_Properties.
+ * Exceptions thrown by Opus\Model\Properties.
  */
-class Opus_Model_PropertiesException extends Opus\Model\Exception
+class PropertiesException extends ModelException
 {
 }

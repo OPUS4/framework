@@ -25,13 +25,15 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Db_Translations extends Opus_Db_TableGateway
+namespace Opus\Db;
+
+class Translations extends TableGateway
 {
 
     protected $_name = 'translations';

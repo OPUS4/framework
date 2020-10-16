@@ -9,18 +9,24 @@
   ],
   "homepage": "http://opus4.kobv.de",
   "require": {
+    "ext-dom": "*",
+    "ext-pdo": "*",
+    "ext-fileinfo": "*",
+    "ext-libxml": "*",
     "zendframework/zendframework1": "1.12.*",
     "opus4-repo/opus4-common": "dev-master",
     "opus4-repo/opus4-doi": "4.7"
   },
   "autoload": {
-    "psr-0": {
-      "Opus_": "library/"
+    "psr-4": {
+      "Opus\\": "library/Opus"
     }
   },
-  "include-path": [
-    "library/"
-  ],
+  "autoload-dev": {
+    "psr-4": {
+      "OpusTest\\": "tests/Opus"
+    }
+  },
   "require-dev": {
     "phpunit/phpunit": "4.8.*",
     "phpunit/dbunit": "~1.3",
@@ -58,10 +64,10 @@
     "prepare": "mkdir -p build",
     "test-coverage": [
       "Composer\\Config::disableProcessTimeout",
-      "phpunit --log-junit build/phpunit.xml --colors=always --coverage-html build/ --coverage-clover build/clover.xml --configuration tests/phpunit.xml"],
+      "phpunit --log-junit build/phpunit.xml --colors=always --coverage-html build/ --coverage-clover build/clover.xml"],
     "test": [
       "Composer\\Config::disableProcessTimeout",
-      "phpunit --log-junit build/phpunit.xml --colors=always --configuration tests/phpunit.xml"
+      "phpunit --log-junit build/phpunit.xml --colors=always"
     ],
     "cs-check": "phpcs -n --extensions=php,phtml,css,js,inc",
     "cs-fix": "phpcbf --extensions=php,phtml,css,js,inc",

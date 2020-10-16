@@ -26,19 +26,24 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Jens Schwidder
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+
 /**
  * Domain model for document references in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
- * @uses        Opus_Model_Dependent_Abstract
+ * @package     Opus\Model
+ * @uses        \Opus\Model\Dependent\AbstractDependentModel
  *
  * @method void setValue(string $value)
  * @method string getValue()
@@ -52,7 +57,7 @@
  * @method void setType(string $type)
  * @method string getType()
  */
-class Opus_Reference extends Opus_Model_Dependent_Abstract
+class Reference extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
@@ -66,7 +71,7 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentReferences';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentReferences';
 
     /**
      * Initialize model with the following fields:
@@ -77,15 +82,15 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $label = new Opus_Model_Field('Label');
+        $label = new Field('Label');
         $label->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $relation = new Opus_Model_Field('Relation');
+        $relation = new Field('Relation');
         $relation->setMandatory(false);
         $relation->setSelection(true);
         $relation->setDefault([
@@ -94,7 +99,7 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
             'other' => 'other'
         ]);
 
-        $type = new Opus_Model_Field('Type');
+        $type = new Field('Type');
         $type->setMandatory(false); // TODO change later
         $type->setSelection(true);
         $type->setDefault([

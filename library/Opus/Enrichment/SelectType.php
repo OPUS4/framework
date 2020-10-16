@@ -25,13 +25,15 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @package     Opus_Enrichment
+ * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
+namespace Opus\Enrichment;
+
+class SelectType extends AbstractType
 {
 
     /**
@@ -89,7 +91,7 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
 
         if (! is_null($this->values)) {
             $element->setMultiOptions($this->values);
-            $validator = new Zend_Validate_InArray(array_keys($this->values));
+            $validator = new \Zend_Validate_InArray(array_keys($this->values));
             $validator->setMessage('admin_validate_error_select_inarray');
             $element->addValidator($validator);
         }

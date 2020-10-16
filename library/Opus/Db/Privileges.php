@@ -25,21 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'privileges'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_Privileges extends Opus_Db_TableGateway
+class Privileges extends TableGateway
 {
     /**
      * Table schema name.
@@ -57,12 +59,12 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway
     protected $_referenceMap = [
         'Roles' => [
             'columns' => 'role_id',
-            'refTableClass' => 'Opus_Db_UserRoles',
+            'refTableClass' => 'Opus\Db\UserRoles',
             'refColumns' => 'id',
         ],
         'DocumentFiles' => [
             'columns' => 'file_id',
-            'refTableClass' => 'Opus_Db_DocumentFiles',
+            'refTableClass' => 'Opus\Db\DocumentFiles',
             'refColumns' => 'id'
         ]
     ];

@@ -25,21 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'link_documents_collections'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway
+class LinkDocumentsCollections extends TableGateway
 {
     /**
      * DB table name.
@@ -64,17 +66,17 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway
     protected $_referenceMap = [
         'Documents' => [
             'columns' => 'document_id',
-            'refTableClass' => 'Opus_Db_Documents',
+            'refTableClass' => 'Opus\Db\Documents',
             'refColumns' => 'id',
         ],
         'Collections' => [
             'columns' => 'collection_id',
-            'refTableClass' => 'Opus_Db_Collections',
+            'refTableClass' => 'Opus\Db\Collections',
             'refColumns' => 'id'
         ],
         'CollectionRoles' => [
             'columns' => 'role_id',
-            'refTableClass' => 'Opus_Db_CollectionsRoles',
+            'refTableClass' => 'Opus\Db\CollectionsRoles',
             'refColumns' => 'id'
         ]
     ];

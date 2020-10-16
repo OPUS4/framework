@@ -25,25 +25,30 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Doi
+ * @package     Opus\Doi
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_ConfigRecipientProviderTest extends TestCase
+namespace OpusTest\Doi;
+
+use Opus\Doi\ConfigRecipientProvider;
+use OpusTest\TestAsset\TestCase;
+
+class ConfigRecipientProviderTest extends TestCase
 {
 
     public function testGetRecipients()
     {
-        $provider = new Opus_Doi_ConfigRecipientProvider();
+        $provider = new ConfigRecipientProvider();
 
         $recipients = $provider->getRecipients();
 
         $this->assertInternalType('array', $recipients);
         $this->assertCount(0, $recipients);
 
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'doi' => [
                 'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
                 'notificationEmail' => [

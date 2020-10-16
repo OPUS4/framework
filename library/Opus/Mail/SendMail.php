@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Mail
+ * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Eva Kranz <s9evkran@stud.uni-saarland.de>
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,18 +33,20 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Mail;
+
 /**
- * Methods to send e-mails via Zend_Mail, but with mail server from config.ini.
+ * Methods to send e-mails via \Zend_Mail, but with mail server from config.ini.
  *
  * @category    Framework
- * @package     Opus_Mail
+ * @package     Opus\Mail
  *
  */
-class Opus_Mail_SendMail
+class SendMail
 {
 
     /**
-     * @var Opus_Mail_Transport
+     * @var Transport
      */
     private $_transport = null;
 
@@ -53,7 +55,7 @@ class Opus_Mail_SendMail
      */
     public function __construct()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         if (isset($config, $config->mail->opus)) {
             if (isset($config->mail->opus->transport) && $config->mail->opus->transport == 'file') {
                 // erlaubt das Speichern von E-Mails in Dateien, die im Verzeichnis mail.opus.file abgelegt werden
@@ -65,29 +67,29 @@ class Opus_Mail_SendMail
                     return 'opus-mail_' . time() . '_' . mt_rand() . '.tmp';
                 };
                 $options['callback'] = $callback;
-                $this->_transport = new Zend_Mail_Transport_File($options);
+                $this->_transport = new \Zend_Mail_Transport_File($options);
                 return;
             }
 
-            $this->_transport = new Opus_Mail_Transport($config->mail->opus);
+            $this->_transport = new Transport($config->mail->opus);
             return;
         }
-        $this->_transport = new Opus_Mail_Transport();
+        $this->_transport = new Transport();
     }
 
     /**
      * Validates an e-mail address
      *
      * @param   string $address Address
-     * @throws  Opus_Mail_Exception Thrown if the e-mail address is not valid
+     * @throws  MailException Thrown if the e-mail address is not valid
      * @return  string              Address
      */
     public static function validateAddress($address)
     {
-        $validator = new Zend_Validate_EmailAddress();
+        $validator = new \Zend_Validate_EmailAddress();
         if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
-                throw new Opus_Mail_Exception($message);
+                throw new MailException($message);
             }
         }
 
@@ -106,8 +108,8 @@ class Opus_Mail_SendMail
      * @param   array  $recipients Recipients (array [#] => array ('name' => '...', 'address' => '...'))
      *
      * @return  boolean            True if mail was sent
-     * @throws Opus_Mail_Exception Thrown if the mail could not be sent.
-     * @throws Opus_Mail_Exception Thrown if the from address is invalid.
+     * @throws MailException Thrown if the mail could not be sent.
+     * @throws MailException Thrown if the from address is invalid.
      */
     public function sendMail(
         $from,
@@ -120,18 +122,18 @@ class Opus_Mail_SendMail
         $returnPath = null
     ) {
 
-        $logger = Zend_Registry::get('Zend_Log');
+        $logger = \Zend_Registry::get('Zend_Log');
 
         if (trim($from) === '') {
-            throw new Opus_Mail_Exception('No sender address given.');
+            throw new MailException('No sender address given.');
         }
         self::validateAddress($from);
 
         if (trim($subject) === '') {
-            throw new Opus_Mail_Exception('No subject text given.');
+            throw new MailException('No subject text given.');
         }
 
-        $mail = new Zend_Mail('utf-8');
+        $mail = new \Zend_Mail('utf-8');
         $mail->setFrom($from, $fromName);
         $mail->setSubject($subject);
         $mail->setBodyText($bodyText);
@@ -153,9 +155,9 @@ class Opus_Mail_SendMail
         try {
             $mail->send($this->_transport);
             $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
-        } catch (Exception $e) {
+        } catch (MailException $e) {
             $logger->err('SendMail: Failed sending mail to ' . $recip['address'] . ', error: ' . $e);
-            throw new Opus_Mail_Exception('SendMail: Mail could not be sent.');
+            throw new MailException('SendMail: Mail could not be sent.');
         }
 
         return true;

@@ -25,13 +25,18 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Update
+ * @package     Opus\Update
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_AbstractTest extends TestCase
+namespace OpusTest\Update\Plugin;
+
+use Opus\Update\Plugin\AbstractUpdatePlugin;
+use OpusTest\TestAsset\TestCase;
+
+class AbstractUpdatePluginTest extends TestCase
 {
 
     private $_stub;
@@ -40,7 +45,7 @@ class Opus_Update_Plugin_AbstractTest extends TestCase
     {
         parent::setUp();
 
-        $this->_stub = $this->getMockForAbstractClass(Opus_Update_Plugin_Abstract::class);
+        $this->_stub = $this->getMockForAbstractClass(AbstractUpdatePlugin::class);
     }
 
 

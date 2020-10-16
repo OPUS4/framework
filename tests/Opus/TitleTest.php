@@ -31,15 +31,20 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_TitleTest extends TestCase
+namespace OpusTest;
+
+use Opus\Title;
+use OpusTest\TestAsset\TestCase;
+
+class TitleTest extends TestCase
 {
 
     public function testToArray()
     {
-        $title = new Opus_Title();
+        $title = new Title();
 
         $title->setLanguage('deu');
-        $title->setType(Opus_Title::TYPE_MAIN);
+        $title->setType(Title::TYPE_MAIN);
         $title->setValue('Deutscher Haupttitel');
 
         $data = $title->toArray();
@@ -53,14 +58,14 @@ class Opus_TitleTest extends TestCase
 
     public function testFromArray()
     {
-        $title = Opus_Title::fromArray([
+        $title = Title::fromArray([
             'Language' => 'deu',
             'Type' => 'main',
             'Value' => 'Deutscher Haupttitel'
         ]);
 
         $this->assertNotNull($title);
-        $this->assertInstanceOf('Opus_Title', $title);
+        $this->assertInstanceOf('Opus\Title', $title);
 
         $this->assertEquals('deu', $title->getLanguage());
         $this->assertEquals('main', $title->getType());
@@ -69,7 +74,7 @@ class Opus_TitleTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $title = new Opus_Title();
+        $title = new Title();
 
         $title->updateFromArray([
             'Language' => 'deu',
@@ -78,7 +83,7 @@ class Opus_TitleTest extends TestCase
         ]);
 
         $this->assertNotNull($title);
-        $this->assertInstanceOf('Opus_Title', $title);
+        $this->assertInstanceOf('Opus\Title', $title);
 
         $this->assertEquals('deu', $title->getLanguage());
         $this->assertEquals('main', $title->getType());

@@ -1,11 +1,26 @@
 <?php
 
-class Opus_Util_ConsoleColorsTest extends SimpleTestCase
+namespace OpusTest\Util;
+
+use Opus\Util\ConsoleColors;
+use Opus\Util\Exception;
+use OpusTest\TestAsset\SimpleTestCase;
+
+class ConsoleColorsTest extends SimpleTestCase
 {
+
+    protected $colors;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->colors = new ConsoleColors();
+    }
 
     public function testGetForegroundColors()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $foreground = $colors->getForegroundColors();
 
@@ -16,7 +31,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testGetBackgroundColors()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $background = $colors->getBackgroundColors();
 
@@ -27,7 +42,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testMagicCallMethod()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $colored = $colors->blue('Hello, world!');
 
@@ -40,27 +55,25 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testMagicCallMethodWithBackgroundColor()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->blue('Hello, world!', 'green');
 
         $this->assertEquals("\033[0;34m\033[42mHello, world!\033[0m", $output);
     }
 
-    /**
-     * @expectedException Exception
-     * @expectedExceptionMessage Unknown function 'pink'
-     */
     public function testMagicCallMethodUnknownColor()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
-        $output = $colors->pink('Hello, world!');
+        $this->setExpectedException(\Exception::class, 'Unknown function \'pink\'');
+
+        $colors->pink('Hello, world!');
     }
 
     public function testMagicCallMethodWithUnkownBackgroundColor()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->blue('Hello, world!', 'pink');
 
@@ -69,7 +82,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testMagicCallMethodWithoutArguments()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->green();
 
@@ -78,21 +91,21 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testGetColoredString()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
-        $output = $colors->getColoredString('Hello, world!', Opus_Util_ConsoleColors::RED);
+        $output = $colors->getColoredString('Hello, world!', ConsoleColors::RED);
 
         $this->assertEquals("\033[0;31mHello, world!\033[0m", $output);
     }
 
     public function testGetColoredStringWithBackground()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->getColoredString(
             "Hello, world!",
-            Opus_Util_ConsoleColors::RED,
-            Opus_Util_ConsoleColors::BLUE
+            ConsoleColors::RED,
+            ConsoleColors::BLUE
         );
 
         $this->assertEquals("\033[0;31m\033[44mHello, world!\033[0m", $output);
@@ -107,8 +120,8 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
         $output = $colors->getColoredString(
             "Hello, world!",
-            Opus_Util_ConsoleColors::RED,
-            Opus_Util_ConsoleColors::RED
+            ConsoleColors::RED,
+            ConsoleColors::RED
         );
 
         $this->assertEquals("\033[0;31m\033[41mHello, world!\033[0m", $output);
@@ -116,7 +129,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testGetColoredStringWithUnknownColor()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->getColoredString('Hello, world!', 'orange');
 
@@ -125,7 +138,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testGetColoredStringWithoutMessage()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->getColoredString(null);
 
@@ -134,7 +147,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testGetColoredStringWithoutColors()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->getColoredString('Hello, world!');
 
@@ -143,7 +156,7 @@ class Opus_Util_ConsoleColorsTest extends SimpleTestCase
 
     public function testGetColoredStringWithCode()
     {
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = $this->colors;
 
         $output = $colors->getColoredString('Hello, world!', '0;35', '42');
 

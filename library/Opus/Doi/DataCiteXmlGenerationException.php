@@ -31,7 +31,9 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGenerationException extends Opus_Doi_DoiException
+namespace Opus\Doi;
+
+class DataCiteXmlGenerationException extends DoiException
 {
 
     private $xmlErrors;
