@@ -46,6 +46,9 @@ use Opus\Model\Dependent\Link\AbstractLinkModel;
  * @category    Framework
  * @package     Opus
  * @uses        \Opus\Db\Documents
+ *
+ * TODO IDEA shows '.d' in sub selects as error, because it cannot detect the declaration in constructor
+ *      maybe SQL string can be replaced by using the API (that would solve the problem) - OPUSVIER-4428
  */
 class DocumentFinder
 {
