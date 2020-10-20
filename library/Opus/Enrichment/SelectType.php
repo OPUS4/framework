@@ -85,9 +85,9 @@ class SelectType extends AbstractType
 
     public function getFormElement($value = null)
     {
-        $form = new Admin_Form_Document_Enrichment();
+        $form = new \Admin_Form_Document_Enrichment();
         $options = ['required' => true];
-        $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
+        $element = $form->createElement($this->getFormElementName(), \Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
 
         if (! is_null($this->values)) {
             $element->setMultiOptions($this->values);

@@ -57,9 +57,9 @@ class AbstractType implements TypeInterface
     {
         // Standardverhalten Text-Element, das nicht leer sein darf
 
-        $form = new Admin_Form_Document_Enrichment();
+        $form = new \Admin_Form_Document_Enrichment();
         $options = ['required' => true, 'size' => 60]; // FIXME required wenn checkbox?
-        $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
+        $element = $form->createElement($this->getFormElementName(), \Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
 
         if (! is_null($value)) {
             $element->setValue($value);
