@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# What does it do? Document! Where should it go?
+
 cd "$(dirname "${0}")"
 BASEDIR="$(pwd)"
 

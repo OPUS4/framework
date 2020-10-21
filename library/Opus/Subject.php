@@ -32,12 +32,18 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+
 /**
  * Domain model for document subjects in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
@@ -51,7 +57,7 @@
  * @method void setExternalKey(string $externalKey)
  * @method string getExternalKey()
  */
-class Opus_Subject extends Opus_Model_Dependent_Abstract
+class Subject extends AbstractDependentModel
 {
 
     const SWD = 'swd';
@@ -72,7 +78,7 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentSubjects';
 
     /**
      * Initialize model with the following fields:
@@ -85,14 +91,14 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $language = new Opus_Model_Field('Language');
-        if (Zend_Registry::isRegistered('Available_Languages') === true) {
-            $language->setDefault(Zend_Registry::get('Available_Languages'));
+        $language = new Field('Language');
+        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
+            $language->setDefault(\Zend_Registry::get('Available_Languages'));
         }
         $language->setSelection(true);
         $language->setMandatory(true);
 
-        $type = new Opus_Model_Field('Type');
+        $type = new Field('Type');
         $type->setMandatory(true);
         $type->setSelection(true);
         $type->setDefault([
@@ -101,11 +107,11 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
             'uncontrolled' => 'uncontrolled'
         ]);
 
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $externalKey = new Opus_Model_Field('ExternalKey');
+        $externalKey = new Field('ExternalKey');
 
         $this->addField($language)
             ->addField($type)
@@ -123,7 +129,7 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
      */
     public static function getMatchingSubjects($term, $type = 'swd', $limit = 20)
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
 
         $select = $table->select()
             ->from($table, ['value', 'external_key'])

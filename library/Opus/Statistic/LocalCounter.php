@@ -26,25 +26,31 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Statistic
+ * @package     Opus\Statistic
  * @author      Tobias Leidinger <tobias.leidinger@gmail.com>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Statistic;
+
+use Opus\Config;
+use Opus\Db\TableGateway;
+use Opus\Model\ModelException;
+
 /**
  * Controller for Opus Applications.
  *
  * @category    Framework
- * @package     Opus_Statistic
+ * @package     Opus\Statistic
  */
-class Opus_Statistic_LocalCounter
+class LocalCounter
 {
 
     /**
      * Holds instance of the class
-     * @var Statistic_LocalCounter
+     * @var LocalCounter
      */
     private static $localCounter = null;
 
@@ -105,12 +111,12 @@ class Opus_Statistic_LocalCounter
 
     /**
      *
-     * @return Opus_Statistic_LocalCounter
+     * @return LocalCounter
      */
     public static function getInstance()
     {
         if (self::$localCounter == null) {
-            self::$localCounter = new Opus_Statistic_LocalCounter();
+            self::$localCounter = new LocalCounter();
         }
         return self::$localCounter;
     }
@@ -186,8 +192,6 @@ class Opus_Statistic_LocalCounter
             }
         }
 
-
-
         $time = time();
         //determine whether it was a double click or not
         if ($this->isRedirectStatusOk($redirectStatus) == false) {
@@ -212,7 +216,7 @@ class Opus_Statistic_LocalCounter
         $year = date('Y', $time);
         $month = date('n', $time);
 
-        $ods = Opus_Db_TableGateway::getInstance("Opus_Db_DocumentStatistics");
+        $ods = TableGateway::getInstance("Opus\Db\DocumentStatistics");
         $db = $ods->getAdapter();
         $db->beginTransaction();
 
@@ -251,7 +255,7 @@ class Opus_Statistic_LocalCounter
 
             $db->commit();
             return $value;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $db->rollBack();
             print ($e->getMessage());
             return 0;
@@ -274,7 +278,7 @@ class Opus_Statistic_LocalCounter
         if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
-        $registry = Zend_Registry::getInstance();
+        $registry = \Zend_Registry::getInstance();
         $tempDir = $registry->get('temp_dir');
         //initialize log data
         $md5Ip = "h".md5($ip);
@@ -283,7 +287,7 @@ class Opus_Statistic_LocalCounter
         //TODO determine file type of file id
         $filetype = 'pdf';
 
-        $dom = new DOMDocument();
+        $dom = new\DOMDocument();
         if (is_readable($tempDir . '~localstat.xml') === false) {
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);
@@ -294,7 +298,7 @@ class Opus_Statistic_LocalCounter
         $xmlAccess = $dom->getElementsByTagName("access")->item(0);
         if (is_null($xmlAccess)) {
             $message = 'Error loading click-log "' . $tempDir . '~localstat.xml"';
-            throw new Opus\Model\Exception($message);
+            throw new ModelException($message);
         }
 
         //if global file access timestamp too old, the whole log file can be removed
@@ -352,7 +356,7 @@ class Opus_Statistic_LocalCounter
         $return = $dom->save($tempDir . '~localstat.xml');
         if ($return === false) {
             $message = 'Error saving click-log "' . $tempDir . '~localstat.xml"';
-            throw new Opus\Model\Exception($message);
+            throw new ModelException($message);
         }
 
         return $doubleClick;
@@ -368,7 +372,7 @@ class Opus_Statistic_LocalCounter
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
+        $ods = TableGateway::getInstance('Opus\Db\Documentstatistics');
         $select = $ods->select()->where('year = ?', $year)
             ->where('document_id = ?', $documentId)
             ->where('type = ?', $datatype)
@@ -393,7 +397,7 @@ class Opus_Statistic_LocalCounter
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
+        $ods = TableGateway::getInstance('Opus\Db\Documentstatistics');
 
         $select = $ods->select()
             ->from(['stat' => 'document_statistics'], ['count' => 'SUM(stat.count)'])
@@ -424,7 +428,7 @@ class Opus_Statistic_LocalCounter
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
+        $ods = TableGateway::getInstance('Opus\Db\Documentstatistics');
 
         $select = $ods->select()
             ->from(['stat' => 'document_statistics'], ['count' => 'SUM(stat.count)'])
@@ -450,7 +454,7 @@ class Opus_Statistic_LocalCounter
      */
     public function isLocalCounterEnabled()
     {
-        $config = Opus_Config::get();
+        $config = Config::get();
         if (isset($config->statistics->localCounterEnabled)) {
             return filter_var($config->statistics->localCounterEnabled, FILTER_VALIDATE_BOOLEAN);
         } else {

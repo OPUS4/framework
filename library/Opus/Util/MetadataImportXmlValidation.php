@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -32,7 +31,9 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Util_MetadataImportXmlValidation
+namespace Opus\Util;
+
+class MetadataImportXmlValidation
 {
 
     private $xml;
@@ -51,7 +52,7 @@ class Opus_Util_MetadataImportXmlValidation
         $useInternalErrors = libxml_use_internal_errors(true);
 
         if (! $this->xml->schemaValidate(__DIR__ . DIRECTORY_SEPARATOR . 'opus_import.xsd')) {
-            throw new Opus_Util_MetadataImportInvalidXmlException(self::getErrorMessage());
+            throw new MetadataImportInvalidXmlException(self::getErrorMessage());
         }
         libxml_use_internal_errors($useInternalErrors);
         libxml_clear_errors();

@@ -30,14 +30,23 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\File\Plugin;
+
+use Opus\File;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractPlugin;
+use Opus\UserRole;
+
 /**
  * Plugin for adding "default" privileges to a file.
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
+ *
+ * TODO NAMESPACE rename class
  */
-class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
+class DefaultAccess extends AbstractPlugin
 {
 
     use \Opus\LoggingTrait;
@@ -48,27 +57,27 @@ class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
      *
      * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus\Model\ModelInterface $model)
+    public function postStore(ModelInterface $model)
     {
-        // only index Opus_File instances
-        if (false === ($model instanceof Opus_File)) {
-            $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus_File');
+        // only index Opus\File instances
+        if (false === ($model instanceof File)) {
+            $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus\File');
             return;
         }
 
-        // only new Opus_File instances
+        // only new Opus\File instances
         if (true !== $model->isNewRecord()) {
             return;
         }
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
 
         if (! is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
             $roleName = $config->securityPolicy->files->defaultAccessRole;
 
             // Empty name -> don't set any role for access
             if (strlen(trim($roleName)) > 0) {
-                $accessRole = Opus_UserRole::fetchByName($roleName);
+                $accessRole = UserRole::fetchByName($roleName);
 
                 if (is_null($accessRole)) {
                     $this->getLogger()->err(

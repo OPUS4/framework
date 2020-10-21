@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,21 +33,25 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model\Dependent\Link;
+
+use Opus\UserRole;
+
 /**
  * Abstract class to linkt model account with model role in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  */
-class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Abstract
+class AccountRole extends AbstractLinkModel
 {
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkAccountsRoles';
+    protected static $_tableGatewayClass = 'Opus\Db\LinkAccountsRoles';
 
     /**
      * Primary key of the parent model.
@@ -61,7 +65,7 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_UserRole';
+    protected $_modelClass = 'Opus\UserRole';
 
     /**
      * The name of the field containing an identifying string.
@@ -79,9 +83,9 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
     protected function _init()
     {
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_UserRole($this->_primaryTableRow->role_id));
+            $this->setModel(new UserRole($this->_primaryTableRow->role_id));
         } else {
-            $this->setModel(new Opus_UserRole);
+            $this->setModel(new UserRole());
         }
     }
 

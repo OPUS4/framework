@@ -25,25 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Mail
+ * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Mail;
+
 /**
  * Override
  *
  * @category    Framework
- * @package     Opus_Mail_Transport
+ * @package     Opus\Mail\Transport
  *
  */
-class Opus_Mail_Transport extends Zend_Mail_Transport_Smtp
+class Transport extends \Zend_Mail_Transport_Smtp
 {
 
     /**
-     * Create a new Zend_Mail_Transport instance.
+     * Create a new \Zend_Mail_Transport instance.
      */
     public function __construct($config = null)
     {
@@ -63,7 +65,7 @@ class Opus_Mail_Transport extends Zend_Mail_Transport_Smtp
             $port = $config->port;
         }
 
-        Zend_Registry::get('Zend_Log')->info("Opus_Mail_Transport: Using mail server {$smtp}:{$port}");
+        \Zend_Registry::get('Zend_Log')->info(__CLASS__ . " Using mail server {$smtp}:{$port}");
 
         parent::__construct($smtp, ['port' => $port]);
     }

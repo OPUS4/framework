@@ -30,17 +30,21 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
 
 /**
  * Domain model for document subjects in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  */
-class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract
+class SubjectSwd extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
@@ -54,7 +58,7 @@ class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentSubjects';
 
     /**
      * Fields that should not be displayed on a form.
@@ -77,14 +81,14 @@ class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $language = new Opus_Model_Field('Language');
-        $type = new Opus_Model_Field('Type');
+        $language = new Field('Language');
+        $type = new Field('Type');
 
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $externalKey = new Opus_Model_Field('ExternalKey');
+        $externalKey = new Field('ExternalKey');
 
         $this->addField($language)
             ->addField($type)

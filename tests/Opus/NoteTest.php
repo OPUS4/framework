@@ -31,12 +31,18 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_NoteTest extends TestCase
+namespace OpusTest;
+
+use Opus\Document;
+use Opus\Note;
+use OpusTest\TestAsset\TestCase;
+
+class NoteTest extends TestCase
 {
 
     public function testSetVisibility()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $note = $doc->addNote();
         $note->setMessage('test note');
@@ -45,7 +51,7 @@ class Opus_NoteTest extends TestCase
         $docId = $doc->store();
 
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $notes = $doc->getNote();
 
@@ -54,14 +60,14 @@ class Opus_NoteTest extends TestCase
 
         $note = $notes[0];
 
-        $this->assertInstanceOf('Opus_Note', $note);
+        $this->assertInstanceOf('Opus\Note', $note);
 
         $this->assertEquals('public', $note->getVisibility());
     }
 
     public function testVisibilityDefault()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $note = $doc->addNote();
         $note->setMessage('test note');
@@ -69,7 +75,7 @@ class Opus_NoteTest extends TestCase
         $docId = $doc->store();
 
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $notes = $doc->getNote();
 
@@ -78,15 +84,15 @@ class Opus_NoteTest extends TestCase
 
         $note = $notes[0];
 
-        $this->assertInstanceOf('Opus_Note', $note);
+        $this->assertInstanceOf('Opus\Note', $note);
 
         $this->assertEquals('private', $note->getVisibility());
     }
 
     public function testToArray()
     {
-        $note = new Opus_Note();
-        $note->setVisibility(Opus_Note::ACCESS_PUBLIC);
+        $note = new Note();
+        $note->setVisibility(Note::ACCESS_PUBLIC);
         $note->setMessage('a public message');
 
         $data = $note->toArray();
@@ -99,13 +105,13 @@ class Opus_NoteTest extends TestCase
 
     public function testFromArray()
     {
-        $note = Opus_Note::fromArray([
+        $note = Note::fromArray([
             'Visibility' => 'private',
             'Message' => 'a private message'
         ]);
 
         $this->assertNotNull($note);
-        $this->assertInstanceOf('Opus_Note', $note);
+        $this->assertInstanceOf('Opus\Note', $note);
 
         $this->assertEquals('private', $note->getVisibility());
         $this->assertEquals('a private message', $note->getMessage());
@@ -113,7 +119,7 @@ class Opus_NoteTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $note = new Opus_Note();
+        $note = new Note();
 
         $note->updateFromArray([
             'Visibility' => 'private',
@@ -121,7 +127,7 @@ class Opus_NoteTest extends TestCase
         ]);
 
         $this->assertNotNull($note);
-        $this->assertInstanceOf('Opus_Note', $note);
+        $this->assertInstanceOf('Opus\Note', $note);
 
         $this->assertEquals('private', $note->getVisibility());
         $this->assertEquals('a private message', $note->getMessage());

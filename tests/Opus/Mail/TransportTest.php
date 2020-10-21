@@ -25,22 +25,26 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Mail
+ * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace OpusTest\Mail;
+
+use Opus\Mail\Transport;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Test cases for class Opus_Mail_Transport.
+ * Test cases for class Opus\Mail\Transport.
  *
  * @category Tests
- * @package  Opus_Mail
+ * @package  Opus\Mail
  *
  * @group    MailSendMailTest
  */
-class Opus_Mail_TransportTest extends TestCase
+class TransportTest extends TestCase
 {
 
     /**
@@ -56,16 +60,16 @@ class Opus_Mail_TransportTest extends TestCase
 
     public function testConstructorWoConfig()
     {
-        $transport = new Opus_Mail_Transport();
+        $transport = new Transport();
     }
 
     public function testConstructorWithConfig()
     {
-        $config = new Zend_Config([
+        $config = new \Zend_Config([
                 'smtp' => 'foobar',
                 'port' => 25252,
         ]);
 
-        $transport = new Opus_Mail_Transport($config);
+        $transport = new Transport($config);
     }
 }

@@ -33,19 +33,25 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_VersionTest extends TestCase
+namespace OpusTest;
+
+use Opus\Database;
+use Opus\Version;
+use OpusTest\TestAsset\TestCase;
+
+class VersionTest extends TestCase
 {
 
     public function testCompareVersion()
     {
-        $this->assertEquals(1, Opus_Version::compareVersion('5.0')); // greater
-        $this->assertEquals(-1, Opus_Version::compareVersion('4.0')); // smaller
-        $this->assertEquals(0, Opus_Version::compareVersion(Opus_Version::VERSION)); // same
+        $this->assertEquals(1, Version::compareVersion('5.0')); // greater
+        $this->assertEquals(-1, Version::compareVersion('4.0')); // smaller
+        $this->assertEquals(0, Version::compareVersion(Version::VERSION)); // same
     }
 
     public function testGetSchemaVersion()
     {
-        $version = Opus_Version::getSchemaVersion();
+        $version = Version::getSchemaVersion();
 
         $this->assertInternalType('string', $version);
         $this->assertTrue(ctype_digit($version));
@@ -53,7 +59,7 @@ class Opus_VersionTest extends TestCase
 
     public function testSchemaVersionInUpdateScriptMatchesName()
     {
-        $update = new Opus_Database();
+        $update = new Database();
 
         $scripts = $update->getUpdateScripts();
 
@@ -91,9 +97,9 @@ class Opus_VersionTest extends TestCase
 
     public function testSchemaVersionMatchesHighestScript()
     {
-        $version = Opus_Version::getSchemaVersion();
+        $version = Version::getSchemaVersion();
 
-        $update = new Opus_Database();
+        $update = new Database();
 
         $scripts = $update->getUpdateScripts();
 

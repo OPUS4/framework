@@ -25,25 +25,45 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest\Model;
+
+use Opus\Document;
+use Opus\Model\Properties;
+use Opus\Model\PropertiesException;
+use Opus\Model\UnknownModelTypeException;
+use Opus\Model\UnknownPropertyKeyException;
+use Opus\Person;
+use Opus\Version;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Class Opus_Model_PropertiesTest
+ * Class Opus\Model\PropertiesTest
  *
  * TODO test database adapter problems - is the exception caught and another thrown?
  */
-class Opus_Model_PropertiesTest extends TestCase
+class PropertiesTest extends TestCase
 {
+
+    protected $properties;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->properties = new Properties();
+    }
 
     public function testRegisterType()
     {
         $type = 'document';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $types = $properties->getTypes();
 
@@ -71,7 +91,7 @@ class Opus_Model_PropertiesTest extends TestCase
     {
         $type = 'person';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType($type);
         $properties->registerType($type);
@@ -87,7 +107,7 @@ class Opus_Model_PropertiesTest extends TestCase
         $type = 'identifier';
         $type2 = 'document';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType($type);
         $properties->registerType($type2);
@@ -110,18 +130,18 @@ class Opus_Model_PropertiesTest extends TestCase
         $type = 'document';
         $unknownType = 'patent';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType($type);
 
-        $this->setExpectedException(Opus_Model_UnknownModelTypeException::class, $unknownType);
+        $this->setExpectedException(UnknownModelTypeException::class, $unknownType);
 
         $properties->unregisterType($unknownType);
     }
 
     public function testUnregisterTypeRemovesModelProperties()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $docType = 'document';
         $key = 'testkey';
@@ -131,10 +151,10 @@ class Opus_Model_PropertiesTest extends TestCase
         $properties->registerType($personType);
         $properties->registerKey($key);
 
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->store();
 
-        $person = new Opus_Person();
+        $person = Person::new();
         $person->setLastName('Doe');
         $person->store();
 
@@ -163,7 +183,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetTypes()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
         $properties->registerType('person');
@@ -179,7 +199,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetTypesReturnsEmptyArray()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $types = $properties->getTypes();
 
@@ -191,7 +211,7 @@ class Opus_Model_PropertiesTest extends TestCase
     {
         $key = 'extracted';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $keys = $properties->getKeys();
 
@@ -219,7 +239,7 @@ class Opus_Model_PropertiesTest extends TestCase
     {
         $key = 'extracted';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerKey($key);
         $properties->registerKey($key);
@@ -244,12 +264,12 @@ class Opus_Model_PropertiesTest extends TestCase
 
     /**
      * @param $key
-     * @throws Zend_Db_Adapter_Exception
+     * @throws \Zend_Db_Adapter_Exception
      * @dataProvider validKeyProvider
      */
     public function testRegisterKeyValidKey($key)
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerKey($key);
 
@@ -273,14 +293,14 @@ class Opus_Model_PropertiesTest extends TestCase
 
     /**
      * @param $key
-     * @throws Zend_Db_Adapter_Exception
+     * @throws \Zend_Db_Adapter_Exception
      * @dataProvider invalidKeyProvider
      */
     public function testRegisterKeyInvalidKey($key)
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $this->setExpectedException(InvalidArgumentException::class, $key);
+        $this->setExpectedException(\InvalidArgumentException::class, $key);
 
         $properties->registerKey($key);
     }
@@ -290,7 +310,7 @@ class Opus_Model_PropertiesTest extends TestCase
         $key = 'extracted';
         $key2 = 'source';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerKey($key);
         $properties->registerKey($key2);
@@ -315,13 +335,13 @@ class Opus_Model_PropertiesTest extends TestCase
         $key = 'extracted';
         $key2 = 'source';
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
         $properties->registerKey($key);
         $properties->registerKey($key2);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $properties->setProperty($model, $key, 'yes');
@@ -341,18 +361,18 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testUnregisterUnknownKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'unknown';
 
-        $this->setExpectedException(Opus_Model_UnknownPropertyKeyException::class, $key);
+        $this->setExpectedException(UnknownPropertyKeyException::class, $key);
 
         $properties->unregisterKey($key);
     }
 
     public function testGetKeys()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerKey('key1');
         $properties->registerKey('key2');
@@ -368,7 +388,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetKeysReturnsEmptyArray()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $keys = $properties->getKeys();
 
@@ -378,16 +398,16 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetProperties()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
         $properties->registerKey('key1');
         $properties->registerKey('key2');
 
-        $model = new Opus_Document();
-        $model = new Opus_Document($model->store());
+        $model = Document::new();
+        $model = Document::get($model->store());
 
-        $model2 = new Opus_Document();
+        $model2 = Document::new();
         $model2->store();
 
         $properties->setProperty($model, 'key1', 'value1');
@@ -404,11 +424,11 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetPropertiesUnknownModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $props = $properties->getProperties($model);
@@ -419,12 +439,12 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetProperty()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $model2 = new Opus_Document();
+        $model2 = Document::new();
         $model2->store();
 
         $key = 'extracted';
@@ -446,53 +466,53 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetPropertyModelNull()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
 
         $properties->registerKey($key);
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Model argument must not be null');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Model argument must not be null');
 
         $properties->setProperty(null, $key, 'testvalue');
     }
 
     public function testSetPropertyKeyNull()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Key argument must not be null');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Key argument must not be null');
 
         $properties->setProperty($model, null, 'testvalue');
     }
 
     public function testSetPropertyModelAndKeyNull()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Model argument must not be null');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Model argument must not be null');
 
         $properties->setProperty(null, null, 'testvalue');
     }
 
     public function testSetPropertyUnknownModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testKey';
 
         $properties->registerKey($key);
 
-        $model = new Opus_Version(); // Not a Opus_Model_Abstract class
+        $model = new Version(); // Not a \Opus\Model\AbstractModel class
 
         $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Model argument must be of type Opus_Model_PropertySupportInterface'
+            \InvalidArgumentException::class,
+            'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
         $properties->setProperty($model, $key, 'testvalue');
@@ -500,30 +520,30 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetPropertyUnknownKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
         $properties->registerKey('knownkey');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $this->setExpectedException(Opus_Model_UnknownPropertyKeyException::class, 'unknownKey');
+        $this->setExpectedException(UnknownPropertyKeyException::class, 'unknownKey');
 
         $properties->setProperty($model, 'unknownKey', 'testvalue');
     }
 
     public function testSetPropertyUnknownModelAndUnknownKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testKey'; // not registered
 
-        $model = new Opus_Version(); // Not a Opus_Model_Abstract class
+        $model = new Version(); // Not a \Opus\Model\AbstractModel class
 
         $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Model argument must be of type Opus_Model_PropertySupportInterface'
+            \InvalidArgumentException::class,
+            'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
         $properties->setProperty($model, $key, 'testvalue');
@@ -531,32 +551,32 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetPropertyForModelWithoutId()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
 
-        $model = new Opus_Document();
+        $model = Document::new();
 
         $properties->registerType('document');
         $properties->registerKey($key);
 
-        $this->setExpectedException(Opus_Model_PropertiesException::class, 'Model ID is null');
+        $this->setExpectedException(PropertiesException::class, 'Model ID is null');
 
         $properties->setProperty($model, $key, 'testvalue');
     }
 
     public function testGetProperty()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
         $value = 'testvalue';
         $value2 = 'testvalue2';
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $model2 = new Opus_Document();
+        $model2 = Document::new();
         $model2->store();
 
         $properties->registerType('document');
@@ -573,7 +593,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetPropertyNotSet()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
         $key2 = 'key2';
@@ -581,7 +601,7 @@ class Opus_Model_PropertiesTest extends TestCase
         $properties->registerKey($key);
         $properties->registerKey($key2);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $properties->registerType('document');
@@ -592,14 +612,14 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetPropertyUnknownModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
 
         $properties->registerType('document');
         $properties->registerKey($key);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $this->assertNull($properties->getProperty($model, $key));
@@ -607,33 +627,33 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetPropertyUnknownKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $unknownKey = 'unknownKey';
 
-        $this->setExpectedException(Opus_Model_UnknownPropertyKeyException::class, $unknownKey);
+        $this->setExpectedException(UnknownPropertyKeyException::class, $unknownKey);
 
         $properties->getProperty($model, $unknownKey);
     }
 
     public function testGetPropertyUnsupportedModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testKey';
 
         $properties->registerKey($key);
 
-        $model = new Opus_Version(); // Does not implement interface
+        $model = new Version(); // Does not implement interface
 
         $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Model argument must be of type Opus_Model_PropertySupportInterface'
+            \InvalidArgumentException::class,
+            'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
         $properties->getProperty($model, $key);
@@ -641,32 +661,32 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testGetPropertyForModelWithoutId()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
 
-        $model = new Opus_Document();
+        $model = Document::new();
 
         $properties->registerType('document');
         $properties->registerKey($key);
 
-        $this->setExpectedException(Opus_Model_PropertiesException::class, 'Model ID is null');
+        $this->setExpectedException(PropertiesException::class, 'Model ID is null');
 
         $properties->getProperty($model, $key);
     }
 
     public function testRemoveProperties()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
         $properties->registerKey('key1');
         $properties->registerKey('key2');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $model2 = new Opus_Document();
+        $model2 = Document::new();
         $model2->store();
 
         $properties->setProperty($model, 'key1', 'value1');
@@ -690,11 +710,11 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRemovePropertiesUnknownModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         // model does not have properties (is not known in table) - nothing should happen
@@ -705,13 +725,13 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRemovePropertiesUnsupportedModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $model = new Opus_Version();
+        $model = new Version();
 
         $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Model argument must be of type Opus_Model_PropertySupportInterface'
+            \InvalidArgumentException::class,
+            'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
         $properties->getProperties($model);
@@ -719,20 +739,20 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRemovePropertiesForModelWithoutId()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $model = new Opus_Document();
+        $model = Document::new();
 
         $properties->registerType('document');
 
-        $this->setExpectedException(Opus_Model_PropertiesException::class, 'Model ID is null');
+        $this->setExpectedException(PropertiesException::class, 'Model ID is null');
 
         $properties->removeProperties($model);
     }
 
     public function testRemoveProperty()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
         $key2 = 'key2';
@@ -741,10 +761,10 @@ class Opus_Model_PropertiesTest extends TestCase
         $properties->registerKey($key);
         $properties->registerKey($key2);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $model2 = new Opus_Document();
+        $model2 = Document::new();
         $model2->store();
 
         $properties->setProperty($model, $key, 'testvalue');
@@ -770,7 +790,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetPropertyNullRemovesProperty()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
         $key2 = 'key2';
@@ -779,7 +799,7 @@ class Opus_Model_PropertiesTest extends TestCase
         $properties->registerKey($key);
         $properties->registerKey($key2);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $properties->setProperty($model, $key, 'testvalue');
@@ -799,7 +819,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRemovePropertyUnknownModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->registerType('document');
 
@@ -807,10 +827,10 @@ class Opus_Model_PropertiesTest extends TestCase
 
         $properties->registerKey($key);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $model2 = new Opus_Document();
+        $model2 = Document::new();
         $model2->store();
 
         $properties->setProperty($model2, $key, 'testvalue');
@@ -824,17 +844,17 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRemovePropertyUnsupportedModel()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
 
         $properties->registerKey($key);
 
-        $model = new Opus_Version();
+        $model = new Version();
 
         $this->setExpectedException(
-            InvalidArgumentException::class,
-            'Model argument must be of type Opus_Model_PropertySupportInterface'
+            \InvalidArgumentException::class,
+            'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
         $properties->removeProperty($model, $key);
@@ -842,32 +862,32 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRemovePropertyUnknownKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $unknownKey = 'testkey';
 
         $properties->registerType('document');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
-        $this->setExpectedException(Opus_Model_UnknownPropertyKeyException::class, $unknownKey);
+        $this->setExpectedException(UnknownPropertyKeyException::class, $unknownKey);
 
         $properties->removeProperty($model, $unknownKey);
     }
 
     public function testRemovePropertyModelWithoutId()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
 
-        $model = new Opus_Document();
+        $model = Document::new();
 
         $properties->registerType('document');
         $properties->registerKey($key);
 
-        $this->setExpectedException(Opus_Model_PropertiesException::class, 'Model ID is null');
+        $this->setExpectedException(PropertiesException::class, 'Model ID is null');
 
         $properties->removeProperty($model, $key);
     }
@@ -877,7 +897,7 @@ class Opus_Model_PropertiesTest extends TestCase
      */
     public function testFindModels()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key = 'testkey';
         $value = 'testvalue';
@@ -887,7 +907,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
         $expected = [];
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $modelId = $model->store();
         $properties->setProperty($model, $key, $value);
 
@@ -903,7 +923,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRenameKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $oldKey = 'oldkey';
         $newKey = 'newkey';
@@ -915,7 +935,7 @@ class Opus_Model_PropertiesTest extends TestCase
             $oldKey
         ], $properties->getKeys());
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $properties->setProperty($model, $oldKey, 'testvalue');
@@ -937,7 +957,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testRenameKeyInvalidNewKey()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $oldKey = 'oldkey';
         $invalidKey = 'invalid..key';
@@ -949,7 +969,7 @@ class Opus_Model_PropertiesTest extends TestCase
             $oldKey
         ], $properties->getKeys());
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $properties->setProperty($model, $oldKey, 'testvalue');
@@ -958,18 +978,18 @@ class Opus_Model_PropertiesTest extends TestCase
             $oldKey => 'testvalue'
         ], $properties->getProperties($model));
 
-        $this->setExpectedException(InvalidArgumentException::class, $invalidKey);
+        $this->setExpectedException(\InvalidArgumentException::class, $invalidKey);
 
         $properties->renameKey($oldKey, $invalidKey);
     }
 
     public function testGetKeyId()
     {
-        $reflect = new ReflectionClass(Opus_Model_Properties::class);
+        $reflect = new \ReflectionClass(Properties::class);
         $method = $reflect->getMethod('getKeyId');
         $method->setAccessible(true);
 
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $key1 = 'key1';
         $key2 = 'key2';
@@ -986,14 +1006,14 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testIsAutoRegisterTypeEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $this->assertFalse($properties->isAutoRegisterTypeEnabled());
     }
 
     public function testSetAutoRegisterTypeEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->setAutoRegisterTypeEnabled(true);
 
@@ -1002,32 +1022,32 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetAutoRegisterTypeEnabledWithNullArgument()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Argument must not be null');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must not be null');
 
         $properties->setAutoRegisterTypeEnabled(null);
     }
 
     public function testSetAutoRegisterTypeEnabledWithBadArgument()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Argument must be boolean');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must be boolean');
 
         $properties->setAutoRegisterTypeEnabled('123');
     }
 
     public function testIsAutoRegisterKeyEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $this->assertFalse($properties->isAutoRegisterKeyEnabled());
     }
 
     public function testSetAutoRegisterKeyEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
         $properties->setAutoRegisterKeyEnabled(true);
 
@@ -1036,25 +1056,25 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetAutoRegisterKeyEnabledWithNullArgument()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Argument must not be null');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must not be null');
 
         $properties->setAutoRegisterKeyEnabled(null);
     }
 
     public function testSetAutoRegisterKeyEnabledWithBadArgument()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Argument must be boolean');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must be boolean');
 
         $properties->setAutoRegisterKeyEnabled('test');
     }
 
     public function testSetPropertyAutoRegisterTypeEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
         $properties->setAutoRegisterTypeEnabled(true);
 
         $key = 'testkey';
@@ -1062,7 +1082,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
         $properties->registerKey($key);
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $this->assertEquals([], $properties->getTypes());
@@ -1078,7 +1098,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetPropertyAutoRegisterKeyEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
         $properties->setAutoRegisterKeyEnabled(true);
 
         $key = 'testkey';
@@ -1086,7 +1106,7 @@ class Opus_Model_PropertiesTest extends TestCase
 
         $properties->registerType('document');
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $this->assertEquals([], $properties->getKeys());
@@ -1102,14 +1122,15 @@ class Opus_Model_PropertiesTest extends TestCase
 
     public function testSetPropertyAutoRegisterEnabled()
     {
-        $properties = new Opus_Model_Properties();
+        $properties = $this->properties;
+
         $properties->setAutoRegisterTypeEnabled(true);
         $properties->setAutoRegisterKeyEnabled(true);
 
         $key = 'testkey';
         $value = 'testvalue';
 
-        $model = new Opus_Document();
+        $model = Document::new();
         $model->store();
 
         $this->assertEquals([], $properties->getKeys());

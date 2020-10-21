@@ -31,12 +31,17 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_DatabaseTest extends TestCase
+namespace OpusTest;
+
+use Opus\Database;
+use OpusTest\TestAsset\TestCase;
+
+class DatabaseTest extends TestCase
 {
 
     public function testGetSqlFiles()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
 
@@ -46,7 +51,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetUpdateScripts()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $scripts = $database->getUpdateScripts();
 
@@ -60,7 +65,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetUpdateScriptsSorting()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $scripts = $database->getUpdateScripts();
 
@@ -77,7 +82,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetUpdateScriptsFrom()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $scripts = $database->getUpdateScripts(2);
 
@@ -93,7 +98,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetUpdateScriptsFromTo()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $scripts = $database->getUpdateScripts(1, 2);
 
@@ -106,7 +111,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetUpdateScriptsUntil()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $scripts = $database->getUpdateScripts(null, 2);
 
@@ -121,13 +126,13 @@ class Opus_DatabaseTest extends TestCase
     }
 
     /**
-     * @expectedException PDOException
+     * @expectedException \PDOException
      */
     public function testBadSqlThrowsException()
     {
         $this->markTestIncomplete('exec function does not throw exceptions yet');
 
-        $database = new Opus_Database();
+        $database = new Database();
 
         $sql = 'SELECT * FROM `schema_version2`';
 
@@ -136,12 +141,12 @@ class Opus_DatabaseTest extends TestCase
 
     /**
      * Tests if an error in multiple statements is reported.
-     * @expectedException PDOException
+     * @expectedException \PDOException
      * @expectedExceptionMessage schema_ver' doesn't exist
      */
     public function testPdoExecErrorReportingFirstStatement()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $pdo = $database->getPdo($database->getName());
 
@@ -155,7 +160,7 @@ class Opus_DatabaseTest extends TestCase
      */
     public function testPdoExecErrorReportingSecondStatement()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $pdo = $database->getPdo($database->getName());
 
@@ -173,12 +178,12 @@ class Opus_DatabaseTest extends TestCase
     /**
      * Using 'query' function produces exceptions when iterating through statements.
      *
-     * @expectedException PDOException
+     * @expectedException \PDOException
      * @expectedExceptionMessage schema_ver' doesn't exist
      */
     public function testPdoQueryErrorReporting()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $pdo = $database->getPdo($database->getName());
 
@@ -193,7 +198,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testPdoQueryErrorReportingExecutionAfterError()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $pdo = $database->getPdo($database->getName());
 
@@ -208,7 +213,7 @@ class Opus_DatabaseTest extends TestCase
             $statement->nextRowset();
 
             $this->fail('Should have thrown exception.');
-        } catch (PDOException $pdoex) {
+        } catch (\PDOException $pdoex) {
         }
 
         $this->assertFalse($statement->nextRowset());
@@ -217,7 +222,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testPdoQueryIteratingResults()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $pdo = $database->getPdo($database->getName());
 
@@ -237,7 +242,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetVersion()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $database->exec(
             'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_version` (`version`) VALUES (\'5\');'
@@ -258,7 +263,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetVersionNullForOldDatabase()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $version = $database->getVersion();
 
@@ -267,7 +272,7 @@ class Opus_DatabaseTest extends TestCase
 
     public function testGetLatestVersion()
     {
-        $database = new Opus_Database();
+        $database = new Database();
 
         $scripts = $database->getUpdateScripts();
 

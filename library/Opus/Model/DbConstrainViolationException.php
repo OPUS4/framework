@@ -25,21 +25,22 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Model;
 
 /**
- * Exception type for Opus_Model.
+ * Exception type for Opus\Model.
  *
  * @category Framework
- * @package  Opus_Model
+ * @package  Opus\Model
  *
  * TODO pretty sure it should be 'Constraint' (+'t')
  */
-class Opus_Model_DbConstrainViolationException extends Opus_Model_DbException
+class DbConstrainViolationException extends DbException
 {
 }

@@ -25,20 +25,22 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Doi
+ * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGeneratorInterface
+namespace Opus\Doi\Generator;
+
+class DefaultGenerator implements DoiGeneratorInterface
 {
 
     private $config;
 
     public function __construct()
     {
-        $this->config = Zend_Registry::get('Zend_Config');
+        $this->config = \Zend_Registry::get('Zend_Config');
     }
 
     /**
@@ -58,7 +60,7 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
      * Der Konfigurationsparameter doi.suffixFormat wird von dieser DOI-Generierungsklasse NICHT berücksichtigt.
      * Er ist fest auf {docId} gesetzt.
      *
-     * @throws Opus_Doi_Generator_DoiGeneratorException
+     * @throws DoiGeneratorException
      */
     public function generate($document)
     {
@@ -78,7 +80,7 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
     {
         try {
             $prefix = $this->getPrefix();
-        } catch (Opus_Doi_Generator_DoiGeneratorException $odgd) {
+        } catch (DoiGeneratorException $odgd) {
             // if no local prefix is configured, no DOI is local
             return false;
         }
@@ -91,12 +93,12 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
     /**
      * Returns compound prefix for DOIs.
      * @return string
-     * @throws Opus_Doi_Generator_DoiGeneratorException
+     * @throws DoiGeneratorException
      */
     public function getPrefix()
     {
         if (! isset($this->config->doi->prefix) or strlen(trim($this->config->doi->prefix)) === 0) {
-            throw new Opus_Doi_Generator_DoiGeneratorException(
+            throw new DoiGeneratorException(
                 'configuration setting doi.prefix is missing - DOI cannot be generated'
             );
         }

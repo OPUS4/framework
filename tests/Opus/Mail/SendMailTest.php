@@ -25,22 +25,26 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Mail
+ * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2009-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace OpusTest\Mail;
+
+use Opus\Mail\SendMail;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Test cases for class Opus_Mail.
+ * Test cases for class Opus\Mail.
  *
  * @category Tests
- * @package  Opus_Mail
+ * @package  Opus\Mail
  *
  * @group    MailSendMailTest
  */
-class Opus_Mail_SendMailTest extends TestCase
+class SendMailTest extends TestCase
 {
 
     protected $_config_dummy = null;
@@ -53,7 +57,7 @@ class Opus_Mail_SendMailTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_config_dummy = new Zend_Config([
+        $this->_config_dummy = new \Zend_Config([
             'mail' => [ 'opus' => [
                 'smtp' => 'host.does.not.exists.hopefully',
                 'port' => 22,
@@ -66,8 +70,8 @@ class Opus_Mail_SendMailTest extends TestCase
      */
     public function testConstructor()
     {
-        Zend_Registry::set('Zend_Config', $this->_config_dummy);
-        $mail = new Opus_Mail_SendMail();
+        \Zend_Registry::set('Zend_Config', $this->_config_dummy);
+        $mail = new SendMail();
     }
 
     /**
@@ -75,8 +79,8 @@ class Opus_Mail_SendMailTest extends TestCase
      */
     public function testConstructorWoConfig()
     {
-        Zend_Registry::set('Zend_Config', null);
-        $mail = new Opus_Mail_SendMail();
+        \Zend_Registry::set('Zend_Config', null);
+        $mail = new SendMail();
     }
 
     /**
@@ -84,9 +88,9 @@ class Opus_Mail_SendMailTest extends TestCase
      */
     public function testSendmailWoParameters()
     {
-        Zend_Registry::set('Zend_Config', null);
-        $mail = new Opus_Mail_SendMail();
-        $this->setExpectedException('Opus_Mail_Exception');
+        \Zend_Registry::set('Zend_Config', null);
+        $mail = new SendMail();
+        $this->setExpectedException('Opus\Mail\MailException');
         $mail->sendMail(null, null, null, null, null);
     }
 
@@ -95,8 +99,8 @@ class Opus_Mail_SendMailTest extends TestCase
      */
     public function testSendmailRemoteHostDoesNotExist()
     {
-        $mail = new Opus_Mail_SendMail();
-        $this->setExpectedException('Opus_Mail_Exception');
+        $mail = new SendMail();
+        $this->setExpectedException('Opus\Mail\MailException');
         $mail->sendMail(
             'Sender',
             'sender@does.not.exists.hopefully.mil',
@@ -114,10 +118,10 @@ class Opus_Mail_SendMailTest extends TestCase
      */
     public function testSendMailNoMailFrom()
     {
-        $mail = new Opus_Mail_SendMail();
+        $mail = new SendMail();
         $recipient = ['recipients' => ['address' => 'recipient@testmail.de', 'name' => 'John R. Public']];
 
-        $this->setExpectedException('Opus_Mail_Exception');
+        $this->setExpectedException('Opus\Mail\MailException');
         $mail->sendMail('', 'John S. Public', 'My subject', 'My Text', $recipient);
     }
 
@@ -126,10 +130,10 @@ class Opus_Mail_SendMailTest extends TestCase
      */
     public function testSendMailNoMailBody()
     {
-        $mail = new Opus_Mail_SendMail();
+        $mail = new SendMail();
         $recipient = ['recipients' => ['address' => 'recipient@testmail.de', 'name' => 'John R. Public']];
 
-        $this->setExpectedException('Opus_Mail_Exception');
+        $this->setExpectedException('Opus\Mail\MailException');
         $mail->sendMail('recipient@testmail.de', 'John S. Public', '', 'My Text', $recipient);
     }
 
@@ -140,12 +144,12 @@ class Opus_Mail_SendMailTest extends TestCase
     {
         $recipient = ['recipients' => ['address' => 'recipient@testmail.de', 'name' => 'John R. Public']];
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         if (! isset($config, $config->mail->opus)) {
             $this->markTestSkipped('Test mail server is not configured yet.');
         }
 
-        $mail = new Opus_Mail_SendMail();
+        $mail = new SendMail();
         $mail->sendMail('recipient@testmail.de', 'John S. Public', 'Mail Body', 'My Text', $recipient);
     }
 }

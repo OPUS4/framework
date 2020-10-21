@@ -34,26 +34,36 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Document\Plugin;
+
+use Opus\Document;
+use Opus\Document\DocumentException;
+use Opus\Identifier;
+use Opus\Identifier\Urn;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractPlugin;
+use Opus\Model\Plugin\ServerStateChangeListener;
+
 /**
  * Plugin for generating identifier urn.
  *
  * @category    Framework
- * @package     Opus_Document_Plugin
- * @uses        Opus\Model\Plugin\AbstractPlugin
+ * @package     Opus\Document_Plugin
+ * @uses        \Opus\Model\Plugin\AbstractPlugin
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus\Model\Plugin\AbstractPlugin implements \Opus\Model\Plugin\ServerStateChangeListener
+class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListener
 {
 
     /**
      * Generates a new URN for any document that has no URN assigned yet.
-     * URN's are generated for Opus_Document instances only.
+     * URN's are generated for Opus\Document instances only.
      */
-    public function postStoreInternal(Opus\Model\ModelInterface $model)
+    public function postStoreInternal(ModelInterface $model)
     {
 
-        $log = Zend_Registry::get('Zend_Log');
+        $log = \Zend_Registry::get('Zend_Log');
 
-        if (! ($model instanceof Opus_Document)) {
+        if (! ($model instanceof Document)) {
             $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
             return;
         }
@@ -76,7 +86,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus\Model\Plugin\AbstractPlugi
             $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
         }
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         if (is_null($generateUrn)) {
             // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
             $generateUrn = (isset($config->urn->autoCreate) && filter_var($config->urn->autoCreate, FILTER_VALIDATE_BOOLEAN));
@@ -88,7 +98,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus\Model\Plugin\AbstractPlugi
         }
 
         if (! isset($config->urn->nid) || ! isset($config->urn->nss)) {
-            throw new Opus_Document_Exception('URN data is not present in config. Aborting...');
+            throw new DocumentException('URN data is not present in config. Aborting...');
             // FIXME hier sollte keine Exception geworfen werden, weil sonst
             //       die Ausführung aller nachfolgenden Plugins im Plugin-Array abgebrochen wird
             //       Plugins werden nämlich in Schleife nacheinander aufgerufen (ohne Exception Handling zwischen
@@ -115,9 +125,9 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus\Model\Plugin\AbstractPlugi
         $nid = $config->urn->nid;
         $nss = $config->urn->nss;
 
-        $urn = new Opus_Identifier_Urn($nid, $nss);
+        $urn = new Urn($nid, $nss);
         $urn_value = $urn->getUrn($model->getId());
-        $urn_model = new Opus_Identifier();
+        $urn_model = new Identifier();
         $urn_model->setValue($urn_value);
         $urn_model->setType('urn');
         $model->addIdentifier($urn_model);

@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,14 +33,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class for link table "link_ipadresses_roles".
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway
+class LinkIprangesRoles extends TableGateway
 {
     /**
      * DB table name.
@@ -65,12 +67,12 @@ class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway
     protected $_referenceMap = [
         'Ipranges' => [
             'columns' => 'iprange_id',
-            'refTableClass' => 'Opus_Db_Ipranges',
+            'refTableClass' => 'Opus\Db\Ipranges',
             'refColumns' => 'id',
         ],
         'Roles' => [
             'columns' => 'role_id',
-            'refTableClass' => 'Opus_Db_UserRoles',
+            'refTableClass' => 'Opus\Db\UserRoles',
             'refColumns' => 'id'
         ]
     ];

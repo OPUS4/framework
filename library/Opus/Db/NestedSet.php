@@ -25,18 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category  Framework
- * @package   Opus_Db
+ * @package   Opus\Db
  * @author    Thoralf Klein <thoralf.klein@zib.de>
  * @copyright Copyright (c) 2010-2018, OPUS 4 development team
  * @license   http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
+use Opus\Model\ModelException;
+use Opus\Model\DbException;
+
 /**
  * Table gateway class to nested sets.
  *
  * @category Framework
- * @package  Opus_Db
- * @uses     Zend_Db_Table_Abstract
+ * @package  Opus\Db
+ * @uses     \Zend_Db_Table_Abstract
  *
  * WARNING: This class does not use transactions.  If you want to be transaction
  * WARNING: safe, beginTransaction() before using methods from here and commit()
@@ -49,7 +54,7 @@
  * ANOTHER WARNING: or submitting NULL values.
  *
  */
-abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
+abstract class NestedSet extends \Zend_Db_Table_Abstract
 {
 
     /**
@@ -95,7 +100,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      * Override setup logic.
      *
      * @return void
-     * @see    Zend_Db_Table_Abstract::_setup()
+     * @see    \Zend_Db_Table_Abstract::_setup()
      */
     protected function _setup()
     {
@@ -113,8 +118,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @param  int $id Primary key of the node.
      *
-     * @throws Opus\Model\Exception
-     * @return Zend_Db_Row
+     * @throws \Exception
+     * @return \Zend_Db_Table_Row_Abstract
      */
     private function getNodeById($id)
     {
@@ -122,7 +127,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
         $row = $this->fetchRow($select);
 
         if (true === is_null($row)) {
-            throw new Opus\Model\Exception("Node $id not found.");
+            throw new ModelException("Node $id not found.");
         }
 
         return $row;
@@ -134,8 +139,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @param  int $treeId ID of tree you want to use.
      *
-     * @throws Opus\Model\Exception
-     * @return Zend_Db_Row
+     * @throws \Exception
+     * @return \Zend_Db_Table_Row_Abstract
      */
     public function getRootNode($treeId)
     {
@@ -150,7 +155,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @param  int $id Primary key of the node.
      *
-     * @return Zend_Db_Table_Select
+     * @return \Zend_Db_Table_Select
      */
     private function selectNodeById($id)
     {
@@ -165,7 +170,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      * @param  int $treeId ID of tree you want to use.
      * @param  int $leftId Left-ID of the node.
      *
-     * @return Zend_Db_Table_Select
+     * @return \Zend_Db_Table_Select
      */
     public function selectNodeByLeftId($treeId, $leftId)
     {
@@ -241,7 +246,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
         $prevRow = $this->fetchRow($select);
 
         if (is_null($prevRow)) {
-            throw new Opus_Model_DbException('No previous sibling found for collection id '.$id);
+            throw new DbException('No previous sibling found for collection id ' . $id);
         }
 
         $this->moveSubTreeAfterNextSibling($prevRow);
@@ -252,7 +257,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * Used to move node down (right) in NestedSet at the same level to change the order of collections for instance.
      *
-     * @param int|Zend_Db_Table_Row $id The node to move
+     * @param int|Zend_Db_Table_Row_Abstract $id The node to move
      */
     public function moveSubTreeAfterNextSibling($id)
     {
@@ -276,7 +281,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
         $nextRow = $this->fetchRow($select);
 
         if (is_null($nextRow)) {
-            throw new Opus_Model_DbException("No next sibling found for collection id $id");
+            throw new DbException("No next sibling found for collection id $id");
         }
 
         $nextRight = (int) $nextRow->{$this->_right};
@@ -322,7 +327,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      * the subtree will be moved to the end.
      *
      * @param $id
-     * @param $position New position from 0 to count($siblings)
+     * @param $position int New position from 0 to count($siblings)
      */
     public function moveSubTreeToPosition($id, $position = null)
     {
@@ -432,12 +437,12 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
 
     /**
      * TODO check $id !== null
-     * @param $id
-     * @return Zend_Db_Row
+     * @param $id int
+     * @return \Zend_Db_Table_Row_Abstract
      */
     public function processNodeParameter($id)
     {
-        if (is_object($id) and $id instanceof Zend_Db_Table_Row) {
+        if (is_object($id) and $id instanceof \Zend_Db_Table_Row) {
             return $id;
         } else {
             return $this->getNodeById($id);
@@ -447,7 +452,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
     /**
      * Performs multiple queries as transaction.
      * @param $queries
-     * @throws Exception
+     * @throws \Exception
      */
     protected function executeQueries($queries)
     {
@@ -457,7 +462,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
             foreach ($queries as $query) {
                 $this->_db->query($query);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_db->rollBack();
             throw $e;
         }
@@ -471,7 +476,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      * FIXME: Might be useful, but needs some testing.  Currently unused.
      *
      * @access public
-     * @return Zend_Db_Table_Select
+     * @return \Zend_Db_Table_Select
      */
     public function selectTreeDepth($treeId)
     {
@@ -502,7 +507,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
     public function selectSubtreeDepthByIdXXX($treeId = null, $id = null)
     {
         $select = $this->selectTreeDepth($treeId);
-        $select = $this->_addSelectConstraint($select, $treeId, $id, 'node');
+        $select = $this->_addSelectConstraint($select, $treeId, $id, 'node'); // TODO function does not exist
 
         echo "selectSubtreeDepthById($treeId, $id): ", $select->__toString(), "\n";
         return $select;
@@ -512,7 +517,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      * Retrieve whole tree (as statement!)
      *
      * @access public
-     * @return Zend_Db_Table_Select
+     * @return \Zend_Db_Table_Select
      */
     public function selectSubtreeById($id, $cols = '*')
     {
@@ -530,14 +535,14 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      * Build select statement for fetching all parents of the node $id,
      * i.e. all nodes between and including root and the node.  A second
      * parameter allows the selection of the returned columns in the same
-     * format Zend_Db_Table_Select::from() takes.
+     * format \Zend_Db_Table_Select::from() takes.
      *
-     * @see Zend_Db_Table_Select
+     * @see \Zend_Db_Table_Select
      *
      * @param int   $id   The ID is the parent node.
      * @param mixed $cols The columns to show, defaults to '*'.
      *
-     * @return Zend_Db_Table_Select
+     * @return \Zend_Db_Table_Select
      */
     public function selectParentsById($id, $cols = '*')
     {
@@ -559,14 +564,14 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
     /**
      * Build select statement for fetching all children of the node $id.  A
      * second parameter allows the selection of the returned columns in the
-     * same format Zend_Db_Table_Select::from() takes.
+     * same format \Zend_Db_Table_Select::from() takes.
      *
-     * @see Zend_Db_Table_Select
+     * @see \Zend_Db_Table_Select
      *
      * @param int   $id   The ID is the parent node.
      * @param mixed $cols The columns to show, defaults to '*'.
      *
-     * @return Zend_Db_Table_Select
+     * @return \Zend_Db_Table_Select
      */
     public function selectChildrenById($id, $cols = '*')
     {
@@ -679,7 +684,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @param  integer $id The sibling row ID (must be unique in schema!).
      *
-     * @throws Opus\Model\Exception
+     * @throws \Exception
      * @return array
      */
     public function insertNextSibling($id)
@@ -691,7 +696,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
         $parent = $row->{$this->_parent};
 
         if ($left === 1) {
-            throw new Opus\Model\Exception("Root node can't have siblings");
+            throw new ModelException("Root node can't have siblings");
         }
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks
@@ -719,7 +724,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @param  integer $id The sibling row ID (must be unique in schema!).
      *
-     * @throws Opus\Model\Exception
+     * @throws \Exception
      * @return array
      */
     public function insertPrevSibling($id)
@@ -731,7 +736,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
         $parent = $row->{$this->_parent};
 
         if ($left === 1) {
-            throw new Opus\Model\Exception("Root node can't have siblings");
+            throw new ModelException("Root node can't have siblings");
         }
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks
@@ -796,8 +801,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
     /**
      * Sorts children in the specified order.
      *
-     * @param $sortedIds Array with node IDs in desired order
-     * @throws InvalidArgumentException if one of the IDs ist not a child node
+     * @param $sortedIds array Node IDs in desired order
+     * @throws \InvalidArgumentException if one of the IDs ist not a child node
      */
     public function applySortOrderOfChildren($id, $sortedIds)
     {
@@ -807,7 +812,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
             if (in_array($childId, $childrenIds)) {
                 $this->moveSubTreeToPosition($childId, $index);
             } else {
-                throw new InvalidArgumentException("ID $childId is no child of ID {$id}");
+                throw new \InvalidArgumentException("ID $childId is no child of ID {$id}");
             }
         }
     }

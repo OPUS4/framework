@@ -25,13 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Doi
+ * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
+namespace OpusTest\Doi;
+
+use Opus\Collection;
+use Opus\CollectionRole;
+use Opus\DnbInstitute;
+use Opus\Document;
+use Opus\Doi\DataCiteXmlGenerator;
+use Opus\File;
+use Opus\Identifier;
+use Opus\Language;
+use Opus\Person;
+use Opus\Title;
+use OpusTest\TestAsset\TestCase;
+
+class DataCiteXmlGeneratorTest extends TestCase
 {
 
     protected $srcPath = '';
@@ -42,7 +56,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     {
         parent::setUp();
 
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
             'Part2B' => 'ger',
@@ -55,7 +69,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         ]);
         $lang->store();
 
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->updateFromArray([
             'Comment' => 'English language',
             'Part2B' => 'eng',
@@ -68,7 +82,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         ]);
         $lang->store();
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
         $this->srcPath = $this->path . DIRECTORY_SEPARATOR . 'src';
@@ -78,8 +92,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         mkdir($this->destPath, 0777, true);
         mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
-        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
-            new Zend_Config([
+        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(
+            new \Zend_Config([
                 'workspacePath' => $this->destPath,
                 'checksum' => [
                     'maxVerificationSize' => 1,
@@ -94,40 +108,40 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function tearDown()
     {
-        Opus_Util_File::deleteDirectory($this->path);
+        \Opus\Util\File::deleteDirectory($this->path);
 
         parent::tearDown();
     }
 
     public function testGenerateMissingFields()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $this->setExpectedException('Opus_Doi_DataCiteXmlGenerationException');
+        $generator = new DataCiteXmlGenerator();
+        $this->setExpectedException('Opus\Doi\DataCiteXmlGenerationException');
         $generator->getXml($doc);
     }
 
     public function testGenerateWithNonLocalDoi()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         // lokale DOI verändern, so dass sie nicht mehr lokal ist
         $doi = $doc->getIdentifierDoi()[0];
         $doi->setValue('10.2345/nonlocal-' . $docId);
         $doi->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $this->setExpectedException('Opus_Doi_DataCiteXmlGenerationException');
+        $generator = new DataCiteXmlGenerator();
+        $this->setExpectedException('Opus\Doi\DataCiteXmlGenerationException');
         $generator->getXml($doc);
 
         // DOI wieder lokal machen
         $doi->setValue('10.2345/opustest-' . $docId);
         $doi->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $result = $generator->getXml($doc);
         $this->assertTrue(is_string($result) && $result !== '');
 
@@ -138,12 +152,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testGenerateInvalidXml()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // DOI löschen, so dass das erzeugte DataCite-XML nicht mehr valide ist
         $doc->setIdentifier([]);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $result = $generator->getXml($doc, true, true);
         $this->assertTrue(is_string($result) && $result !== '');
 
@@ -154,9 +168,9 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsLazyPositive()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, true);
 
         $this->assertTrue(is_bool($result));
@@ -166,12 +180,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsLazyMissingCreator()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Autorfeld löschen
         $doc->setPerson([]);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, true);
 
         $this->assertTrue(is_bool($result));
@@ -181,9 +195,9 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsNonLazyPositive()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -199,7 +213,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsNonLazyMissingFields()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Autorfeld löschen
         $doc->setPerson([]);
         // DOI löschen
@@ -210,7 +224,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->setPublisherName('');
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -226,12 +240,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsNonLazyMissingCreator()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Autorfeld löschen
         $doc->setPerson([]);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -248,16 +262,16 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     {
         $docId = $this->createDocWithRequiredFields();
         // setze zwei lokale DOIs anstatt einer
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $dois = $doc->getIdentifier();
-        $doi = new Opus_Identifier();
+        $doi = new Identifier();
         $doi->setType('doi');
         $doi->setValue($dois[0]->getValue() . 'x');
         $dois[] = $doi;
         $doc->setIdentifier($dois);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -273,7 +287,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsNonLazyTooManyPublishers()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         // entferne PublisherName und setze anschließend zwei ThesisPublisher
         $doc->setPublisherName(null);
@@ -281,7 +295,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->addThesisPublisherHelper($doc);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -298,7 +312,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->addThesisPublisherHelper($doc);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
         $this->assertTrue(is_array($result));
         $this->assertEquals([
@@ -313,11 +327,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsUnpublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setServerState('unpublished');
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -333,12 +347,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsMissingServerDatePublishedUnpublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setServerState('unpublished');
         $doc->setServerDatePublished(null);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -354,12 +368,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsMissingServerDatePublishedInPublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setServerState('published');
         $doc->setServerDatePublished(null);
         // kein $doc->store() aufrufen, weil sonst serverDatePublished auf das aktuelle Datum gesetzt wird
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -375,12 +389,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsInvalidServerDatePublishedInPublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setServerState('published');
         $doc->setServerDatePublished('');
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator(false);
+        $generator = new DataCiteXmlGenerator(false);
         $result = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
@@ -396,11 +410,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     /**
      * Hilfsfunktion zum Setzen eines ThesisPublisher im übergebenen Dokument.
      *
-     * @param Opus_Document $doc Dokument, zu dem ThesisPublisher hinzugefügt werden soll.
+     * @param Document $doc Dokument, zu dem ThesisPublisher hinzugefügt werden soll.
      */
     private function addThesisPublisherHelper($doc)
     {
-        $thesisPublisher = new Opus_DnbInstitute();
+        $thesisPublisher = new DnbInstitute();
         $thesisPublisher->setName('ThesisPublisher');
         $thesisPublisher->setCity('Berlin');
         $thesisPublisher->setIsPublisher(true);
@@ -410,9 +424,9 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testGenerateRequiredFields()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $result = $generator->getXml($doc);
 
         $this->assertTrue(is_string($result));
@@ -421,13 +435,13 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testServerDatePublishedForPublishedYear()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $serverDatePublished = $doc->getServerDatePublished();
 
         $year = $serverDatePublished->getYear();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $result = $generator->getXml($doc);
 
         $this->assertNotContains("<publicationYear>2008</publicationYear>", $result);
@@ -436,10 +450,10 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     private function createDocWithRequiredFields()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $docId = $doc->store();
 
-        $doi = new Opus_Identifier();
+        $doi = new Identifier();
         $doi->setType('doi');
         $doi->setValue('10.2345/opustest-' . $docId);
         $doc->setIdentifier([$doi]);
@@ -449,12 +463,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->setType('book');
         $doc->setPublisherName('ACME corp');
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setLastName('Doe');
         $author->setFirstName('John');
         $doc->addPersonAuthor($author);
 
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setType('main');
         $title->setValue('Document without meaningful title');
         $title->setLanguage('deu');
@@ -469,7 +483,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function testGetStylesheetPath()
     {
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
 
         $this->assertEquals(
             APPLICATION_PATH . '/library/Opus/Doi/datacite.xslt',
@@ -479,11 +493,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function testGetStylesheetPathConfiguredWithBadPath()
     {
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'datacite' => ['stylesheetPath' => 'doesnotexist']
         ]));
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
 
         $this->assertEquals(
             APPLICATION_PATH . '/library/Opus/Doi/datacite.xslt',
@@ -499,11 +513,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $path = stream_get_meta_data($temp)['uri'];
 
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
             'datacite' => ['stylesheetPath' => $path]
         ]));
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
 
         $stylesheetPath = $generator->getStylesheetPath();
 
@@ -513,18 +527,18 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testXmlValidWithMultipleDDC()
     {
         $docId = $this->createDocWithRequiredFields();
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
 
-        $role = new Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('ddc');
         $role->setOaiName('ddc');
         $root = $role->addRootCollection();
 
-        $col1 = new Opus_Collection();
+        $col1 = new Collection();
         $col1->setName('Mathematics');
         $root->addLastChild($col1);
 
-        $col2 = new Opus_Collection();
+        $col2 = new Collection();
         $col2->setName('Biology');
         $root->addLastChild($col2);
 
@@ -533,9 +547,9 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $document->addCollection($col1);
         $document->addCollection($col2);
 
-        $document = new Opus_Document($document->store());
+        $document = new Document($document->store());
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
 
         $output = $generator->getXml($document);
 
@@ -559,21 +573,21 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testXmlValidWithMultipleIssn()
     {
         $docId = $this->createDocWithRequiredFields();
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
 
-        $issn = new Opus_Identifier();
+        $issn = new Identifier();
         $issn->setValue('123');
 
         $document->addIdentifierIssn($issn);
 
-        $issn2 = new Opus_Identifier();
+        $issn2 = new Identifier();
         $issn2->setValue('321');
 
         $document->addIdentifierIssn($issn2);
 
-        $document = new Opus_Document($document->store());
+        $document = new Document($document->store());
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
 
         $output = $generator->getXml($document);
 
@@ -597,9 +611,9 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testLanguageElement()
     {
         $docId = $this->createDocWithRequiredFields();
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
 
         $output = $generator->getXml($document);
 
@@ -616,15 +630,15 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testFileInformationInvisible()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setVisibleInOai(0);
         $file->setFileSize('0');
         $file->setMimeType('pdf');
         $doc->addFile($file);
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -639,7 +653,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      * Creates a txt-file with random size.
      *
      * @return string path of file
-     * @throws Zend_Exception
+     * @throws\Zend_Exception
      */
     private function createTestFile()
     {
@@ -667,11 +681,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testFileInformationVisible()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $filename = $this->createTestFile();
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setVisibleInOai(1);
         $file->setTempFile($filename);
         $file->setPathName('copied-foobar-nonzero.txt');
@@ -680,14 +694,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $filename2 = $this->createTestFile();
 
-        $file2 = new Opus_File();
+        $file2 = new File();
         $file2->setVisibleInOai(1);
         $file2->setTempFile($filename2);
         $file2->setPathName('copied-foobar-nonzero_2.txt');
         $doc->addFile($file2);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -713,11 +727,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testMixedFileInformationVisibility()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $filename = $this->createTestFile();
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setVisibleInOai(1);
         $file->setTempFile($filename);
         $file->setPathName('copied-foobar-nonzero.txt');
@@ -726,14 +740,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $filename2 = $this->createTestFile();
 
-        $file2 = new Opus_File();
+        $file2 = new File();
         $file2->setVisibleInOai(0);
         $file2->setTempFile($filename2);
         $file2->setPathName('copied-foobar-nonzero_2.txt');
         $doc->addFile($file2);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -759,11 +773,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testDifferentOrderFileInformationVisibility()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $filename = $this->createTestFile();
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setVisibleInOai(0);
         $file->setTempFile($filename);
         $file->setPathName('copied-foobar-nonzero.txt');
@@ -772,14 +786,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $filename2 = $this->createTestFile();
 
-        $file2 = new Opus_File();
+        $file2 = new File();
         $file2->setVisibleInOai(1);
         $file2->setTempFile($filename2);
         $file2->setPathName('copied-foobar-nonzero_2.txt');
         $doc->addFile($file2);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -801,11 +815,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testXmlWithCreatorPlaceholder()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setPerson(null);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -816,11 +830,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testXmlWithTitlePlaceholder()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setTitleMain(null);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -831,11 +845,11 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testXmlWithPublisherPlaceholder()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setPublisherName(null);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -846,12 +860,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function testProperGenerationOfOrcidUrl()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $authors = $doc->getPersonAuthor();
         $author = $authors[0];
         $author->setIdentifierOrcid('0000-2222-4444-6666');
 
-        $editor = new Opus_Person();
+        $editor = new Person();
         $editor->setFirstName('John');
         $editor->setLastName('Doe');
         $editor->setIdentifierOrcid('0000-1111-3333-5555');
@@ -859,7 +873,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
@@ -873,7 +887,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->setPersonAuthor(null);
         $doc->store();
 
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator = new DataCiteXmlGenerator();
         $xml = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);

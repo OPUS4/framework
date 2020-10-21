@@ -25,18 +25,20 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
- * Class Opus_Db_Properties
+ * Class Opus\Db\Properties
  *
  * TODO get rid of this class? Do we need it?
  */
-class Opus_Db_Properties extends Opus_Db_TableGateway
+class Properties extends TableGateway
 {
 
     protected $_name = 'model_properties';

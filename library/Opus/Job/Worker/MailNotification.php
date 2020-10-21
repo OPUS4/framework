@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,18 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Job\Worker;
+
+use Opus\Account;
+use Opus\Job;
+use Opus\Mail\SendMail;
 
 /**
  * Worker for sending out email notifications for newly published documents.
  */
-class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
+class MailNotification extends AbstractWorker
 {
 
     const LABEL = 'opus-mail-publish-notification';
@@ -46,15 +50,15 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
 
     /**
      * Constructs worker.
-     * @param Zend_Log $logger
+     * @param \Zend_Log $logger
      * @param boolean $lookupRecipients wenn true, dann erwartet die Methode Usernamen (d.h. Accounts)
      *                                  und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
-     *                                  Adressen erwartet in der Form wie sie Opus_Mail_SendMail erwartet
+     *                                  Adressen erwartet in der Form wie sie Opus\Mail\SendMail erwartet
      */
     public function __construct($logger = null, $lookupRecipients = true)
     {
         $this->setLogger($logger);
-        $this->config = Zend_Registry::get('Zend_Config');
+        $this->config = \Zend_Registry::get('Zend_Config');
         $this->lookupRecipients = $lookupRecipients;
     }
 
@@ -71,10 +75,10 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
     /**
      * Perfom work.
      *
-     * @param Opus_Job $job Job description and attached data.
+     * @param Opus\Job $job Job description and attached data.
      * @return array Array of Jobs to be newly created.
      */
-    public function work(Opus_Job $job)
+    public function work(Job $job)
     {
         $data = $job->getData(true);
         $message = $data['message'];
@@ -103,7 +107,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
 //            return true;
 //        }
 
-        $mailSendMail = new Opus_Mail_SendMail();
+        $mailSendMail = new SendMail();
 
         $this->_logger->info(__CLASS__ . ': Sending notification email...');
         $this->_logger->debug(__CLASS__ . ': sender: ' . $from);
@@ -173,7 +177,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
 
         $allRecipients = [];
         foreach ($users as $user) {
-            $account = Opus_Account::fetchAccountByLogin($user);
+            $account = Account::fetchAccountByLogin($user);
 
             if (is_null($account)) {
                 $this->_logger->warn(__CLASS__ . ": User '$user' does not exist... skipping mail.");

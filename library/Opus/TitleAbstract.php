@@ -32,6 +32,8 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
 /**
  * Domain model for document abstracts in the Opus framework
  *
@@ -43,14 +45,14 @@
  *
  * TODO Is this class necessary?
  * TODO Should modifying Type be suppressed in this class?
- * TODO Opus_Title can be used instead of Opus_TitleAbstract for addTitleAbstract, but then Type does not get set properly.
+ * TODO Opus\Title can be used instead of Opus\TitleAbstract for addTitleAbstract, but then Type does not get set properly.
  */
-class Opus_TitleAbstract extends Opus_Title
+class TitleAbstract extends Title
 {
 
     const TYPE_ABSTRACT = 'abstract';
 
-    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
+    public function __construct($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
         parent::__construct($id, $tableGatewayModel);
 

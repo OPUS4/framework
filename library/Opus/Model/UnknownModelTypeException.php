@@ -25,15 +25,17 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model;
+
 /**
  * Exception thrown if a model type has not been registered for storing properties.
  */
-class Opus_Model_UnknownModelTypeException extends Opus_Model_PropertiesException
+class UnknownModelTypeException extends PropertiesException
 {
 }

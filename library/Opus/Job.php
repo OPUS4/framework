@@ -32,6 +32,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+
 /**
  * Job model used to manage job descriptions.
  *
@@ -47,7 +53,7 @@
  * @category    Framework
  * @package     Opus
  */
-class Opus_Job extends Opus_Model_AbstractDb
+class Job extends AbstractDb
 {
 
     const STATE_PROCESSING = 'processing';
@@ -61,7 +67,7 @@ class Opus_Job extends Opus_Model_AbstractDb
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Jobs';
+    protected static $_tableGatewayClass = 'Opus\Db\Jobs';
 
     /**
      * Initialize model with the following fields:
@@ -72,15 +78,15 @@ class Opus_Job extends Opus_Model_AbstractDb
      */
     protected function _init()
     {
-        $label = new Opus_Model_Field('Label');
+        $label = new Field('Label');
         $label->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $state = new Opus_Model_Field('State');
+        $state = new Field('State');
 
-        $data = new Opus_Model_Field('Data');
+        $data = new Field('Data');
 
-        $errors = new Opus_Model_Field('Errors');
+        $errors = new Field('Errors');
 
         $this->addField($label)
             ->addField($state)
@@ -103,14 +109,14 @@ class Opus_Job extends Opus_Model_AbstractDb
      * Intercept setter logic to do JSON encoding.
      *
      * @param mixed $value Field value.
-     * @throws Exception Thrown if json encoding produce an empty value.
+     * @throws \Exception Thrown if json encoding produce an empty value.
      * @return void
      */
     public function setData($value)
     {
         $jsonEncode = json_encode($value);
         if ((null !== $value) and (null == $jsonEncode)) {
-            throw new Exception('Json encoding failed.');
+            throw new \Exception('Json encoding failed.');
         }
         $this->_getField('Data')->setValue($jsonEncode);
     }
@@ -118,7 +124,7 @@ class Opus_Job extends Opus_Model_AbstractDb
     /**
      * Intercept getter logic to do JSON decoding.
      *
-     * @throws Exception Thrown if json decoding failed.
+     * @throws \Exception Thrown if json decoding failed.
      * @return mixed Value of field.
      */
     public function getData($convertObjectsIntoAssociativeArrays = false)
@@ -126,23 +132,23 @@ class Opus_Job extends Opus_Model_AbstractDb
         $fieldData = $this->_getField('Data')->getValue();
         $jsonDecode = json_decode($fieldData, $convertObjectsIntoAssociativeArrays);
         if ((null != $fieldData) and (null === $jsonDecode)) {
-            throw new Exception('Json decoding failed.');
+            throw new \Exception('Json decoding failed.');
         }
         return $jsonDecode;
     }
 
     /**
-     * Retrieve number of Opus_Job entries in the database.
+     * Retrieve number of Opus\Job entries in the database.
      *
-     * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
+     * @param string $state (optional) only retrieve jobs in given state (@see Opus\Job for state definitions)
      * @return integer Number of entries in database.
      */
     public static function getCount($state = null)
     {
-        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table, ['COUNT(id) AS count']);
         if (! is_null($state)) {
-            if ($state == Opus_Job::STATE_UNDEFINED) {
+            if ($state == Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
                 $select->where('state = ?', $state);
@@ -154,18 +160,18 @@ class Opus_Job extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve number of Opus_Job entries for a given label in the database.
+     * Retrieve number of Opus\Job entries for a given label in the database.
      *
      * @param string $label only consider jobs with the given label
-     * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
+     * @param string $state (optional) only retrieve jobs in given state (@see Opus\Job for state definitions)
      * @return integer Number of entries in database.
      */
     public static function getCountForLabel($label, $state = null)
     {
-        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table, ['COUNT(id) AS count']);
         if (! is_null($state)) {
-            if ($state == Opus_Job::STATE_UNDEFINED) {
+            if ($state == Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
                 $select->where('state = ?', $state);
@@ -178,19 +184,19 @@ class Opus_Job extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve number of Opus_Job instances from the database.
+     * Retrieve number of Opus\Job instances from the database.
      *
-     * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
+     * @param string $state (optional) only retrieve jobs in given state (@see Opus\Job for state definitions)
      * @return array Key / Value pairs of label / count for database entries.
      */
     public static function getCountPerLabel($state = null)
     {
-        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()
                 ->from($table, ['label', 'COUNT(id) AS count'])
                 ->group('label');
         if (! is_null($state)) {
-            if ($state == Opus_Job::STATE_UNDEFINED) {
+            if ($state == Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
                 $select->where('state = ?', $state);
@@ -206,14 +212,14 @@ class Opus_Job extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_Job instances from the database.
+     * Retrieve all Opus\Job instances from the database.
      *
      * @param array $ids (Optional) Set of IDs specifying the models to fetch.
-     * @return array Array of Opus_Job objects.
+     * @return array Array of Opus\Job objects.
      */
     public static function getAll(array $ids = null)
     {
-        return self::getAllFrom('Opus_Job', self::$_tableGatewayClass, $ids);
+        return self::getAllFrom('Opus\Job', self::$_tableGatewayClass, $ids);
     }
 
     /**
@@ -222,7 +228,7 @@ class Opus_Job extends Opus_Model_AbstractDb
      * @param array $labels Set of labels to get Jobs for.
      * @param string $limit (optional) Number of jobs to retrieve
      * @param string $state (optional) only retrieve jobs in given state
-     * @return array Set of Opus_Job objects.
+     * @return array Set of Opus\Job objects.
      */
     public static function getByLabels(array $labels, $limit = null, $state = null)
     {
@@ -230,13 +236,13 @@ class Opus_Job extends Opus_Model_AbstractDb
             return null;
         }
 
-        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table);
         foreach ($labels as $label) {
             $select->orWhere('label = ?', $label);
         }
         if (! is_null($state)) {
-            if ($state == Opus_Job::STATE_UNDEFINED) {
+            if ($state == Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
                 $select->where('state = ?', $state);
@@ -251,7 +257,7 @@ class Opus_Job extends Opus_Model_AbstractDb
 
         $result = [];
         foreach ($rowset as $row) {
-            $result[] = new Opus_Job($row);
+            $result[] = new Job($row);
         }
         return $result;
     }
@@ -264,7 +270,7 @@ class Opus_Job extends Opus_Model_AbstractDb
      */
     public function isUniqueInQueue()
     {
-        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select();
         $select->from($table, ['count(sha1_id) as count'])
                 ->where('sha1_id = ?', $this->getSha1Id());
@@ -290,7 +296,7 @@ class Opus_Job extends Opus_Model_AbstractDb
      */
     public static function deleteAll()
     {
-        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$_tableGatewayClass);
         $table->getAdapter()->query('DELETE from jobs');
     }
 }

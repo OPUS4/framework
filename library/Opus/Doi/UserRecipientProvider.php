@@ -31,7 +31,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_UserRecipientProvider implements Opus_Doi_NotificationRecipientProvider
+namespace Opus\Doi;
+
+use Opus\Permission;
+
+class UserRecipientProvider implements NotificationRecipientProvider
 {
 
     const PERMISSION = 'resource_doi_notification';
@@ -48,7 +52,7 @@ class Opus_Doi_UserRecipientProvider implements Opus_Doi_NotificationRecipientPr
     {
         $recipients = [];
 
-        $accounts = Opus_Permission::getAccounts(self::PERMISSION);
+        $accounts = Permission::getAccounts(self::PERMISSION);
 
         foreach ($accounts as $account) {
             $email = $account->getEmail();

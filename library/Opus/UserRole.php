@@ -34,25 +34,31 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+
 /**
  * Domain model for licences in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method string getName()
  * @method void setName($name)
  */
-class Opus_UserRole extends Opus_Model_AbstractDb
+class UserRole extends AbstractDb
 {
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_UserRoles';
+    protected static $_tableGatewayClass = 'Opus\Db\UserRoles';
 
     /**
      * List of pending accessResource actions.
@@ -62,13 +68,13 @@ class Opus_UserRole extends Opus_Model_AbstractDb
     private $_pendingAccessResources = [];
 
     /**
-     * Retrieve all Opus_Db_UserRoles instances from the database.
+     * Retrieve all Opus\Db\UserRoles instances from the database.
      *
-     * @return array Array of Opus_UserRole objects.
+     * @return array Array of Opus\UserRole objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_UserRole', 'Opus_Db_UserRoles');
+        return self::getAllFrom('Opus\UserRole', 'Opus\Db\UserRoles');
     }
 
     /**
@@ -79,17 +85,17 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      */
     protected function _init()
     {
-        $name = new Opus_Model_Field('Name');
+        $name = new Field('Name');
         $name->setMandatory(true);
         $this->addField($name);
     }
 
     /**
-     * ALTERNATE CONSTRUCTOR: Retrieve Opus_UserRole instance by name.  Returns
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus\UserRole instance by name.  Returns
      * null if name is null *or* nothing found.
      *
      * @param  string $name
-     * @return Opus_UserRole
+     * @return UserRole
      */
     public static function fetchByName($name = null)
     {
@@ -97,12 +103,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
         $row = $table->fetchRow($select);
 
         if (isset($row)) {
-            return new Opus_UserRole($row);
+            return new UserRole($row);
         }
 
         return;
@@ -111,7 +117,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
     /**
      * Returns name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\AbstractModel#getDisplayName()
      */
     public function getDisplayName()
     {
@@ -129,7 +135,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_LinkAccountsRoles");
+        $table = TableGateway::getInstance("Opus\Db\LinkAccountsRoles");
         $select = $table->select(true)->columns('account_id AS id')
                         ->where('role_id = ?', $this->getId())
                         ->distinct();
@@ -148,7 +154,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_LinkAccountsRoles");
+        $table = TableGateway::getInstance("Opus\Db\LinkAccountsRoles");
         $adapter = $table->getAdapter();
         $select = $adapter->select()
                         ->from('link_accounts_roles AS lr', '')
@@ -166,7 +172,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      */
     public function listAccessDocuments()
     {
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments");
+        $table = TableGateway::getInstance("Opus\Db\AccessDocuments");
         $adapter = $table->getAdapter();
         $select = $adapter->select()
                         ->from('access_documents', ['document_id'])
@@ -179,7 +185,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * Append (document_id) to list of allowed ressources.
      *
      * @param string $documentId
-     * @return Opus_UserRole Provide fluent interface.
+     * @return UserRole Provide fluent interface.
      */
     public function appendAccessDocument($documentId)
     {
@@ -193,7 +199,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * Remove (document_id) from list of allowed ressources.
      *
      * @param string $documentId
-     * @return Opus_UserRole Provide fluent interface.
+     * @return UserRole Provide fluent interface.
      */
     public function removeAccessDocument($documentId)
     {
@@ -210,7 +216,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      */
     public function listAccessFiles()
     {
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles");
+        $table = TableGateway::getInstance("Opus\Db\AccessFiles");
         $adapter = $table->getAdapter();
         $select = $adapter->select()
                         ->from('access_files', ['file_id'])
@@ -223,7 +229,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * Append (file_id) to list of allowed ressources.
      *
      * @param string $fileId
-     * @return Opus_UserRole Provide fluent interface.
+     * @return UserRole Provide fluent interface.
      */
     public function appendAccessFile($fileId)
     {
@@ -237,7 +243,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * Remove (file_id) from list of allowed ressources.
      *
      * @param string $fileId
-     * @return Opus_UserRole Provide fluent interface.
+     * @return UserRole Provide fluent interface.
      */
     public function removeAccessFile($fileId)
     {
@@ -255,7 +261,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      */
     public function listAccessModules()
     {
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules");
+        $table = TableGateway::getInstance("Opus\Db\AccessModules");
         return $table->listByRoleId($this->getId());
     }
 
@@ -263,7 +269,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * Append (module) to list of allowed ressources.
      *
      * @param string $moduleName
-     * @return Opus_UserRole Provide fluent interface.
+     * @return UserRole Provide fluent interface.
      */
     public function appendAccessModule($moduleName)
     {
@@ -277,7 +283,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * Remove (module) from list of allowed ressources.
      *
      * @param string $moduleName
-     * @return Opus_UserRole Provide fluent interface.
+     * @return UserRole Provide fluent interface.
      */
     public function removeAccessModule($moduleName)
     {
@@ -293,9 +299,9 @@ class Opus_UserRole extends Opus_Model_AbstractDb
     private function _flushAccessResourceQueue()
     {
         $resourceTables = [
-            'document_id' => Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments"),
-            'file_id'     => Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles"),
-            'module_name' => Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules"),
+            'document_id' => TableGateway::getInstance("Opus\Db\AccessDocuments"),
+            'file_id'     => TableGateway::getInstance("Opus\Db\AccessFiles"),
+            'module_name' => TableGateway::getInstance("Opus\Db\AccessModules"),
         ];
         $roleId = $this->getId();
 

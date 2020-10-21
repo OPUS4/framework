@@ -35,6 +35,14 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\Collections;
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Opus\Validate\CollectionRoleName;
+
 /**
  * Domain model for collection roles in the Opus framework
  *
@@ -52,7 +60,7 @@
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method void setName(string $name)
  * @method string getName()
@@ -90,8 +98,8 @@
  * @method void setAssignLeavesOnly(boolean $assignLeavesOnly)
  * @method boolean getAssignLeavesOnly()
  *
- * @method void setRootCollection(Opus_Collection $collection)
- * @method Opus_Collection getRootCollection()
+ * @method void setRootCollection(Collection $collection)
+ * @method Collection getRootCollection()
  *
  * @method void setHideEmptyCollections(boolean $hideEmptyCollections)
  * @method boolean getHideEmptyCollections()
@@ -99,27 +107,27 @@
  * @method void setLanguage(string $language)
  * @method string getLanguage()
  */
-class Opus_CollectionRole extends Opus_Model_AbstractDb
+class CollectionRole extends AbstractDb
 {
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_CollectionsRoles';
+    protected static $_tableGatewayClass = 'Opus\Db\CollectionsRoles';
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
-     * Opus_Db_Documents table gateway.
+     * Opus\Db\Documents table gateway.
      *
      * @var array
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see \Opus\Model\Abstract::$_externalFields
      */
     protected $_externalFields = [
         // Will contain the Root Node of this Role.
         'RootCollection' => [
-            'model' => 'Opus_Collection',
+            'model' => 'Opus\Collection',
             'options' => ['left_id' => 1],
             'fetch' => 'lazy',
         ],
@@ -133,8 +141,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache',
-            'Opus_CollectionRole_Plugin_DeleteTree'
+            'Opus\Model\Plugin\InvalidateDocumentCache',
+            'Opus\CollectionRole\Plugin\DeleteTree'
         ];
     }
 
@@ -146,70 +154,70 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     protected function _init()
     {
         // Attributes, which are defined by the database schema.
-        $name = new Opus_Model_Field('Name');
-        $name->setMandatory(true)->setValidator(new Opus\Validate\CollectionRoleName());
+        $name = new Field('Name');
+        $name->setMandatory(true)->setValidator(new CollectionRoleName());
         $this->addField($name);
 
-        $oaiName = new Opus_Model_Field('OaiName');
-        $oaiName->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
+        $oaiName = new Field('OaiName');
+        $oaiName->setMandatory(true)->setValidator(new \Zend_Validate_NotEmpty());
         $this->addField($oaiName);
 
-        $position = new Opus_Model_Field('Position');
+        $position = new Field('Position');
         $this->addField($position);
 
 
         // Attributes for defining visibility.
-        $visible = new Opus_Model_Field('Visible');
+        $visible = new Field('Visible');
         $visible->setCheckbox(true);
         $this->addField($visible);
 
-        $visibleBrowsingStart = new Opus_Model_Field('VisibleBrowsingStart');
+        $visibleBrowsingStart = new Field('VisibleBrowsingStart');
         $visibleBrowsingStart->setCheckbox(true);
         $this->addField($visibleBrowsingStart);
 
-        $visibleFrontdoor = new Opus_Model_Field('VisibleFrontdoor');
+        $visibleFrontdoor = new Field('VisibleFrontdoor');
         $visibleFrontdoor->setCheckbox(true);
         $this->addField($visibleFrontdoor);
 
-        $visibleOai = new Opus_Model_Field('VisibleOai');
+        $visibleOai = new Field('VisibleOai');
         $visibleOai->setCheckbox(true);
         $this->addField($visibleOai);
 
 
         // Attributes for defining output formats.
-        $displayBrowsing = new Opus_Model_Field('DisplayBrowsing');
+        $displayBrowsing = new Field('DisplayBrowsing');
         $this->addField($displayBrowsing);
 
-        $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
+        $displayFrontdoor = new Field('DisplayFrontdoor');
         $this->addField($displayFrontdoor);
 
-        $isClassification = new Opus_Model_Field('IsClassification');
+        $isClassification = new Field('IsClassification');
         $this->addField($isClassification);
 
-        $assignRoot = new Opus_Model_Field('AssignRoot');
+        $assignRoot = new Field('AssignRoot');
         $this->addField($assignRoot);
 
-        $assignLeavesOnly = new Opus_Model_Field('AssignLeavesOnly');
+        $assignLeavesOnly = new Field('AssignLeavesOnly');
         $this->addField($assignLeavesOnly);
 
         // Virtual attributes, which depend on other tables.
-        $rootCollection = new Opus_Model_Field('RootCollection');
+        $rootCollection = new Field('RootCollection');
         $this->addField($rootCollection);
 
         // Attribute to determine visibility of empty collections
-        $hideEmptyCollections = new Opus_Model_Field('HideEmptyCollections');
+        $hideEmptyCollections = new Field('HideEmptyCollections');
         $hideEmptyCollections->setCheckbox(true);
         $this->addField($hideEmptyCollections);
 
-        $language = new Opus_Model_Field('Language');
+        $language = new Field('Language');
         $this->addField($language);
     }
 
     /**
      * Returns long name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
-     * @return string Model class name and identifier (e.g. Opus_CollectionRole#1234).
+     * @see \Opus\Model\Abstract#getDisplayName()
+     * @return string Model class name and identifier (e.g. Opus\CollectionRole#1234).
      *
      * TODO: Outsource this->getName to this->getRootNode->getName
      */
@@ -225,7 +233,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      */
     public static function fixPositions()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $db = $table->getAdapter();
 
         // FIXME: Hardcoded table and column names.
@@ -245,7 +253,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      */
     public static function getLastPosition()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $db = $table->getAdapter();
 
         $query = 'SELECT MAX(position) FROM collections_roles;';
@@ -259,7 +267,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      * Overwrite standard storage procedure to shift positions.  The parameter
      * describes the new position of the current role.
      *
-     * TODO: This method belongs to Opus_Db_CollectionsRoles.
+     * TODO: This method belongs to Opus\Db\CollectionsRoles.
      * TODO: Make sure this method only gets called if the field changed.
      *
      * @param integer $to Target position after saving.
@@ -354,12 +362,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     }
 
     /**
-     * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by name.
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus\CollectionRole instance by name.
      * Returns null if name is null *or* nothing found.
      *
      * @param string $name Name of collection role to look for.
      *
-     * @return Opus_CollectionRole
+     * @return CollectionRole
      */
     public static function fetchByName($name = null)
     {
@@ -367,26 +375,26 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
         $row = $table->fetchRow($select);
 
         if (isset($row)) {
-            return new Opus_CollectionRole($row);
+            return new CollectionRole($row);
         }
 
         return;
     }
 
     /**
-     * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by oaiName.
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus\CollectionRole instance by oaiName.
      * Returns null if name is null *or* nothing found.
      *
-     * TODO: Return Opus_Model_NotFoundException?
+     * TODO: Return Opus\Model\NotFoundException?
      *
      * @param string $oaiName OaiName of collection role to look for.
      *
-     * @return Opus_CollectionRole
+     * @return CollectionRole
      */
     public static function fetchByOaiName($oaiName = null)
     {
@@ -394,28 +402,28 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('oai_name = ?', $oaiName);
         $row = $table->fetchRow($select);
 
         if (isset($row)) {
-            return new Opus_CollectionRole($row);
+            return new CollectionRole($row);
         }
 
         return;
     }
 
     /**
-     * Retrieve all Opus_CollectionRole instances from the database.
+     * Retrieve all Opus\CollectionRole instances from the database.
      *
-     * @return array Array of Opus_CollectionRole objects.
+     * @return array Array of Opus\CollectionRole objects.
      *
      * TODO: Modify self::getAllFrom to take parameters.
      */
     public static function fetchAll()
     {
-        // $roles = self::getAllFrom('Opus_CollectionRole', self::$_tableGatewayClass);
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        // $roles = self::getAllFrom('Opus\CollectionRole', self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $roles = $table->fetchAll(null, 'position');
         return self::createObjects($roles);
     }
@@ -423,12 +431,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     /**
      * Mass-constructur.
      *
-     * @param array $array Array of whatever new Opus_Collection(...) takes.
+     * @param array $array Array of whatever new Collection(...) takes.
      *
-     * @return array|Opus_Collection Constructed Opus_Collection(s).
+     * @return array|Collection Constructed Opus\Collection(s).
      *
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
-     * TODO: Code duplication from/in Opus_Collection!
+     * TODO: Code duplication from/in Opus\Collection!
      */
     public static function createObjects($array)
     {
@@ -439,7 +447,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         // FIXME: Add Model_AbstractDb::createObjects(...) when using PHP 5.3
 
         foreach ($array as $element) {
-            $c = new Opus_CollectionRole($element);
+            $c = new CollectionRole($element);
             $results[] = $c;
         }
 
@@ -476,7 +484,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
             GROUP BY c.id, c.oai_subset, c.number, c.name";
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
         $select = $db->quoteInto($select, $this->getId());
         return $db->fetchAll($select);
     }
@@ -496,7 +504,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             WHERE c.role_id = ? AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
             GROUP BY c.id, c.oai_subset, c.number, c.name";
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
         $select = $db->quoteInto($select, $this->getId());
         return $db->fetchAll($select);
     }
@@ -532,7 +540,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             AND r.oai_name != ''
             GROUP BY r.oai_name";
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
         return $db->fetchAll($select);
     }
 
@@ -545,7 +553,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      *
      * FIXME: Need Collection constructor-by-oaiSetName.
      * FIXME: Check OAI set names for invalid characters (i.e. ':')
-     * FIXME: Belongs to Opus_Collection
+     * FIXME: Belongs to Opus\Collection
      * FIXME: Code duplication from getDocumentIdsInSet.
      *
      * @see modules/oai/controllers/IndexController.php
@@ -557,12 +565,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
 
         if ($this->getOaiName() !== $oaiPrefix) {
-            throw new Exception("Given OAI prefix does not match this role.");
+            throw new \Exception("Given OAI prefix does not match this role.");
         }
 
         $oaiPrefix = $this->getOaiName();
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
 
         $quotePostfix = $db->quote("$oaiPostfix");
         $quoteRoleId = $db->quote($this->getId());
@@ -576,7 +584,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
                 . "    WHERE l.collection_id = c.id AND l.role_id = c.role_id "
                 . " )";
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchOne($select);
         // $this->log("$oaiSetName: $result");
 
@@ -608,12 +616,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
 
         $role = self::fetchByOaiName($oaiPrefix);
         if (is_null($oaiPrefix) === true) {
-            throw new Exception("Given OAI prefix does not exist in roles.");
+            throw new \Exception("Given OAI prefix does not exist in roles.");
         }
 
         $oaiPrefix = $role->getOaiName();
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
 
         $quotePostfix = $db->quote("$oaiPostfix");
         $quoteRoleId = $db->quote($role->getId());
@@ -627,7 +635,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
                 . " WHERE role_id = $quoteRoleId "
                 . "   AND collection_id IN ($subselect) ";
 
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchCol($select);
         // $role->log("$oaiSetName: #" . count($result));
 
@@ -640,7 +648,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      */
     public function getCollectionByOaiSubset($oaisubset)
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
 
         $quoteOaiSubset = $db->quote("$oaisubset");
 
@@ -654,7 +662,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         if ($result === false) {
             return null;
         } else {
-            return new Opus_Collection($result);
+            return new Collection($result);
         }
     }
 
@@ -665,7 +673,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     /**
      * Fetch-method for field "RootCollection".
      *
-     * @return Opus_Collection
+     * @return Collection
      */
     protected function _fetchRootCollection()
     {
@@ -673,22 +681,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             return;
         }
 
-        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $collections = TableGateway::getInstance(Collections::class);
         $root = $collections->getRootNode($this->getId());
 
         if (! isset($root)) {
             return;
         }
 
-        return new Opus_Collection($root);
+        return new Collection($root);
     }
 
     /**
      * Store root collection: Initialize Node.
      *
-     * @param Opus_Collection $collection Collection to store as Root.
+     * @param Collection $collection Collection to store as Root.
      *
-     * @see Opus_Model_AbstractDb
+     * @see AbstractDb
      */
     public function _storeRootCollection($collection)
     {
@@ -708,9 +716,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      * Extend magic add-method.  Add $collection if given; otherwise
      * create.
      *
-     * @param Opus_Collection $collection (optional) collection object to add
+     * @param Collection $collection (optional) collection object to add
      *
-     * @return Opus_Collection
+     * @return Collection
      */
     public function addRootCollection($collection = null)
     {

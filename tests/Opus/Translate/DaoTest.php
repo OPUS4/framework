@@ -25,24 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Translate
+ * @package     Opus\Translate
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest\Translate;
+
+use Opus\Translate\Dao;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Class Opus_Translate_DaoTest
- *
  * TODO test protection against SQL-injection
  * TODO test updating existing entries
  */
-class Opus_Translate_DaoTest extends TestCase
+class DaoTest extends TestCase
 {
 
     public function testAddTranslations()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'testkey1' => [
@@ -64,7 +67,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testAddTranslationsForModule()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'testkey1' => [
@@ -86,7 +89,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testSetTranslation()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('admin_index_title', [
             'de' => 'Verwaltung',
@@ -108,7 +111,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testSetTranslationForUpdate()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('admin_index_title', [
             'de' => 'Verwaltung',
@@ -143,7 +146,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testSetTranslationWithNullRemovesEntry()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'en' => 'test key one',
@@ -161,7 +164,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testSetTranslationWithModule()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'en' => 'test key one',
@@ -176,7 +179,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testRemove()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $translations = [
             'de' => 'Verwaltung',
@@ -196,7 +199,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testRemoveAll()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $translations = [
             'de' => 'Verwaltung',
@@ -214,7 +217,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testRemoveModule()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $translations1 = [
             'de' => 'Verwaltung',
@@ -237,7 +240,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslation()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
@@ -254,7 +257,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationForUnknownKey()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $translation = $dao->getTranslation('unknownkey');
 
@@ -263,7 +266,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationForLocale()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
@@ -276,7 +279,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationForUnknownLocale()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
@@ -291,7 +294,7 @@ class Opus_Translate_DaoTest extends TestCase
      */
     public function testGetTranslationForKeyExistingInDefaultAndModule()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
@@ -310,7 +313,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslations()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Testschlüssel 1',
@@ -337,7 +340,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationsForModule()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Testschlüssel 1',
@@ -362,7 +365,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationsByLocale()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Testschlüssel 1',
@@ -398,7 +401,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testRenameKey()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Testschlüssel 1',
@@ -423,12 +426,12 @@ class Opus_Translate_DaoTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Translate_Exception
+     * @expectedException \Opus\Translate\TranslateException
      * @expectedExceptionMessage Duplicate entry
      */
     public function testRenameKeyNewKeyAlreadyExists()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'testkey1' => [
@@ -451,7 +454,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testRenameKeyInModuleOnly()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'en' => 'test key one',
@@ -480,7 +483,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testRenameKeyDefaultOnly()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Testschlüssel 1',
@@ -509,7 +512,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testSetSpecialTranslation()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Jump to',
@@ -525,7 +528,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationsWithModules()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $data = [
             'de' => 'Deutsch',
@@ -549,7 +552,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetTranslationsWithModulesFilteredByModules()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $keyData = ['en' => 'keyEN', 'de' => 'keyDE'];
         $defaultKeyData = ['en' => 'defaultKeyEN', 'de' => 'defaultKeyDE'];
@@ -588,7 +591,7 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testGetModules()
     {
-        $dao = new Opus_Translate_Dao();
+        $dao = new Dao();
 
         $dao->setTranslation('testKey1', [
             'en' => 'test key 1',

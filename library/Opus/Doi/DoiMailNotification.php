@@ -32,7 +32,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiMailNotification
+namespace Opus\Doi;
+
+use Opus\Mail\MailException;
+use Opus\Mail\SendMail;
+
+class DoiMailNotification
 {
 
     private $config;
@@ -49,8 +54,8 @@ class Opus_Doi_DoiMailNotification
     public function __construct()
     {
         $this->notifications = [];
-        $this->config = Zend_Registry::get('Zend_Config');
-        $this->log = Zend_Registry::get('Zend_Log');
+        $this->config = \Zend_Registry::get('Zend_Config');
+        $this->log = \Zend_Registry::get('Zend_Log');
     }
 
     public function setRecipientProvider($provider)
@@ -69,7 +74,7 @@ class Opus_Doi_DoiMailNotification
     protected function getRecipients()
     {
         if (is_null($this->recipientProvider)) {
-            $this->recipientProvider = new Opus_Doi_UserRecipientProvider();
+            $this->recipientProvider = new UserRecipientProvider();
         }
 
         return $this->recipientProvider->getRecipients();
@@ -146,8 +151,8 @@ class Opus_Doi_DoiMailNotification
     /**
      * Liefert eine Zeile für die zu erzeugende E-Mail-Benachrichtigung.
      *
-     * @param $docId ID des OPUS-Dokuments, zu dem die DOI gehört
-     * @param $doi DOI auf die sich die Nachricht bezieht
+     * @param $docId int ID des OPUS-Dokuments, zu dem die DOI gehört
+     * @param $doi string DOI auf die sich die Nachricht bezieht
      * @param $errorMessage ggf. Meldung des aufgetretenen Fehlers bei Registrierung oder Prüfung
      */
     private function buildMessageLine($doi, $frontdoorUrl, $errorMessage)
@@ -228,7 +233,7 @@ class Opus_Doi_DoiMailNotification
 
         $this->log->debug('try to send DOI notification email with subject ' . $subject);
         try {
-            $mailSendMail = new Opus_Mail_SendMail();
+            $mailSendMail = new SendMail();
             $mailSendMail->sendMail(
                 $from,
                 $fromName,
@@ -240,7 +245,7 @@ class Opus_Doi_DoiMailNotification
                 $returnPath
             );
             $this->log->info('successful sending of DOI notification email with subject ' . $subject);
-        } catch (Opus_Mail_Exception $e) {
+        } catch (MailException $e) {
             $this->log->err('could not send DOI notification email with subject ' . $subject . ': ' . $e->getMessage());
         }
     }

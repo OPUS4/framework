@@ -28,16 +28,21 @@
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
 
 /**
  * Domain model for notes in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\Abstract
  *
  * @method void setMessage(string $message)
  * @method string getMessage()
@@ -45,7 +50,7 @@
  * @method void setVisibility(string $visibility)
  * @method string getVisibility
  */
-class Opus_Note extends Opus_Model_Dependent_Abstract
+class Note extends AbstractDependentModel
 {
 
     const ACCESS_PUBLIC = 'public';
@@ -64,7 +69,7 @@ class Opus_Note extends Opus_Model_Dependent_Abstract
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentNotes';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentNotes';
 
     /**
      * Initialize model with the following fields:
@@ -75,12 +80,12 @@ class Opus_Note extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $message = new Opus_Model_Field('Message');
+        $message = new Field('Message');
         $message->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty())
+            ->setValidator(new \Zend_Validate_NotEmpty())
             ->setTextarea(true);
 
-        $visibility = new Opus_Model_Field('Visibility');
+        $visibility = new Field('Visibility');
         $visibility->setValidator(new \Opus\Validate\NoteVisibility())
             ->setDefault([
                 'private' => 'private',

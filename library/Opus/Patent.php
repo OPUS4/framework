@@ -29,21 +29,25 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
 
 /**
  * Domain model for patents in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\Abstract
  *
  * @method void setCountries(string $countries)
  * @method string getCountries()
  *
- * @method void setDateGranted(Opus_Date $date)
- * @method Opus_Date getDateGranted()
+ * @method void setDateGranted(Date $date)
+ * @method Date getDateGranted()
  *
  * @method void setNumber(string $number)
  * @method string getNumber()
@@ -55,7 +59,7 @@
  * @method string getApplication()
  *
  */
-class Opus_Patent extends Opus_Model_Dependent_Abstract
+class Patent extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
@@ -67,9 +71,9 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus_Db_DocumentPatents';
+    protected static $_tableGatewayClass  = 'Opus\Db\DocumentPatents';
 
     /**
      * Initialize model with the following fields:
@@ -80,19 +84,19 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $countries = new Opus_Model_Field('Countries');
+        $countries = new Field('Countries');
 
-        $dateGranted = new Opus_Model_Field('DateGranted');
-        $dateGranted->setValueModelClass('Opus_Date');
+        $dateGranted = new Field('DateGranted');
+        $dateGranted->setValueModelClass('Opus\Date');
 
-        $number = new Opus_Model_Field('Number');
+        $number = new Field('Number');
         $number->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $yearApplied = new Opus_Model_Field('YearApplied');
+        $yearApplied = new Field('YearApplied');
         $yearApplied->setValidator(new \Opus\Validate\Year());
 
-        $application = new Opus_Model_Field('Application');
+        $application = new Field('Application');
 
         $this->addField($countries)
             ->addField($dateGranted)

@@ -25,18 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Enrichment
+ * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Enrichment_SelectTypeTest extends TestCase
+namespace OpusTest\Enrichment;
+
+use Opus\Enrichment\SelectType;
+use OpusTest\TestAsset\TestCase;
+
+class SelectTypeTest extends TestCase
 {
 
     public function testSetOptionsFromStringWithUnixLinebreaks()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $selectType->setOptionsFromString("1\n2\n3");
 
@@ -55,7 +60,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testSetOptionsWithValuesAndStrictValidation()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $selectType->setOptionsFromString(['options' => "1\n2\n3", 'validation' => '1']);
 
@@ -76,7 +81,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testSetOptionsWithValuesAndNoValidation()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $selectType->setOptionsFromString(['options' => "1\n2\n3", 'validation' => '0']);
 
@@ -97,7 +102,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testSetOptionFromStringsWithWindowsLinebreaks()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $selectType->setOptionsFromString("1\r\n2\r\n3");
 
@@ -116,7 +121,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testSetOptionsFromStringWitEmptyValue()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $selectType->setOptionsFromString("");
 
@@ -127,7 +132,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testSetOptions()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $valuesAsJson = '{"values":["foo","bar","baz"],"validation":"none"}';
 
@@ -139,7 +144,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testSetOptionsWithStrictValidation()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $valuesAsJson = '{"values":["foo","bar","baz"],"validation":"strict"}';
 
@@ -151,7 +156,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testGetOptions()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
 
         $this->assertNull($selectType->getOptions());
 
@@ -163,14 +168,14 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
     public function testGetOptionProperties()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
         $props = $selectType->getOptionProperties();
         $this->assertEquals(['values', 'validation'], $props);
     }
 
     public function testGetFormElementName()
     {
-        $selectType = new Opus_Enrichment_SelectType();
+        $selectType = new SelectType();
         $this->assertEquals('Select', $selectType->getFormElementName());
     }
 }

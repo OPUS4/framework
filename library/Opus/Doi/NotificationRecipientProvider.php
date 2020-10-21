@@ -31,7 +31,9 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-interface Opus_Doi_NotificationRecipientProvider
+namespace Opus\Doi;
+
+interface NotificationRecipientProvider
 {
 
     /**

@@ -25,12 +25,18 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Translate
+ * @package     Opus\Translate
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_Translate_DatabaseAdapterTest extends TestCase
+
+namespace OpusTest\Translate;
+
+use Opus\Translate\Dao;
+use OpusTest\TestAsset\TestCase;
+
+class DatabaseAdapterTest extends TestCase
 {
 
     private $cache;
@@ -38,20 +44,20 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->cache = Zend_Translate::getCache();
+        $this->cache = \Zend_Translate::getCache();
     }
 
     public function tearDown()
     {
-        Zend_Translate::setCache($this->cache);
+        \Zend_Translate::setCache($this->cache);
         parent::tearDown();
     }
 
     public function testUsingAdapter()
     {
-        Zend_Translate::clearCache();
+        \Zend_Translate::clearCache();
 
-        $database = new Opus_Translate_Dao();
+        $database = new Dao();
 
         $database->setTranslation(
             'admin',
@@ -61,9 +67,9 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
             ]
         );
 
-        $translate = new Zend_Translate(
+        $translate = new \Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => 'Opus\Translate\DatabaseAdapter',
                 'content' => 'default',
                 'locale'  => 'en'
             ]
@@ -78,13 +84,13 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
     /**
      * Cache is setup during the bootstrapping of the tests.
      *
-     * @throws Zend_Translate_Exception
+     * @throws\Zend_Translate_Exception
      *
      * TODO setup cache explicitly in this test, do not rely on bootstrap or check at least
      */
     public function testUpdatingTranslation()
     {
-        $database = new Opus_Translate_Dao();
+        $database = new Dao();
 
         $database->setTranslation(
             'admin',
@@ -94,11 +100,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
             ]
         );
 
-        Zend_Translate::clearCache(); // clear cache between test runs
+        \Zend_Translate::clearCache(); // clear cache between test runs
 
-        $translate = new Zend_Translate(
+        $translate = new \Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => 'Opus\Translate\DatabaseAdapter',
                 'content' => 'default',
                 'locale'  => 'en'
             ]
@@ -119,24 +125,24 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         );
 
         // create new translation object will not update cache
-        $translate = new Zend_Translate(
+        $translate = new \Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => 'Opus\Translate\DatabaseAdapter',
                 'content' => 'default',
                 'locale'  => 'en'
             ]
         );
 
-        // translations are cached in memory independent of Zend_Cache
+        // translations are cached in memory independent of\Zend_Cache
         $this->assertEquals('Administration', $translate->translate('admin'));
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
         // it is necessary to clear the cache before updates
-        Zend_Translate::clearCache();
+        \Zend_Translate::clearCache();
 
-        $translate = new Zend_Translate(
+        $translate = new \Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => 'Opus\Translate\DatabaseAdapter',
                 'content' => 'default',
                 'locale'  => 'en'
             ]
@@ -149,9 +155,9 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
     // check behaviour with cache
     public function testUsingAdapterWithoutCache()
     {
-        Zend_Translate::clearCache();
+        \Zend_Translate::clearCache();
 
-        $database = new Opus_Translate_Dao();
+        $database = new Dao();
 
         $database->setTranslation(
             'admin',
@@ -161,9 +167,9 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
             ]
         );
 
-        $translate = new Zend_Translate(
+        $translate = new \Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => 'Opus\Translate\DatabaseAdapter',
                 'content' => 'default',
                 'locale'  => 'en'
             ]
@@ -187,14 +193,14 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
             ]
         );
 
-        // check translations in old Zend_Translate object that has already loaded from database
+        // check translations in old\Zend_Translate object that has already loaded from database
         $this->assertEquals('Administration', $translate->translate('admin'));
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
-        // create new Zend_Translate object so translation will be read again
-        $translate = new Zend_Translate(
+        // create new \Zend_Translate object so translation will be read again
+        $translate = new \Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => 'Opus\Translate\DatabaseAdapter',
                 'content' => 'default',
                 'locale'  => 'en'
             ]

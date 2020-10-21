@@ -33,6 +33,15 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Model\AbstractModel;
+use Opus\Model\Comparable;
+use Opus\Model\DateField;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+use Opus\Model\UnixTimestampField;
+
 /**
  * Domain model for date and time storage.
  *
@@ -42,7 +51,7 @@
  * UnixTimestamp and the other fields are different representations of the same value. If any of the element, like year,
  * month or date, is modified, the UnixTimestamp needs to be updated or vice versa.
  *
- * The information is stored in a DateTime object. However the Opus_Model_Field objects are still there to present the
+ * The information is stored in a DateTime object. However the Opus\Model\Field objects are still there to present the
  * old API.
  *
  * If a UnixTimestamp is set it override all the other fields. The string presention of a UNIX timestamp depends on the
@@ -53,7 +62,7 @@
  *
  *
  * TODO remove Field objects
- * TODO extend Opus_Date with functions to provide string appropriate for Locale
+ * TODO extend Opus\Date with functions to provide string appropriate for Locale
  *
  * @method void setYear(integer $year)
  * @method integer getYear()
@@ -76,7 +85,7 @@
  * @method void setTimezone(string $timezone)
  * @method string getTimezone()
  */
-class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
+class Date extends AbstractModel implements Comparable
 {
 
     const FIELD_YEAR = 'Year';
@@ -109,22 +118,22 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     /**
      * Set up model with given value or with the current timestamp.
      *
-     * @param Zend_Date|Opus_Date|string $value (Optional) Some sort of date representation.
+     * @param \Zend_Date|Date|string $value (Optional) Some sort of date representation.
      * @return void
      */
     public function __construct($value = null)
     {
         parent::__construct();
 
-        if ($value instanceof Zend_Date) {
+        if ($value instanceof \Zend_Date) {
             $this->setZendDate($value);
-        } elseif ($value instanceof DateTime) {
+        } elseif ($value instanceof \DateTime) {
             $this->setDateTime($value);
         } elseif (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
             $this->setFromString($value);
         } elseif (is_string($value) and preg_match(self::DATEONLY_REGEXP, $value)) {
             $this->setFromString($value);
-        } elseif ($value instanceof Opus_Date) {
+        } elseif ($value instanceof Date) {
             $this->updateFrom($value);
         } elseif (is_integer($value)) {
             $this->setTimestamp($value);
@@ -157,22 +166,22 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         $this->resetValues();
 
         foreach ($this->values as $fieldName => $value) {
-            $field = new Opus_Model_DateField($fieldName, $this);
+            $field = new DateField($fieldName, $this);
             if ($fieldName !== 'Timezone') {
-                $field->setValidator(new Zend_Validate_Int);
+                $field->setValidator(new \Zend_Validate_Int);
             }
             $this->addField($field);
         }
 
-        $field = new Opus_Model_UnixTimestampField('UnixTimestamp', $this);
+        $field = new UnixTimestampField('UnixTimestamp', $this);
         $this->addField($field);
     }
 
     /**
-     * Returns a Zend_Date instance properly set up with
+     * Returns a \Zend_Date instance properly set up with
      * date values as described in the Models fields.
      *
-     * @return Zend_Date
+     * @return \Zend_Date
      */
     public function getZendDate()
     {
@@ -192,14 +201,14 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
             }
         }
 
-        return new Zend_Date($datearray);
+        return new \Zend_Date($datearray);
     }
 
     /**
      * Returns a DateTime instance properly set up with
      * date values as described in the Models fields.
      *
-     * @return DateTime
+     * @return \DateTime
      */
     public function getDateTime($timezone = null)
     {
@@ -211,19 +220,19 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         if ($this->isDateOnly()) {
             if (! is_null($timezone)) {
                 $date = substr($date, 0, 10) . 'T00:00:00' . $timezone;
-                return DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+                return \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             } else {
                 $date = substr($date, 0, 10) . 'T00:00:00';
-                return DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+                return \DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
             }
         }
 
-        $dateTime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+        $dateTime = \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
         if (! is_null($timezone)) {
             if ($timezone === 'Z') {
                 $timezone = 'UTC';
             }
-            $dateTime->setTimezone(new DateTimeZone($timezone));
+            $dateTime->setTimezone(new \DateTimeZone($timezone));
         }
         return $dateTime;
     }
@@ -231,13 +240,13 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     /**
      * Set date and time values from DateTime instance.
      *
-     * @param DateTime $date DateTime instance to use.
-     * @return Opus_Date provide fluent interface.
+     * @param \DateTime $date DateTime instance to use.
+     * @return Date provide fluent interface.
      */
     public function setDateTime($datetime)
     {
-        if (! $datetime instanceof DateTime) {
-            throw new InvalidArgumentException('Invalid DateTime object.');
+        if (! $datetime instanceof \DateTime) {
+            throw new \InvalidArgumentException('Invalid DateTime object.');
         }
 
         $this->values[self::FIELD_YEAR] = $datetime->format("Y");
@@ -256,8 +265,8 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     /**
      * Set date values from DateTime instance; shortcut for date-setting only.
      *
-     * @param DateTime $date DateTime instance to use.
-     * @return Opus_Date provide fluent interface.
+     * @param \DateTime $date DateTime instance to use.
+     * @return Date provide fluent interface.
      */
     public function setDateOnly($datetime)
     {
@@ -284,21 +293,21 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     }
 
     /**
-     * Set date values from Zend_Date instance.
+     * Set date values from \Zend_Date instance.
      *
-     * @param Zend_Date $date Zend_Date instance to use.
+     * @param \Zend_Date $date \Zend_Date instance to use.
      * @return void
      *
-     * TODO new Opus_Date(new Zend_Date('2017/03/12') often works, but sometimes
+     * TODO new Date(new \Zend_Date('2017/03/12') often works, but sometimes
      * the resulting date is '2017/12/03'. This happens in the OPUS 4 application
      * sometimes and can be tested there. Maybe it depends on the locale that has
      * been set during bootstrapping.
      *
      * @deprecated Sometimes date conversion does not work properly (OPUSVIER-3713).
      */
-    public function setZendDate(Zend_Date $date)
+    public function setZendDate(\Zend_Date $date)
     {
-        $this->setFromString($date->get(Zend_Date::ISO_8601));
+        $this->setFromString($date->get(\Zend_Date::ISO_8601));
     }
 
     /**
@@ -311,18 +320,18 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     public function setFromString($date)
     {
         if (true === empty($date)) {
-            throw new InvalidArgumentException('Empty date string passed.');
+            throw new \InvalidArgumentException('Empty date string passed.');
         }
 
         if (preg_match(self::TIMEDATE_REGEXP, $date)) {
-            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+            $datetime = \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateTime($datetime);
         } elseif (preg_match(self::DATEONLY_REGEXP, $date)) {
             $date = substr($date, 0, 10) . 'T00:00:00Z';
-            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+            $datetime = \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateOnly($datetime);
         } else {
-            throw new InvalidArgumentException('Invalid date-time string.');
+            throw new \InvalidArgumentException('Invalid date-time string.');
         }
     }
 
@@ -333,16 +342,16 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      */
     public function setNow()
     {
-        $this->setDateTime(new DateTime());
+        $this->setDateTime(new \DateTime());
     }
 
     /**
-     * Creates Opus_Date object set to the time of creation.
-     * @return Opus_Date
+     * Creates Opus\Date object set to the time of creation.
+     * @return Date
      */
     public static function getNow()
     {
-        $date = new Opus_Date();
+        $date = new Date();
         $date->setNow();
         return $date;
     }
@@ -411,9 +420,9 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     /**
      * Synchronize dependent fields.
      *
-     * @param Opus_Model_Field $field
+     * @param Field $field
      * @param array|null $values
-     * @return Opus_Model_Abstract
+     * @return AbstractModel
      *
      * TODO If multiple values are set the unix timestamp is updated several times. It might make more sense to generate it on demand.
      */
@@ -446,9 +455,9 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     }
 
     /**
-     * Compares to another Opus_Date objekt.
-     * @param $date2 Opus_Date object
-     * @throws Opus\Model\Exception
+     * Compares to another Opus\Date objekt.
+     * @param $date2 Date object
+     * @throws ModelException
      */
     public function compare($date)
     {
@@ -457,24 +466,24 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
             return 1;
         }
 
-        if (! $date instanceof Opus_Date) {
+        if (! $date instanceof Date) {
             $class = get_class();
             $dateClass = get_class($date);
-            throw new Opus\Model\Exception("Cannot compare $dateClass with $class object.");
+            throw new ModelException("Cannot compare $dateClass with $class object.");
         }
 
         $thisDateTime = $this->getDateTime('Z');
 
         if (is_null($thisDateTime)) {
             $dateStr = htmlspecialchars($this->__toString());
-            throw new Opus\Model\Exception("Date '$dateStr' is invalid.");
+            throw new ModelException("Date '$dateStr' is invalid.");
         }
 
         $dateTime = $date->getDateTime('Z');
 
         if (is_null($dateTime)) {
             $dateStr = htmlspecialchars($date->__toString());
-            throw new Opus\Model\Exception("Date '$dateStr' is invalid.");
+            throw new ModelException("Date '$dateStr' is invalid.");
         }
 
         $thisTimestamp = $thisDateTime->getTimestamp();
@@ -531,8 +540,8 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      * The UnixTimestamp is a read-only field and should not be set.
      *
      * @param $value
-     * @throws Opus_Model_Exception
-     * @throws Opus_Security_Exception
+     * @throws ModelException
+     * @throws SecurityException
      * @deprecated
      */
     public function setUnixTimestamp($value)

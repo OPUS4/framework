@@ -25,20 +25,22 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model;
+
 /**
- * Date field retrieving information from parent Opus_Date object.
+ * Date field retrieving information from parent Opus\Date object.
  *
  * For now the field objects are kept for compatibility reasons.
  *
- * TODO really necessary - simplify Opus_Date
+ * TODO really necessary? - simplify Opus\Date
  */
-class Opus_Model_DateField extends Opus_Model_Field
+class DateField extends Field
 {
 
     protected $parent;

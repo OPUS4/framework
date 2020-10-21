@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -25,7 +25,21 @@
  * TODO add interface (database implementation just one option)
  */
 
-class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
+namespace Opus\Model\Xml;
+
+use Opus\Db\DocumentXmlCache;
+use Opus\Document;
+use Opus\DocumentFinder;
+use Opus\Model\ModelException;
+use Opus\Model\NotFoundException;
+
+/**
+ * Class Cache
+ * @package Opus\Model\Xml
+ *
+ * TODO NAMESPACE rename class
+ */
+class Cache implements \Opus\Model\Xml\XmlCacheInterface
 {
 
     use \Opus\LoggingTrait;
@@ -33,7 +47,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
     /**
      * Holds gateway instance to document xml cache table
      *
-     * @var Opus_Db_DocumentXmlCache
+     * @var DocumentXmlCache
      */
     private $_table = null;
 
@@ -59,7 +73,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      */
     public function __construct()
     {
-        $this->_table = new Opus_Db_DocumentXmlCache();
+        $this->_table = new DocumentXmlCache();
     }
 
     /**
@@ -67,12 +81,12 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
-     * @throws Opus\Model\Exception in case an XML processing error occurred
-     * @return DOMDocument
+     * @throws ModelException in case an XML processing error occurred
+     * @return \DOMDocument
      */
     public function get($documentId, $xmlVersion)
     {
-        $dom = new DOMDocument('1.0', 'utf-8');
+        $dom = new \DOMDocument('1.0', 'utf-8');
 
         $xmlData = $this->getData($documentId, $xmlVersion);
 
@@ -90,8 +104,8 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
                         'error message: ' . $error->message . "\n\t" .
                         'line:column: ' . $error->line . ':' . $error->column;
                 }
-                Zend_Registry::get('Zend_Log')->err($errMsg);
-                throw new Opus\Model\Exception($errMsg);
+                \Zend_Registry::get('Zend_Log')->err($errMsg);
+                throw new ModelException($errMsg);
             }
         }
 
@@ -100,8 +114,8 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
 
     /**
      * Returns document XML from cache.
-     * @param $documentId Database ID of document
-     * @param $xmlVersion Version of XML
+     * @param $documentId int Database ID of document
+     * @param $xmlVersion string Version of XML
      * @return null|string Document XML from cache
      */
     public function getData($documentId, $xmlVersion)
@@ -185,10 +199,10 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      * @param mixed       $documentId
      * @param mixed       $xmlVersion
      * @param mixed       $serverDateModified
-     * @param DOMDocument $xmlData
+     * @param \DOMDocument $xmlData
      * @return void
      */
-    public function put($documentId, $xmlVersion, $serverDateModified, DOMDocument $xmlData)
+    public function put($documentId, $xmlVersion, $serverDateModified, \DOMDocument $xmlData)
     {
         // skip adding cache entry if it is a valid entry already existing
         if (true === $this->hasValidEntry($documentId, $xmlVersion, $serverDateModified)) {
@@ -254,7 +268,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
     /**
      * Removes a all cache entries matching given constraint.
      *
-     * @param Zend_Db_Select $select Select statement to use as subselect
+     * @param \Zend_Db_Select $select Select statement to use as subselect
      *  The statement MUST return a list of document ids
      * @return void
      */
@@ -271,7 +285,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      */
     public function clear()
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db = \Zend_Db_Table::getDefaultAdapter();
         $db->query('truncate table document_xml_cache');
     }
 
@@ -281,7 +295,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      */
     public function removeAllEntriesForDependentModel($model)
     {
-        $documentFinder = new Opus_DocumentFinder();
+        $documentFinder = new DocumentFinder();
 
         $documentFinder->setDependentModel($model);
         $select = $documentFinder->getSelectIds();
@@ -305,8 +319,8 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
         }
 
         try {
-            $doc = new Opus_Document($documentId);
-        } catch (Opus_Model_NotFoundException $e) {
+            $doc = new Document($documentId);
+        } catch (NotFoundException $e) {
             // document requested for indexing does not longer exist: we could simply ignore this
             return;
         }

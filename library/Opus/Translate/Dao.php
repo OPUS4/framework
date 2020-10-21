@@ -31,6 +31,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Translate;
+
+use Opus\Db\TableGateway;
+
 /**
  * Class for managing custom translations in database.
  *
@@ -48,12 +52,16 @@
  *      This is functionality for the management user interface. The translations are always needed with the module
  *      information.
  */
-class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
+class Dao implements StorageInterface
 {
+
+    const TABLE_TRANSLATION_KEYS = 'Opus\Db\TranslationKeys';
+
+    const TABLE_TRANSLATIONS = 'Opus\Db\Translations';
 
     public function remove($key, $module = null)
     {
-        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
 
         $where = $keysTable->getAdapter()->quoteInto('`key` = ?', $key);
 
@@ -65,7 +73,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function removeAll()
     {
-        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
 
         $keysTable->delete('1 = 1');
     }
@@ -76,7 +84,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function removeModule($module)
     {
-        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
         $where = $keysTable->getAdapter()->quoteInto('`module` = ?', $module);
         $keysTable->delete($where);
     }
@@ -95,7 +103,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
             return $this->remove($key, $module);
         }
 
-        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
 
         $database = $keysTable->getAdapter();
 
@@ -108,7 +116,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
 
         $keyId = $database->lastInsertId();
 
-        $translationsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $translationsTable = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
         foreach ($translation as $language => $value) {
             $translationsTable->insertIgnoreDuplicate([
@@ -132,7 +140,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function getTranslation($key, $locale = null, $module = null)
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
         $select = $table->getAdapter()->select()
             ->from(['t' => 'translations'], ['locale', 'value'])
@@ -186,7 +194,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function getTranslations($module = null)
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
         $select = $table->getAdapter()->select()
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
@@ -213,7 +221,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
 
     public function getTranslationsByLocale($module = null)
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
         $select = $table->getAdapter()->select()
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
@@ -244,7 +252,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function addTranslations($translations, $module = 'default')
     {
-        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
 
         $database = $keysTable->getAdapter();
 
@@ -258,7 +266,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
 
             $keyId = $keysTable->getAdapter()->lastInsertId();
 
-            $translationsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+            $translationsTable = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
             foreach ($locales as $language => $value) {
                 $translationsTable->insertIgnoreDuplicate([
@@ -283,11 +291,11 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
     /**
      * Renames translation key.
      *
-     * @throws Opus_Translate_Exception
+     * @throws TranslateException
      */
     public function renameKey($key, $newKey, $module = 'default')
     {
-        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
 
         $database = $keysTable->getAdapter();
 
@@ -305,8 +313,8 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
 
         try {
             $keysTable->update($data, $where);
-        } catch (Zend_Db_Statement_Exception $ndbse) {
-            throw new Opus_Translate_Exception($ndbse);
+        } catch (\Zend_Db_Statement_Exception $ndbse) {
+            throw new TranslateException($ndbse);
         }
 
         $database->commit();
@@ -314,7 +322,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
 
     public function getTranslationsWithModules($modules = null)
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
         $select = $table->getAdapter()->select()
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value', 'keys.module'])
@@ -350,7 +358,7 @@ class Opus_Translate_Dao implements \Opus\Translate\StorageInterface
      */
     public function getModules()
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
+        $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
 
         $select = $table->getAdapter()->select()
             ->from(['keys' => 'translationkeys'], ['keys.module'])->distinct();

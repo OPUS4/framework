@@ -33,12 +33,17 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+
 /**
  * Domain model for titles in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
@@ -49,7 +54,7 @@
  * @method void setType(string $type)
  * @method string getType()
  */
-class Opus_Title extends Opus_Model_Dependent_Abstract
+class Title extends AbstractDependentModel
 {
 
     const TYPE_MAIN = 'main';
@@ -70,9 +75,9 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentTitleAbstracts';
 
     /**
      * Initialize model with the following fields:
@@ -83,18 +88,18 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $language = new Opus_Model_Field('Language');
-        if (Zend_Registry::isRegistered('Available_Languages') === true) {
-            $language->setDefault(Zend_Registry::get('Available_Languages'));
+        $language = new Field('Language');
+        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
+            $language->setDefault(\Zend_Registry::get('Available_Languages'));
         }
         $language->setSelection(true);
         $language->setMandatory(true);
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty())
+            ->setValidator(new \Zend_Validate_NotEmpty())
             ->setTextarea(true);
 
-        $type = new Opus_Model_Field('Type');
+        $type = new Field('Type');
         $type->setMandatory(false);
         $type->setSelection(true);
         $type->setDefault([

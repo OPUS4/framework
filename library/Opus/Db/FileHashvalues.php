@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,14 +33,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Model class for database operations on table file_hashvalues.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_FileHashvalues extends Opus_Db_TableGateway
+class FileHashvalues extends TableGateway
 {
     /**
      * Contains table name
@@ -65,7 +67,7 @@ class Opus_Db_FileHashvalues extends Opus_Db_TableGateway
     protected $_referenceMap = [
         'DocumentFiles' => [
             'columns' => 'file_id',
-            'refTableClass' => 'Opus_Db_DocumentFiles',
+            'refTableClass' => 'Opus\Db\DocumentFiles',
             'refColumns' => 'id'
         ]
     ];

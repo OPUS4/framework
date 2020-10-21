@@ -25,59 +25,67 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace OpusTest\Model;
+
+use Opus\Model\AbstractModel;
+use Opus\Model\Filter;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Test cases for class Opus_Model_Filter.
+ * Test cases for class Opus\Model\Filter.
  *
- * @package Opus_Model
+ * @package Opus\Model
  * @category Tests
  *
  * @group FilterTest
  */
-class Opus_Model_FilterTest extends TestCase
+class FilterTest extends TestCase
 {
 
     /**
      * Holds model that gets filtered.
      *
-     * @var Opus_Model_Abstract
+     * @var AbstractModel
      */
     protected $model = null;
 
     /**
      * Holds filter instance wrapping the model in $model.
      *
-     * @var Opus_Model_Filter
+     * @var Filter
      */
     protected $filter = null;
 
     public function setUp()
     {
-        if (false === class_exists('Opus_Model_FilterTest_Mock', false)) {
-            $clazz =
-            'class Opus_Model_FilterTest_Mock extends Opus_Model_Abstract {
-                protected $_internalFields = array(\'InternalField\');
+        // TODO NAMESPACE is this good code? does it work?
 
-                protected function _init() {
-                    $this->addField(new Opus_Model_Field(\'InternalField\'));
-                    $this->addField(new Opus_Model_Field(\'Field1\'));
-                    $this->addField(new Opus_Model_Field(\'Field2\'));
-                    $field = new Opus_Model_Field(\'Field3\');
-                    $field->setMultiplicity(3);
-                    $this->addField($field);
+        if (false === class_exists('opusFilterTestMock', false)) {
+            eval('
+                class opusFilterTestMock extends \Opus\Model\AbstractModel 
+                {
+                    protected $_internalFields = array(\'InternalField\');
+    
+                    protected function _init() {
+                        $this->addField(new \Opus\Model\Field(\'InternalField\'));
+                        $this->addField(new \Opus\Model\Field(\'Field1\'));
+                        $this->addField(new \Opus\Model\Field(\'Field2\'));
+                        $field = new \Opus\Model\Field(\'Field3\');
+                        $field->setMultiplicity(3);
+                        $this->addField($field);
+                    }
                 }
-            }';
-            eval($clazz);
+            ');
         }
-        $this->model = new Opus_Model_FilterTest_Mock;
-        $this->filter = new Opus_Model_Filter();
+        $this->model = new \opusFilterTestMock();
+        $this->filter = new Filter();
         $this->filter->setModel($this->model);
     }
 
@@ -177,7 +185,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException('Opus\Model\ModelException');
         $field = $this->filter->getField('Field2');
     }
 
@@ -190,7 +198,7 @@ class Opus_Model_FilterTest extends TestCase
     {
         try {
             $this->filter->addField3('fsdfd');
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->fail('Add call on visible field should be permitted.');
         }
     }
@@ -205,7 +213,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException('Opus\Model\ModelException');
         $field = $this->filter->addField2();
     }
 
@@ -219,7 +227,7 @@ class Opus_Model_FilterTest extends TestCase
     {
         try {
             $this->filter->getField1();
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->fail('Get call on visible field should be permitted.');
         }
     }
@@ -234,7 +242,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException('Opus\Model\ModelException');
         $field = $this->filter->getField2();
     }
 
@@ -247,7 +255,7 @@ class Opus_Model_FilterTest extends TestCase
     {
         try {
             $this->filter->setField1('value');
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->fail('Set call on visible field should be permitted.');
         }
     }
@@ -262,7 +270,7 @@ class Opus_Model_FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException('Opus\Model\ModelException');
         $field = $this->filter->setField2('value');
     }
 

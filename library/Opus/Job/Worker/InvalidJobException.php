@@ -25,20 +25,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Job\Worker;
 
 /**
- * Exception type for Opus_Model when trying to access invalid id.
+ * Exception type for Opus\Model when trying to access invalid id.
  *
  * @category Framework
- * @package  Opus_Model
+ * @package  Opus\Model
  */
-class Opus_Job_Worker_InvalidJobException extends Exception
+class InvalidJobException extends \Exception
 {
 
 }

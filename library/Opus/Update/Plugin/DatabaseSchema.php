@@ -31,10 +31,14 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Update\Plugin;
+
+use Opus\Database;
+
 /**
  * Class for updating the database schema for new version of OPUS.
  */
-class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
+class DatabaseSchema extends AbstractUpdatePlugin
 {
 
     private $_targetVersion = null;
@@ -45,9 +49,9 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
     public function run()
     {
         $this->clearCache();
-        Zend_Db_Table_Abstract::setDefaultMetadataCache(null);
+        \Zend_Db_Table_Abstract::setDefaultMetadataCache(null);
 
-        $database = new Opus_Database();
+        $database = new Database();
 
         $version = $database->getVersion();
 
@@ -97,7 +101,7 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
 
     public function clearCache()
     {
-        $cache = Zend_Db_Table_Abstract::getDefaultMetadataCache();
+        $cache = \Zend_Db_Table_Abstract::getDefaultMetadataCache();
         if (! is_null($cache)) {
             $cache->clean(Zend_Cache::CLEANING_MODE_ALL);
         }

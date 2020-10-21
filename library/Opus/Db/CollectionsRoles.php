@@ -25,21 +25,22 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Collections
+ * @package     Opus\Collections
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'collections_roles'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-
-class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway
+class CollectionsRoles extends TableGateway
 {
 
     /**
@@ -55,5 +56,5 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = ['Opus_Db_Collections'];
+    protected $_dependentTables = ['Opus\Db\Collections'];
 }

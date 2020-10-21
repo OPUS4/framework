@@ -32,6 +32,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use OpusTest\TestAsset\TestCase;
+
 /**
  * Test cases to load all class files.
  *
@@ -41,7 +45,7 @@
  * @group RequireTest
  *
  */
-class Opus_RequireTest extends TestCase
+class RequireTest extends TestCase
 {
 
     /**
@@ -82,7 +86,12 @@ class Opus_RequireTest extends TestCase
         }
     }
 
-    public function instanciateTestProvider()
+    /**
+     * @return array
+     *
+     * TODO NAMESPACE fix - it is looking for classes with Opus_
+     */
+    public function instantiateTestProvider()
     {
         $path = APPLICATION_PATH . '/library/Opus/';
         $cmd = "find $path -type f -iname \"*php\" -print0 |xargs -r0 grep -hE \"class[[:space:]]+Opus_\" |cut -d\" \" -f 2 |grep Opus_";
@@ -90,34 +99,34 @@ class Opus_RequireTest extends TestCase
         exec($cmd, $classes);
 
         $blacklist = [
-            'Opus_Validate_MateDecorator',
-            'Opus_Db_Adapter_Pdo_Mysqlutf8',
-            'Opus_Bootstrap_Base',
-            'Opus_Statistic_LocalCounter',
-            'Opus_Identifier_Urn',
-            'Opus_GPG',
-            'Opus_Security_Realm',
-            'Opus_Model_Field',
-            'Opus_Model_UnixTimestampField',
-            'Opus_Model_DateField',
-            'Opus_Storage_File',
-            'Opus_Reviewer',
-            'Opus_Privilege',
-            'Opus_SolrSearch_Exception',
-            'Opus_Util_MetadataImport',
-            'Opus_Search_Solr_Solarium_Document',
-            'Opus_Search_Solr_Solarium_Adapter',
-            'Opus_Search_Solr_Solarium_Filter_Complex',
-            'Opus_Search_Solr_Document_Xslt',
-            'Opus_Search_Solr_Filter_Raw',
-            'Opus_Search_Facet_Set',
-            'Opus_Search_Facet_Field',
-            'Opus_Search_Result_Facet',
-            'Opus_Search_Result_Match',
-            'Opus_Search_Filter_Simple',
-            'Opus_Translate_DatabaseAdapter',
-            'Opus_Translate_DefaultAdapter',
-            'Opus_Doi_DataCiteXmlGenerationException'
+            'Opus\Validate\MateDecorator',
+            'Opus\Db\Adapter\Pdo\Mysqlutf8',
+            'Opus\Bootstrap\Base',
+            'Opus\Statistic\LocalCounter',
+            'Opus\Identifier\Urn',
+            'Opus\GPG',
+            'Opus\Security\Realm',
+            'Opus\Model\Field',
+            'Opus\Model\UnixTimestampField',
+            'Opus\Model\DateField',
+            'Opus\Storage\File',
+            'Opus\Reviewer',
+            'Opus\Privilege',
+            'Opus\SolrSearch\Exception',
+            'Opus\Util\MetadataImport',
+            'Opus\Search\Solr\Solarium\Document',
+            'Opus\Search\Solr\Solarium\Adapter',
+            'Opus\Search\Solr\Solarium\Filter\Complex',
+            'Opus\Search\Solr\Document\Xslt',
+            'Opus\Search\Solr\Filter\Raw',
+            'Opus\Search\Facet\Set',
+            'Opus\Search\Facet\Field',
+            'Opus\Search\Result\Facet',
+            'Opus\Search\Result\Match',
+            'Opus\Search\Filter\Simple',
+            'Opus\Translate\DatabaseAdapter',
+            'Opus\Translate\DefaultAdapter',
+            'Opus\Doi\DataCiteXmlGenerationException'
         ];
 
         $data = [];
@@ -133,20 +142,20 @@ class Opus_RequireTest extends TestCase
     }
 
     /**
-     * Try to load all class files and instanciate objects.
+     * Try to load all class files and instantiate objects.
      *
      * @return void
      *
      * Class files must be loaded (required_once) before the classes can be used.
      * @depends testRequire
      *
-     * @dataProvider instanciateTestProvider
+     * @dataProvider instantiateTestProvider
      */
-    public function testInstanciateTest($class)
+    public function testInstantiateTest($class)
     {
         try {
             new $class();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->fail("Loading class $class failed: " . $e->getMessage());
         }
     }

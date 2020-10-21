@@ -25,21 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class for link table "link_documents_series".
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway
+class LinkDocumentsSeries extends TableGateway
 {
 
     /**
@@ -65,12 +67,12 @@ class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway
     protected $_referenceMap = [
         'Documents' => [
             'columns' => 'document_id',
-            'refTableClass' => 'Opus_Db_Documents',
+            'refTableClass' => 'Opus\Db\Documents',
             'refColumns' => 'id',
         ],
         'Series' => [
             'columns' => 'series_id',
-            'refTableClass' => 'Opus_Db_Series',
+            'refTableClass' => 'Opus\Db\Series',
             'refColumns' => 'id'
         ],
     ];
