@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,14 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+use Opus\Storage\FileAccessException;
+use Opus\Storage\FileNotFoundException;
+use Opus\Storage\StorageException;
 
 /**
  * Domain model for files in the Opus framework
@@ -41,17 +49,17 @@
  * Hash values for files are cached in the object. If a new object is created the hash values will be calculated again.
  * The hashes are for instance used to generate a filename for the text extraction cache. This causes a lot a hash
  * calculations. Therefore caching the hashes improves performance. The risk of a file being changed during the
- * existence of an Opus_File object is small.
+ * existence of an Opus\File object is small.
  *
  * @category    Framework
- * @package     Opus_Model
- * @uses        Opus_Model_Abstract
+ * @package     Opus\Model
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method boolean getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
  * @method boolean getVisibleInOai()
  * @method string getMimeType() retrieves value of field MimeType
  */
-class Opus_File extends Opus_Model_Dependent_Abstract
+class File extends AbstractDependentModel
 {
 
     /**
@@ -62,15 +70,15 @@ class Opus_File extends Opus_Model_Dependent_Abstract
     public function getDefaultPlugins()
     {
         return [
-            'Opus_File_Plugin_DefaultAccess',
-            'Opus_Model_Plugin_InvalidateDocumentCache'
+            'Opus\File\Plugin\DefaultAccess',
+            'Opus\Model\Plugin\InvalidateDocumentCache'
         ];
     }
 
     /**
      * Holds storage object.
      *
-     * @var Opus_Storage_File
+     * @var \Opus\Storage\File
      */
     private $_storage;
 
@@ -84,21 +92,21 @@ class Opus_File extends Opus_Model_Dependent_Abstract
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentFiles';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentFiles';
 
     /**
      * The file models external fields, i.e. those not mapped directly to the
-     * Opus_Db_DocumentFiles table gateway.
+     * Opus\Db\DocumentFiles table gateway.
      *
      * @var array
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see \Opus\Model\Abstract::$_externalFields
      */
     protected $_externalFields = [
         'TempFile' => [],
         'HashValue' => [
-            'model' => 'Opus_HashValues'
+            'model' => 'Opus\HashValues'
         ],
     ];
 
@@ -116,34 +124,34 @@ class Opus_File extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $filepathname = new Opus_Model_Field('PathName');
+        $filepathname = new Field('PathName');
         $filepathname->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty());
+                ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $filelabel = new Opus_Model_Field('Label');
-        $filecomment = new Opus_Model_Field('Comment');
-        $mimetype = new Opus_Model_Field('MimeType');
+        $filelabel = new Field('Label');
+        $filecomment = new Field('Comment');
+        $mimetype = new Field('MimeType');
 
-        $filelanguage = new Opus_Model_Field('Language');
-        if (Zend_Registry::isRegistered('Available_Languages') === true) {
-            $filelanguage->setDefault(Zend_Registry::get('Available_Languages'));
+        $filelanguage = new Field('Language');
+        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
+            $filelanguage->setDefault(\Zend_Registry::get('Available_Languages'));
         }
         $filelanguage->setSelection(true);
 
-        $tempfile = new Opus_Model_Field('TempFile');
+        $tempfile = new Field('TempFile');
 
-        $serverDateSubmitted = new Opus_Model_Field('ServerDateSubmitted');
-        $serverDateSubmitted->setValueModelClass('Opus_Date');
+        $serverDateSubmitted = new Field('ServerDateSubmitted');
+        $serverDateSubmitted->setValueModelClass('Opus\Date');
 
-        $sortOrder = new Opus_Model_Field('SortOrder');
+        $sortOrder = new Field('SortOrder');
 
-        $filesize = new Opus_Model_Field('FileSize');
+        $filesize = new Field('FileSize');
         $filesize->setMandatory(true);
 
-        $visibleInFrontdoor = new Opus_Model_Field('VisibleInFrontdoor');
-        $visibleInOai = new Opus_Model_Field('VisibleInOai');
+        $visibleInFrontdoor = new Field('VisibleInFrontdoor');
+        $visibleInOai = new Field('VisibleInOai');
 
-        $hashvalue = new Opus_Model_Field('HashValue');
+        $hashvalue = new Field('HashValue');
         $hashvalue->setMandatory(true)
                 ->setMultiplicity('*');
 
@@ -163,22 +171,22 @@ class Opus_File extends Opus_Model_Dependent_Abstract
 
     public static function fetchByDocIdPathName($docId, $pathName)
     {
-        $files = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $files = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $files->select()
                 ->where('document_id = ?', $docId)
                 ->where('path_name = ?', $pathName);
         $row = $files->fetchRow($select);
 
         if (! is_null($row)) {
-            return new Opus_File($row);
+            return new File($row);
         }
         return null;
     }
 
     /**
-     * Prepare and return Opus_Storage_File object for filesystem manipulation.
+     * Prepare and return Opus\Storage\File object for filesystem manipulation.
      *
-     * @return Opus_Storage_File Storage object.
+     * @return \Opus\Storage\File Storage object.
      */
     private function getStorage()
     {
@@ -187,12 +195,12 @@ class Opus_File extends Opus_Model_Dependent_Abstract
         }
 
         if (is_null($this->getParentId())) {
-            throw new Opus\Model\Exception('ParentId is not set!');
+            throw new ModelException('ParentId is not set!');
         }
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $filesPath = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
-        $this->_storage = new Opus_Storage_File($filesPath, $this->getParentId());
+        $this->_storage = new \Opus\Storage\File($filesPath, $this->getParentId());
 
         return $this->_storage;
     }
@@ -233,7 +241,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract
      *
      * Determine and set file mime type.
      *
-     * @see Opus_Model_AbstractDb::_preStore()
+     * @see Opus\Model\AbstractDb::_preStore()
      */
     protected function _preStore()
     {
@@ -275,7 +283,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract
         }
 
         if ($this->isNewRecord()) {
-            $dateNow = new Opus_Date();
+            $dateNow = new Date();
             $dateNow->setNow();
             $this->setServerDateSubmitted($dateNow);
         }
@@ -306,10 +314,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract
     /**
      * Deletes a file from filespace and if directory are empty it will be deleted too.
      *
-     * @see    library/Opus/Model/Opus_Model_AbstractDb#doDelete()
-     * @throws Opus_Storage_Exception if not a file, or empty directory could not be deleted
-     * @throws Opus_Storage_FileNotFoundException  if file does not exist
-     * @throws Opus_Storage_FileAccessException if file could not be deleted
+     * @see    library/Opus/Model/Opus\Model\AbstractDb#doDelete()
+     * @throws StorageException if not a file, or empty directory could not be deleted
+     * @throws FileNotFoundException  if file does not exist
+     * @throws FileAccessException if file could not be deleted
      * @return void
      */
     public function doDelete($token)
@@ -355,7 +363,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract
         $this->_hashValues[$type] = $hash;
 
         if (empty($hash)) {
-            throw new Exception("Empty HASH for file '" . $this->getPath() . "'");
+            throw new \Exception("Empty HASH for file '" . $this->getPath() . "'");
         }
 
         return $hash;
@@ -400,7 +408,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract
      */
     public function canVerify()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
 
         $maxVerifyFilesize = -1;
         if (isset($config->checksum->maxVerificationSize)) {
@@ -429,7 +437,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract
         $hashs = [];
 
         foreach ($hashtypes as $type) {
-            $hash = new Opus_HashValues();
+            $hash = new HashValues();
             $hash->setType($type);
             $hashString = $this->getRealHash($type);
 
@@ -441,10 +449,15 @@ class Opus_File extends Opus_Model_Dependent_Abstract
 
     public function _setDefaults()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
 
         if (isset($config->files->visibleInOaiDefault)) {
             $this->setVisibleInOai(filter_var($config->files->visibleInOaiDefault, FILTER_VALIDATE_BOOLEAN));
         }
+    }
+
+    public function getModelType()
+    {
+        return 'file';
     }
 }

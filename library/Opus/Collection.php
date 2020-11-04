@@ -35,8 +35,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Opus\Model\NotFoundException;
+use Opus\Model\Xml\Strategy;
+
 /**
- * Class Opus_Collection
+ * Class Opus\Collection
  *
  * @method void setNumber(string $number)
  * @method string getNumber()
@@ -53,13 +61,13 @@
  * @method void setVisiblePublish(boolean $visiblePublish)
  * @method boolean getVisiblePublish
  *
- * Fields proxied from Opus_CollectionRole
+ * Fields proxied from Opus\CollectionRole
  *
  * @method void setRoleId(integer $roleId) // TODO correct?
  * @method integer getRoleId()
  *
- * @method void setRole(Opus_CollectionRole $role)
- * @method Opus_CollectionRole getRole()
+ * @method void setRole(CollectionRole $role)
+ * @method CollectionRole getRole()
  *
  * @method void setRoleDisplayFrontdoor() // TODO
  *
@@ -67,17 +75,17 @@
  *
  * @method string getDisplayFrontdoor() // TODO
  *
- * TODO check what output array for Opus_Collection looks like - document!!!
+ * TODO check what output array for Opus\Collection looks like - document!!!
  */
-class Opus_Collection extends Opus_Model_AbstractDb
+class Collection extends AbstractDb
 {
 
     /**
      * Specify the table gateway.
      *
-     * @see Opus_Db_Collections
+     * @see \Opus\Db\Collections
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Collections';
+    protected static $_tableGatewayClass = 'Opus\Db\Collections';
 
     /**
      * Plugins to load
@@ -87,24 +95,24 @@ class Opus_Collection extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache',
-            'Opus_Collection_Plugin_DeleteSubTree'
+            'Opus\Model\Plugin\InvalidateDocumentCache',
+            'Opus\Collection\Plugin\DeleteSubTree'
         ];
     }
 
     /**
      * The collections external fields, i.e. those not mapped directly to the
-     * Opus_Db_Collections table gateway.
+     * Opus\Db\Collections table gateway.
      *
      * @var array
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see \Opus\Model\Abstract::$_externalFields
      */
     protected $_externalFields = [
         'Theme' => [
             'fetch' => 'lazy',
         ],
         'Role' => [
-            'model' => 'Opus_CollectionRole',
+            'model' => 'Opus\CollectionRole',
             'fetch' => 'lazy',
         ],
         'RoleName' => [
@@ -123,19 +131,19 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
         // Will contain the Collections to the Root Collection
         'Parents' => [
-            'model' => 'Opus_Collection',
+            'model' => 'Opus\Collection',
             'fetch' => 'lazy',
         ],
 
         // Will contain the Collections with parentId = this->getId
         'Children' => [
-            'model' => 'Opus_Collection',
+            'model' => 'Opus\Collection',
             'fetch' => 'lazy',
         ],
 
         // Pending nodes.
         'PendingNodes' => [
-            'model' => 'Opus_Collection',
+            'model' => 'Opus\Collection',
             'fetch' => 'lazy',
         ],
     ];
@@ -156,16 +164,16 @@ class Opus_Collection extends Opus_Model_AbstractDb
         ];
 
         foreach ($fields as $field) {
-            $field = new Opus_Model_Field($field);
+            $field = new Field($field);
             $this->addField($field);
         }
 
-        $visible = new Opus_Model_Field('Visible');
+        $visible = new Field('Visible');
         $visible->setCheckbox(true);
         $this->addField($visible);
 
         // Add a field to hold collection specific theme.
-        $theme = new Opus_Model_Field('Theme');
+        $theme = new Field('Theme');
         $theme->setSelection(true);
         $this->addField($theme);
 
@@ -174,12 +182,12 @@ class Opus_Collection extends Opus_Model_AbstractDb
          * External fields.
          */
 
-        $children = new Opus_Model_Field('Children');
+        $children = new Field('Children');
         $children->setMultiplicity('*');
         $this->addField($children);
 
         // Contains the path back to the root node.
-        $parents = new Opus_Model_Field('Parents');
+        $parents = new Field('Parents');
         $parents->setMultiplicity('*');
         $this->addField($parents);
 
@@ -193,14 +201,14 @@ class Opus_Collection extends Opus_Model_AbstractDb
             'NextSibling', 'PrevSibling'
         ];
 
-        $positionKey = new Opus_Model_Field('PositionKey');
+        $positionKey = new Field('PositionKey');
         $positionKey->setDefault($positionKeys);
         $this->addField($positionKey);
 
-        $positionId = new Opus_Model_Field('PositionId');
+        $positionId = new Field('PositionId');
         $this->addField($positionId);
 
-        $pendingNodes = new Opus_Model_Field('PendingNodes');
+        $pendingNodes = new Field('PendingNodes');
         $pendingNodes->setMultiplicity('*');
         $this->addField($pendingNodes);
     }
@@ -220,8 +228,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
-        $theme = Zend_Registry::get('Zend_Config')->theme; // TODO Weitere Abhängigkeit auf Applikation, oder?
+        $table = TableGateway::getInstance('Opus\Db\CollectionsEnrichments');
+        $theme = \Zend_Registry::get('Zend_Config')->theme; // TODO Weitere Abhängigkeit auf Applikation, oder?
 
         // Search for theme in database and, if exists, overwrite default theme.
         $select = $table->select()
@@ -255,13 +263,13 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $theme = '';
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
+        $table = TableGateway::getInstance('Opus\Db\CollectionsEnrichments');
         $select = $table->select()
                         ->where('key_name = ?', "theme")
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
-        if ($theme == '' || Zend_Registry::get('Zend_Config')->theme === $theme) {
+        if ($theme == '' || \Zend_Registry::get('Zend_Config')->theme === $theme) {
             // No need to store default theme setting.  Delete row if exists.
             if (isset($row)) {
                 $row->delete();
@@ -293,7 +301,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         assert(! is_null($this->getId()));
         assert(! is_null($this->getRoleId()));
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
+        $table = TableGateway::getInstance('Opus\Db\LinkDocumentsCollections');
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
@@ -314,7 +322,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
+        $table = TableGateway::getInstance('Opus\Db\LinkDocumentsCollections');
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         $select = $table->select()
@@ -333,7 +341,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     protected function _fetchRole()
     {
-        $role = new Opus_CollectionRole($this->getRoleId());
+        $role = new CollectionRole($this->getRoleId());
         return $role;
     }
 
@@ -342,7 +350,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $displayName = $this->getDisplayName('frontdoor');
         $parentId = $this->getParentNodeId();
         if (! empty($parentId)) {
-            $parent = new Opus_Collection($parentId);
+            $parent = new Collection($parentId);
             $parentDisplayName = $parent->getDisplayFrontdoor(); // implicitly calls $parent->_fetchDisplayFrontdoor()
             if (! empty($parentDisplayName)) {
                 $displayName = $parentDisplayName . ' / ' . $displayName;
@@ -435,8 +443,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function getDisplayName($context = 'browsing', $role = null)
     {
-        if (! is_null($role) && (! $role instanceof Opus_CollectionRole || $role->getId() != $this->getRoleId())) {
-            throw new InvalidArgumentException('given Collection Role is not compatible');
+        if (! is_null($role) && (! $role instanceof CollectionRole || $role->getId() != $this->getRoleId())) {
+            throw new \InvalidArgumentException('given Collection Role is not compatible');
         }
 
         if (is_null($role)) {
@@ -517,11 +525,11 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function linkDocument($documentId)
     {
         if (isset($documentId) === false) {
-            throw new Exception("linkDocument() needs documend_id parameter.");
+            throw new \Exception("linkDocument() needs documend_id parameter.");
         }
 
         if (is_null($this->getId()) === true) {
-            throw new Exception("linkDocument() only on stored records.");
+            throw new \Exception("linkDocument() only on stored records.");
         }
 
         if (! $this->holdsDocumentById($documentId)) {
@@ -535,17 +543,17 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @param int $documentId
      *
-     * TODO: Move method to Opus_Db_LinkDocumentsCollections.
+     * TODO: Move method to Opus\Db\LinkDocumentsCollections.
      * TODO: Usable return value.
      */
     public function linkDocumentById($documentId = null)
     {
         if (is_null($this->getId())) {
-            throw new Exception("linkDocumentById() is not allowed on NewRecord.");
+            throw new \Exception("linkDocumentById() is not allowed on NewRecord.");
         }
 
         if (is_null($documentId)) {
-            throw new Exception("linkDocumentById() needs valid document_id.");
+            throw new \Exception("linkDocumentById() needs valid document_id.");
         }
 
         $table = $this->_primaryTableRow->getTable();
@@ -566,7 +574,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @param int $documentId
      *
-     * TODO: Move method to Opus_Db_LinkDocumentsCollections.
+     * TODO: Move method to Opus\Db\LinkDocumentsCollections.
      * TODO: Usable return value.
      */
     public static function unlinkCollectionsByDocumentId($documentId = null)
@@ -575,7 +583,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
+        $table = TableGateway::getInstance('Opus\Db\LinkDocumentsCollections');
         $db = $table->getAdapter();
 
         $condition = [
@@ -591,7 +599,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @param  int  $documentId
      * @return bool
      *
-     * TODO: Move method to Opus_Db_LinkDocumentsCollections.
+     * TODO: Move method to Opus\Db\LinkDocumentsCollections.
      * TODO: Usable return value.
      */
     public function holdsDocumentById($documentId = null)
@@ -648,8 +656,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * Returns Xml representation of the collection.
      *
      * @param  array $excludeFields Fields to exclude from the Xml output.
-     * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
-     * @return DomDocument Xml representation of the collection.
+     * @param Strategy $strategy Version of Xml to process
+     * @return \DomDocument Xml representation of the collection.
      */
     public function toXml(array $excludeFields = null, $strategy = null)
     {
@@ -665,24 +673,24 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
     /**
      * Returns all collection for given (role_id, collection number) as array
-     * with Opus_Collection objects.  Always returning an array, even if the
+     * with Opus\Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
      *
      * @param  int     $roleId
      * @param  string  $number
-     * @return array   Array of Opus_Collection objects.
+     * @return array   Array of Opus\Collection objects.
      */
     public static function fetchCollectionsByRoleNumber($roleId, $number)
     {
         if (! isset($number)) {
-            throw new Exception("Parameter 'number' is required.");
+            throw new \Exception("Parameter 'number' is required.");
         }
 
         if (! isset($roleId)) {
-            throw new Exception("Parameter 'role_id' is required.");
+            throw new \Exception("Parameter 'role_id' is required.");
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId)
                         ->where('number = ?', "$number");
         $rows = $table->fetchAll($select);
@@ -692,24 +700,24 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
     /**
      * Returns all collection for given (role_id, collection name) as array
-     * with Opus_Collection objects.  Always returning an array, even if the
+     * with Opus\Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
      *
      * @param  int     $roleId
      * @param  string  $name
-     * @return array   Array of Opus_Collection objects.
+     * @return array   Array of Opus\Collection objects.
      */
     public static function fetchCollectionsByRoleName($roleId, $name)
     {
         if (! isset($name)) {
-            throw new Exception("Parameter 'name' is required.");
+            throw new \Exception("Parameter 'name' is required.");
         }
 
         if (! isset($roleId)) {
-            throw new Exception("Parameter 'role_id' is required.");
+            throw new \Exception("Parameter 'role_id' is required.");
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId)
                         ->where('name = ?', $name);
         $rows = $table->fetchAll($select);
@@ -719,19 +727,19 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
     /**
      * Returns all collection for given (role_id) as array
-     * with Opus_Collection objects.  Always returning an array, even if the
+     * with Opus\Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
      *
      * @param  int     $roleId
-     * @return array   Array of Opus_Collection objects.
+     * @return array   Array of Opus\Collection objects.
      */
     public static function fetchCollectionsByRoleId($roleId)
     {
         if (! isset($roleId)) {
-            throw new Exception("Parameter 'role_id' is required.");
+            throw new \Exception("Parameter 'role_id' is required.");
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId);
         $rows = $table->fetchAll($select);
 
@@ -744,7 +752,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @param  int    $documentId
      * @return array  Array of collection Ids.
      *
-     * FIXME: This method belongs to Opus_Db_Link_Documents_Collections
+     * FIXME: This method belongs to Opus\Db\Link\Documents\Collections
      */
     public static function fetchCollectionIdsByDocumentId($documentId)
     {
@@ -753,7 +761,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         }
 
         // FIXME: self::$_tableGatewayClass not possible in static methods.
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $table = TableGateway::getInstance('Opus\Db\Collections');
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
@@ -769,11 +777,11 @@ class Opus_Collection extends Opus_Model_AbstractDb
     /**
      * Mass-constructur.
      *
-     * @param array $array Array of whatever new Opus_Collection(...) takes.
-     * @return array|Opus_Collection Array of constructed Opus_Collections.
+     * @param array $array Array of whatever new Collection(...) takes.
+     * @return array|Collection Array of constructed Opus\Collections.
      *
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
-     * TODO: Code duplication from/in Opus_CollectionRole!
+     * TODO: Code duplication from/in Opus\CollectionRole!
      */
     public static function createObjects($array)
     {
@@ -784,7 +792,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         //   echo "class: $class\n";
 
         foreach ($array as $element) {
-            $c = new Opus_Collection($element);
+            $c = new Collection($element);
             $results[] = $c;
         }
 
@@ -879,7 +887,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     public function _storeInternalFields()
     {
         if (is_null($this->getRoleId())) {
-            throw new Exception("RoleId must be set when storing Collection!");
+            throw new \Exception("RoleId must be set when storing Collection!");
         }
 
         if ($this->isNewRecord()) {
@@ -892,7 +900,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $positionId  = $this->getPositionId();
 
             if (false === isset($positionKey)) {
-                throw new Exception('PositionKey must be set!');
+                throw new \Exception('PositionKey must be set!');
             }
 
             $data = null;
@@ -913,7 +921,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
                     $data = $nestedSets->createRoot();
                     break;
                 default:
-                    throw new Exception("PositionKey($positionKey) invalid.");
+                    throw new \Exception("PositionKey($positionKey) invalid.");
             }
 
             // Dirty fix: After storing the nested set information, the row
@@ -933,7 +941,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * $key parameter.
      *
      * @param string              $key  (First|Last)Child, (Next|Prev)Sibling.
-     * @param Opus_CollectionNode $collection
+     * @param CollectionNode $collection
      * @return <type>
      */
     protected function addPendingNodes($key = null, $collection = null)
@@ -975,7 +983,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         }
 
         if (false === is_array($collections)) {
-            throw new Exception("Expecting array-value argument!");
+            throw new \Exception("Expecting array-value argument!");
         }
 
         foreach ($collections as $collection) {
@@ -1048,7 +1056,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     /**
      * Returns nodes for breadcrumb path.
      *
-     * @return Array of Opus_Collection objects.
+     * @return Array of Opus\Collection objects.
      */
 
     public function _fetchParents()
@@ -1068,7 +1076,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     /**
      * Returns children of current collection.
      *
-     * @return Array of Opus_Collection objects.
+     * @return Array of Opus\Collection objects.
      */
     protected function _fetchChildren()
     {
@@ -1277,7 +1285,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * Sorts children in the specified order.
      *
      * @param $sortedIds Array with node IDs in desired order
-     * @throws InvalidArgumentException if one of the IDs ist not a child node
+     * @throws \InvalidArgumentException if one of the IDs ist not a child node
      */
     public function applySortOrderOfChildren($sortedIds)
     {
@@ -1328,11 +1336,11 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
         if (isset($data['Id'])) {
             try {
-                $col = new Opus_Collection($data['Id']);
+                $col = new Collection($data['Id']);
 
                 // TODO update from array not supported (handling of roleId)
                 // $col->updateFromArray($data);
-            } catch (Opus_Model_NotFoundException $omnfe) {
+            } catch (NotFoundException $omnfe) {
                 // TODO handle it
             }
         }

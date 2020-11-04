@@ -25,25 +25,29 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Identifier
+ * @package     Opus\Identifier
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Frank Niebling <niebling@slub-dresden.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace OpusTest\Identifier;
+
+use Opus\Identifier\Urn;
+use OpusTest\TestAsset\TestCase;
 
 /**
  * Test cases for URN and check digit generation.
  *
  * @category    Tests
- * @package     Opus_Identifier
+ * @package     Opus\Identifier
  *
  * @group       UrnTest
  */
-class Opus_Identifier_UrnTest extends TestCase
+class UrnTest extends TestCase
 {
 
     /**
@@ -52,6 +56,7 @@ class Opus_Identifier_UrnTest extends TestCase
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
@@ -132,7 +137,7 @@ class Opus_Identifier_UrnTest extends TestCase
      */
     public function testUrn($document_id, $urn, $checkdigit)
     {
-        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
+        $identifier = new Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getUrn($document_id);
         $this->assertEquals($urn . $checkdigit, $generated, 'Generated URN is not valid.');
     }
@@ -149,7 +154,7 @@ class Opus_Identifier_UrnTest extends TestCase
      */
     public function testCheckDigit($document_id, $urn, $checkdigit)
     {
-        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
+        $identifier = new Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getCheckDigit($document_id);
         $this->assertEquals($checkdigit, $generated, 'Generated check digit is not valid.');
     }
@@ -168,7 +173,7 @@ class Opus_Identifier_UrnTest extends TestCase
     public function testInitializeWithInvalidValues($nid, $nss, $msg)
     {
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $identifier = new Opus_Identifier_Urn($nid, $nss);
+        $identifier = new Urn($nid, $nss);
     }
 
     /**
@@ -183,7 +188,7 @@ class Opus_Identifier_UrnTest extends TestCase
     public function testCallUrnGeneratorWithInvalidValue($document_id, $msg)
     {
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
+        $identifier = new Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getUrn($document_id);
     }
 
@@ -199,7 +204,7 @@ class Opus_Identifier_UrnTest extends TestCase
     public function testCallCheckDigitGeneratorWithInvalidValue($document_id, $msg)
     {
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
+        $identifier = new Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getCheckDigit($document_id);
     }
 }

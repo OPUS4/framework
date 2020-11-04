@@ -25,13 +25,17 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @package     Opus_Enrichment
+ * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
+namespace Opus\Enrichment;
+
+use Opus\Log;
+
+class RegexType extends AbstractType
 {
     private $regex = null;
 
@@ -75,7 +79,7 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
     {
         $element = parent::getFormElement();
 
-        $validator = new Zend_Validate_Regex(['pattern' => '/' . $this->regex . '/']);
+        $validator = new \Zend_Validate_Regex(['pattern' => '/' . $this->regex . '/']);
         $validator->setMessage('admin_validate_error_regex_pattern');
         $element->addValidator($validator);
 
@@ -112,7 +116,7 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
 
         if (preg_match($stringToCheck, null) === false) {
             $error = error_get_last();
-            $log = Opus_Log::get();
+            $log = Log::get();
             $log->warn('given type option regex ' . $string . ' is not valid: ' . $error);
         } else {
             $this->regex = $string;

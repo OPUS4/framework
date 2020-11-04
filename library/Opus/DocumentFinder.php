@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -33,14 +32,25 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\DocumentFinder\DocumentFinderException;
+use Opus\Model\AbstractDb;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Dependent\Link\AbstractLinkModel;
+
 /**
  * Domain model for documents in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Db_Documents
+ * @uses        \Opus\Db\Documents
+ *
+ * TODO IDEA shows '.d' in sub selects as error, because it cannot detect the declaration in constructor
+ *      maybe SQL string can be replaced by using the API (that would solve the problem) - OPUSVIER-4428
  */
-class Opus_DocumentFinder
+class DocumentFinder
 {
 
     /**
@@ -48,25 +58,25 @@ class Opus_DocumentFinder
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Documents';
+    protected static $_tableGatewayClass = 'Opus\Db\Documents';
 
     /**
-     * @var Opus_Db_Table_Abstract
+     * @var Opus\Db\Table\Abstract
      */
     private $_db = null;
 
     /**
-     * @var Zend_Db_Table_Select
+     * @var \Zend_Db_Table_Select
      */
     private $_select = null;
 
     /**
-     * Create new instance of Opus_DocumentList class.  The created object
-     * allows to get custom subsets (or lists) of all existing Opus_Documents.
+     * Create new instance of Opus\DocumentList class.  The created object
+     * allows to get custom subsets (or lists) of all existing Opus\Documents.
      */
     public function __construct()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
 
         $this->_db = $table->getAdapter();
         $this->_select = $this->_db->select()->from(['d' => 'documents']);
@@ -98,9 +108,9 @@ class Opus_DocumentFinder
     }
 
     /**
-     * Returns the Zend_Db_Select object used to build query
+     * Returns the \Zend_Db_Select object used to build query
      *
-     * @return Zend_Db_Select
+     * @return \Zend_Db_Select
      */
     public function getSelect()
     {
@@ -108,9 +118,9 @@ class Opus_DocumentFinder
     }
 
     /**
-     * Returns the Zend_Db_Select object used to build query
+     * Returns the \Zend_Db_Select object used to build query
      *
-     * @return Zend_Db_Select
+     * @return \Zend_Db_Select
      */
     public function getSelectIds()
     {
@@ -122,11 +132,11 @@ class Opus_DocumentFinder
     /**
      * Debug method
      *
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function debug()
     {
-        Zend_Registry::get('Zend_Log')->debug($this->_select->__toString());
+        \Zend_Registry::get('Zend_Log')->debug($this->_select->__toString());
         return $this;
     }
 
@@ -171,7 +181,7 @@ class Opus_DocumentFinder
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setIdRange($start, $end)
     {
@@ -183,7 +193,7 @@ class Opus_DocumentFinder
      * Add range-start-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setIdRangeStart($start)
     {
@@ -195,7 +205,7 @@ class Opus_DocumentFinder
      * Add range-end-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setIdRangeEnd($end)
     {
@@ -207,7 +217,7 @@ class Opus_DocumentFinder
      * Add subset-constraints to be applied on the result set.
      *
      * @param  array $subset
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setIdSubset($subset)
     {
@@ -230,7 +240,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setType($type)
     {
@@ -242,7 +252,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $typeArray
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setTypeInList($typeArray)
     {
@@ -254,7 +264,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerState($serverState)
     {
@@ -266,7 +276,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $serverStateArray
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerStateInList($serverStateArray)
     {
@@ -279,7 +289,7 @@ class Opus_DocumentFinder
      * result set to all documents with ServerDateCreated < $until.
      *
      * @param  string $until
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDateCreatedBefore($until)
     {
@@ -292,7 +302,7 @@ class Opus_DocumentFinder
      * result set to all documents with ServerDateCreated > $until.
      *
      * @param  string $until
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDateCreatedAfter($until)
     {
@@ -305,7 +315,7 @@ class Opus_DocumentFinder
      * result set to all documents with ServerDatePublished < $until.
      *
      * @param  string $until
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDatePublishedBefore($until)
     {
@@ -318,7 +328,7 @@ class Opus_DocumentFinder
      *
      * @param  string $from
      * @param  string $until
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDatePublishedRange($from, $until)
     {
@@ -332,7 +342,7 @@ class Opus_DocumentFinder
      *
      * @param  string $from
      * @param  string $until
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedRange($from, $until)
     {
@@ -345,7 +355,7 @@ class Opus_DocumentFinder
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $from
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedAfter($from)
     {
@@ -357,7 +367,7 @@ class Opus_DocumentFinder
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $from
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedBefore($until)
     {
@@ -369,7 +379,7 @@ class Opus_DocumentFinder
      * Add range constraint for embargo date applied to result set.
      * @param string $from
      * @param string $until
-     * @return Opus_DocumentFinder fluent interface
+     * @return DocumentFinder fluent interface
      */
     public function setEmbargoDateRange($from, $until)
     {
@@ -381,7 +391,7 @@ class Opus_DocumentFinder
     /**
      * Add range constraint for embargo date applied to result set.
      * @param string $until
-     * @return Opus_DocumentFinder fluent interface
+     * @return DocumentFinder fluent interface
      */
     public function setEmbargoDateBefore($until)
     {
@@ -392,7 +402,7 @@ class Opus_DocumentFinder
     /**
      * Add range constraint for embargo date applied to result set.
      * @param string $from Start date of range constraint for result set.
-     * @return Opus_DocumentFinder fluent interface
+     * @return DocumentFinder fluent interface
      */
     public function setEmbargoDateAfter($from)
     {
@@ -414,7 +424,7 @@ class Opus_DocumentFinder
      * the documents and therefore they do not appear as now available documents.
      *
      * @param string $until Date of expiration of embargo
-     * @return Opus_DocumentFinder fluent interface
+     * @return DocumentFinder fluent interface
      */
     public function setEmbargoDateBeforeNotModifiedAfter($until)
     {
@@ -427,7 +437,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setEnrichmentKeyExists($keyName)
     {
@@ -442,7 +452,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setEnrichmentKeyValue($keyName, $value)
     {
@@ -459,7 +469,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setIdentifierTypeValue($type, $value)
     {
@@ -476,7 +486,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setIdentifierTypeExists($type)
     {
@@ -491,7 +501,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $value
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setBelongsToBibliography($value)
     {
@@ -503,7 +513,7 @@ class Opus_DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $value
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setCollectionRoleId($roleId)
     {
@@ -521,14 +531,14 @@ class Opus_DocumentFinder
     /**
      * Add constraints to be applied on the result set.
      *
-     * @param  int|array|Zend_Select $value id, array of ids of collections
-     * or Zend_Select instance to set. If a Zend_Select-object is provided,
+     * @param  int|array|\Zend_Select $value id, array of ids of collections
+     * or \Zend_Select instance to set. If a \Zend_Select-object is provided,
      * the resulting statement must return a list of collection ids.
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setCollectionId($collectionId)
     {
-        if ($collectionId instanceof Zend_Select) {
+        if ($collectionId instanceof \Zend_Select) {
             $quotedCollectionId = $collectionId->assemble();
         } else {
             $quotedCollectionId  = $this->_db->quote($collectionId);
@@ -546,39 +556,39 @@ class Opus_DocumentFinder
      *
      * Add instance of dependent model as constraint.
      *
-     * @param Opus_Model_AbstractDb $model Instance of dependent model.
+     * @param AbstractDb $model Instance of dependent model.
      *
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setDependentModel($model)
     {
-        if (! ($model instanceof Opus_Model_AbstractDb)) {
-            throw new Opus_DocumentFinder_Exception('Expected instance of Opus_Model_AbstractDb.');
+        if (! ($model instanceof AbstractDb)) {
+            throw new DocumentFinderException('Expected instance of Opus\Model\AbstractDb.');
         }
         $id = null;
-        if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
+        if ($model instanceof AbstractLinkModel) {
             $id = $model->getModel()->getId();
         } else {
             $id = $model->getId();
         }
 
         if (empty($id)) {
-            throw new Opus_DocumentFinder_Exception('Id not set for model ' . get_class($model));
+            throw new DocumentFinderException('Id not set for model ' . get_class($model));
         }
 
-        // workaround for Opus_Collection[|Role] which are implemented differently
-        if ($model instanceof Opus_Collection) {
+        // workaround for Opus\Collection[|Role] which are implemented differently
+        if ($model instanceof Collection) {
             return $this->setCollectionId($id);
         }
-        if ($model instanceof Opus_CollectionRole) {
+        if ($model instanceof CollectionRole) {
             return $this->setCollectionRoleId($id);
         }
 
-        if (! ($model instanceof Opus_Model_Dependent_Abstract ||
-                $model instanceof Opus_Model_Dependent_Link_Abstract)) {
+        if (! ($model instanceof AbstractDependentModel ||
+                $model instanceof AbstractLinkModel)) {
             $linkModelClass = $this->_getLinkModelClass($model);
             if (is_null($linkModelClass)) {
-                throw new Opus_DocumentFinder_Exception('link model class unknown for model '.get_class($model));
+                throw new DocumentFinderException('link model class unknown for model '.get_class($model));
             }
             $model = new $linkModelClass();
         }
@@ -588,19 +598,19 @@ class Opus_DocumentFinder
         $idCol = $model->getParentIdColumn();
         $tableGatewayClass = $model->getTableGatewayClass();
         if (empty($tableGatewayClass)) {
-            throw new Opus_DocumentFinder_Exception('No table gateway class provided for '.get_class($model));
+            throw new DocumentFinderException('No table gateway class provided for '.get_class($model));
         }
-        $table = Opus_Db_TableGateway::getInstance($tableGatewayClass)->info('name');
+        $table = TableGateway::getInstance($tableGatewayClass)->info('name');
         if (empty($idCol) || empty($table)) {
-            throw new Opus_DocumentFinder_Exception('Cannot create subquery from dependent model ' . get_class($model));
+            throw new DocumentFinderException('Cannot create subquery from dependent model ' . get_class($model));
         }
         $idCol = $this->_db->quoteIdentifier($idCol);
         $table = $this->_db->quoteIdentifier($table);
 
-        if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
+        if ($model instanceof AbstractLinkModel) {
             $linkedModelKey = $model->getModelKey();
             if (empty($linkedModelKey)) {
-                throw new Opus_DocumentFinder_Exception(
+                throw new DocumentFinderException(
                     'Cannot create subquery from dependent model ' . get_class($model)
                 );
             }
@@ -610,36 +620,36 @@ class Opus_DocumentFinder
                 FROM $table AS l
                 WHERE l.$idCol = d.id
                 AND l.$linkedModelKey = $id";
-        } elseif ($model instanceof Opus_Model_Dependent_Abstract) {
+        } elseif ($model instanceof AbstractDependentModel) {
             $subselect = "SELECT $idCol
                 FROM $table AS l
                 WHERE l.$idCol = d.id
                 AND l.id = $id";
         } else {
-            throw new Opus_DocumentFinder_Exception('Cannot create constraint for Model ' . get_class($model));
+            throw new DocumentFinderException('Cannot create constraint for Model ' . get_class($model));
         }
         $this->_select->where("EXISTS ($subselect)");
         return $this;
     }
 
-    // helper method for mapping Opus_Model_AbstractDb instances to their
-    // corresponding link model class (extending Opus_Model_Dependent_Link_Abstract)
-    private function _getLinkModelClass(Opus_Model_AbstractDb $model)
+    // helper method for mapping Opus\Model\AbstractDb instances to their
+    // corresponding link model class (extending Opus\Model\Dependent\Link\AbstractLinkModel)
+    private function _getLinkModelClass(AbstractDb $model)
     {
         $linkModelClass = null;
         $modelClass = get_class($model);
         switch ($modelClass) {
-            case 'Opus_Series':
-                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentSeries';
+            case 'Opus\Series':
+                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentSeries';
                 break;
-            case 'Opus_Person':
-                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentPerson';
+            case 'Opus\Person':
+                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentPerson';
                 break;
-            case 'Opus_Licence':
-                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentLicence';
+            case 'Opus\Licence':
+                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentLicence';
                 break;
-            case 'Opus_DnbInstitute':
-                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentDnbInstitute';
+            case 'Opus\DnbInstitute':
+                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentDnbInstitute';
                 break;
         }
         return $linkModelClass;
@@ -648,10 +658,10 @@ class Opus_DocumentFinder
     /**
      * Add a subselect as constraint
      *
-     * @param Zend_Db_Select $select A select object used as subselect in query.
+     * @param \Zend_Db_Select $select A select object used as subselect in query.
      * The subquery must return a list of document ids.
      *
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setSubSelectExists($select)
     {
@@ -663,10 +673,10 @@ class Opus_DocumentFinder
     /**
      * Add a subselect as constraint
      *
-     * @param Zend_Db_Select $select A select object used as subselect in query.
+     * @param \Zend_Db_Select $select A select object used as subselect in query.
      * The subquery must return a list of document ids.
      *
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setSubSelectNotExists($select)
     {
@@ -678,7 +688,7 @@ class Opus_DocumentFinder
     /**
      * Only return documents with at leat one file marked as visible in oai.
      *
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function setFilesVisibleInOai()
     {
@@ -696,7 +706,7 @@ class Opus_DocumentFinder
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function orderByAuthorLastname($order = true)
     {
@@ -716,7 +726,7 @@ class Opus_DocumentFinder
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function orderByTitleMain($order = true)
     {
@@ -735,7 +745,7 @@ class Opus_DocumentFinder
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function orderById($order = true)
     {
@@ -747,7 +757,7 @@ class Opus_DocumentFinder
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function orderByType($order = true)
     {
@@ -759,7 +769,7 @@ class Opus_DocumentFinder
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentFinder Fluent interface.
+     * @return DocumentFinder Fluent interface.
      */
     public function orderByServerDatePublished($order = true)
     {

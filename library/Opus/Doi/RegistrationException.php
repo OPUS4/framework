@@ -31,7 +31,9 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_RegistrationException extends Opus_Doi_DoiException
+namespace Opus\Doi;
+
+class RegistrationException extends DoiException
 {
 
     // DOI, die registriert bzw. geprüft werden sollte und die zum Fehler beim Aufruf der DataCite-API führte

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -30,8 +29,9 @@
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus;
 
 /**
  * TODO was macht das hier?
@@ -47,22 +47,22 @@
  *
  * TODO static factory sinnvoll?
  */
-class Opus_Log
+class Log
 {
 
     /**
-     * @var Zend_Log
+     * @var \Zend_Log
      */
     protected static $cachedReference;
 
     /**
-     * @return Opus_Log
-     * @throws Zend_Exception
+     * @return Log
+     * @throws \Zend_Exception
      */
     public static function get()
     {
         if (! self::$cachedReference) {
-            self::$cachedReference = Zend_Registry::get('Zend_Log');
+            self::$cachedReference = \Zend_Registry::get('Zend_Log');
         }
 
         return self::$cachedReference;

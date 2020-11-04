@@ -27,21 +27,27 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use Opus\Account;
+use Opus\UserRole;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Unit tests for Opus_Account operations.
+ * Unit tests for Opus\Account operations.
  */
-class Opus_AccountTest extends TestCase
+class AccountTest extends TestCase
 {
 
     public function setUp()
     {
         parent::setUp();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('dummy');
         $account->setPassword('dummypassword');
         $account->store();
@@ -52,12 +58,12 @@ class Opus_AccountTest extends TestCase
      */
     public function testCreateAccount()
     {
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('dummy2');
         $account->setPassword('dummypassword');
         $account->store();
 
-        $account = new Opus_Account(null, null, 'dummy2');
+        $account = new Account(null, null, 'dummy2');
         $this->assertNotNull($account);
         $this->assertEquals('dummy2', $account->getLogin());
     }
@@ -67,15 +73,15 @@ class Opus_AccountTest extends TestCase
      */
     public function testDoubleCreateAccount()
     {
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('dummy3');
         $account->setPassword('dummypassword');
         $account->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('dummy3');
 
-        $this->setExpectedException('Opus_Security_Exception');
+        $this->setExpectedException('Opus\Security\SecurityException');
         $account->store();
     }
 
@@ -84,12 +90,12 @@ class Opus_AccountTest extends TestCase
      */
     public function testDeleteAccount()
     {
-        $account = new Opus_Account(null, null, 'dummy');
+        $account = new Account(null, null, 'dummy');
         $account_id = $account->store();
         $account->delete();
 
-        $this->setExpectedException('Opus_Security_Exception');
-        $account = new Opus_Account(null, null, 'dummy');
+        $this->setExpectedException('Opus\Security\SecurityException');
+        $account = new Account(null, null, 'dummy');
     }
 
     /**
@@ -97,16 +103,16 @@ class Opus_AccountTest extends TestCase
      */
     public function testAddRoleToAccount()
     {
-        $account = new Opus_Account(null, null, 'dummy');
+        $account = new Account(null, null, 'dummy');
 
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('role1');
         $role->store();
 
         $account->addRole($role);
         $account->store();
 
-        $account = new Opus_Account(null, null, 'dummy');
+        $account = new Account(null, null, 'dummy');
 
         $roles = $account->getRole();
 
@@ -119,9 +125,9 @@ class Opus_AccountTest extends TestCase
      */
     public function testSetRoleOfAccount()
     {
-        $account = new Opus_Account(null, null, 'dummy');
+        $account = new Account(null, null, 'dummy');
 
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('role1');
         $role->store();
 
@@ -130,7 +136,7 @@ class Opus_AccountTest extends TestCase
         $account->setRole($roles);
         $account->store();
 
-        $account = new Opus_Account(null, null, 'dummy');
+        $account = new Account(null, null, 'dummy');
 
         $roles = $account->getRole();
 
@@ -140,7 +146,7 @@ class Opus_AccountTest extends TestCase
 
     public function testGetFullName()
     {
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setFirstName('John');
         $account->setLastName('Doe');
 
@@ -149,7 +155,7 @@ class Opus_AccountTest extends TestCase
 
     public function testGetFullNameWithoutFirstName()
     {
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLastName('Doe');
 
         $this->assertEquals('Doe', $account->getFullName());
@@ -157,7 +163,7 @@ class Opus_AccountTest extends TestCase
 
     public function testGetFullNameWithoutLastName()
     {
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setFirstName('John');
 
         $this->assertEquals('John', $account->getFullName());
@@ -165,7 +171,7 @@ class Opus_AccountTest extends TestCase
 
     public function testGetFullNameEmpty()
     {
-        $account = new Opus_Account();
+        $account = new Account();
 
         $this->assertNotNull($account->getFullName());
         $this->assertEquals('', $account->getFullName());

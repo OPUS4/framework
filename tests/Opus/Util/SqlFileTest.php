@@ -25,18 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Util
+ * @package     Opus\Util
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_Util_SqlFileTest extends TestCase
+
+namespace OpusTest\Util;
+
+use Opus\Util\SqlFile;
+use OpusTest\TestAsset\TestCase;
+
+/**
+ *
+ */
+class SqlFileTest extends TestCase
 {
 
     public function testGetStatements()
     {
         $this->markTestIncomplete('not yet implemented');
-        $sqlFile = new Opus_Util_SqlFile();
+        $sqlFile = new SqlFile();
 
         $statements = $sqlFile->getStatements(APPLICATION_PATH . '/db/schema/updates/update-4.5.sql');
 

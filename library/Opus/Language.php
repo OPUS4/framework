@@ -31,15 +31,20 @@
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
 
 /**
  * Domain model for languages in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_AbstractDb
+ * @uses        \Opus\Model\AbstractDb
  *
  * @method void setPart2B(string $part2b)
  * @method string getPart2B()
@@ -69,15 +74,15 @@
  * TODO define allowed scopes
  * TODO disable caching
  */
-class Opus_Language extends Opus_Model_AbstractDb
+class Language extends AbstractDb
 {
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Languages';
+    protected static $_tableGatewayClass = 'Opus\Db\Languages';
 
     /**
      * Cache used languages to reduce database queries.
@@ -92,22 +97,22 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     protected function _init()
     {
-        $part2B = new Opus_Model_Field('Part2B');
+        $part2B = new Field('Part2B');
 
-        $part2T = new Opus_Model_Field('Part2T');
+        $part2T = new Field('Part2T');
         $part2T->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $part1 = new Opus_Model_Field('Part1');
-        $scope = new Opus_Model_Field('Scope');
-        $type = new Opus_Model_Field('Type');
+        $part1 = new Field('Part1');
+        $scope = new Field('Scope');
+        $type = new Field('Type');
 
-        $refName = new Opus_Model_Field('RefName');
+        $refName = new Field('RefName');
         $refName->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
-        $comment = new Opus_Model_Field('Comment');
-        $active = new Opus_Model_Field('Active');
+        $comment = new Field('Comment');
+        $active = new Field('Active');
         $active->setCheckbox(true);
 
         $this->addField($part2B)
@@ -121,27 +126,27 @@ class Opus_Language extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_Language instances from the database.
+     * Retrieve all Opus\Language instances from the database.
      *
-     * @return array Array of Opus_Language objects.
+     * @return array Array of Opus\Language objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_Language', self::$_tableGatewayClass);
+        return self::getAllFrom('Opus\Language', self::$_tableGatewayClass);
     }
 
     /**
      * Get all active languages.
      *
-     * @return array Array of Opus_Language objects which are active.
+     * @return array Array of Opus\Language objects which are active.
      */
     public static function getAllActive()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $rows = $table->fetchAll($table->select()->where('active = ?', 1));
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new Opus_Language($row);
+            $result[] = new Language($row);
         }
         return $result;
     }
@@ -149,11 +154,11 @@ class Opus_Language extends Opus_Model_AbstractDb
     /**
      * Get all active languages.
      *
-     * @return array Array of Opus_Language objects which are active.
+     * @return array Array of Opus\Language objects which are active.
      */
     public static function getAllActiveTable()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $rows = $table->fetchAll($table->select()->where('active = ?', 1))->toArray();
         return $rows;
     }
@@ -166,7 +171,7 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public static function getPropertiesByPart2T($code)
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $rows = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
         return isset($rows[0]) ? $rows[0] : null;
     }
@@ -177,7 +182,7 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public static function getPart2tForPart1($locale)
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from([$table->info('name')], ['part2_t'])->where('part1 = ?', $locale);
         $rows = $table->fetchRow($select);
         if (! is_null($rows) && isset($rows['part2_t'])) {
@@ -189,7 +194,7 @@ class Opus_Language extends Opus_Model_AbstractDb
     /**
      * Returns reference language name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {
@@ -204,7 +209,7 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public static function getLanguageCode($language, $part = null)
     {
-        $result = Opus_Language::getPropertiesByPart2T($language);
+        $result = Language::getPropertiesByPart2T($language);
 
         if (empty($result)) {
             return $language;
@@ -234,7 +239,7 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public function isUsed()
     {
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = Language::getUsedLanguages();
         return in_array($this->getPart2T(), $languages);
     }
 
@@ -247,7 +252,7 @@ class Opus_Language extends Opus_Model_AbstractDb
             return self::$usedLanguages;
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $database = $table->getAdapter();
 
         $tables = [

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,23 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace OpusTest\Db;
+
+use Opus\Db\TableGateway;
+use OpusTest\TestAsset\TestCase;
 
 /**
  * Test cases for instanciation of table gateway classes.
  *
  * @category    Tests
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  * @group       InstanciateGatewayTest
  */
-class Opus_Db_InstanciateGatewayTest extends TestCase
+class InstanciateGatewayTest extends TestCase
 {
 
     /**
@@ -63,33 +66,33 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
     public function tableGatewayDataProvider()
     {
         return [
-            ['Opus_Db_Accounts'],
-            ['Opus_Db_CollectionsRoles'],
-            ['Opus_Db_Collections'],
-            ['Opus_Db_CollectionsEnrichments'],
-            ['Opus_Db_DnbInstitutes'],
-            ['Opus_Db_DocumentEnrichments'],
-            ['Opus_Db_DocumentFiles'],
-            ['Opus_Db_DocumentIdentifiers'],
-            ['Opus_Db_DocumentLicences'],
-            ['Opus_Db_DocumentNotes'],
-            ['Opus_Db_DocumentPatents'],
-            ['Opus_Db_DocumentReferences'],
-            ['Opus_Db_Documents'],
-            ['Opus_Db_DocumentStatistics'],
-            ['Opus_Db_DocumentSubjects'],
-            ['Opus_Db_DocumentTitleAbstracts'],
-            ['Opus_Db_FileHashvalues'],
-            ['Opus_Db_Ipranges'],
-            ['Opus_Db_Languages'],
-            ['Opus_Db_LinkAccountsRoles'],
-            ['Opus_Db_LinkDocumentsCollections'],
-            ['Opus_Db_LinkDocumentsDnbInstitutes'],
-            ['Opus_Db_LinkDocumentsLicences'],
-            ['Opus_Db_LinkIprangesRoles'],
-            ['Opus_Db_LinkPersonsDocuments'],
-            ['Opus_Db_Persons'],
-            ['Opus_Db_UserRoles'],
+            ['Opus\Db\Accounts'],
+            ['Opus\Db\CollectionsRoles'],
+            ['Opus\Db\Collections'],
+            ['Opus\Db\CollectionsEnrichments'],
+            ['Opus\Db\DnbInstitutes'],
+            ['Opus\Db\DocumentEnrichments'],
+            ['Opus\Db\DocumentFiles'],
+            ['Opus\Db\DocumentIdentifiers'],
+            ['Opus\Db\DocumentLicences'],
+            ['Opus\Db\DocumentNotes'],
+            ['Opus\Db\DocumentPatents'],
+            ['Opus\Db\DocumentReferences'],
+            ['Opus\Db\Documents'],
+            ['Opus\Db\DocumentStatistics'],
+            ['Opus\Db\DocumentSubjects'],
+            ['Opus\Db\DocumentTitleAbstracts'],
+            ['Opus\Db\FileHashvalues'],
+            ['Opus\Db\Ipranges'],
+            ['Opus\Db\Languages'],
+            ['Opus\Db\LinkAccountsRoles'],
+            ['Opus\Db\LinkDocumentsCollections'],
+            ['Opus\Db\LinkDocumentsDnbInstitutes'],
+            ['Opus\Db\LinkDocumentsLicences'],
+            ['Opus\Db\LinkIprangesRoles'],
+            ['Opus\Db\LinkPersonsDocuments'],
+            ['Opus\Db\Persons'],
+            ['Opus\Db\UserRoles'],
         ];
     }
 
@@ -106,14 +109,14 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
     {
         try {
             // Test, if creating instance works.
-            $table = Opus_Db_TableGateway::getInstance($tableGateway);
+            $table = TableGateway::getInstance($tableGateway);
             $this->assertNotNull($table);
             $this->assertNotNull(get_class($table) === $tableGateway);
 
             $exampleRow = $table->createRow();
 
             // Test, if instance exists in instances array afterwards.
-            $instances = Opus_Db_TableGateway::getAllInstances();
+            $instances = TableGateway::getAllInstances();
             $this->assertTrue(
                 is_array($instances),
                 'Instances should be array.'
@@ -125,7 +128,7 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
             );
 
             // Test, if second call gives same TableGateway.
-            $table_2 = Opus_Db_TableGateway::getInstance($tableGateway);
+            $table_2 = TableGateway::getInstance($tableGateway);
             $this->assertNotNull($table_2);
             $this->assertNotNull(get_class($table_2) === $tableGateway);
 
@@ -133,7 +136,7 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
                 $table === $table_2,
                 'Singleton should return same object on second call'
             );
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->fail("Failed to instanciate $tableGateway: " . $ex->getMessage());
         }
     }

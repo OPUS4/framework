@@ -27,24 +27,29 @@
  * @category    Framework Unit Test
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Job_Worker_MailNotificationTest extends TestCase
+namespace OpusTest\Job\Worker;
+
+use Opus\Account;
+use Opus\Job\Worker\MailNotification;
+use OpusTest\TestAsset\TestCase;
+
+class MailNotificationTest extends TestCase
 {
 
     protected function setUp()
     {
         parent::setUp();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('admin')
             ->setPassword('foobar-'.rand())
             ->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLogin('hasmail')
             ->setPassword('foobar-'.rand())
             ->setEmail('has@mail.de')
@@ -56,7 +61,7 @@ class Opus_Job_Worker_MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForEmptyList()
     {
-        $mail = new Opus_Job_Worker_MailNotification();
+        $mail = new MailNotification();
         $recipients = $mail->getRecipients();
         $this->assertNotNull($recipients);
         $this->assertEquals(0, count($recipients));
@@ -67,7 +72,7 @@ class Opus_Job_Worker_MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForInvalidUser()
     {
-        $mail = new Opus_Job_Worker_MailNotification();
+        $mail = new MailNotification();
         $users = ['doesnotexist'];
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
@@ -79,7 +84,7 @@ class Opus_Job_Worker_MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForUserWithoutMail()
     {
-        $mail = new Opus_Job_Worker_MailNotification();
+        $mail = new MailNotification();
         $users = ['admin'];
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
@@ -91,7 +96,7 @@ class Opus_Job_Worker_MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForUserWithMail()
     {
-        $mail = new Opus_Job_Worker_MailNotification();
+        $mail = new MailNotification();
         $users = ['hasmail'];
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);

@@ -25,13 +25,14 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Identifier
+ * @package     Opus\Identifier
  * @author      Frank Niebling (frank.niebling@slub-dresden.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Identifier;
 
 /**
  * Generates a URN with check digit included.
@@ -39,9 +40,9 @@
  * @link http://tools.ietf.org/html/rfc2141 "RFC 2141 URN Syntax"
  *
  * @category Framework
- * @package Opus_Identifier
+ * @package Opus\Identifier
  */
-class Opus_Identifier_Urn
+class Urn
 {
 
     /**
@@ -83,7 +84,7 @@ class Opus_Identifier_Urn
      *
      * @param string $nid The namespace identifier.
      * @param string $nss  Namespace specific string.
-     * @throws InvalidArgumentException Thrown if nid or nss does not follow RFS 2141.
+     * @throws \InvalidArgumentException Thrown if nid or nss does not follow RFS 2141.
      */
     public function __construct($nid, $nss)
     {
@@ -91,14 +92,14 @@ class Opus_Identifier_Urn
         if (preg_match($nidRegex, $nid) !== 0) {
             $this->_nid = $nid;
         } else {
-            throw new InvalidArgumentException('Used invalid namespace identifier. See RFC 2141.');
+            throw new \InvalidArgumentException('Used invalid namespace identifier. See RFC 2141.');
         }
 
         $nssRegex = '/^[a-zA-z0-9\(\)\+,\-\.:=@;\$_!\*\'%\/\?#]+$/';
         if (preg_match($nssRegex, $nss) !== 0) {
             $this->_nss = $nss;
         } else {
-            throw new InvalidArgumentException('Used invalid namespace specific string. See RFC 2141.');
+            throw new \InvalidArgumentException('Used invalid namespace specific string. See RFC 2141.');
         }
 
         // compose namespace
@@ -109,7 +110,7 @@ class Opus_Identifier_Urn
      * Generates complete URNs given a document identifier.
      *
      * @param integer $documentId Identifier of the Document
-     * @throws InvalidArgumentException Thrown if the document identifier is not a number.
+     * @throws \InvalidArgumentException Thrown if the document identifier is not a number.
      * @return string The URN.
      */
     public function getUrn($documentId)
@@ -119,7 +120,7 @@ class Opus_Identifier_Urn
 
         // Check if document identifier is valid.
         if (preg_match($idPattern, $documentId) === 0) {
-            throw new InvalidArgumentException('Used invalid arguments for document id.');
+            throw new \InvalidArgumentException('Used invalid arguments for document id.');
         } else {
             // calculate matching check digit
             $checkDigit = self::getCheckDigit($documentId);
@@ -133,7 +134,7 @@ class Opus_Identifier_Urn
      * Generates check digit for a given document identifer.
      *
      * @param integer $documentId ID of the Document
-     * @throws InvalidArgumentException Thrown if the document identifier is not a number.
+     * @throws \InvalidArgumentException Thrown if the document identifier is not a number.
      * @return integer Check digit.
      */
 
@@ -145,7 +146,7 @@ class Opus_Identifier_Urn
 
         // Check if document identifier is valid.
         if (preg_match($idPattern, $documentId) === 0) {
-            throw new InvalidArgumentException('Used invalid arguments for document id.');
+            throw new \InvalidArgumentException('Used invalid arguments for document id.');
         } else {
             // compose urn with document id
             $nbn = $this->_namespace . $documentId;

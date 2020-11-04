@@ -22,14 +22,16 @@
  * @author      Jens Schwidder <schwidder@zib.de>
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'document_title_abstracts'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_DocumentXmlCache extends Opus_Db_TableGateway
+class DocumentXmlCache extends TableGateway
 {
     /**
      * Real database name of the documents table.

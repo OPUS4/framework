@@ -31,17 +31,24 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
+namespace OpusTest\Model\Dependent\Link;
+
+use Opus\Date;
+use Opus\Model\Dependent\Link\DocumentPerson;
+use Opus\Person;
+use OpusTest\TestAsset\TestCase;
+
+class DocumentPersonTest extends TestCase
 {
 
     public function testToArray()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setAcademicTitle('Prof.');
         $person->setFirstName('Thomas');
         $person->setLastName('Mueller');
 
-        $dateOfBirth = new Opus_Date('1960-05-17');
+        $dateOfBirth = new Date('1960-05-17');
         $person->setDateOfBirth($dateOfBirth);
         $dateOfBirthArray = $dateOfBirth->toArray();
 
@@ -52,7 +59,7 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
         $person->setIdentifierGnd('123456789');
         $person->setIdentifierMisc('B');
 
-        $personLink = new Opus_Model_Dependent_Link_DocumentPerson();
+        $personLink = new DocumentPerson();
         $personLink->setModel($person);
         $personLink->setRole('author');
         $personLink->setAllowEmailContact(1);
@@ -79,7 +86,7 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
 
     public function testFromArray()
     {
-        $personLink = Opus_Model_Dependent_Link_DocumentPerson::fromArray([
+        $personLink = DocumentPerson::fromArray([
             'AcademicTitle' => 'Prof.',
             'DateOfBirth' => '1960-05-17',
             'PlaceOfBirth' => 'München',
@@ -96,7 +103,7 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
         ]);
 
         $this->assertNotNull($personLink);
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentPerson', $personLink);
+        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentPerson', $personLink);
 
         $this->assertEquals('Prof.', $personLink->getAcademicTitle());
         $this->assertEquals('Thomas', $personLink->getFirstName());
@@ -115,7 +122,7 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $personLink = new Opus_Model_Dependent_Link_DocumentPerson();
+        $personLink = new DocumentPerson();
 
         $personLink->updateFromArray([
             'AcademicTitle' => 'Prof.',
@@ -150,9 +157,9 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
 
     public function testUpdateFromArrayUseExistingModel()
     {
-        $personLink = new Opus_Model_Dependent_Link_DocumentPerson();
+        $personLink = new DocumentPerson();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setPlaceOfBirth('Berlin');
 
         $personLink->setModel($person);

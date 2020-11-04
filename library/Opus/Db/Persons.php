@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
@@ -33,14 +33,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'persons'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_Persons extends Opus_Db_TableGateway
+class Persons extends TableGateway
 {
 
     /**
@@ -56,5 +58,5 @@ class Opus_Db_Persons extends Opus_Db_TableGateway
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = ['Opus_Db_LinkPersonsDocuments'];
+    protected $_dependentTables = ['Opus\Db\LinkPersonsDocuments'];
 }

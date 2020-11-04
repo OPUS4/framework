@@ -25,23 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_File
+ * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace OpusTest\Storage;
+
+use Opus\Storage\File;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Test cases for class Opus_Storage_File.
+ * Test cases for class Opus\Storage\File.
  *
- * @package  Opus_File
+ * @package  Opus\File
  * @category Tests
  *
  * @group FileTest
  */
-class Opus_Storage_FileTest extends TestCase
+class FileTest extends TestCase
 {
 
     private $__src_path = '';
@@ -56,7 +60,7 @@ class Opus_Storage_FileTest extends TestCase
     {
         parent::setUp();
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . '/' . uniqid();
 
         $this->__src_path = $path . '/src';
@@ -72,8 +76,8 @@ class Opus_Storage_FileTest extends TestCase
      */
     protected function tearDown()
     {
-        Opus_Util_File::deleteDirectory($this->__src_path);
-        Opus_Util_File::deleteDirectory($this->__dest_path);
+        \Opus\Util\File::deleteDirectory($this->__src_path);
+        \Opus\Util\File::deleteDirectory($this->__dest_path);
 
         parent::tearDown();
     }
@@ -83,16 +87,16 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testConstructorFail()
     {
-        $this->setExpectedException('Opus_Storage_Exception');
-        $storage = new Opus_Storage_File();
+        $this->setExpectedException('Opus\Storage\StorageException');
+        $storage = new File();
     }
 
     /**
-     * Tests getting the working directory of a Opus_Storage_File object.
+     * Tests getting the working directory of a Opus\Storage\File object.
      */
     public function testGetWorkingDirectory()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir1');
+        $storage = new File($this->__dest_path, 'subdir1');
         $this->assertEquals($this->__dest_path . DIRECTORY_SEPARATOR . 'subdir1'
                 . DIRECTORY_SEPARATOR, $storage->getWorkingDirectory());
     }
@@ -102,7 +106,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testCreateSubdirectory()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir2');
+        $storage = new File($this->__dest_path, 'subdir2');
         $storage->createSubdirectory();
         $this->assertTrue(is_dir($storage->getWorkingDirectory()));
         $storage->removeEmptyDirectory();
@@ -113,7 +117,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testCopyExternalFile()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir3');
+        $storage = new File($this->__dest_path, 'subdir3');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -128,7 +132,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testRenameFile()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir4');
+        $storage = new File($this->__dest_path, 'subdir4');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -146,9 +150,9 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testRenameNonExistingFile()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir');
+        $storage = new File($this->__dest_path, 'subdir');
         $storage->createSubdirectory();
-        $this->setExpectedException('Opus_Storage_FileNotFoundException');
+        $this->setExpectedException('Opus\Storage\FileNotFoundException');
         $storage->renameFile('test', 'test2');
     }
 
@@ -157,11 +161,11 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testRenameFileAttemptOnDirectory()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir');
+        $storage = new File($this->__dest_path, 'subdir');
         $storage->createSubdirectory();
         $path = $storage->getWorkingDirectory() . '/testdir';
         mkdir($path);
-        $this->setExpectedException('Opus_Storage_Exception');
+        $this->setExpectedException('Opus\Storage\StorageException');
         $storage->renameFile('testdir', 'testdir2');
     }
 
@@ -170,7 +174,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testDeleteFile()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir5');
+        $storage = new File($this->__dest_path, 'subdir5');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -186,7 +190,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testGetFileMimeEncoding()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir5');
+        $storage = new File($this->__dest_path, 'subdir5');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -199,7 +203,7 @@ class Opus_Storage_FileTest extends TestCase
 
         $rand = rand(1, 100);
         for ($i = 0; $i < $rand; $i++) {
-            fwrite($fh, ".");
+            fwrite($fh, "t");
         }
 
         fclose($fh);
@@ -214,7 +218,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testGetFileMimeTypeFromExtension()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir6');
+        $storage = new File($this->__dest_path, 'subdir6');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -228,7 +232,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testGetFileMimeTypeFromExtensionForPdf()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir6');
+        $storage = new File($this->__dest_path, 'subdir6');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.pdf";
         touch($source);
@@ -242,7 +246,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testGetFileMimeTypeFromExtensionForPostscript()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir6');
+        $storage = new File($this->__dest_path, 'subdir6');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.ps";
         touch($source);
@@ -256,7 +260,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testGetFileSize()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir7');
+        $storage = new File($this->__dest_path, 'subdir7');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -270,7 +274,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testGetFileSizeForNonEmptyFile()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir7');
+        $storage = new File($this->__dest_path, 'subdir7');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);
@@ -295,7 +299,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testRemoveEmptyDirectory()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir8');
+        $storage = new File($this->__dest_path, 'subdir8');
         $storage->createSubdirectory();
         $this->assertTrue(is_dir($storage->getWorkingDirectory()));
         $this->assertTrue($storage->removeEmptyDirectory());
@@ -307,7 +311,7 @@ class Opus_Storage_FileTest extends TestCase
      */
     public function testFailedRemoveEmptyDirectory()
     {
-        $storage = new Opus_Storage_File($this->__dest_path, 'subdir8');
+        $storage = new File($this->__dest_path, 'subdir8');
         $storage->createSubdirectory();
         $source = $this->__src_path . '/' . "test.txt";
         touch($source);

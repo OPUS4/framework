@@ -25,18 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model\Dependent\Link;
+
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+
 /**
  * Abstract class for link DnbInstitute model in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  *
  * @method void setName(string $name)
  * @method string getName()
@@ -65,15 +70,15 @@
  * @method void setRole(string $role)
  * @method string getRole()
  */
-class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependent_Link_Abstract
+class DocumentDnbInstitute extends AbstractLinkModel
 {
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentsDnbInstitutes';
+    protected static $_tableGatewayClass = 'Opus\Db\LinkDocumentsDnbInstitutes';
 
     /**
      * Primary key of the parent model.
@@ -94,7 +99,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_DnbInstitute';
+    protected $_modelClass = 'Opus\DnbInstitute';
 
     /**
      * Fields that should not be displayed on a form.
@@ -119,7 +124,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
             $this->setModel(new $modelClass());
         }
 
-        $role = new Opus_Model_Field('Role');
+        $role = new Field('Role');
         $this->addField($role);
     }
 
@@ -151,7 +156,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
      * TODO the implementation does not feel clean - Why?
      *
      * @param $data
-     * @throws Opus_Model_Exception
+     * @throws ModelException
      */
     public function updateFromArray($data)
     {

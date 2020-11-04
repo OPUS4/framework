@@ -25,17 +25,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Storage
+ * @package     Opus\Storage
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+namespace OpusTest\Storage;
+
+use Opus\Storage\FileNotFoundException;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Test Opus_Storage_FileNotFoundException class.
+ * Test Opus\Storage\FileNotFoundException class.
  */
-class Opus_Storage_FileNotFoundExceptionTest extends TestCase
+class FileNotFoundExceptionTest extends TestCase
 {
 
     /**
@@ -43,9 +47,9 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase
      */
     public function testConstructFileNotFoundException()
     {
-        $exception = new Opus_Storage_FileNotFoundException('test.txt');
+        $exception = new FileNotFoundException('test.txt');
         $this->assertEquals('test.txt', $exception->getFilename());
-        $this->assertEquals('File test.txt does not exist!', $exception->getMessage());
+        $this->assertEquals('File not found (test.txt)', $exception->getMessage());
     }
 
     /**
@@ -54,7 +58,7 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase
     public function testConstructFileNotFoundExceptionWithMessage()
     {
         $message = 'Custom file not found message.';
-        $exception = new Opus_Storage_FileNotFoundException('test.txt', $message);
+        $exception = new FileNotFoundException('test.txt', $message);
         $this->assertEquals('test.txt', $exception->getFilename());
         $this->assertEquals($message, $exception->getMessage());
     }
@@ -64,8 +68,8 @@ class Opus_Storage_FileNotFoundExceptionTest extends TestCase
      */
     public function testConstructFileNotFoundExceptionWithoutParameters()
     {
-        $exception = new Opus_Storage_FileNotFoundException();
+        $exception = new FileNotFoundException();
         $this->assertEquals(null, $exception->getFilename());
-        $this->assertEquals('File  does not exist!', $exception->getMessage());
+        $this->assertEquals('File not found ()', $exception->getMessage());
     }
 }

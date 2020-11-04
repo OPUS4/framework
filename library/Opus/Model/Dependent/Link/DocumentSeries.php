@@ -25,15 +25,19 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model\Dependent\Link;
+
+use Opus\Model\Field;
+
 /**
- * Class Opus_Model_Dependent_Link_DocumentSeries
+ * Class Opus\Model\Dependent\Link\DocumentSeries
  *
  * @method void setNumber(string $number)
  * @method string getNumber()
@@ -41,7 +45,7 @@
  * @method void setDocSortOrder(integer $pos)
  * @method integer getDocSortOrder()
  */
-class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link_Abstract
+class DocumentSeries extends AbstractLinkModel
 {
 
     /**
@@ -63,14 +67,14 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Series';
+    protected $_modelClass = 'Opus\Series';
 
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentsSeries';
+    protected static $_tableGatewayClass = 'Opus\Db\LinkDocumentsSeries';
 
     /**
      * Fields that should not be displayed on a form.
@@ -92,12 +96,12 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
             $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
         }
 
-        $number = new Opus_Model_Field('Number');
+        $number = new Field('Number');
         $number->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty());
+                ->setValidator(new \Zend_Validate_NotEmpty());
         $this->addField($number);
 
-        $docSortOrder = new Opus_Model_Field('DocSortOrder');
+        $docSortOrder = new Field('DocSortOrder');
         $this->addField($docSortOrder);
     }
 
@@ -116,7 +120,7 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
     {
         $docSortOrderValue = $this->_fields['DocSortOrder']->getValue();
         if (is_null($docSortOrderValue)) {
-            $db = Zend_Db_Table::getDefaultAdapter();
+            $db = \Zend_Db_Table::getDefaultAdapter();
             $max = $db->fetchCol(
                 'SELECT MAX(doc_sort_order)' .
                 ' FROM link_documents_series' .

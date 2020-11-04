@@ -31,19 +31,25 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_SubjectTest extends TestCase
+namespace OpusTest;
+
+use Opus\Document;
+use Opus\Subject;
+use OpusTest\TestAsset\TestCase;
+
+class SubjectTest extends TestCase
 {
 
     public function testGetMatchingSubjects()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $subject->setExternalKey('comext');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('Com');
+        $values = Subject::getMatchingSubjects('Com');
 
         $this->assertCount(1, $values);
         $this->assertInternalType('array', $values);
@@ -61,20 +67,20 @@ class Opus_SubjectTest extends TestCase
      */
     public function testGetMatchingSubjectsSqlInjection()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $subject->setExternalKey('comext');
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('cam or 1=1');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('cam or 1=1');
+        $values = Subject::getMatchingSubjects('cam or 1=1');
 
         $this->assertCount(1, $values);
         $this->assertInternalType('array', $values);
@@ -82,58 +88,58 @@ class Opus_SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsGroup()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('com');
+        $values = Subject::getMatchingSubjects('com');
 
         $this->assertCount(1, $values);
     }
 
     public function testGetMatchingSubjectsGroupDifferentExternalKey()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $subject->setExternalKey('comext');
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('com');
+        $values = Subject::getMatchingSubjects('com');
 
         $this->assertCount(2, $values);
     }
 
     public function testGetMatchingSubjectsType()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('uncontrolled');
         $subject->setValue('Communication');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('com', 'uncontrolled');
+        $values = Subject::getMatchingSubjects('com', 'uncontrolled');
 
         $this->assertCount(1, $values);
 
@@ -147,26 +153,26 @@ class Opus_SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsTypeNull()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('uncontrolled');
         $subject->setValue('Communication');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('com', null);
+        $values = Subject::getMatchingSubjects('com', null);
 
         $this->assertCount(2, $values);
     }
 
     public function testGetMatchingSubjectsNull()
     {
-        $values = Opus_Subject::getMatchingSubjects(null);
+        $values = Subject::getMatchingSubjects(null);
 
         $this->assertInternalType('array', $values);
         $this->assertCount(0, $values);
@@ -174,7 +180,7 @@ class Opus_SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsEmpty()
     {
-        $values = Opus_Subject::getMatchingSubjects('');
+        $values = Subject::getMatchingSubjects('');
 
         $this->assertInternalType('array', $values);
         $this->assertCount(0, $values);
@@ -182,33 +188,33 @@ class Opus_SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsLimit()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Communication');
         $doc->store();
 
-        $values = Opus_Subject::getMatchingSubjects('com', 'swd', null);
+        $values = Subject::getMatchingSubjects('com', 'swd', null);
 
         $this->assertCount(2, $values);
 
-        $values = Opus_Subject::getMatchingSubjects('com', 'swd', 1);
+        $values = Subject::getMatchingSubjects('com', 'swd', 1);
 
         $this->assertCount(1, $values);
     }
 
     public function testToArray()
     {
-        $subject = new Opus_Subject();
+        $subject = new Subject();
 
         $subject->setLanguage('deu');
-        $subject->setType(Opus_Subject::SWD);
+        $subject->setType(Subject::SWD);
         $subject->setExternalKey('key:Schlagwort');
         $subject->setValue('Schlagwort');
 
@@ -224,7 +230,7 @@ class Opus_SubjectTest extends TestCase
 
     public function testFromArray()
     {
-        $subject = Opus_Subject::fromArray([
+        $subject = Subject::fromArray([
             'Language' => 'deu',
             'Type' => 'swd',
             'ExternalKey' => 'key:Schlagwort',
@@ -232,7 +238,7 @@ class Opus_SubjectTest extends TestCase
         ]);
 
         $this->assertNotNull($subject);
-        $this->assertInstanceOf('Opus_Subject', $subject);
+        $this->assertInstanceOf('Opus\Subject', $subject);
 
         $this->assertEquals('deu', $subject->getLanguage());
         $this->assertEquals('swd', $subject->getType());
@@ -242,7 +248,7 @@ class Opus_SubjectTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $subject = new Opus_Subject();
+        $subject = new Subject();
 
         $subject->updateFromArray([
             'Language' => 'deu',
@@ -252,7 +258,7 @@ class Opus_SubjectTest extends TestCase
         ]);
 
         $this->assertNotNull($subject);
-        $this->assertInstanceOf('Opus_Subject', $subject);
+        $this->assertInstanceOf('Opus\Subject', $subject);
 
         $this->assertEquals('deu', $subject->getLanguage());
         $this->assertEquals('swd', $subject->getType());

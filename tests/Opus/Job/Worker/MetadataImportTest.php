@@ -26,12 +26,17 @@
  *
  * @category    Framework Unit Test
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Job_Worker_MetadataImportTest extends TestCase
+namespace OpusTest\Job\Worker;
+
+use Opus\Job;
+use Opus\Job\Worker\MetadataImport;
+use OpusTest\TestAsset\TestCase;
+
+class MetadataImportTest extends TestCase
 {
 
 
@@ -47,13 +52,12 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
 
     private $xmlDir;
 
-
     public function setUp()
     {
         parent::setUp();
         $this->documentImported = false;
-        $this->job = new Opus_Job();
-        $this->worker = new Opus_Job_Worker_MetadataImport();
+        $this->job = new Job();
+        $this->worker = new MetadataImport();
         $this->xml = null;
         $this->xmlDir = dirname(dirname(dirname(dirname(__FILE__)))) . '/import/';
     }
@@ -61,7 +65,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
 
     public function testActivationLabel()
     {
-         $this->assertEquals(Opus_Job_Worker_MetadataImport::LABEL, $this->worker->getActivationLabel());
+         $this->assertEquals(MetadataImport::LABEL, $this->worker->getActivationLabel());
     }
 
 
@@ -69,7 +73,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
     {
         $this->job->setLabel('wrong-label');
         $this->job->setData(['xml' => $this->xml]);
-        $this->setExpectedException('Opus_Job_Worker_InvalidJobException');
+        $this->setExpectedException('Opus\Job\Worker\InvalidJobException');
         $this->worker->work($this->job);
     }
 
@@ -77,7 +81,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
     public function testMissingDataException()
     {
         $this->job->setLabel('opus-metadata-import');
-        $this->setExpectedException('Opus_Job_Worker_InvalidJobException');
+        $this->setExpectedException('Opus\Job\Worker\InvalidJobException');
         $this->worker->work($this->job);
     }
 
@@ -86,7 +90,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
     {
         $this->job->setLabel('opus-metadata-import');
         $this->job->setData(['xml' => $this->xml]);
-        $this->setExpectedException('Opus_Job_Worker_InvalidJobException');
+        $this->setExpectedException('Opus\Job\Worker\InvalidJobException');
         $this->worker->work($this->job);
     }
 
@@ -97,7 +101,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
         $this->loadInputFile();
         $this->job->setLabel('opus-metadata-import');
         $this->job->setData(['xml' => $this->xml]);
-        $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
+        $this->setExpectedException('Opus\Util\MetadataImportInvalidXmlException');
         $this->worker->work($this->job);
     }
 
@@ -108,7 +112,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
         $this->loadInputFile();
         $this->job->setLabel('opus-metadata-import');
         $this->job->setData(['xml' => $this->xml]);
-        $this->setExpectedException('Opus_Util_MetadataImportSkippedDocumentsException');
+        $this->setExpectedException('Opus\Util\MetadataImportSkippedDocumentsException');
         $this->worker->work($this->job);
     }
 
@@ -123,7 +127,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
         $e = null;
         try {
             $this->worker->work($this->job);
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $e = $ex;
         }
         $this->assertNull($e, 'unexpected exception was thrown: ' . get_class($e));
@@ -134,7 +138,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase
 
     private function loadInputFile()
     {
-        $xml = new DOMDocument();
+        $xml = new\DOMDocument();
         $xml->load($this->xmlDir .  $this->filename);
         $this->xml = $xml->saveXML();
     }

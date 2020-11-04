@@ -25,58 +25,67 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_File
+ * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest\File\Plugin;
+
+use Opus\Document;
+use Opus\File\Plugin\DefaultAccess;
+use Opus\UserRole;
+use OpusTest\TestAsset\FileMock;
+use OpusTest\TestAsset\LoggerMock;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Test cases for class Opus_File_Plugin_DefaultAccessTest.
+ * Test cases for class Opus\File\Plugin\DefaultAccessTest.
  *
- * @package Opus_File
+ * @package Opus\File
  * @category Tests
  *
  * @group FileTest
  */
-class Opus_File_Plugin_DefaultAccessTest extends TestCase
+class DefaultAccessTest extends TestCase
 {
 
     protected function setUp()
     {
         parent::setUp();
 
-        $guestRole = new Opus_UserRole();
+        $guestRole = new UserRole();
         $guestRole->setName('guest');
         $guestRole->store();
 
-        $userRole = new Opus_UserRole();
+        $userRole = new UserRole();
         $userRole->setName('user');
         $userRole->store();
     }
 
     public function testPostStoreIgnoreBadModel()
     {
-        $plugin = new Opus_File_Plugin_DefaultAccess();
+        $plugin = new DefaultAccess();
 
-        $logger = new Opus_File_Plugin_LoggerMock();
+        $logger = new LoggerMock();
 
         $plugin->setLogger($logger);
-        $plugin->postStore(new Opus_Document());
+        $plugin->postStore(new Document());
 
         $messages = $logger->getMessages();
 
         $this->assertEquals(1, count($messages));
-        $this->assertContains('#1 argument must be instance of Opus_File', $messages[0]);
+        $this->assertContains('#1 argument must be instance of Opus\File', $messages[0]);
     }
 
     public function testPostStoreIgnoreOldModel()
     {
-        $guestRole = Opus_UserRole::fetchByName('guest');
+        $guestRole = UserRole::fetchByName('guest');
         $list_before = $guestRole->listAccessFiles();
 
-        $oldFile = new Opus_File_Plugin_FileMock(false); // alte Datei
-        $object = new Opus_File_Plugin_DefaultAccess();
+        $oldFile = new FileMock(false); // alte Datei
+        $object = new DefaultAccess();
         $object->postStore($oldFile);
 
         $list_after = $guestRole->listAccessFiles();
@@ -94,14 +103,14 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
 
     public function testPostStoreSkipIfGuestRoleNotExists()
     {
-        $guestRole = Opus_UserRole::fetchByName('guest');
+        $guestRole = UserRole::fetchByName('guest');
         $guestRole->delete();
 
-        $object = new Opus_File_Plugin_DefaultAccess();
-        $logger = new Opus_File_Plugin_LoggerMock();
+        $object = new DefaultAccess();
+        $logger = new LoggerMock();
         $object->setLogger($logger);
 
-        $file = new Opus_File_Plugin_FileMock(true); // neue Datei
+        $file = new FileMock(true); // neue Datei
         $object->postStore($file);
 
         $messages = $logger->getMessages();
@@ -115,20 +124,20 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
      */
     public function testPostStoreAddNoRoleToNewModel()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $config->securityPolicy->files->defaultAccessRole = '';
 
-        $userRole = Opus_UserRole::fetchByName('user');
+        $userRole = UserRole::fetchByName('user');
         $userRole->delete();
 
-        $guestRole = Opus_UserRole::fetchByName('guest');
+        $guestRole = UserRole::fetchByName('guest');
         $guestRole->delete();
 
-        $object = new Opus_File_Plugin_DefaultAccess();
-        $logger = new Opus_File_Plugin_LoggerMock();
+        $object = new DefaultAccess();
+        $logger = new LoggerMock();
         $object->setLogger($logger);
 
-        $file = new Opus_File_Plugin_FileMock(true); // neue Datei
+        $file = new FileMock(true); // neue Datei
         $object->postStore($file);
 
         $messages = $logger->getMessages();
@@ -138,60 +147,60 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
 
     public function testPostStoreAddsGuestToNewModel()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . '/' . uniqid();
 
-        $guestRole = Opus_UserRole::fetchByName('guest');
+        $guestRole = UserRole::fetchByName('guest');
         $list = $guestRole->listAccessFiles();
         $this->assertEquals(0, count($list));
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $file = $doc->addFile();
         $file->setPathName($path);
         $doc->store(); // beim Speichern wird *guest* hinzugefügt
         $modelId = $doc->getId();
 
-        $doc = new Opus_Document($modelId);
+        $doc = new Document($modelId);
         $file = $doc->getFile(0);
         $this->assertTrue(! empty($file));
 
         $fileId = $file->getId();
 
-        $guestRole = Opus_UserRole::fetchByName('guest');
+        $guestRole = UserRole::fetchByName('guest');
         $list = $guestRole->listAccessFiles();
         $this->assertContains($fileId, $list);
     }
 
     public function testPostStoreAddConfiguredRoleToNewModel()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . '/' . uniqid();
         $config->securityPolicy->files->defaultAccessRole = 'user';
 
-        $userRole = Opus_UserRole::fetchByName('user');
+        $userRole = UserRole::fetchByName('user');
         $list = $userRole->listAccessFiles();
         $this->assertEquals(0, count($list));
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $file = $doc->addFile();
         $file->setPathName($path);
         $doc->store(); // beim Speichern wird *guest* hinzugefügt
         $modelId = $doc->getId();
 
-        $doc = new Opus_Document($modelId);
+        $doc = new Document($modelId);
         $file = $doc->getFile(0);
         $this->assertTrue(! empty($file));
 
         $fileId = $file->getId();
 
-        $userRole = Opus_UserRole::fetchByName('user');
+        $userRole = UserRole::fetchByName('user');
         $list = $userRole->listAccessFiles();
         $this->assertContains($fileId, $list, 'File was not added to role \'user\'');
     }
 
     public function testGetLogger()
     {
-        $plugin = new Opus_File_Plugin_DefaultAccess();
+        $plugin = new DefaultAccess();
 
         $logger = $plugin->getLogger();
 
@@ -200,9 +209,9 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
 
     public function testSetLogger()
     {
-        $plugin = new Opus_File_Plugin_DefaultAccess();
+        $plugin = new DefaultAccess();
 
-        $logger = new Opus_File_Plugin_LoggerMock();
+        $logger = new LoggerMock();
 
         $plugin->setLogger($logger);
 

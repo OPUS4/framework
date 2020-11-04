@@ -25,12 +25,17 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Model;
+
+use Opus\Model\Xml\Strategy;
+use Opus\Model\Xml\Version1;
+use Opus\Security\SecurityException;
 
 /**
  * Wrapper class for all domain models in the Opus framework.
@@ -38,16 +43,16 @@
  * of concrete Models.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  */
-class Opus_Model_Filter extends Opus_Model_Abstract
+class Filter extends AbstractModel
 {
 
 
     /**
      * Model instance that gets filtered.
      *
-     * @var Opus_Model_Abstract
+     * @var AbstractModel
      */
     private $_model = null;
 
@@ -68,7 +73,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract
     /**
      * Just here to implement abstract interface.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#_init()
+     * @see \Opus\Model\Abstract#_init()
      */
     protected function _init()
     {
@@ -77,10 +82,10 @@ class Opus_Model_Filter extends Opus_Model_Abstract
     /**
      * Set model to filter.
      *
-     * @param Opus_Model_Abstract $model Filter source.
-     * @return Opus_Model_Filter Fluent interface.
+     * @param AbstractModel $model Filter source.
+     * @return Filter Fluent interface.
      */
-    public function setModel(Opus_Model_Abstract $model)
+    public function setModel(AbstractModel $model)
     {
         $this->_model = $model;
         return $this;
@@ -90,7 +95,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      * Set List of fields to be filtered.
      *
      * @param array $list Array of fields that shall be filtered.
-     * @return Opus_Model_Filter Fluent interface.
+     * @return Filter Fluent interface.
      */
     public function setBlacklist(array $list)
     {
@@ -102,7 +107,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      * Set list of fields to allow access to.
      *
      * @param array $list Array of fields that shall be allowed to be accessed.
-     * @return Opus_Model_Filter Fluent interface.
+     * @return Filter Fluent interface.
      */
     public function setWhitelist(array $list)
     {
@@ -114,7 +119,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      * Define field sort order for result of describe().
      *
      * @param array $sort Array of field names specifying the order.
-     * @return Opus_Model_Filter Fluent interface.
+     * @return Filter Fluent interface.
      */
     public function setSortOrder(array $sort)
     {
@@ -126,7 +131,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      * Get a list of all fields attached to the model. Filters all fieldnames
      * that are listed on the blacklist.
      *
-     * @see    Opus_Model_Abstract::_internalFields
+     * @see    \Opus\Model\Abstract::_internalFields
      * @return array    List of fields
      */
     public function describe()
@@ -147,13 +152,13 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      * Return a reference to an actual field if not on the blacklist.
      *
      * @param string $name Name of the requested field.
-     * @throws Opus\Model\Exception If the requested field is hidden by the blacklist.
-     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     * @throws ModelException If the requested field is hidden by the blacklist.
+     * @return Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name)
     {
         if (in_array($name, $this->_blacklist)) {
-            throw new Opus\Model\Exception('Requested field is hidden by the blacklist.');
+            throw new ModelException('Requested field is hidden by the blacklist.');
         }
         return $this->_model->getField($name);
     }
@@ -164,16 +169,16 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      *
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
-     * @throws InvalidArgumentException When adding a link to a field without an argument.
-     * @throws Opus\Model\Exception     If an unknown field or method is requested.
-     * @throws Opus_Security_Exception  If the current role has no permission for the requested operation.
+     * @throws \InvalidArgumentException When adding a link to a field without an argument.
+     * @throws ModelException     If an unknown field or method is requested.
+     * @throws SecurityException  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
     public function __call($name, array $arguments)
     {
         $fieldname = substr($name, 3);
         if (in_array($fieldname, $this->_blacklist)) {
-            throw new Opus\Model\Exception('Requested field is hidden by the blacklist.');
+            throw new ModelException('Requested field is hidden by the blacklist.');
         }
         $argstring = '';
         foreach ($arguments as $i => $argument) {
@@ -210,9 +215,9 @@ class Opus_Model_Filter extends Opus_Model_Abstract
      * Returns a DOM representation of the filtered model.
      *
      * @param array $excludeFields Array of fields that shall not be serialized.
-     * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
+     * @param Strategy $strategy Version of Xml to process
      * @param bool $excludeEmptyFields If set to false, fields with empty values are included in the resulting DOM.
-     * @return DomDocument A Dom representation of the model.
+     * @return \DomDocument A Dom representation of the model.
      */
     public function toXml(array $excludeFields = null, $strategy = null, $excludeEmptyFields = true)
     {
@@ -220,9 +225,9 @@ class Opus_Model_Filter extends Opus_Model_Abstract
             $excludeFields = [];
         }
         if (is_null($strategy) === true) {
-            $strategy = new Opus_Model_Xml_Version1();
+            $strategy = new Version1();
         }
-        $xml = new Opus_Model_Xml();
+        $xml = new Xml();
         $xml->setModel($this)
             ->exclude($excludeFields)
             ->setStrategy($strategy);
@@ -235,7 +240,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract
     /**
      * Returns the filtered model.
      *
-     * @return Opus_Model_Abstract The filtered model.
+     * @return AbstractModel The filtered model.
      */
     public function getModel()
     {

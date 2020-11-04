@@ -25,36 +25,42 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Doi
+ * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_Doi_Generator_DoiGeneratorFactory
+
+namespace Opus\Doi\Generator;
+
+use Opus\Doi\DoiException;
+use Opus\Util\ClassLoaderHelper;
+
+class DoiGeneratorFactory
 {
 
     public static function create()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = \Zend_Registry::get('Zend_Config');
 
         // versuche die Generierungsklasse für DOIs zu instanziieren
         if (! isset($config->doi->generatorClass)) {
             // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
-            throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
+            throw new DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
         }
 
         if ($config->doi->generatorClass == '') {
             // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
-            throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is empty - check your configuration');
+            throw new DoiException('mandatory configuration key doi.generatorClass is empty - check your configuration');
         }
 
         $generatorClassName = $config->doi->generatorClass;
 
-        $classExists = Opus_Util_ClassLoaderHelper::classExists($generatorClassName);
+        $classExists = ClassLoaderHelper::classExists($generatorClassName);
 
         if (! $classExists) {
             // Generierungsklasse für DOIs kann nicht gefunden oder geladen werden
-            throw new Opus_Doi_DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
+            throw new DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
         }
 
         $generator = new $generatorClassName();

@@ -25,21 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Collections
+ * @package     Opus\Collections
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'collections'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
 
-class Opus_Db_Collections extends Opus_Db_NestedSet
+class Collections extends NestedSet
 {
 
     /**
@@ -90,12 +92,12 @@ class Opus_Db_Collections extends Opus_Db_NestedSet
     protected $_referenceMap = [
         'Role' => [
             'columns' => 'role_id',
-            'refTableClass' => 'Opus_Db_CollectionsRoles',
+            'refTableClass' => 'Opus\Db\CollectionsRoles',
             'refColumns' => 'id'
         ],
         'Parent' => [
             'columns' => 'parent_id',
-            'refTableClass' => 'Opus_Db_Collections',
+            'refTableClass' => 'Opus\Db\Collections',
             'refColumns' => 'id'
         ]
     ];
@@ -107,7 +109,7 @@ class Opus_Db_Collections extends Opus_Db_NestedSet
      * @var array $_dependantTables
      */
     protected $_dependentTables = [
-        'Opus_Db_Collections'
+        'Opus\Db\Collections'
     ];
 
     /**

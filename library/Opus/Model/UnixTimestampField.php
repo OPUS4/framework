@@ -25,19 +25,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Model_UnixTimestampField extends Opus_Model_DateField
+namespace Opus\Model;
+
+class UnixTimestampField extends DateField
 {
 
     /**
-     * Returns UNIX timestamp for Opus_Date, but does not allow setting value.
+     * Returns UNIX timestamp for Opus\Date, but does not allow setting value.
      *
-     * Only return a timestamp if the Opus_Date object is including a time and a timezone. If it is just a date return
+     * Only return a timestamp if the Opus\Date object is including a time and a timezone. If it is just a date return
      * null.
      *
      * @param null $index
@@ -61,7 +63,7 @@ class Opus_Model_UnixTimestampField extends Opus_Model_DateField
      * from an Array the field UnixTimestamp cannot be set anymore.
      *
      * @param $value
-     * @return Opus_Model_Field|void
+     * @return Field|void
      */
     public function setValue($value)
     {

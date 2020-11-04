@@ -25,21 +25,23 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'enrichments'.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  *
  */
-class Opus_Db_EnrichmentKeys extends Opus_Db_TableGateway
+class EnrichmentKeys extends TableGateway
 {
 
     /**
@@ -55,5 +57,5 @@ class Opus_Db_EnrichmentKeys extends Opus_Db_TableGateway
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = ['Opus_Db_DocumentEnrichments'];
+    protected $_dependentTables = ['Opus\Db\DocumentEnrichments'];
 }

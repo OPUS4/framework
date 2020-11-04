@@ -25,35 +25,37 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Collection
+ * @package     Opus\Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
 
+namespace OpusTest;
+
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Test cases for class Opus_CollectionNode.
+ * Test cases for class Opus\CollectionNode.
  *
  * @category    Tests
- * @package     Opus_Collection
+ * @package     Opus\Collection
  *
  * @group       CollectionTests
  *
  */
-class Opus_CollectionNodeTest extends TestCase
+class CollectionNodeTest extends TestCase
 {
 
     /**
-     * @var Opus_CollectionRole
+     * @var Opus\CollectionRole
      */
     protected $role_fixture;
     protected $_role_name     = "";
     protected $_role_oai_name = "";
 
     /**
-     * @var Opus_CollectionNode
+     * @var Opus\CollectionNode
      */
     protected $fixture;
 
@@ -67,7 +69,7 @@ class Opus_CollectionNodeTest extends TestCase
         $this->_role_name     = "role-name-" . rand();
         $this->_role_oai_name = "role-oainame-" . rand();
 
-        $this->role_fixture = new Opus_CollectionRole();
+        $this->role_fixture = new CollectionRole();
         $this->role_fixture->setName($this->_role_name);
         $this->role_fixture->setOaiName($this->_role_oai_name);
         $this->role_fixture->setVisible(1);

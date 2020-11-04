@@ -55,7 +55,7 @@ set_include_path(
 
 require_once 'autoload.php';
 
-$application = new Zend_Application(
+$application = new \Zend_Application(
     APPLICATION_ENV,
     array(
         "config"=>array(
@@ -65,11 +65,11 @@ $application = new Zend_Application(
     )
 );
 
-Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+\Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
 // Bootstrapping application
 $application->bootstrap('Backend');
 
-$update = new Opus_Update_Plugin_DatabaseCharset();
+$update = new \Opus\Update\Plugin\DatabaseCharset();
 
 $update->run();

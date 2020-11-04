@@ -29,12 +29,22 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use Opus\Date;
+use Opus\Db\TableGateway;
+use Opus\Document;
+use Opus\Model\Xml\Cache;
+use Opus\Person;
+use Opus\Title;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Test cases for class Opus_Person.
+ * Test cases for class Opus\Person.
  *
  * @package Opus
  * @category Tests
@@ -42,11 +52,11 @@
  * @group PersonTest
  *
  */
-class Opus_PersonTest extends TestCase
+class PersonTest extends TestCase
 {
 
     /**
-     * List of Opus_Person identifiers having the role Author.
+     * List of Opus\Person identifiers having the role Author.
      *
      * @var array
      */
@@ -70,13 +80,13 @@ class Opus_PersonTest extends TestCase
 
         // create documents
         for ($i = 0; $i < 10; $i++) {
-            $doc = new Opus_Document();
+            $doc = new Document();
             $doc->store();
             $this->_documents[] = $doc;
         }
 
         for ($i = 0; $i < 10; $i++) {
-            $p = new Opus_Person();
+            $p = new Person();
             $p->setFirstName("Dummy-$i")
                 ->setLastName("Empty-$i")
                 ->store();
@@ -85,7 +95,7 @@ class Opus_PersonTest extends TestCase
         // add a person as author to every document
         // and add the person to the list of authors
         foreach ($this->_documents as $document) {
-            $p = new Opus_Person;
+            $p = new Person();
             $p->setFirstName('Rainer')
                 ->setLastName('Zufall')
                 ->setAcademicTitle('Prof. Dr.')
@@ -129,7 +139,7 @@ class Opus_PersonTest extends TestCase
      */
     public function testGetAllPersonIdsByRole()
     {
-        $ids = Opus_Person::getAllIdsByRole('author');
+        $ids = Person::getAllIdsByRole('author');
 
         $this->assertTrue(is_array($ids), 'No array returned.');
 
@@ -144,7 +154,7 @@ class Opus_PersonTest extends TestCase
     public function testDeletePerson()
     {
         $docId = $this->_documents[0]->getId();
-        $d = new Opus_Document($docId);
+        $d = new Document($docId);
         $persons = $d->getPerson();
         $this->assertTrue(1 == count($persons));
 
@@ -155,13 +165,13 @@ class Opus_PersonTest extends TestCase
         $d->setPerson([]);
         $d->store();
 
-        $d = new Opus_Document($docId);
+        $d = new Document($docId);
         $this->assertTrue(0 == count($d->getPerson()));
     }
 
     public function testOnlyLastNameMandatory()
     {
-        $person = new Opus_Person();
+        $person = new Person();
 
         $fields = $person->describe();
 
@@ -178,7 +188,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetNameForLastAndFirstName()
     {
-        $person = new Opus_Person();
+        $person = new Person();
 
         $person->setFirstName('Jane');
         $person->setLastName('Doe');
@@ -188,7 +198,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetNameForLastNameOnly()
     {
-        $person = new Opus_Person();
+        $person = new Person();
 
         $person->setLastName('Doe');
 
@@ -197,7 +207,7 @@ class Opus_PersonTest extends TestCase
 
     public function testSetGetIdentifiers()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Tester');
         $person->setIdentifierOrcid('http://orcid.org/0000-0002-1694-233X');
         $person->setIdentifierGnd('test_gnd_identifier');
@@ -205,7 +215,7 @@ class Opus_PersonTest extends TestCase
 
         $personId = $person->store();
 
-        $person = new Opus_Person($personId);
+        $person = new Person($personId);
 
         $this->assertEquals('http://orcid.org/0000-0002-1694-233X', $person->getIdentifierOrcid());
         $this->assertEquals('test_gnd_identifier', $person->getIdentifierGnd());
@@ -217,17 +227,17 @@ class Opus_PersonTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('Jane');
         $person->setLastName('Doe');
         $person->store();
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setPersonAuthor($person);
         $docId = $doc->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
         $person->setFirstName('John');
         $person->store();
@@ -236,7 +246,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetAllPersons()
     {
-        $persons = Opus_Person::getAllPersons();
+        $persons = Person::getAllPersons();
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(11, $persons);
@@ -252,7 +262,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetAllPersonsPartial()
     {
-        $persons = Opus_Person::getAllPersons(null, 0, 1);
+        $persons = Person::getAllPersons(null, 0, 1);
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(1, $persons);
@@ -262,7 +272,7 @@ class Opus_PersonTest extends TestCase
         $this->assertEquals('Empty-0', $person['last_name']);
         $this->assertEquals('Dummy-0', $person['first_name']);
 
-        $persons = Opus_Person::getAllPersons(null, 10, 1);
+        $persons = Person::getAllPersons(null, 10, 1);
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(1, $persons);
@@ -272,7 +282,7 @@ class Opus_PersonTest extends TestCase
         $this->assertEquals('Zufall', $person['last_name']);
         $this->assertEquals('Rainer', $person['first_name']);
 
-        $persons = Opus_Person::getAllPersons(null, 2, 4);
+        $persons = Person::getAllPersons(null, 2, 4);
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(4, $persons);
@@ -285,7 +295,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetAllPersonsInRole()
     {
-        $persons = Opus_Person::getAllPersons('author');
+        $persons = Person::getAllPersons('author');
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(1, $persons);
@@ -295,20 +305,20 @@ class Opus_PersonTest extends TestCase
         $this->assertEquals('Zufall', $person['last_name']);
         $this->assertEquals('Rainer', $person['first_name']);
 
-        $persons = Opus_Person::getAllPersons('other');
+        $persons = Person::getAllPersons('other');
 
         $this->assertCount(0, $persons);
 
         $docId = $this->_documents[0]->getId();
 
-        $doc = new Opus_Document($docId);
-        $other = new Opus_Person();
+        $doc = new Document($docId);
+        $other = new Person();
         $other->setLastName('Musterfrau');
         $other->setFirstName('Erika');
         $doc->addPersonOther($other);
         $doc->store();
 
-        $persons = Opus_Person::getAllPersons('other');
+        $persons = Person::getAllPersons('other');
 
         $this->assertCount(1, $persons);
 
@@ -328,7 +338,7 @@ class Opus_PersonTest extends TestCase
      */
     public function testGetAllPersonsInUnknownRole()
     {
-        $persons = Opus_Person::getAllPersons('cook');
+        $persons = Person::getAllPersons('cook');
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(0, $persons);
@@ -336,23 +346,23 @@ class Opus_PersonTest extends TestCase
 
     public function testGetAllPersonsSorting()
     {
-        $doc = new Opus_Document($this->_documents[0]->getId());
+        $doc = new Document($this->_documents[0]->getId());
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Blau');
         $doc->addPersonReferee($person);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Rot');
         $doc->addPersonReferee($person);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Grün');
         $doc->addPersonReferee($person);
 
         $doc->store();
 
-        $persons = Opus_Person::getAllPersons('referee');
+        $persons = Person::getAllPersons('referee');
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(3, $persons);
@@ -367,28 +377,28 @@ class Opus_PersonTest extends TestCase
      */
     public function testGetAllPersonsSortingWithLeadingSpaces()
     {
-        $doc = new Opus_Document($this->_documents[0]->getId());
+        $doc = new Document($this->_documents[0]->getId());
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('A');
         $doc->addPersonReferee($person);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('B');
         $doc->addPersonReferee($person);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('C');
         $doc->addPersonReferee($person);
 
         $doc->store();
 
         // add leading space to Person 'C' (framework trims leadings spaces - OPUSVIER-3832)
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
+        $table = TableGateway::getInstance('Opus\Db\Persons');
         $database = $table->getAdapter();
         $table->update(['last_name' => ' B'], [$database->quoteInto('last_name = ?', 'B')]);
 
-        $persons = Opus_Person::getAllPersons('referee');
+        $persons = Person::getAllPersons('referee');
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(3, $persons);
@@ -403,23 +413,23 @@ class Opus_PersonTest extends TestCase
      */
     public function testGetAllPersonsHandlingOfIdentifier()
     {
-        $doc = new Opus_Document($this->_documents[0]->getId());
+        $doc = new Document($this->_documents[0]->getId());
 
-        $person1 = new Opus_Person();
+        $person1 = new Person();
         $person1->setLastName('Person');
         $doc->addPersonReferee($person1);
 
-        $person2 = new Opus_Person();
+        $person2 = new Person();
         $person2->setLastName('Person');
         $doc->addPersonReferee($person2);
 
-        $person3 = new Opus_Person();
+        $person3 = new Person();
         $person3->setLastName('Person');
         $doc->addPersonReferee($person3);
 
         $doc->store();
 
-        $persons = Opus_Person::getAllPersons('referee');
+        $persons = Person::getAllPersons('referee');
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(1, $persons);
@@ -427,14 +437,14 @@ class Opus_PersonTest extends TestCase
         $person3->setIdentifierMisc('123');
         $person3->store();
 
-        $persons = Opus_Person::getAllPersons('referee');
+        $persons = Person::getAllPersons('referee');
 
         $this->assertCount(2, $persons);
 
         $person2->setIdentifierGnd('654');
         $person2->store();
 
-        $persons = Opus_Person::getAllPersons('referee');
+        $persons = Person::getAllPersons('referee');
 
         $this->assertCount(3, $persons);
     }
@@ -448,13 +458,13 @@ class Opus_PersonTest extends TestCase
 
         $this->_createPersons($personsSetup);
 
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'Mueller');
+        $persons = Person::getAllPersons(null, 0, 0, 'Mueller');
 
         $this->assertNotNull($persons);
         $this->assertInternalType('array', $persons);
         $this->assertCount(1, $persons);
 
-        $persons = Opus_Person::getAllPersons();
+        $persons = Person::getAllPersons();
 
         $this->assertInternalType('array', $persons);
         $this->assertCount(12, $persons);
@@ -462,7 +472,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonRoles()
     {
-        $roles = Opus_Person::getPersonRoles(['last_name' => 'Zufall', 'first_name' => 'Rainer']);
+        $roles = Person::getPersonRoles(['last_name' => 'Zufall', 'first_name' => 'Rainer']);
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(1, $roles);
@@ -475,14 +485,14 @@ class Opus_PersonTest extends TestCase
         $this->assertArrayHasKey('documents', $role);
         $this->assertEquals(10, $role['documents']);
 
-        $doc = new Opus_Document($this->_documents[0]->getId());
-        $person = new Opus_Person();
+        $doc = new Document($this->_documents[0]->getId());
+        $person = new Person();
         $person->setLastName('Zufall');
         $person->setFirstName('Rainer');
         $doc->addPersonOther($person);
         $doc->store();
 
-        $roles = Opus_Person::getPersonRoles(['last_name' => 'Zufall', 'first_name' => 'Rainer']);
+        $roles = Person::getPersonRoles(['last_name' => 'Zufall', 'first_name' => 'Rainer']);
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(2, $roles);
@@ -490,18 +500,18 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonDocuments()
     {
-        $documents = Opus_Person::getPersonDocuments(['last_name' => 'Zufall', 'first_name' => 'Rainer']);
+        $documents = Person::getPersonDocuments(['last_name' => 'Zufall', 'first_name' => 'Rainer']);
 
         $this->assertInternalType('array', $documents);
         $this->assertCount(10, $documents);
 
-        $doc = new Opus_Document($this->_documents[0]->getId());
-        $person = new Opus_Person();
+        $doc = new Document($this->_documents[0]->getId());
+        $person = new Person();
         $person->setLastName('Zufall');
         $doc->addPersonOther($person);
         $doc->store();
 
-        $documents = Opus_Person::getPersonDocuments(['last_name' => 'Zufall']);
+        $documents = Person::getPersonDocuments(['last_name' => 'Zufall']);
 
         $this->assertInternalType('array', $documents);
         $this->assertCount(1, $documents);
@@ -512,11 +522,11 @@ class Opus_PersonTest extends TestCase
     {
         $person = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $documents = Opus_Person::getPersonDocuments($person);
+        $documents = Person::getPersonDocuments($person);
 
         $this->assertCount(10, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($person, 'unpublished');
+        $documents = Person::getPersonDocuments($person, 'unpublished');
 
         $this->assertCount(10, $documents);
 
@@ -526,11 +536,11 @@ class Opus_PersonTest extends TestCase
             $doc->store();
         }
 
-        $documents = Opus_Person::getPersonDocuments($person, 'audited');
+        $documents = Person::getPersonDocuments($person, 'audited');
 
         $this->assertCount(5, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($person, 'unpublished');
+        $documents = Person::getPersonDocuments($person, 'unpublished');
 
         $this->assertCount(5, $documents);
     }
@@ -539,16 +549,16 @@ class Opus_PersonTest extends TestCase
     {
         $person = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $documents = Opus_Person::getPersonDocuments($person);
+        $documents = Person::getPersonDocuments($person);
 
         $this->assertCount(10, $documents);
 
-        $person2 = new Opus_Person();
+        $person2 = new Person();
         $person2->setLastName('Zufall');
         $this->_documents[0]->addPersonAuthor($person2);
         $this->_documents[0]->store();
 
-        $documents = Opus_Person::getPersonDocuments($person);
+        $documents = Person::getPersonDocuments($person);
 
         $this->assertNotCount(11, $documents);
         $this->assertCount(10, $documents);
@@ -556,32 +566,32 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonDocumentsSortedById()
     {
-        $doc1 = new Opus_Document();
-        $person = new Opus_Person();
+        $doc1 = new Document();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Opus_Document();
-        $person = new Opus_Person();
+        $doc2 = new Document();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
         $docId2 = $doc2->store();
 
         $personMatch = ['last_name' => 'Testy'];
 
-        $documents = Opus_Person::getPersonDocuments($personMatch);
+        $documents = Person::getPersonDocuments($personMatch);
 
         $this->assertCount(2, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'id', true);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'id', true);
 
         $this->assertCount(2, $documents);
 
         $this->assertEquals($docId1, $documents[0]);
         $this->assertEquals($docId2, $documents[1]);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'id', false);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'id', false);
 
         $this->assertCount(2, $documents);
 
@@ -592,34 +602,34 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonDocumentsSortedByType()
     {
-        $doc1 = new Opus_Document();
+        $doc1 = new Document();
         $doc1->setType('article');
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Opus_Document();
+        $doc2 = new Document();
         $doc2->setType('dissertation');
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
         $docId2 = $doc2->store();
 
         $personMatch = ['last_name' => 'Testy'];
 
-        $documents = Opus_Person::getPersonDocuments($personMatch);
+        $documents = Person::getPersonDocuments($personMatch);
 
         $this->assertCount(2, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'docType', true);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'docType', true);
 
         $this->assertCount(2, $documents);
 
         $this->assertEquals($docId1, $documents[0]);
         $this->assertEquals($docId2, $documents[1]);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'docType', false);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'docType', false);
 
         $this->assertCount(2, $documents);
 
@@ -629,38 +639,38 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonDocumentsSortedByPublicationDate()
     {
-        $doc1 = new Opus_Document();
-        $date = new Opus_Date(new DateTime());
+        $doc1 = new Document();
+        $date = new Date(new \DateTime());
         $doc1->setServerDatePublished($date);
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
         sleep(2);
 
-        $doc2 = new Opus_Document();
-        $date = new Opus_Date(new DateTime());
+        $doc2 = new Document();
+        $date = new Date(new \DateTime());
         $doc2->setServerDatePublished($date);
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
         $docId2 = $doc2->store();
 
         $personMatch = ['last_name' => 'Testy'];
 
-        $documents = Opus_Person::getPersonDocuments($personMatch);
+        $documents = Person::getPersonDocuments($personMatch);
 
         $this->assertCount(2, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'publicationDate', true);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'publicationDate', true);
 
         $this->assertCount(2, $documents);
 
         $this->assertEquals($docId1, $documents[0]);
         $this->assertEquals($docId2, $documents[1]);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'publicationDate', false);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'publicationDate', false);
 
         $this->assertCount(2, $documents);
 
@@ -670,38 +680,38 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonDocumentsSortedByTitle()
     {
-        $doc1 = new Opus_Document();
+        $doc1 = new Document();
         $title = $doc1->addTitleMain();
         $title->setValue('A Title');
         $title->setLanguage('eng');
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Opus_Document();
+        $doc2 = new Document();
         $title = $doc2->addTitleMain();
         $title->setValue('B Title');
         $title->setLanguage('eng');
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
         $docId2 = $doc2->store();
 
         $personMatch = ['last_name' => 'Testy'];
 
-        $documents = Opus_Person::getPersonDocuments($personMatch);
+        $documents = Person::getPersonDocuments($personMatch);
 
         $this->assertCount(2, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'title', true);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'title', true);
 
         $this->assertCount(2, $documents);
 
         $this->assertEquals($docId1, $documents[0]);
         $this->assertEquals($docId2, $documents[1]);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'title', false);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'title', false);
 
         $this->assertCount(2, $documents);
 
@@ -712,37 +722,37 @@ class Opus_PersonTest extends TestCase
     public function testGetPersonDocumentsSortedByAuthor()
     {
         $this->markTestSkipped('TODO - sorting by author not properly working yet OPUSVIER-3810');
-        $doc1 = new Opus_Document();
-        $person = new Opus_Person();
+        $doc1 = new Document();
+        $person = new Person();
         $person->setLastName('A Person');
         $personLink = $doc1->addPersonAuthor($person);
         $personLink->setSortOrder(0);
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $personLink = $doc1->addPersonAuthor($person);
         $personLink->setSortOrder(1);
         $docId1 = $doc1->store();
 
-        $doc2 = new Opus_Document();
-        $person = new Opus_Person();
+        $doc2 = new Document();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
         $docId2 = $doc2->store();
 
         $personMatch = ['last_name' => 'Testy'];
 
-        $documents = Opus_Person::getPersonDocuments($personMatch);
+        $documents = Person::getPersonDocuments($personMatch);
 
         $this->assertCount(2, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'author', true);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'author', true);
 
         $this->assertCount(2, $documents);
 
         $this->assertEquals($docId1, $documents[0]);
         $this->assertEquals($docId2, $documents[1]);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'author', false);
+        $documents = Person::getPersonDocuments($personMatch, null, null, 'author', false);
 
         $this->assertCount(2, $documents);
 
@@ -752,38 +762,38 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonDocumentsByStateSorted()
     {
-        $doc1 = new Opus_Document();
+        $doc1 = new Document();
         $title = $doc1->addTitleMain();
         $title->setValue('A Title');
         $title->setLanguage('eng');
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Opus_Document();
+        $doc2 = new Document();
         $title = $doc2->addTitleMain();
         $title->setValue('B Title');
         $title->setLanguage('eng');
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
         $docId2 = $doc2->store();
 
         $personMatch = ['last_name' => 'Testy'];
 
-        $documents = Opus_Person::getPersonDocuments($personMatch);
+        $documents = Person::getPersonDocuments($personMatch);
 
         $this->assertCount(2, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, 'unpublished', null, 'title', true);
+        $documents = Person::getPersonDocuments($personMatch, 'unpublished', null, 'title', true);
 
         $this->assertCount(2, $documents);
 
         $this->assertEquals($docId1, $documents[0]);
         $this->assertEquals($docId2, $documents[1]);
 
-        $documents = Opus_Person::getPersonDocuments($personMatch, 'unpublished', null, 'title', false);
+        $documents = Person::getPersonDocuments($personMatch, 'unpublished', null, 'title', false);
 
         $this->assertCount(2, $documents);
 
@@ -795,23 +805,23 @@ class Opus_PersonTest extends TestCase
     {
         $person = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $documents = Opus_Person::getPersonDocuments($person, null, 'author');
+        $documents = Person::getPersonDocuments($person, null, 'author');
 
         $this->assertCount(10, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($person, null, 'editor');
+        $documents = Person::getPersonDocuments($person, null, 'editor');
 
         $this->assertCount(0, $documents);
 
         $doc = $this->_documents[0];
 
-        $editor = new Opus_Person();
+        $editor = new Person();
         $editor->setLastName('Zufall');
         $editor->setFirstName('Rainer');
         $doc->addPersonEditor($editor);
         $doc->store();
 
-        $documents = Opus_Person::getPersonDocuments($person, null, 'editor');
+        $documents = Person::getPersonDocuments($person, null, 'editor');
 
         $this->assertCount(1, $documents);
     }
@@ -820,91 +830,91 @@ class Opus_PersonTest extends TestCase
     {
         $person = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $documents = Opus_Person::getPersonDocuments($person, 'unpublished', 'author');
+        $documents = Person::getPersonDocuments($person, 'unpublished', 'author');
         $this->assertCount(10, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($person, 'published', 'author');
+        $documents = Person::getPersonDocuments($person, 'published', 'author');
         $this->assertCount(0, $documents);
 
-        $documents = Opus_Person::getPersonDocuments($person, 'unpublished', 'editor');
+        $documents = Person::getPersonDocuments($person, 'unpublished', 'editor');
         $this->assertCount(0, $documents);
 
         $doc = $this->_documents[0];
 
         $doc->setServerState('published');
-        $editor = new Opus_Person();
+        $editor = new Person();
         $editor->setLastName('Zufall');
         $editor->setFirstName('Rainer');
         $doc->addPersonEditor($editor);
         $doc->store();
 
-        $documents = Opus_Person::getPersonDocuments($person, 'published', 'editor');
+        $documents = Person::getPersonDocuments($person, 'published', 'editor');
         $this->assertCount(1, $documents);
     }
 
     public function testGetAllPersonsWithFilter()
     {
-        $persons = Opus_Person::getAllPersons(null, 0, 0);
+        $persons = Person::getAllPersons(null, 0, 0);
 
         $this->assertCount(11, $persons);
 
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'fal');
+        $persons = Person::getAllPersons(null, 0, 0, 'fal');
 
         $this->assertCount(1, $persons);
         $this->assertEquals('Zufall', $persons[0]['last_name']);
 
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'pty');
+        $persons = Person::getAllPersons(null, 0, 0, 'pty');
 
         $this->assertCount(10, $persons);
     }
 
     public function testGetAllPersonsWithFilterFirstName()
     {
-        $doc = new Opus_Document($this->_documents[0]->getId());
-        $person = new Opus_Person();
+        $doc = new Document($this->_documents[0]->getId());
+        $person = new Person();
         $person->setLastName('Mustermann');
         $person->setFirstName('Bafala');
         $doc->addPersonOther($person);
         $doc->store();
 
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'fal');
+        $persons = Person::getAllPersons(null, 0, 0, 'fal');
 
         $this->assertCount(2, $persons);
     }
 
     public function testGetAllPersonsWithFilterCaseInsensitive()
     {
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'FAL');
+        $persons = Person::getAllPersons(null, 0, 0, 'FAL');
 
         $this->assertCount(1, $persons);
 
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'uFa');
+        $persons = Person::getAllPersons(null, 0, 0, 'uFa');
 
         $this->assertCount(1, $persons);
     }
 
     public function testGetAllPersonsCount()
     {
-        $persons = Opus_Person::getAllPersons();
-        $count = Opus_Person::getAllPersonsCount();
+        $persons = Person::getAllPersons();
+        $count = Person::getAllPersonsCount();
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(11, $count);
 
-        $persons = Opus_Person::getAllPersons('author');
-        $count = Opus_Person::getAllPersonsCount('author');
+        $persons = Person::getAllPersons('author');
+        $count = Person::getAllPersonsCount('author');
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(1, $count);
 
-        $persons = Opus_Person::getAllPersons('author', 0, 0, 'fal');
-        $count = Opus_Person::getAllPersonsCount('author', 'fal');
+        $persons = Person::getAllPersons('author', 0, 0, 'fal');
+        $count = Person::getAllPersonsCount('author', 'fal');
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(1, $count);
 
-        $persons = Opus_Person::getAllPersons(null, 0, 0, 'emp');
-        $count = Opus_Person::getAllPersonsCount(null, 'emp');
+        $persons = Person::getAllPersons(null, 0, 0, 'emp');
+        $count = Person::getAllPersonsCount(null, 'emp');
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(10, $count);
@@ -912,12 +922,12 @@ class Opus_PersonTest extends TestCase
 
     public function testOpusId()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $person->setOpusId('12345');
         $personId = $person->store();
 
-        $person = new Opus_Person($personId);
+        $person = new Person($personId);
 
         $this->assertEquals('12345', $person->getOpusId());
         $this->assertEquals('Testy', $person->getLastName());
@@ -927,7 +937,7 @@ class Opus_PersonTest extends TestCase
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $values = Opus_Person::getPersonValues($personCrit);
+        $values = Person::getPersonValues($personCrit);
 
         $this->assertCount(11, $values);
 
@@ -948,11 +958,11 @@ class Opus_PersonTest extends TestCase
             }
         }
 
-        $person = new Opus_Person($personIds[0]);
+        $person = new Person($personIds[0]);
         $person->setPlaceOfBirth('Hamburg');
         $person->store();
 
-        $values = Opus_Person::getPersonValues($personCrit);
+        $values = Person::getPersonValues($personCrit);
 
         $this->assertArrayHasKey('place_of_birth', $values);
         $this->assertInternalType('array', $values['place_of_birth']);
@@ -982,7 +992,7 @@ class Opus_PersonTest extends TestCase
             'last_name' => 'Spacey'
         ];
 
-        $values = Opus_Person::getPersonValues($personCrit);
+        $values = Person::getPersonValues($personCrit);
 
         $this->assertNotNull($values);
         $this->assertInternalType('array', $values);
@@ -1018,7 +1028,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetPersonValuesNotFound()
     {
-        $values = Opus_Person::getPersonValues(['last_name' => 'doesnotexist']);
+        $values = Person::getPersonValues(['last_name' => 'doesnotexist']);
 
         $this->assertNull($values);
     }
@@ -1035,7 +1045,7 @@ class Opus_PersonTest extends TestCase
         $this->assertInternalType('array', $personIds);
         $this->assertCount(1, $personIds);
 
-        $person = new Opus_Person($personIds[0]);
+        $person = new Person($personIds[0]);
 
         $this->assertEquals(' Spacey ', $person->getLastName());
     }
@@ -1048,10 +1058,10 @@ class Opus_PersonTest extends TestCase
             'Email' => 'bulktest@example.org'
         ];
 
-        Opus_Person::updateAll($personCrit, $changes);
+        Person::updateAll($personCrit, $changes);
 
         foreach ($this->_authors as $author) {
-            $person = new Opus_Person($author->getId());
+            $person = new Person($author->getId());
 
             $this->assertEquals('bulktest@example.org', $person->getEmail());
         }
@@ -1067,10 +1077,10 @@ class Opus_PersonTest extends TestCase
 
         $documents = [2, 4, 7];
 
-        Opus_Person::updateAll($personCrit, $changes, $documents);
+        Person::updateAll($personCrit, $changes, $documents);
 
         foreach ($this->_authors as $author) {
-            $person = new Opus_Person($author->getId());
+            $person = new Person($author->getId());
 
             $personDocs = $person->getDocumentsByRole('author');
 
@@ -1094,14 +1104,14 @@ class Opus_PersonTest extends TestCase
             'Email' => 'bulktest@example.org'
         ];
 
-        $doc = new Opus_Document();
-        $title = new Opus_Title();
+        $doc = new Document();
+        $title = new Title();
         $title->setLanguage('deu');
         $title->setValue('Document with no author');
         $doc->addTitleMain($title);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $documents = [3, 5, $docId];
 
@@ -1109,20 +1119,20 @@ class Opus_PersonTest extends TestCase
 
         sleep(2);
 
-        $now = new Opus_Date();
+        $now = new Date();
         $now->setNow();
 
         sleep(2);
 
         // new ServerDateModified should be past $now
-        Opus_Person::updateAll($personCrit, $changes, $documents);
+        Person::updateAll($personCrit, $changes, $documents);
 
         // document without matching author was not modified
         $this->assertEquals($lastModified, $doc->getServerDateModified());
 
         //filtered documents were not modified
         foreach ($this->_documents as $doc) {
-            $document = new Opus_Document($doc->getId()); // don't use old objects - they are not updated
+            $document = new Document($doc->getId()); // don't use old objects - they are not updated
 
             $dateModified = $document->getServerDateModified();
 
@@ -1144,13 +1154,13 @@ class Opus_PersonTest extends TestCase
 
         sleep(2);
 
-        Opus_Person::updateAll($personCrit, $changes);
+        Person::updateAll($personCrit, $changes);
 
         $this->assertEquals($lastModified, $this->_documents[0]->getServerDateModified());
     }
 
     /**
-     * @expectedException Opus\Model\Exception
+     * @expectedException \Opus\Model\ModelException
      * @expectedExceptionMessage unknown field 'IdentifierIntern' for update
      */
     public function testUpdateAllBadChanges()
@@ -1163,7 +1173,7 @@ class Opus_PersonTest extends TestCase
 
         sleep(2);
 
-        Opus_Person::updateAll($personCrit, $changes);
+        Person::updateAll($personCrit, $changes);
 
         $this->assertEquals($lastModified, $this->_documents[0]->getServerDateModified());
     }
@@ -1194,14 +1204,14 @@ class Opus_PersonTest extends TestCase
             'Email' => 'bulktest@example.org'
         ];
 
-        Opus_Person::updateAll($personCrit, $changes);
+        Person::updateAll($personCrit, $changes);
 
         for ($index = 0; $index < 4; $index++) {
-            $person = new Opus_Person($personIds[$index]);
+            $person = new Person($personIds[$index]);
             $this->assertEquals('bulktest@example.org', $person->getEmail());
         }
 
-        $person = new Opus_Person($personIds[4]);
+        $person = new Person($personIds[4]);
         $this->assertNull($person->getEmail());
     }
 
@@ -1217,9 +1227,9 @@ class Opus_PersonTest extends TestCase
             'FirstName' => ' John '
         ];
 
-        Opus_Person::updateAll($personCrit, $changes);
+        Person::updateAll($personCrit, $changes);
 
-        $person = new Opus_Person($personIds[0]);
+        $person = new Person($personIds[0]);
 
         $this->assertEquals('John', $person->getFirstName());
     }
@@ -1234,10 +1244,10 @@ class Opus_PersonTest extends TestCase
 
         $documents = null;
 
-        Opus_Person::updateAll($personCrit, $changes, $documents);
+        Person::updateAll($personCrit, $changes, $documents);
 
         foreach ($this->_authors as $author) {
-            $person = new Opus_Person($author->getId());
+            $person = new Person($author->getId());
 
             $personDocs = $person->getDocumentsByRole('author');
 
@@ -1256,10 +1266,10 @@ class Opus_PersonTest extends TestCase
 
         $documents = [];
 
-        Opus_Person::updateAll($personCrit, $changes, $documents);
+        Person::updateAll($personCrit, $changes, $documents);
 
         foreach ($this->_authors as $author) {
-            $person = new Opus_Person($author->getId());
+            $person = new Person($author->getId());
 
             $personDocs = $person->getDocumentsByRole('author');
 
@@ -1290,7 +1300,7 @@ class Opus_PersonTest extends TestCase
 
         $personIds = $this->_createPersons($persons);
 
-        $personDocs = Opus_Person::getPersonsAndDocuments($personCrit);
+        $personDocs = Person::getPersonsAndDocuments($personCrit);
 
         $this->markTestIncomplete('TODO finish');
     }
@@ -1299,11 +1309,11 @@ class Opus_PersonTest extends TestCase
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Zufall');
         $person->store(); // not Rainer
 
-        $personIds = Opus_Person::getPersons($personCrit);
+        $personIds = Person::getPersons($personCrit);
 
         $this->assertNotNull($personIds);
         $this->assertInternalType('array', $personIds);
@@ -1316,14 +1326,14 @@ class Opus_PersonTest extends TestCase
 
         $documentIds = [2, 4, 7, 8];
 
-        $personIds = Opus_Person::getPersons($personCrit, $documentIds);
+        $personIds = Person::getPersons($personCrit, $documentIds);
 
         $this->assertNotNull($personIds);
         $this->assertInternalType('array', $personIds);
         $this->assertCount(4, $personIds);
 
         foreach ($personIds as $personId) {
-            $person = new Opus_Person($personId);
+            $person = new Person($personId);
 
             $documents = $person->getDocumentsByRole('author');
 
@@ -1337,7 +1347,7 @@ class Opus_PersonTest extends TestCase
     {
         $personCrit = ['first_name' => 'Rainer'];
 
-        $persons = Opus_Person::getPersons($personCrit, [33, 34]);
+        $persons = Person::getPersons($personCrit, [33, 34]);
 
         $this->assertCount(0, $persons);
     }
@@ -1348,12 +1358,12 @@ class Opus_PersonTest extends TestCase
 
         $documentIds = [2, 3, 4];
 
-        $personIds = Opus_Person::getPersons($personCrit, $documentIds);
+        $personIds = Person::getPersons($personCrit, $documentIds);
 
         $this->assertCount(3, $personIds);
 
         foreach ($personIds as $personId) {
-            $person = new Opus_Person($personId);
+            $person = new Person($personId);
 
             $this->assertEquals('Zufall', $person->getLastName());
         }
@@ -1365,10 +1375,10 @@ class Opus_PersonTest extends TestCase
 
         $changes = ['LastName' => 'Plannt', 'FirstName' => 'Volge'];
 
-        Opus_Person::updateAll($personCrit, $changes);
+        Person::updateAll($personCrit, $changes);
 
         foreach ($this->_authors as $author) {
-            $person = new Opus_Person($author->getId());
+            $person = new Person($author->getId());
 
             $this->assertEquals('Plannt', $person->getLastName());
             $this->assertEquals('Volge', $person->getFirstName());
@@ -1383,7 +1393,7 @@ class Opus_PersonTest extends TestCase
             'Email' => 'example@example.org'
         ];
 
-        $result = Opus_Person::convertChanges($changes);
+        $result = Person::convertChanges($changes);
 
         $this->assertEquals([
             'last_name' => 'Zufall',
@@ -1400,7 +1410,7 @@ class Opus_PersonTest extends TestCase
             'email' => 'example@example.org'
         ];
 
-        $result = Opus_Person::convertToFieldNames($values);
+        $result = Person::convertToFieldNames($values);
 
         $this->assertEquals([
             'LastName' => 'Zufall',
@@ -1426,11 +1436,11 @@ class Opus_PersonTest extends TestCase
     {
         $personIds = [];
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
+        $table = TableGateway::getInstance('Opus\Db\Persons');
         $database = $table->getAdapter();
 
         foreach ($persons as $name => $values) {
-            $person = new Opus_Person();
+            $person = new Person();
             $person->setLastName($name);
 
             foreach ($values as $fieldName => $value) {
@@ -1457,7 +1467,7 @@ class Opus_PersonTest extends TestCase
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $personDocs = Opus_Person::getPersonsAndDocuments($personCrit);
+        $personDocs = Person::getPersonsAndDocuments($personCrit);
 
         $this->assertNotNull($personDocs);
         $this->assertInternalType('array', $personDocs);
@@ -1470,7 +1480,7 @@ class Opus_PersonTest extends TestCase
             $this->assertArrayHasKey('document_id', $match);
             $personId = $match['person_id'];
             $docId = $match['document_id'];
-            $person = new Opus_Person($personId);
+            $person = new Person($personId);
             $assocDocs = $person->getDocumentIds();
             $this->assertContains($docId, $assocDocs);
         }
@@ -1488,7 +1498,7 @@ class Opus_PersonTest extends TestCase
 
         $docSet = [2, 5, 6, 10, 99]; // document 99 does not exist
 
-        $personDocs = Opus_Person::getPersonsAndDocuments($personCrit, $docSet);
+        $personDocs = Person::getPersonsAndDocuments($personCrit, $docSet);
 
         $this->assertNotNull($personDocs);
         $this->assertInternalType('array', $personDocs);
@@ -1501,14 +1511,14 @@ class Opus_PersonTest extends TestCase
         $this->assertContains(6, $documentIds);
         $this->assertContains(10, $documentIds);
 
-        $doc = new Opus_Document($this->_documents[1]->getId());
+        $doc = new Document($this->_documents[1]->getId());
 
         $this->assertEquals(2, $doc->getId());
 
         $doc->setPerson(null); // remove all persons
         $doc->store();
 
-        $personDocs = Opus_Person::getPersonsAndDocuments($personCrit, $docSet);
+        $personDocs = Person::getPersonsAndDocuments($personCrit, $docSet);
 
         $this->assertCount(3, $personDocs);
 
@@ -1521,16 +1531,16 @@ class Opus_PersonTest extends TestCase
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $doc = new Opus_Document($this->_documents[0]->getId());
+        $doc = new Document($this->_documents[0]->getId());
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Zufall');
         $person->setFirstName('Rainer');
 
         $doc->addPersonOther($person);
         $doc->store();
 
-        $personDocs = Opus_Person::getPersonsAndDocuments($personCrit);
+        $personDocs = Person::getPersonsAndDocuments($personCrit);
 
         $this->assertNotNull($personDocs);
         $this->assertInternalType('array', $personDocs);
@@ -1547,16 +1557,16 @@ class Opus_PersonTest extends TestCase
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType('article');
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setLanguage('eng');
         $title->setValue('Test document');
         $doc->addTitleMain($title);
         $doc->addPersonOther($this->_authors[0]);
         $doc->store();
 
-        $personDocs = Opus_Person::getPersonsAndDocuments($personCrit);
+        $personDocs = Person::getPersonsAndDocuments($personCrit);
 
         $this->assertNotNull($personDocs);
         $this->assertInternalType('array', $personDocs);
@@ -1571,7 +1581,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetDocumentIds()
     {
-        $person = new Opus_Person($this->_authors[0]->getId());
+        $person = new Person($this->_authors[0]->getId());
 
         $docIds = $person->getDocumentIds();
 
@@ -1583,8 +1593,8 @@ class Opus_PersonTest extends TestCase
 
     public function testGetDocumentIdsUniqueValues()
     {
-        $person = new Opus_Person($this->_authors[0]->getId());
-        $doc = new Opus_Document($this->_documents[0]->getId());
+        $person = new Person($this->_authors[0]->getId());
+        $doc = new Document($this->_documents[0]->getId());
 
         $doc->addPersonAdvisor($person);
         $doc->store();
@@ -1599,7 +1609,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetDocumentIdsForRole()
     {
-        $person = new Opus_Person($this->_authors[0]->getId());
+        $person = new Person($this->_authors[0]->getId());
 
         $docIds = $person->getDocumentIds('author');
 
@@ -1632,7 +1642,7 @@ class Opus_PersonTest extends TestCase
             $this->_authors[4]->getId(),
         ];
 
-        $documentIds = Opus_Person::getDocuments($personIds);
+        $documentIds = Person::getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
@@ -1650,7 +1660,7 @@ class Opus_PersonTest extends TestCase
             999 // unknown person
         ];
 
-        $documentIds = Opus_Person::getDocuments($personIds);
+        $documentIds = Person::getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
@@ -1661,7 +1671,7 @@ class Opus_PersonTest extends TestCase
 
     public function testGetDocumentsOnePersonTwoDocuments()
     {
-        $doc = new Opus_Document($this->_documents[1]->getId());
+        $doc = new Document($this->_documents[1]->getId());
         $doc->addPersonSubmitter($this->_authors[0]);
         $docId = $doc->store();
 
@@ -1670,7 +1680,7 @@ class Opus_PersonTest extends TestCase
             $this->_authors[4]->getId(),
         ];
 
-        $documentIds = Opus_Person::getDocuments($personIds);
+        $documentIds = Person::getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
@@ -1682,8 +1692,8 @@ class Opus_PersonTest extends TestCase
 
     public function testGetDocumentsTwoPersonsOneDocument()
     {
-        $doc = new Opus_Document($this->_documents[0]->getId());
-        $person = new Opus_Person();
+        $doc = new Document($this->_documents[0]->getId());
+        $person = new Person();
         $person->setLastName('Tester');
         $plink = $doc->addPersonSubmitter($person);
         $doc->store();
@@ -1694,7 +1704,7 @@ class Opus_PersonTest extends TestCase
             $plink->getModel()->getId()  // document 0
         ];
 
-        $documentIds = Opus_Person::getDocuments($personIds);
+        $documentIds = Person::getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
@@ -1714,7 +1724,7 @@ class Opus_PersonTest extends TestCase
             $this->_documents[4]->getId()
         ];
 
-        $documentIds = Opus_Person::getDocuments($personIds, $allowedDocuments);
+        $documentIds = Person::getDocuments($personIds, $allowedDocuments);
 
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
@@ -1732,7 +1742,7 @@ class Opus_PersonTest extends TestCase
 
         $allowedDocuments = []; // should be handled like null
 
-        $documentIds = Opus_Person::getDocuments($personIds, $allowedDocuments);
+        $documentIds = Person::getDocuments($personIds, $allowedDocuments);
 
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
@@ -1748,7 +1758,7 @@ class Opus_PersonTest extends TestCase
             'first_name' => ' Rainer '
         ];
 
-        $persons = Opus_Person::getPersons($personCrit);
+        $persons = Person::getPersons($personCrit);
 
         $this->assertNotNull($persons);
         $this->assertInternalType('array', $persons);
@@ -1757,12 +1767,12 @@ class Opus_PersonTest extends TestCase
 
     public function testStoreValuesAreTrimmed()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName(' Zufall ');
         $person->setFirstName(' Rainer ');
         $personId = $person->store();
 
-        $person = new Opus_Person($personId);
+        $person = new Person($personId);
 
         $this->assertEquals('Zufall', $person->getLastName());
         $this->assertEquals('Rainer', $person->getFirstName());
@@ -1771,18 +1781,18 @@ class Opus_PersonTest extends TestCase
     /**
      * OPUSVIER-3764
      *
-     * @expectedException Opus\Model\Exception
-     * @expectedExceptionMessage No Opus_Db_Documents with id
+     * @expectedException \Opus\Model\ModelException
+     * @expectedExceptionMessage No Opus\Db\Documents with id
      */
     public function testDeleteAssignedPerson()
     {
         $this->markTestIncomplete('TODO not sure what/how to test');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->setType('article');
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Tester');
 
         $doc->addPersonAuthor($person);
@@ -1791,28 +1801,28 @@ class Opus_PersonTest extends TestCase
 
         $person->delete();
 
-        // $doc = new Opus_Document($docId);
+        // $doc = new Document($docId);
 
         $doc->deletePermanent();
 
-        new Opus_Document($docId);
+        new Document($docId);
     }
 
     public function testSortOrderDefault()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Person1');
         $doc->addPersonAuthor($person);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Person2');
         $doc->addPersonAuthor($person);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $authors = $doc->getPersonAuthor();
 
@@ -1827,8 +1837,8 @@ class Opus_PersonTest extends TestCase
 
     public function testMatchesPersonObjects()
     {
-        $person1 = new Opus_Person();
-        $person2 = new Opus_Person();
+        $person1 = new Person();
+        $person2 = new Person();
 
         // Test LastName matching
 
@@ -1905,12 +1915,12 @@ class Opus_PersonTest extends TestCase
 
     public function testToArray()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setAcademicTitle('Prof.');
         $person->setFirstName('Thomas');
         $person->setLastName('Mueller');
 
-        $dateOfBirth = new Opus_Date('1960-05-17');
+        $dateOfBirth = new Date('1960-05-17');
         $person->setDateOfBirth($dateOfBirth);
         $dateOfBirthArray = $dateOfBirth->toArray();
 
@@ -1939,7 +1949,7 @@ class Opus_PersonTest extends TestCase
 
     public function testFromArray()
     {
-        $person = Opus_Person::fromArray([
+        $person = Person::fromArray([
             'AcademicTitle' => 'Prof.',
             'DateOfBirth' => '1960-05-17',
             'PlaceOfBirth' => 'München',
@@ -1953,7 +1963,7 @@ class Opus_PersonTest extends TestCase
         ]);
 
         $this->assertNotNull($person);
-        $this->assertInstanceOf('Opus_Person', $person);
+        $this->assertInstanceOf('Opus\Person', $person);
 
         $this->assertEquals('Prof.', $person->getAcademicTitle());
         $this->assertEquals('Thomas', $person->getFirstName());
@@ -1969,7 +1979,7 @@ class Opus_PersonTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $person = new Opus_Person();
+        $person = new Person();
 
         $person->updateFromArray([
             'AcademicTitle' => 'Prof.',
@@ -1994,5 +2004,11 @@ class Opus_PersonTest extends TestCase
         $this->assertEquals('123456789', $person->getIdentifierGnd());
         $this->assertEquals('B', $person->getIdentifierMisc());
         $this->assertEquals('2', $person->getOpusId());
+    }
+
+    public function testGetModelType()
+    {
+        $person = new Person();
+        $this->assertEquals('person', $person->getModelType());
     }
 }

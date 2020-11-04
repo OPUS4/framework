@@ -25,33 +25,43 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2008 - 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2008 - 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Model;
+
+use Opus\Model\Xml\Cache;
+use Opus\Model\Xml\Conf;
+use Opus\Model\Xml\Strategy;
+use Opus\Model\Xml\Version1;
+use Opus\Uri\Resolver;
 
 /**
  * Provides creation XML from models and creation of models by valid XML respectivly.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
+ *
+ * TODO NAMESPACE rename class?
  */
-class Opus_Model_Xml
+class Xml
 {
 
     /**
      * Holds current configuration.
      *
-     * @var Opus_Model_Xml_Conf
+     * @var Conf
      */
     private $_config = null;
 
     /**
      * Holds current xml strategy object.
      *
-     * @var Opus_Model_Xml_Strategy
+     * @var Strategy
      */
     private $_strategy = null;
 
@@ -59,7 +69,7 @@ class Opus_Model_Xml
      * TODO
      * ...
      *
-     * @var Opus_Model_Xml_Cache
+     * @var Cache
      */
     private $_cache = null;
 
@@ -69,18 +79,18 @@ class Opus_Model_Xml
      */
     public function __construct()
     {
-        $this->_strategy = new Opus_Model_Xml_Version1;
-        $this->_config = new Opus_Model_Xml_Conf;
+        $this->_strategy = new Version1();
+        $this->_config = new Conf();
         $this->_strategy->setup($this->_config);
     }
 
     /**
      * Set a new XML version with current configuration up.
      *
-     * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
-     * @return Opus_Model_Xml fluent interface.
+     * @param Strategy $strategy Version of Xml to process
+     * @return Xml fluent interface.
      */
-    public function setStrategy(Opus_Model_Xml_Strategy $strategy)
+    public function setStrategy(Strategy $strategy)
     {
         $this->_strategy = $strategy;
         $this->_strategy->setup($this->_config);
@@ -91,10 +101,10 @@ class Opus_Model_Xml
      * TODO
      * ...
      *
-     * @param Opus_Model_Xml_Cache $cache
-     * @return Opus_Model_Xml fluent interface.
+     * @param Cache $cache
+     * @return Xml fluent interface.
      */
-    public function setXmlCache(Opus_Model_Xml_Cache $cache)
+    public function setXmlCache(Cache $cache)
     {
         $this->_cache = $cache;
         return $this;
@@ -103,7 +113,7 @@ class Opus_Model_Xml
     /**
      * ...
      *
-     * @return Opus_Model_Xml fluent interface.
+     * @return Xml fluent interface.
      */
     public function removeCache()
     {
@@ -115,7 +125,7 @@ class Opus_Model_Xml
      * TODO
      * ...
      *
-     * @return Opus_Model_Xml_Cache ...
+     * @return Cache ...
      */
     public function getXmlCache()
     {
@@ -126,7 +136,7 @@ class Opus_Model_Xml
      * Set up base URI for xlink URI generation.
      *
      * @param string $uri Base URI.
-     * @return Opus_Model_Xml Fluent interface
+     * @return Xml Fluent interface
      */
     public function setXlinkBaseUri($uri)
     {
@@ -137,12 +147,12 @@ class Opus_Model_Xml
     /**
      * Set up Xlink-Resolver called to obtain contents of Xlink referenced resources.
      *
-     * @param Opus_Uri_Resolver $resolver Resolver implementation that gets called for xlink:ref content.
-     * @return Opus_Model_Xml Fluent interface
+     * @param Resolver $resolver Resolver implementation that gets called for xlink:ref content.
+     * @return Xml Fluent interface
      *
      * TODO seems unused in OPUS
      */
-    public function setXlinkResolver(Opus_Uri_Resolver $resolver)
+    public function setXlinkResolver(Resolver $resolver)
     {
         $this->_config->xlinkResolver = $resolver;
         return $this;
@@ -152,13 +162,13 @@ class Opus_Model_Xml
      * Define the class name to resource name mapping.
      *
      * If a submodel is referenced by an xlink this map and the base URI are used
-     * to generate the full URI. E.g. if a model is Opus_Licence, the array may specify
+     * to generate the full URI. E.g. if a model is Opus\Licence, the array may specify
      * an mapping of this class name to "licence". Assuming a baseURI of "http://pub.service.org"
      * the full URI for a Licence with ID 4711 looks like this:
      * "http://pub.service.org/licence/4711"
      *
      * @param array $map Map of class names to resource names.
-     * @return Opus_Model_Xml Fluent interface
+     * @return Xml Fluent interface
      */
     public function setResourceNameMap(array $map)
     {
@@ -170,7 +180,7 @@ class Opus_Model_Xml
      * Set up list of fields to exclude from serialization.
      *
      * @param array Field list
-     * @return Opus_Model_Xml Fluent interface
+     * @return Xml Fluent interface
      */
     public function exclude(array $fields)
     {
@@ -181,7 +191,7 @@ class Opus_Model_Xml
     /**
      * Define that empty fields (value===null) shall be excluded.
      *
-     * @return Opus_Model_Xml Fluent interface
+     * @return Xml Fluent interface
      */
     public function excludeEmptyFields()
     {
@@ -193,7 +203,7 @@ class Opus_Model_Xml
      * Set XML model representation.
      *
      * @param string $xml XML string representing a model.
-     * @return Opus_Model_Xml Fluent interface.
+     * @return Xml Fluent interface.
      */
     public function setXml($xml)
     {
@@ -204,10 +214,10 @@ class Opus_Model_Xml
     /**
      * Set a DomDocument instance.
      *
-     * @param DOMDocument $dom DomDocument representing a model.
-     * @return Opus_Model_Xml Fluent interface.
+     * @param \DOMDocument $dom DomDocument representing a model.
+     * @return Xml Fluent interface.
      */
-    public function setDomDocument(DOMDocument $dom)
+    public function setDomDocument(\DOMDocument $dom)
     {
         $this->_strategy->setDomDocument($dom);
         return $this;
@@ -216,8 +226,8 @@ class Opus_Model_Xml
     /**
      * Set the Model for XML generation.
      *
-     * @param Opus_Model_Abstract $model Model to serialize.
-     * @return Opus_Model_Xml Fluent interface.
+     * @param AbstractModel $model Model to serialize.
+     * @return Xml Fluent interface.
      */
     public function setModel($model)
     {
@@ -229,7 +239,7 @@ class Opus_Model_Xml
      * Return the current Model instance if there is any. If there is an XML representation set up,
      * a new model is created by unserialising it from the XML data.
      *
-     * @return Opus_Model_Abstract Deserialised or previously set Model.
+     * @return AbstractModel Deserialised or previously set Model.
      */
     public function getModel()
     {
@@ -239,12 +249,12 @@ class Opus_Model_Xml
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
-     * @return DOMDocument DOM representation of the current Model.
+     * @return \DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument()
     {
         $model = $this->_config->model;
-        $logger = Zend_Registry::get('Zend_Log');
+        $logger = \Zend_Registry::get('Zend_Log');
 
         $result = $this->getDomDocumentFromXmlCache();
         if (! is_null($result)) {
@@ -271,12 +281,12 @@ class Opus_Model_Xml
      * null in case of an error/cache miss/cache disabled.  Returns DOMDocument
      * otherwise.
      *
-     * @return DOMDocument DOM representation of the current Model.
+     * @return \DOMDocument DOM representation of the current Model.
      */
     private function getDomDocumentFromXmlCache()
     {
         $model = $this->_config->model;
-        $logger = Zend_Registry::get('Zend_Log');
+        $logger = \Zend_Registry::get('Zend_Log');
 
         if (null === $this->_cache) {
             $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
@@ -297,7 +307,7 @@ class Opus_Model_Xml
         $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
         try {
             return $this->_cache->get($model->getId(), (int) $this->_strategy->getVersion());
-        } catch (Opus\Model\Exception $e) {
+        } catch (ModelException $e) {
             $logger->warn(
                 __METHOD__ . " Access to XML cache failed on " . get_class($model) . '#' . $model->getId()
                 . ".  Trying to recover."

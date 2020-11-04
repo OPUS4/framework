@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,25 +25,26 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Security
+ * @package     Opus\Security
  * @author      Julian Heise <heise@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Security;
 
 /**
  * Interface for classes providing security implementation.
  */
-interface Opus_Security_IRealm
+interface IRealm
 {
 
     /**
      * Set the current username.
      *
      * @param string username username to be set.
-     * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
-     * @return Opus_Security_Realm Fluent interface.
+     * @throws SecurityException Thrown if the supplied identity could not be found.
+     * @return Realm Fluent interface.
      */
     public function setUser($username);
 
@@ -52,8 +52,8 @@ interface Opus_Security_IRealm
      * Set the current ip address.
      *
      * @param string ipaddress ip address to be set.
-     * @throws Opus_Security_Exception Thrown if the supplied ip address is not a valid ip address.
-     * @return Opus_Security_Realm Fluent interface.
+     * @throws SecurityException Thrown if the supplied ip address is not a valid ip address.
+     * @return Realm Fluent interface.
      */
     public function setIp($ipaddress);
 

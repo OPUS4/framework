@@ -25,13 +25,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Util
+ * @package     Opus\Util
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Util_ClassLoaderHelper
+namespace Opus\Util;
+
+/**
+ * Class ClassLoaderHelper
+ * @package Opus\Util
+ *
+ * TODO ZF3 still needed?
+ */
+class ClassLoaderHelper
 {
 
     public static function classExists($className)
@@ -39,7 +47,7 @@ class Opus_Util_ClassLoaderHelper
         // Anpassung des Zend-Autoloaders erforderlich, damit keine PHP Warning erzeugt wird, wenn Generator-Klasse
         // nicht existiert: PHPUnit erzeugt sonst aus PHP Warning (wenn Klasse nicht gefunden wird) eine Exception, weil
         // in Konfiguration convertWarningsToExceptions="true gesetzt -> das führt zu verändertem Exception-Verhalten
-        $autoloader = Zend_Loader_Autoloader::getInstance();
+        $autoloader = \Zend_Loader_Autoloader::getInstance();
 
         // Default-Wert für späteres Zurücksetzen speichern
         $suppressNotFoundWarnings = $autoloader->suppressNotFoundWarnings();

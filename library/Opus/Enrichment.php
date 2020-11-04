@@ -35,12 +35,19 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+
 /**
  * Domain model for enrichments in the Opus framework
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\Abstract
  *
  * @method void setKeyName(string $name)
  * @method string getKeyName()
@@ -48,7 +55,7 @@
  * @method void setValue(string $value)
  * @method string getValue()
  */
-class Opus_Enrichment extends Opus_Model_Dependent_Abstract
+class Enrichment extends AbstractDependentModel
 {
 
     /**
@@ -61,9 +68,9 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentEnrichments';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentEnrichments';
 
     /**
      * Initialize model with the following fields:
@@ -74,15 +81,15 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $key = new Opus_Model_Field('KeyName');
+        $key = new Field('KeyName');
         $key->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty())
+                ->setValidator(new \Zend_Validate_NotEmpty())
                 ->setSelection(true)
-                ->setDefault(Opus_EnrichmentKey::getAll());
+                ->setDefault(EnrichmentKey::getAll());
 
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
 
         $this->addField($key);
         $this->addField($value);
@@ -91,8 +98,8 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
     /**
      * Returns the associated enrichment key or null if it does not exist.
      *
-     * @return Opus_EnrichmentKey|null
-     * @throws \Opus\Model\Exception
+     * @return EnrichmentKey|null
+     * @throws ModelException
      */
     public function getEnrichmentKey()
     {
@@ -101,7 +108,7 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
             return null;
         }
 
-        return Opus_EnrichmentKey::fetchByName($keyName);
+        return EnrichmentKey::fetchByName($keyName);
     }
 
     /**
@@ -111,7 +118,7 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
      */
     public static function getAllUsedEnrichmentKeyNames()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$_tableGatewayClass);
         $db = $table->getAdapter();
         $select = $db->select()->from('document_enrichments');
         $select->reset('columns');

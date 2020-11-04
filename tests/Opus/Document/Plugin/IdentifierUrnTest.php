@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,20 +25,27 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Document_Plugin
+ * @package     Opus\Document\Plugin
  * @author      Julian Heise (heise@zib.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
 
-class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
+namespace OpusTest\Document\Plugin;
+
+use Opus\Document;
+use Opus\Document\Plugin\IdentifierUrn;
+use Opus\File;
+use Opus\Identifier\Urn;
+use OpusTest\TestAsset\TestCase;
+
+class IdentifierUrnTest extends TestCase
 {
 
     public function testAutoGenerateUrn()
     {
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('published');
         $model->store();
 
@@ -49,7 +55,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $model->addFile()->setVisibleInOai(0);
         $model->addFile()->setVisibleInOai(1);
 
-        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+        $plugin = new IdentifierUrn();
         $plugin->postStoreInternal($model);
 
         $this->assertTrue(
@@ -62,8 +68,8 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $this->assertEquals(1, count($urns));
         $this->assertEquals('urn', $urns[0]->getType());
 
-        $config = Zend_Registry::get('Zend_Config');
-        $urnItem = new Opus_Identifier_Urn($config->urn->nid, $config->urn->nss);
+        $config = \Zend_Registry::get('Zend_Config');
+        $urnItem = new Urn($config->urn->nid, $config->urn->nss);
         $checkDigit = $urnItem->getCheckDigit($model->getId());
         $urnString = 'urn:' . $config->urn->nid . ':' . $config->urn->nss . '-' . $model->getId() . $checkDigit;
 
@@ -76,7 +82,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testAutoGenerateUrnSkippedIfNotPublished()
     {
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('unpublished');
         $model->store();
 
@@ -103,11 +109,11 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testAutoGenerateUrnSkippedIfPublishedAndNoVisibleFiles()
     {
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('published');
         $model->addFile()->setVisibleInOai(0);
 
-        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+        $plugin = new IdentifierUrn();
         $plugin->postStoreInternal($model);
 
         $this->assertEquals(0, count($model->getIdentifier()));
@@ -119,20 +125,20 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testUrnAlreadyPresent()
     {
-        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+        $plugin = new IdentifierUrn();
 
-        $model = new Opus_Document();
+        $model = new Document();
         $this->assertFalse($plugin->urnAlreadyPresent($model));
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->addIdentifier()->setType('foo');
         $this->assertFalse($plugin->urnAlreadyPresent($model));
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->addIdentifier()->setType('urn');
         $this->assertTrue($plugin->urnAlreadyPresent($model));
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->addIdentifierUrn();
         $this->assertTrue($plugin->urnAlreadyPresent($model));
     }
@@ -142,16 +148,16 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testAllowUrnOnThisDocument()
     {
-        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+        $plugin = new IdentifierUrn();
 
-        $model = new Opus_Document();
+        $model = new Document();
         $this->assertFalse($plugin->allowUrnOnThisDocument($model));
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->addFile()->setVisibleInOai(0);
         $this->assertFalse($plugin->allowUrnOnThisDocument($model));
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->addFile()->setVisibleInOai(1);
         $this->assertTrue($plugin->allowUrnOnThisDocument($model));
     }
@@ -161,11 +167,11 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testOPUSVIER3994wPublishedDoc()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
         $this->addFileToDoc($doc);
@@ -173,14 +179,14 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
 
         $this->enableURNGeneration();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
         $doc->setPageFirst('1');
         // provoziere einen Statusübergang von published nach published
         $doc->setServerState('published');
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEmpty($doc->getIdentifier());
     }
 
@@ -189,17 +195,17 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testOPUSVIER3994wUnpublishedDoc()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $this->addFileToDoc($doc);
         $doc->setServerState('unpublished');
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
         $this->enableURNGeneration();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
         $doc->setPageFirst('1');
         $doc->setServerState('published');
@@ -217,17 +223,17 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testOPUSVIER3994multipleSetter()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $this->addFileToDoc($doc);
         $doc->setServerState('unpublished');
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
         $this->enableURNGeneration();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
         $doc->setPageFirst('1');
         $doc->setServerState('published');
@@ -237,7 +243,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         // es sollte keine URN erzeugt worden sein, weil sich der serverState effektiv nicht geändert hat
         $this->assertEmpty($doc->getIdentifier());
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
         $doc->setPageFirst('2');
         $doc->setServerState('unpublished');
@@ -260,13 +266,13 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
     {
         $this->enableURNGeneration();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $this->addFileToDoc($doc);
         $doc->setServerState('unpublished');
         $doc->setServerState('published');
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertNotEmpty($doc->getIdentifier());
 
@@ -281,37 +287,37 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testOPUSVIER3994withoutServerStateChanged()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $this->addFileToDoc($doc);
         $doc->setServerState('unpublished');
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
         $this->enableURNGeneration();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->setServerState('published');
         $doc->setServerState('unpublished');
         $doc->store();
 
         // prüfe, dass keine URN generiert wurde (weil sich der ServerState nicht verändert hat)
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEmpty($doc->getIdentifier());
     }
 
     private function adaptUrnConfiguration($urnConfig)
     {
-        Zend_Registry::set(
+        \Zend_Registry::set(
             'Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['urn' => $urnConfig]))
+            \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['urn' => $urnConfig]))
         );
     }
 
-    private function addFileToDoc(Opus_Document $doc)
+    private function addFileToDoc(Document $doc)
     {
-        $visibleFile = new Opus_File();
+        $visibleFile = new File();
         $visibleFile->setPathName('visible_file.txt');
         $visibleFile->setVisibleInOai(true);
 

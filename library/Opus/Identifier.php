@@ -26,18 +26,29 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Doi\DoiException;
+use Opus\Doi\Generator\DefaultGenerator;
+use Opus\Doi\Generator\DoiGeneratorFactory;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+use Opus\Identifier\DoiAlreadyExistsException;
+use Opus\Identifier\UrnAlreadyExistsException;
+use Opus\Model\ModelException;
+
 /**
  * Domain model for document identifiers in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
- * @uses        Opus_Model_Dependent_Abstract
+ * @package     Opus\Model
+ * @uses        \Opus\Model\Dependent\AbstractDependentModel
  *
  * @method void setValue(string $value)
  * @method string getValue()
@@ -56,12 +67,12 @@
  * TODO desing issues - see below
  * The OPUS 4 framework is mapping objects to database tables (ORM). All identifiers are stored in the same table. The
  * table was extended with fields relevant only to DOI identifiers. In a pure object model it would make more sense to
- * extend the basic Opus_Identifier class for specific identifier types to add fields and functionality. Those classes
+ * extend the basic Opus\Identifier class for specific identifier types to add fields and functionality. Those classes
  * would then have to be mapped to different table, however they could also still be mapped to the same table. At some
  * point this will have to be revisited. We need a consistent object model independent of how the data is stored in the
  * end.
  */
-class Opus_Identifier extends Opus_Model_Dependent_Abstract
+class Identifier extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
@@ -75,7 +86,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentIdentifiers';
+    protected static $_tableGatewayClass = 'Opus\Db\DocumentIdentifiers';
 
     /**
      * Mapping between identifier type and field name.
@@ -109,23 +120,23 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      */
     protected function _init()
     {
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new \Zend_Validate_NotEmpty());
         $this->addField($value);
 
         $typeDefaults = array_values(self::$identifierMapping);
         $typeDefaults = array_combine($typeDefaults, $typeDefaults);
 
-        $type = new Opus_Model_Field('Type');
+        $type = new Field('Type');
         $type->setMandatory(true)
                 ->setSelection(true)
-                ->setValidator(new Zend_Validate_NotEmpty())
+                ->setValidator(new \Zend_Validate_NotEmpty())
                 ->setDefault($typeDefaults);
         $this->addField($type);
 
         // zwei Felder, die ausschließlich für Identifier vom Typ DOI genutzt werden
-        $value = new Opus_Model_Field('Status');
+        $value = new Field('Status');
         $value->setMandatory(false)
             ->setDefault([
                 'registered' => 'registered',
@@ -133,7 +144,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
             ]);
         $this->addField($value);
 
-        $value = new Opus_Model_Field('RegistrationTs');
+        $value = new Field('RegistrationTs');
         $value->setMandatory(false);
         $this->addField($value);
     }
@@ -149,7 +160,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
                     break;
                 case 'doi':
                     if ($this->checkDoiCollision()) {
-                        throw new Opus_Identifier_DoiAlreadyExistsException(
+                        throw new DoiAlreadyExistsException(
                             "could not save DOI with value $value since it already exists in your instance"
                         );
                     }
@@ -167,15 +178,15 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      * Eindeutigkeitsüberprüfung nicht berücksichtigt.
      *
      * @param $value
-     * @throws Opus_Identifier_UrnAlreadyExistsException
-     * @throws Opus_Model_Exception
+     * @throws UrnAlreadyExistsException
+     * @throws ModelException
      */
     private function checkUrnCollision($value, $docId = null)
     {
-        $log = Zend_Registry::get('Zend_Log');
+        $log = \Zend_Registry::get('Zend_Log');
         $log->debug('check URN collision for URN ' . $value);
 
-        $finder = new Opus_DocumentFinder();
+        $finder = new DocumentFinder();
         $finder->setIdentifierTypeValue('urn', $value);
         $docIds = $finder->ids();
         // remove $docId of current document from $docIds
@@ -203,7 +214,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         try {
             $this->checkUrnCollision($this->getValue(), $docId);
             return true;
-        } catch (Opus_Identifier_UrnAlreadyExistsException $e) {
+        } catch (UrnAlreadyExistsException $e) {
             // ignore exception
         }
         return false;
@@ -223,7 +234,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
             return false;
         }
 
-        $log = Zend_Registry::get('Zend_Log');
+        $log = \Zend_Registry::get('Zend_Log');
         $log->debug('check collision for local DOI ' . $this->getValue());
 
         if ($this->isDoiUnique()) {
@@ -247,7 +258,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      */
     public function isDoiUnique($docId = null)
     {
-        $finder = new Opus_DocumentFinder();
+        $finder = new DocumentFinder();
         $finder->setIdentifierTypeValue('doi', $this->getValue());
         $docIds = $finder->ids();
         // remove $docId from $docIds
@@ -259,7 +270,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
 
         try {
             $this->checkIdCollision('doi', $docIds);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
         return true;
@@ -275,7 +286,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      * Im Erfolgsfall gibt die Methode true zurück; sonst false.
      *
      * @return bool
-     * @throws Zend_Exception
+     * @throws \Zend_Exception
      *
      * TODO if generator class is missing use default class, if that is missing => fatal error
      */
@@ -284,8 +295,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
 
         $generator = null;
         try {
-            $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();
-        } catch (Opus_Doi_DoiException $e) {
+            $generator = DoiGeneratorFactory::create();
+        } catch (DoiException $e) {
             // ignore exception
         }
 
@@ -293,7 +304,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         // implementierte Methode isLocal für die Prüfung, ob eine lokale DOI vorliegt
 
         if (is_null($generator)) {
-            $generator = new Opus_Doi_Generator_DefaultGenerator();
+            $generator = new DefaultGenerator();
         }
 
         return $generator->isLocal($this->getValue());
@@ -314,15 +325,15 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $errorMsg = "$type collision (documents " . implode(",", $docIds) . ")";
         switch ($type) {
             case 'urn':
-                $exception = new Opus_Identifier_UrnAlreadyExistsException($errorMsg);
+                $exception = new UrnAlreadyExistsException($errorMsg);
                 break;
 
             case 'doi':
-                $exception = new Opus_Identifier_DoiAlreadyExistsException($errorMsg);
+                $exception = new DoiAlreadyExistsException($errorMsg);
                 break;
 
             default:
-                $exception = new Opus_Model_Exception($errorMsg);
+                $exception = new ModelException($errorMsg);
         }
 
         if ($this->isNewRecord() and ! empty($docIds)) {
@@ -346,5 +357,10 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
     public static function getFieldnameForType($type)
     {
         return 'Identifier' . array_search($type, self::$identifierMapping);
+    }
+
+    public function getModelType()
+    {
+        return 'identifier';
     }
 }

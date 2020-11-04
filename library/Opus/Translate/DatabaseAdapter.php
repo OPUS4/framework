@@ -26,33 +26,35 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Translate
+ * @package     Opus\Translate
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Translate;
+
 /**
  * Adapter class for translations stored in database.
  *
- * This class is used to read translations from database for Zend_Translate. Database access should only be necessary
+ * This class is used to read translations from database for \Zend_Translate. Database access should only be necessary
  * if the cache for the translations has been cleared.
  */
-class Opus_Translate_DatabaseAdapter extends Zend_Translate_Adapter
+class DatabaseAdapter extends \Zend_Translate_Adapter
 {
 
     /**
      * Load translation data
      *
      * @param  mixed              $data
-     * @param  string|Zend_Locale $locale
+     * @param  string|\Zend_Locale $locale
      * @param  array              $options (optional)
      *
      * @return array
      */
     protected function _loadTranslationData($data, $locale, array $options = [])
     {
-        $database = new Opus_Translate_Dao();
+        $database = new Dao();
 
         $translations = $database->getTranslationsByLocale();
 

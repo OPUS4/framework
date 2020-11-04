@@ -25,35 +25,45 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Collection
+ * @package     Opus\Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use Opus\Collection;
+use Opus\CollectionRole;
+use Opus\Document;
+use Opus\Model\ModelException;
+use Opus\Model\Xml\Cache;
+use OpusTest\Model\Plugin\AbstractPluginMock;
+use OpusTest\TestAsset\TestCase;
+
 /**
- * Test cases for class Opus_CollectionRole.
+ * Test cases for class Opus\CollectionRole.
  *
  * @category    Tests
- * @package     Opus_Collection
+ * @package     Opus\Collection
  *
  * @group       CollectionTests
  *
  */
-class Opus_CollectionRoleTest extends TestCase
+class CollectionRoleTest extends TestCase
 {
 
     /**
      *
-     * @var Opus_CollectionRole
+     * @var CollectionRole
      */
     protected $object;
 
     /**
      * Static helper for creating random objects.
      *
-     * @return Opus_CollectionRole
+     * @return CollectionRole
      */
     public static function createRandomObject()
     {
@@ -61,7 +71,7 @@ class Opus_CollectionRoleTest extends TestCase
         $oai_name = "oainame-" . rand();
 
         // Object is not stored.
-        $object = new Opus_CollectionRole();
+        $object = new CollectionRole();
         $object->setName($name);
         $object->setOaiName($oai_name);
 
@@ -105,8 +115,8 @@ class Opus_CollectionRoleTest extends TestCase
 
         $this->object->delete();
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        new Opus_CollectionRole($role_id);
+        $this->setExpectedException('Opus\Model\NotFoundException');
+        new CollectionRole($role_id);
     }
 
     /**
@@ -118,17 +128,17 @@ class Opus_CollectionRoleTest extends TestCase
         $collection = $root->addLastChild();
         $this->object->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $d->store();
 
         $role_id = $this->object->getId();
-        $role = new Opus_CollectionRole($role_id);
+        $role = new CollectionRole($role_id);
         $role->delete();
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        new Opus_CollectionRole($role_id);
+        $this->setExpectedException('Opus\Model\NotFoundException');
+        new CollectionRole($role_id);
     }
 
     /**
@@ -159,7 +169,7 @@ class Opus_CollectionRoleTest extends TestCase
             'CollectionRole isNewRecord check failed on stored record.'
         );
 
-        $role = new Opus_CollectionRole($this->object->getId());
+        $role = new CollectionRole($this->object->getId());
         $this->assertTrue(
             is_object($role),
             'CollectionRole reloading failed.'
@@ -194,7 +204,7 @@ class Opus_CollectionRoleTest extends TestCase
         );
 
         $this->object->store();
-        $role = new Opus_CollectionRole($this->object->getId());
+        $role = new CollectionRole($this->object->getId());
         $this->assertTrue(
             ($role->getName() === $name),
             'CollectionRole name check on reloaded object failed.'
@@ -215,7 +225,7 @@ class Opus_CollectionRoleTest extends TestCase
     }
 
     /**
-     * @param $role Opus_CollectionRole
+     * @param $role CollectionRole
      */
     protected function prepateCollectionRole($role)
     {
@@ -275,7 +285,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         $root = $role->getRootCollection();
 
-        $role = new Opus_CollectionRole($role->store());
+        $role = new CollectionRole($role->store());
 
         $data = $role->toArray();
 
@@ -322,7 +332,7 @@ class Opus_CollectionRoleTest extends TestCase
         $root->store();
 
         // FIXME: We have to reload model to get correct results!
-        $role = new Opus_CollectionRole($role->getId());
+        $role = new CollectionRole($role->getId());
 
         $data = $role->toArray();
 
@@ -360,7 +370,7 @@ class Opus_CollectionRoleTest extends TestCase
         );
 
         // Expecting null for current name, since its not stored in db.
-        $role = Opus_CollectionRole::fetchByName($this->object->getName());
+        $role = CollectionRole::fetchByName($this->object->getName());
         $this->assertNull(
             $role,
             'Role should not exists.'
@@ -368,13 +378,13 @@ class Opus_CollectionRoleTest extends TestCase
 
         // Expecting null for current name, since its not stored in db.
         $this->object->store();
-        $role = Opus_CollectionRole::fetchByName($this->object->getName());
+        $role = CollectionRole::fetchByName($this->object->getName());
         $this->assertNotNull(
             $role,
             'Role should exist.'
         );
         $this->assertTrue(
-            $role instanceof Opus_CollectionRole,
+            $role instanceof CollectionRole,
             'Returned object has wrong class.'
         );
 
@@ -387,9 +397,9 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setOaiName('test');
         $role->store();
 
-        $fetched = Opus_CollectionRole::fetchByOaiName('test');
+        $fetched = CollectionRole::fetchByOaiName('test');
 
-        $this->assertInstanceOf('Opus_CollectionRole', $fetched);
+        $this->assertInstanceOf('Opus\CollectionRole', $fetched);
     }
 
     /**
@@ -400,7 +410,7 @@ class Opus_CollectionRoleTest extends TestCase
         $role = $this->object;
         $role->store();
 
-        $fetched = Opus_CollectionRole::fetchByOaiName('test');
+        $fetched = CollectionRole::fetchByOaiName('test');
 
         $this->assertNull($fetched);
     }
@@ -413,13 +423,13 @@ class Opus_CollectionRoleTest extends TestCase
         $name = $this->object->getName();
 
         // Check fetchAll works even if object is unstored.
-        $roles = Opus_CollectionRole::fetchAll();
+        $roles = CollectionRole::fetchAll();
         $roles_count_old = count($roles);
         $this->assertTrue(is_array($roles), "Array return value expected.");
 
         // Check fetchAll works after storing *and* contains the object.
         $this->object->store();
-        $roles = Opus_CollectionRole::fetchAll();
+        $roles = CollectionRole::fetchAll();
         $this->assertTrue(is_array($roles), "Array return value expected.");
         $this->assertTrue(count($roles) > $roles_count_old, "Increasing count expected.");
 
@@ -460,7 +470,7 @@ class Opus_CollectionRoleTest extends TestCase
         $root->setOaiSubset('test');
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($root);
         $doc->store();
@@ -487,12 +497,12 @@ class Opus_CollectionRoleTest extends TestCase
 
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col1);
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col2);
         $doc->store();
@@ -519,12 +529,12 @@ class Opus_CollectionRoleTest extends TestCase
 
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col);
         $doc->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col);
         $doc->store();
@@ -546,7 +556,7 @@ class Opus_CollectionRoleTest extends TestCase
         $col = $root->addLastChild();
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col);
         $doc->store();
@@ -568,7 +578,7 @@ class Opus_CollectionRoleTest extends TestCase
         $col->setVisible(0);
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col);
         $doc->store();
@@ -594,7 +604,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($colDocs);
         $doc->store();
@@ -621,7 +631,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($colDocs);
         $doc->store();
@@ -651,7 +661,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         $this->assertFalse($role->existsDocumentIdsInSet($oai_set));
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $d->store();
@@ -667,7 +677,7 @@ class Opus_CollectionRoleTest extends TestCase
         $this->object->store();
 
         $oaiSetName = $this->object->getOaiName();
-        $sets = Opus_CollectionRole::getDocumentIdsInSet("$oaiSetName:foo");
+        $sets = CollectionRole::getDocumentIdsInSet("$oaiSetName:foo");
 
         $this->assertTrue(is_array($sets), "Expected array return value.");
         $this->assertTrue(count($sets) === 0, "Expected empty array.");
@@ -688,7 +698,7 @@ class Opus_CollectionRoleTest extends TestCase
         }
 
         // Check if setPosition works properly.
-        $num_roles = count(Opus_CollectionRole::fetchAll());
+        $num_roles = count(CollectionRole::fetchAll());
         $check_positions = [1, $num_roles, round((1 + $num_roles) / 2), 1];
 
         foreach ($check_positions as $position) {
@@ -696,7 +706,7 @@ class Opus_CollectionRoleTest extends TestCase
             $this->object->store();
 
             // Reload object, otherwise the result will be trivial.
-            $role = new Opus_CollectionRole($this->object->getId());
+            $role = new CollectionRole($this->object->getId());
             $this->assertTrue(
                 ($role->getPosition() === "$position"),
                 'CollectionRole position check failed.'
@@ -729,7 +739,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         // Restore object, validate.
         $role_id = $role->getId();
-        $role = new Opus_CollectionRole($role_id);
+        $role = new CollectionRole($role_id);
 
         $this->assertNotNull($role->getName(), 'CollectionRole name check failed.');
         $this->assertNotNull($role->getOaiName(), 'CollectionRole oai_name check failed.');
@@ -757,14 +767,14 @@ class Opus_CollectionRoleTest extends TestCase
         $root = $role->addRootCollection();
         $root->store();
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Collection($root->getId());
         $this->assertEquals(
             $root->getRoleId(),
             $role->getId(),
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role = new Opus_CollectionRole($role->getId());
+        $role = new CollectionRole($role->getId());
         $root_new = $role->getRootCollection();
         $this->assertEquals(
             $root_new->getId(),
@@ -783,14 +793,14 @@ class Opus_CollectionRoleTest extends TestCase
         $root = $role->addRootCollection();
         $role->store();
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Collection($root->getId());
         $this->assertEquals(
             $root->getRoleId(),
             $role->getId(),
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role = new Opus_CollectionRole($role->getId());
+        $role = new CollectionRole($role->getId());
         $root_new = $role->getRootCollection();
         $this->assertEquals(
             $root_new->getId(),
@@ -805,18 +815,18 @@ class Opus_CollectionRoleTest extends TestCase
     public function testAddNewUnstoredRootCollectionStoringRole()
     {
         $role = $this->object;
-        $root = new Opus_Collection();
+        $root = new Collection();
         $role->addRootCollection($root);
         $role->store();
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Collection($root->getId());
         $this->assertEquals(
             $root->getRoleId(),
             $role->getId(),
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role = new Opus_CollectionRole($role->getId());
+        $role = new CollectionRole($role->getId());
         $root_new = $role->getRootCollection();
         $this->assertEquals(
             $root_new->getId(),
@@ -834,12 +844,12 @@ class Opus_CollectionRoleTest extends TestCase
         $collection = $root->addLastChild();
         $this->object->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $docId = $d->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
         $this->object->setDisplayFrontdoor(true);
         $this->object->store();
@@ -856,14 +866,14 @@ class Opus_CollectionRoleTest extends TestCase
         $this->object->store();
 
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $docId = $d->store();
 
         $serverDateModifiedBeforeDelete = $d->getServerDateModified();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
 
         sleep(1);
@@ -871,7 +881,7 @@ class Opus_CollectionRoleTest extends TestCase
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
-        $d = new Opus_Document($docId);
+        $d = new Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue($serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
@@ -883,11 +893,11 @@ class Opus_CollectionRoleTest extends TestCase
      */
     public function testPreDeletePluginHookGetsCalled()
     {
-        $pluginMock = new Opus_Model_Plugin_Mock();
+        $pluginMock = new AbstractPluginMock();
 
         $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
 
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->setName('test');
         $collectionRole->setOaiName('oainame');
         $collectionRole->registerPlugin($pluginMock);
@@ -895,23 +905,23 @@ class Opus_CollectionRoleTest extends TestCase
         $collectionRole->delete();
 
         $this->assertTrue(
-            in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks),
+            in_array('OpusTest\Model\Plugin\AbstractPluginMock::preDelete', $pluginMock->calledHooks),
             'expected call to preDelete hook'
         );
     }
 
     public function testPreDeletePluginHookNotCalledIfObjectNotStored()
     {
-        $pluginMock = new Opus_Model_Plugin_Mock();
+        $pluginMock = new AbstractPluginMock();
 
         $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
 
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->registerPlugin($pluginMock);
         $collectionRole->delete();
 
         $this->assertFalse(in_array(
-            'Opus_Model_Plugin_Mock::preDelete',
+            'OpusTest\Model\Plugin\AbstractPluginMock::preDelete',
             $pluginMock->calledHooks
         ), 'expected no call to preDelete hook');
     }
@@ -925,7 +935,7 @@ class Opus_CollectionRoleTest extends TestCase
         $root->setOaiSubset('test');
         $role->store();
 
-        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+        $roles = CollectionRole::fetchAllOaiEnabledRoles();
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(0, $roles);
@@ -934,17 +944,17 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setVisibleOai(true);
         $role->store();
 
-        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+        $roles = CollectionRole::fetchAllOaiEnabledRoles();
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(0, $roles);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($root);
         $doc->store();
 
-        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+        $roles = CollectionRole::fetchAllOaiEnabledRoles();
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(1, $roles);
@@ -963,12 +973,12 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setVisible(0);
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($root);
         $doc->store();
 
-        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+        $roles = CollectionRole::fetchAllOaiEnabledRoles();
 
         $this->assertInternalType('array', $roles);
         $this->assertEmpty($roles);
@@ -989,12 +999,12 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setVisible(1);
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($col);
         $doc->store();
 
-        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+        $roles = CollectionRole::fetchAllOaiEnabledRoles();
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(1, $roles);
@@ -1012,12 +1022,12 @@ class Opus_CollectionRoleTest extends TestCase
         $root = $role->addRootCollection();
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addCollection($root);
         $doc->store();
 
-        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+        $roles = CollectionRole::fetchAllOaiEnabledRoles();
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(1, $roles);
@@ -1030,7 +1040,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         $root = $role->addRootCollection();
 
-        $col = new Opus_Collection();
+        $col = new Collection();
         $col->setName('test-collection');
         $col->setOaiSubset('open_access');
 
@@ -1039,7 +1049,7 @@ class Opus_CollectionRoleTest extends TestCase
 
         $result = $role->getCollectionByOaiSubset('open_access');
 
-        $this->assertInstanceOf('Opus_Collection', $result);
+        $this->assertInstanceOf('Opus\Collection', $result);
         $this->assertEquals($col->getId(), $result->getId());
     }
 
@@ -1058,7 +1068,7 @@ class Opus_CollectionRoleTest extends TestCase
         $role = $this->object;
         $role->store();
 
-        $result = Opus_CollectionRole::getLastPosition();
+        $result = CollectionRole::getLastPosition();
 
         $this->assertNotNull($result);
         $this->assertInternalType('int', $result);
@@ -1067,17 +1077,17 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setPosition(10);
         $role->store();
 
-        $result = Opus_CollectionRole::getLastPosition();
+        $result = CollectionRole::getLastPosition();
 
         $this->assertEquals(10, $result);
 
-        $role2 = new Opus_CollectionRole();
+        $role2 = new CollectionRole();
         $role2->setName('TestCol2');
         $role2->setOaiName('col2oai');
         $role2->setPosition(20);
         $role2->store();
 
-        $result = Opus_CollectionRole::getLastPosition();
+        $result = CollectionRole::getLastPosition();
 
         $this->assertEquals(20, $result);
     }
@@ -1087,19 +1097,19 @@ class Opus_CollectionRoleTest extends TestCase
         $role = $this->object;
         $roleId = $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(0, $role->getIsClassification());
 
         $role->setIsClassification(1);
         $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(1, $role->getIsClassification());
 
         $role->setIsClassification(0);
         $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(0, $role->getIsClassification());
     }
 
@@ -1108,19 +1118,19 @@ class Opus_CollectionRoleTest extends TestCase
         $role = $this->object;
         $roleId = $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(0, $role->getAssignRoot());
 
         $role->setAssignRoot(1);
         $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(1, $role->getAssignRoot());
 
         $role->setAssignRoot(0);
         $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(0, $role->getAssignRoot());
     }
 
@@ -1129,19 +1139,19 @@ class Opus_CollectionRoleTest extends TestCase
         $role = $this->object;
         $roleId = $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(0, $role->getAssignLeavesOnly());
 
         $role->setAssignLeavesOnly(1);
         $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(1, $role->getAssignLeavesOnly());
 
         $role->setAssignLeavesOnly(0);
         $role->store();
 
-        $role = new Opus_CollectionRole($roleId);
+        $role = new CollectionRole($roleId);
         $this->assertEquals(0, $role->getAssignLeavesOnly());
     }
 
@@ -1150,29 +1160,29 @@ class Opus_CollectionRoleTest extends TestCase
      * keine Auswirkungen auf den Wert von serverDateModified von mit der
      * CollectionRole verknüpften Dokumente haben.
      *
-     * @throws Opus_Model_Exception
+     * @throws ModelException
      */
     public function testChangeOfHideEmptyCollectionsDoesNotAffectDocuments()
     {
-        $collRole = new Opus_CollectionRole();
+        $collRole = new CollectionRole();
         $collRole->setName('Test');
         $collRole->setOaiName('Test');
-        $collRole->setRootCollection(new Opus_Collection());
+        $collRole->setRootCollection(new Collection());
         $collRoleId = $collRole->store();
 
-        $collRole = new Opus_CollectionRole($collRoleId);
-        $doc = new Opus_Document();
+        $collRole = new CollectionRole($collRoleId);
+        $doc = new Document();
         $doc->addCollection($collRole->getRootCollection());
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $serverDateModified = $doc->getServerDateModified();
 
         $collRole->setHideEmptyCollections(1);
         $collRole->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertEquals($doc->getServerDateModified(), $serverDateModified);
     }
 
@@ -1181,7 +1191,7 @@ class Opus_CollectionRoleTest extends TestCase
      */
     public function testValidCollectionRoleName()
     {
-        $collRole = new Opus_CollectionRole();
+        $collRole = new CollectionRole();
         $collRole->setName('abcABC012_3-4_5-6');
         $collRole->setOaiName('foo');
         $collRoleId = $collRole->store();
@@ -1209,12 +1219,12 @@ class Opus_CollectionRoleTest extends TestCase
      * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
      *
      * @dataProvider invalidCollectionRoleNameDataProvider
-     * @expectedException Opus\Model\Exception
+     * @expectedException \Opus\Model\ModelException
      * @expectedExceptionMessage invalid data
      */
     public function testInvalidCollectionRoleName($invalidName)
     {
-        $collRole = new Opus_CollectionRole();
+        $collRole = new CollectionRole();
         $collRole->setName($invalidName);
         $collRole->setOaiName('foo');
         $collRole->store();

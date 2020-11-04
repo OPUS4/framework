@@ -29,13 +29,14 @@
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Util;
 
 /**
  * Utility class for common methods handling files and directories.
  */
-class Opus_Util_File
+class File
 {
 
     /**
@@ -56,7 +57,7 @@ class Opus_Util_File
             if ($item == '.' || $item == '..') {
                 continue;
             }
-            if (false === Opus_Util_File::deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+            if (false === \Opus\Util\File::deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
                 return false;
             }
         }
