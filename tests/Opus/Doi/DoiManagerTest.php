@@ -32,7 +32,16 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiManagerTest extends TestCase
+namespace OpusTest\Doi;
+
+use Opus\Document;
+use Opus\Doi\DoiManager;
+use Opus\Identifier;
+use Opus\Person;
+use Opus\Title;
+use OpusTest\TestAsset\TestCase;
+
+class DoiManagerTest extends TestCase
 {
 
     public function testConstructor()
@@ -63,7 +72,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
 
     public function testGetDoiLogger()
     {
-        $doiManager = new Opus_Doi_DoiManager();
+        $doiManager = new DoiManager();
         $doiLogger = $doiManager->getDoiLogger();
 
         $this->assertNotNull($doiLogger);
@@ -75,7 +84,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
      */
     public function testGetDoiLoggerFilters()
     {
-        $doiManager = new Opus_Doi_DoiManager();
+        $doiManager = new DoiManager();
         $doiLogger = $doiManager->getDoiLogger();
 
         $debugMessage = 'debug level message';

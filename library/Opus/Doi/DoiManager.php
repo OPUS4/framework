@@ -32,9 +32,17 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-use Opus\Log\LogService;
+namespace Opus\Doi;
 
-class Opus_Doi_DoiManager
+use Opus\Log\LogService;
+use Opus\Document;
+use Opus\DocumentFinder;
+use Opus\Doi\Generator\DoiGeneratorException;
+use Opus\Doi\Generator\DoiGeneratorFactory;
+use Opus\Identifier;
+use Opus\Model\NotFoundException;
+
+class DoiManager
 {
 
     /**
