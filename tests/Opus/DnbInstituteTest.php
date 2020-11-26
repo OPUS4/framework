@@ -98,7 +98,7 @@ class DnbInstituteTest extends TestCase
         $dnb_institutes = [];
         for ($i = 1; $i <= 3; $i++) {
             $dnb_institute = new DnbInstitute();
-            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' + $i);
+            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
             $dnb_institute->setCity('Calisota');
             $dnb_institute->store();
             $dnb_institutes[] = $dnb_institutes;
@@ -114,7 +114,7 @@ class DnbInstituteTest extends TestCase
         $grantors = [];
         for ($i = 1; $i <= 10; $i++) {
             $dnb_institute = new DnbInstitute();
-            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' + $i);
+            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
             $dnb_institute->setCity('Calisota');
             if (0 == ($i % 2)) {
                 $dnb_institute->setIsGrantor(1);
