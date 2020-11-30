@@ -28,7 +28,8 @@
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @author      Kaustabh Barman <barman@zib.de>
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -87,7 +88,8 @@ class Opus_Doi_DoiManager
         if (is_null($this->doiLog)) {
             $format = '%timestamp% %priorityName%: %message%';
             $logService = LogService::getInstance();
-            $this->doiLog = $logService->createLog('opus-doi', 'debug', $format);
+            $this->doiLog = $logService->createLog('opus-doi', 'DEBUG', $format);
+            $this->doiLog->setLevel(null);
         }
 
         return $this->doiLog;
