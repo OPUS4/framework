@@ -894,6 +894,45 @@ class Opus_DocumentTest extends TestCase
         );
     }
 
+    public function testGetIdentifierDoiReturnsArrayWithNormalizedIndexes()
+    {
+        $doc = new Opus_Document();
+
+        $urn = new Opus_Identifier();
+        $urn->setValue('urn');
+        $doc->addIdentifierUrn($urn);
+
+        $isbn = new Opus_Identifier();
+        $isbn->setValue('isbn');
+        $doc->addIdentifierIsbn($isbn);
+
+        $doi1 = new Opus_Identifier();
+        $doi1->setValue('doi1');
+        $doc->addIdentifierDoi($doi1);
+
+        $doi2 = new Opus_Identifier();
+        $doi2->setValue('doi2');
+        $doc->addIdentifierDoi($doi2);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $dois = $doc->getIdentifierDoi();
+
+        $this->assertCount(2, $dois);
+
+        $this->assertNotEquals(
+            [2, 3],
+            array_keys($dois)
+        );
+
+        $this->assertEquals(
+            [0, 1],
+            array_keys($dois)
+        );
+    }
+
     /**
      * Ensure that existing urn values not overriden.
      *

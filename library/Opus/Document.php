@@ -1683,6 +1683,8 @@ class Opus_Document extends Opus_Model_AbstractDb
             return $value->getType() === strtolower($type);
         });
 
+        $values = array_values($values);
+
         // use Opus_Model_Field for value handling
         $filteredField = new Opus_Model_Field('FilteredIdentifier');
         $filteredField->setMultiplicity('*');
