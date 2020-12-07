@@ -28,12 +28,14 @@
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @author      Kaustabh Barman <barman@zib.de>
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi;
 
+use Opus\Log\LogService;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DoiGeneratorException;
@@ -45,8 +47,8 @@ class DoiManager
 {
 
     /**
-     * Logger for DOI specific information kept separat for convenience, easy access.
-     * @var \Zend_Log
+     * Logger for DOI specific information kept separate for convenience, easy access.
+     * @var Zend_Log
      */
     private $doiLog;
 
@@ -87,28 +89,15 @@ class DoiManager
     /**
      * Creates logger for DOI messages.
      *
-     * This code might be executed as part of a script or as part of a web request. Therefore it is possible that the
-     * log file is created with different permissions. The 'chmod' in the function tries to alleviate the problem by
-     * making sure that the owner and the group (usually 'wwwdata' or apache2 in general) have read/write permissions.
-     *
-     * TODO centralize code for creating log files (like a logging service that can be used by all modules)
+     * @return Zend_Log
      */
     public function getDoiLogger()
     {
         if (is_null($this->doiLog)) {
-            $logfilePath = $this->config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR
-                . 'opus-doi.log';
-
-            $logfile = @fopen($logfilePath, 'a', false);
-            $writer = new \Zend_Log_Writer_Stream($logfile);
-
-            $format = '%timestamp% %priorityName%: %message%' . PHP_EOL;
-            $formatter = new \Zend_Log_Formatter_Simple($format);
-            $writer->setFormatter($formatter);
-
-            $this->doiLog = new \Zend_Log($writer);
-
-            chmod($logfilePath, 0660); // grant owner and group read/write permission
+            $format = '%timestamp% %priorityName%: %message%';
+            $logService = LogService::getInstance();
+            $this->doiLog = $logService->createLog('opus-doi', 'DEBUG', $format);
+            $this->doiLog->setLevel(null);
         }
 
         return $this->doiLog;
