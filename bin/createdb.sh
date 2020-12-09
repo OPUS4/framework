@@ -115,3 +115,70 @@ MYSQLPORT="${MYSQLPORT:-3306}"
 # escape ! (for later use in sed substitute)
 MYSQLHOST_ESC="${MYSQLHOST//\!/\\\!}"
 MYSQLPORT_ESC="${MYSQLPORT//\!/\\\!}"
+
+#
+# Create config.ini and set database related parameters.
+#
+# TODO overwrite existing file?
+#
+
+cd "$BASEDIR/tests"
+cp config.ini.template "$OPUS_CONF"
+if [ localhost != "$MYSQLHOST" ]; then
+  sed -i -e "s!^; db.params.host = localhost!db.params.host = '$MYSQLHOST_ESC'!" "$OPUS_CONF"
+fi
+if [ 3306 != "$MYSQLPORT" ]; then
+  sed -i -e "s!^; db.params.port = 3306!db.params.port = '$MYSQLPORT_ESC'!" "$OPUS_CONF"
+fi
+sed -i -e "s!@db.admin.name@!'$DB_USER_ESC'!" \
+       -e "s!@db.admin.password@!'$DB_USER_PASSWORD_ESC'!" \
+       -e "s!@db.name@!'$DBNAME_ESC'!" "$OPUS_CONF" \
+       -e "s!@db.admin.name@!'$DB_ADMIN_ESC'!" \
+       -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!"
+
+#
+# Optionally initialize database.
+#
+
+[[ -z $CREATE_DATABASE ]] && read -p "Create database and users [Y]? " CREATE_DATABASE
+
+if [[ -z "$CREATE_DATABASE" || "$CREATE_DATABASE" == Y || "$CREATE_DATABASE" == y ]] ;
+then
+
+    echo
+    [[ -z $MYSQLROOT ]] && read -p "MySQL Root User [root]: "                    MYSQLROOT
+    read -p "MySQL Root User Password: " -s MYSQLROOT_PASSWORD
+    echo
+
+    # set defaults if value is not given
+    MYSQLROOT="${MYSQLROOT:-root}"
+
+    # prepare to access MySQL service
+    MYSQL_OPTS=""
+    [ "localhost" != "$MYSQLHOST" ] && MYSQL_OPTS="-h $MYSQLHOST"
+    [ "3306" != "$MYSQLPORT" ] && MYSQL_OPTS="$MYSQL_OPTS -P $MYSQLPORT"
+
+    #
+    # Create database and users in MySQL.
+    #
+    # Users do not have to be created first before granting privileges.
+    #
+
+mysqlRoot() {
+  "$MYSQL_CLIENT" --defaults-file=<(echo -e "[client]\npassword=${MYSQLROOT_PASSWORD}") --default-character-set=utf8mb4 ${MYSQL_OPTS} -u "$MYSQLROOT" -v
+}
+
+mysqlRoot <<LimitString
+CREATE DATABASE IF NOT EXISTS $DBNAME DEFAULT CHARACTER SET = UTF8MB4 DEFAULT COLLATE = UTF8MB4_UNICODE_CI;
+GRANT ALL PRIVILEGES ON $DBNAME.* TO '$DB_ADMIN'@'$MYSQLHOST' IDENTIFIED BY '$DB_ADMIN_PASSWORD';
+GRANT SELECT,INSERT,UPDATE,DELETE ON $DBNAME.* TO '$DB_USER'@'$MYSQLHOST' IDENTIFIED BY '$DB_USER_PASSWORD';
+FLUSH PRIVILEGES;
+LimitString
+
+    #
+    # Create database schema
+    #
+
+    php "$BASEDIR/db/createdb.php"
+
+fi
