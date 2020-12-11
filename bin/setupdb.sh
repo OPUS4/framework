@@ -17,13 +17,12 @@
 #
 
 #
-# Script for creating OPUS 4 database.
+# Script for creating OPUS 4 database and setting up user and admin.
 #
-# As part of the installation this script creates a database using the information
-# provided in the OPUS 4 configuration files.
+# As part of the installation this script creates a database and configures config.ini with the
+# database credentials provided during the execution of the script.
 #
 # Parameters can be used to specify a different database name and other information.
-#
 
 set -e
 
@@ -35,6 +34,8 @@ SCRIPT_PATH="`dirname "$SCRIPT_NAME_FULL"`"
 BASEDIR="$(dirname "$SCRIPT_PATH")"
 
 # Parse command line options
+#
+# User may chose to create a custom configuration file by passing the argument '-c filename'
 
 while getopts ":c:" opt; do
   case $opt in
@@ -43,8 +44,8 @@ while getopts ":c:" opt; do
   esac
 done
 
+# Default configuration file
 OPUS_CONF="${OPUS_CONF:-config.ini}"
-OPUS_CONSOLE_CONF="${OPUS_CONSOLE_CONF:-console.ini}"
 
 #
 # Prompt for database parameters
@@ -54,8 +55,8 @@ echo
 echo "Database configuration"
 echo
 
-[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdb]: "           DBNAME
-[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4admin]: " DB_ADMIN
+[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdbFW]: "           DBNAME
+[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4adminFW]: " DB_ADMIN
 
 while [[ -z $DB_ADMIN_PASSWORD || "$DB_ADMIN_PASSWORD" != "$DB_ADMIN_PASSWORD_VERIFY" ]] ;
 do
@@ -69,7 +70,7 @@ do
   fi
 done
 
-[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4]: "       DB_USER
+[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4FW]: "       DB_USER
 
 while [[ -z $DB_USER_PASSWORD || "$DB_USER_PASSWORD" != "$DB_USER_PASSWORD_VERIFY" ]] ;
 do
@@ -84,9 +85,9 @@ do
 done
 
 # set defaults if values are not given
-DBNAME="${DBNAME:-opusdb}"
-DB_ADMIN="${DB_ADMIN:-opus4admin}"
-DB_USER="${DB_USER:-opus4}"
+DBNAME="${DBNAME:-opusdbFW}"
+DB_ADMIN="${DB_ADMIN:-opus4adminFW}"
+DB_USER="${DB_USER:-opus4FW}"
 
 # escape ! (for later use in sed substitute)
 DBNAME_ESC="${DBNAME//\!/\\\!}"
@@ -123,7 +124,11 @@ MYSQLPORT_ESC="${MYSQLPORT//\!/\\\!}"
 #
 
 cd "$BASEDIR/tests"
-cp config.ini.template "$OPUS_CONF"
+FILE=$BASEDIR/tests/config.ini
+
+if ! [ -f "$OPUS_CONF" ]; then
+  cp config.ini.template "$OPUS_CONF"
+fi
 if [ localhost != "$MYSQLHOST" ]; then
   sed -i -e "s!^; db.params.host = localhost!db.params.host = '$MYSQLHOST_ESC'!" "$OPUS_CONF"
 fi
