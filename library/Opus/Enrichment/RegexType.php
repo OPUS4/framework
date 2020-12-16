@@ -80,7 +80,6 @@ class RegexType extends AbstractType
         $element = parent::getFormElement();
 
         $validator = new \Zend_Validate_Regex(['pattern' => '/' . $this->regex . '/']);
-        $validator->setMessage('admin_validate_error_regex_pattern');
         $element->addValidator($validator);
 
         if (! is_null($value)) {
