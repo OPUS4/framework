@@ -55,8 +55,8 @@ echo
 echo "Database configuration"
 echo
 
-[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdbFW]: "           DBNAME
-[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4adminFW]: " DB_ADMIN
+[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdbfw]: "           DBNAME
+[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4adminfw]: " DB_ADMIN
 
 while [[ -z $DB_ADMIN_PASSWORD || "$DB_ADMIN_PASSWORD" != "$DB_ADMIN_PASSWORD_VERIFY" ]] ;
 do
@@ -70,7 +70,7 @@ do
   fi
 done
 
-[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4FW]: "       DB_USER
+[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4fw]: "       DB_USER
 
 while [[ -z $DB_USER_PASSWORD || "$DB_USER_PASSWORD" != "$DB_USER_PASSWORD_VERIFY" ]] ;
 do
@@ -85,9 +85,9 @@ do
 done
 
 # set defaults if values are not given
-DBNAME="${DBNAME:-opusdbFW}"
-DB_ADMIN="${DB_ADMIN:-opus4adminFW}"
-DB_USER="${DB_USER:-opus4FW}"
+DBNAME="${DBNAME:-opusdbfw}"
+DB_ADMIN="${DB_ADMIN:-opus4adminfw}"
+DB_USER="${DB_USER:-opus4fw}"
 
 # escape ! (for later use in sed substitute)
 DBNAME_ESC="${DBNAME//\!/\\\!}"
@@ -120,26 +120,57 @@ MYSQLPORT_ESC="${MYSQLPORT//\!/\\\!}"
 #
 # Create config.ini and set database related parameters.
 #
-# TODO overwrite existing file?
-#
 
 cd "$BASEDIR/tests"
-FILE=$BASEDIR/tests/config.ini
 
 if ! [ -f "$OPUS_CONF" ]; then
   cp config.ini.template "$OPUS_CONF"
+
+  if [ localhost != "$MYSQLHOST" ]; then
+    sed -i -e "s!^; db.params.host = localhost!db.params.host = '$MYSQLHOST_ESC'!" "$OPUS_CONF"
+  fi
+
+  if [ 3306 != "$MYSQLPORT" ]; then
+    sed -i -e "s!^; db.params.port = 3306!db.params.port = '$MYSQLPORT_ESC'!" "$OPUS_CONF"
+  fi
+
+  sed -i -e "s!@db.admin.name@!'$DB_USER_ESC'!" "$OPUS_CONF" \
+         -e "s!@db.admin.password@!'$DB_USER_PASSWORD_ESC'!" "$OPUS_CONF" \
+         -e "s!@db.name@!'$DBNAME_ESC'!" "$OPUS_CONF" \
+         -e "s!@db.admin.name@!'$DB_ADMIN_ESC'!" "$OPUS_CONF" \
+         -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!" "$OPUS_CONF"
+
+else
+  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]?"   OVERWRITE
+  if [[ -z $OVERWRITE || "$OVERWRITE" == Y || "$OVERWRITE" == y ]];
+  then
+    cp config.ini config.ini.backup
+    echo "config.ini.backup created"
+
+    markers=()
+    while read marker; do
+	    found=false
+	    for n in "${markers[@]}"; do
+		    [ "$n" == "$marker" ] && { found=true; break; }
+	    done
+
+	    $found || markers+=("$marker")
+    done < <(awk <"$BASEDIR/tests/config.ini.template" -F '[ =]+' '$2 ~ /^@.+@$/ {print substr($2,2,length($2)-2)}')
+
+    PARAMS=($DB_ADMIN_ESC $DB_ADMIN_PASSWORD_ESC $DBNAME_ESC)
+    count=0
+    map=
+    for marker in "${markers[@]}"; do
+	    map="${map}M[\"@$marker@\"]=\"${PARAMS[$count]}\";"
+	    (( count++ ))
+    done
+
+    awk <"$BASEDIR/tests/config.ini.template" >"$BASEDIR/tests/config.ini" -F '[ =]+' \
+	    'BEGIN{'$map'}{if($2 ~ /^@.+@$/)print $1 " = " M[$2];else print $0}'
+
+	fi
 fi
-if [ localhost != "$MYSQLHOST" ]; then
-  sed -i -e "s!^; db.params.host = localhost!db.params.host = '$MYSQLHOST_ESC'!" "$OPUS_CONF"
-fi
-if [ 3306 != "$MYSQLPORT" ]; then
-  sed -i -e "s!^; db.params.port = 3306!db.params.port = '$MYSQLPORT_ESC'!" "$OPUS_CONF"
-fi
-sed -i -e "s!@db.admin.name@!'$DB_USER_ESC'!" \
-       -e "s!@db.admin.password@!'$DB_USER_PASSWORD_ESC'!" \
-       -e "s!@db.name@!'$DBNAME_ESC'!" "$OPUS_CONF" \
-       -e "s!@db.admin.name@!'$DB_ADMIN_ESC'!" \
-       -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!"
+
 
 #
 # Optionally initialize database.
