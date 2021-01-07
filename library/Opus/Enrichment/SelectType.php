@@ -92,7 +92,6 @@ class SelectType extends AbstractType
         if (! is_null($this->values)) {
             $element->setMultiOptions($this->values);
             $validator = new \Zend_Validate_InArray(array_keys($this->values));
-            $validator->setMessage('admin_validate_error_select_inarray');
             $element->addValidator($validator);
         }
 
