@@ -4332,4 +4332,34 @@ class DocumentTest extends TestCase
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertEquals($docId, $doc->getId());
     }
+
+    public function testGetEnrichmentValues()
+    {
+        $doc = Document::new();
+
+        $this->assertEquals([], $doc->getEnrichmentValues());
+
+        $enrichment = new Enrichment();
+        $enrichment->setKeyName('City');
+        $enrichment->setValue('Berlin');
+        $doc->addEnrichment($enrichment);
+
+        $values = $doc->getEnrichmentValues();
+
+        $this->assertEquals([
+            'City' => 'Berlin'
+        ], $values);
+
+        $enrichment = new Enrichment();
+        $enrichment->setKeyName('import.filename');
+        $enrichment->setValue('testimport1.zip');
+        $doc->addEnrichment($enrichment);
+
+        $values = $doc->getEnrichmentValues();
+
+        $this->assertEquals([
+            'City' => 'Berlin',
+            'import.filename' => 'testimport1.zip'
+        ], $values);
+    }
 }

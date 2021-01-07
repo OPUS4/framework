@@ -1547,6 +1547,27 @@ class Document extends AbstractDb
         }
     }
 
+    public function getEnrichmentValues()
+    {
+        $enrichments = $this->getEnrichment();
+
+        if ($enrichments === null) {
+            return [];
+        }
+
+        if (! is_array($enrichments)) {
+            $enrichments = [$enrichments];
+        }
+
+        $values = [];
+
+        foreach ($enrichments as $enrichment) {
+            $values[$enrichment->getKeyName()] = $enrichment->getValue();
+        }
+
+        return $values;
+    }
+
     /**
      * Disconnects object from database and stores it as new document.
      *
