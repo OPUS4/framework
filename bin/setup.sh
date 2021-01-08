@@ -29,7 +29,7 @@ set -e
 MYSQL_CLIENT='/usr/bin/mysql'
 
 SCRIPT_NAME="`basename "$0"`"
-SCRIPT_NAME_FULL="`readlink -f "$0"`"
+SCRIPT_NAME_FULL="`greadlink -f "$0"`"
 SCRIPT_PATH="`dirname "$SCRIPT_NAME_FULL"`"
 BASEDIR="$(dirname "$SCRIPT_PATH")"
 
@@ -141,34 +141,30 @@ if ! [ -f "$OPUS_CONF" ]; then
          -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!" "$OPUS_CONF"
 
 else
-  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]?"   OVERWRITE
+  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]? A backup of
+  the current configuration will also be created. :"   OVERWRITE
   if [[ -z $OVERWRITE || "$OVERWRITE" == Y || "$OVERWRITE" == y ]];
   then
-    cp config.ini config.ini.backup
+#    cp --backup=numbered config.ini config.ini.backup
+#    echo "config.ini.backup created"
+
+    cp --backup=existing,nil --suffix=.backup config.ini.template "$OPUS_CONF"
     echo "config.ini.backup created"
 
-    markers=()
-    while read marker; do
-	    found=false
-	    for n in "${markers[@]}"; do
-		    [ "$n" == "$marker" ] && { found=true; break; }
-	    done
+    if [ localhost != "$MYSQLHOST" ]; then
+      sed -i -e "s!^; db.params.host = localhost!db.params.host = '$MYSQLHOST_ESC'!" "$OPUS_CONF"
+    fi
 
-	    $found || markers+=("$marker")
-    done < <(awk <"$BASEDIR/tests/config.ini.template" -F '[ =]+' '$2 ~ /^@.+@$/ {print substr($2,2,length($2)-2)}')
+    if [ 3306 != "$MYSQLPORT" ]; then
+      sed -i -e "s!^; db.params.port = 3306!db.params.port = '$MYSQLPORT_ESC'!" "$OPUS_CONF"
+    fi
 
-    PARAMS=($DB_ADMIN_ESC $DB_ADMIN_PASSWORD_ESC $DBNAME_ESC)
-    count=0
-    map=
-    for marker in "${markers[@]}"; do
-	    map="${map}M[\"@$marker@\"]=\"${PARAMS[$count]}\";"
-	    (( count++ ))
-    done
-
-    awk <"$BASEDIR/tests/config.ini.template" >"$BASEDIR/tests/config.ini" -F '[ =]+' \
-	    'BEGIN{'$map'}{if($2 ~ /^@.+@$/)print $1 " = " M[$2];else print $0}'
-
-	fi
+    sed -i -e "s!@db.admin.name@!'$DB_USER_ESC'!" "$OPUS_CONF" \
+           -e "s!@db.admin.password@!'$DB_USER_PASSWORD_ESC'!" "$OPUS_CONF" \
+           -e "s!@db.name@!'$DBNAME_ESC'!" "$OPUS_CONF" \
+           -e "s!@db.admin.name@!'$DB_ADMIN_ESC'!" "$OPUS_CONF" \
+           -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!" "$OPUS_CONF"
+    fi
 fi
 
 
