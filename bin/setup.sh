@@ -29,7 +29,7 @@ set -e
 MYSQL_CLIENT='/usr/bin/mysql'
 
 SCRIPT_NAME="`basename "$0"`"
-SCRIPT_NAME_FULL="`greadlink -f "$0"`"
+SCRIPT_NAME_FULL="`readlink -f "$0"`"
 SCRIPT_PATH="`dirname "$SCRIPT_NAME_FULL"`"
 BASEDIR="$(dirname "$SCRIPT_PATH")"
 
@@ -141,15 +141,14 @@ if ! [ -f "$OPUS_CONF" ]; then
          -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!" "$OPUS_CONF"
 
 else
-  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]? A backup of
-  the current configuration will also be created. :"   OVERWRITE
+  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]? A backup of the current configuration will also be created. :"   OVERWRITE
   if [[ -z $OVERWRITE || "$OVERWRITE" == Y || "$OVERWRITE" == y ]];
   then
-#    cp --backup=numbered config.ini config.ini.backup
-#    echo "config.ini.backup created"
 
-    cp --backup=existing,nil --suffix=.backup config.ini.template "$OPUS_CONF"
-    echo "config.ini.backup created"
+    cp --backup=existing --suffix=.backup config.ini.template "$OPUS_CONF"
+    if [ -f config.ini.backup ]; then
+      echo "config.ini.backup created"
+    fi
 
     if [ localhost != "$MYSQLHOST" ]; then
       sed -i -e "s!^; db.params.host = localhost!db.params.host = '$MYSQLHOST_ESC'!" "$OPUS_CONF"
