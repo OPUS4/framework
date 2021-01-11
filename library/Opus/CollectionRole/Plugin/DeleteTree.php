@@ -35,6 +35,7 @@
 namespace Opus\CollectionRole\Plugin;
 
 use Opus\CollectionRole;
+use Opus\Db\Collections;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\ModelInterface;
@@ -65,7 +66,7 @@ class DeleteTree extends AbstractCollection
         }
 
         // Delete collections belonging to CollectionRole
-        $collections = TableGateway::getInstance('Opus\Db\Collections');
+        $collections = TableGateway::getInstance(Collections::class);
         $collections->deleteTree($model->getId());
     }
 }

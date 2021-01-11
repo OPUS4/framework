@@ -38,6 +38,7 @@ use Opus\Document;
 use Opus\Document\DocumentException;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
+use Opus\Model\Plugin\PluginInterface;
 
 /**
  * Plugin for generating sequence numbers on published documents.
@@ -55,8 +56,8 @@ use Opus\Model\Plugin\AbstractPlugin;
  * one will be generated.
  *
  * @category    Framework
- * @package     Opus\Document_Plugin
- * @uses        \Opus\Model\Plugin\AbstractPlugin
+ * @package     Opus\Document\Plugin
+ * @uses        AbstractPlugin
  *
  * TODO The operation isn't atomic. What happens if number already exists?
  *      Probably nothing the same number will be stored twice.
@@ -67,7 +68,7 @@ class SequenceNumber extends AbstractPlugin
 {
 
     /**
-     * @see {Opus\Model\Plugin\Interface::postStore}
+     * @see PluginInterface::postStore
      */
     public function postStoreInternal(ModelInterface $model)
     {

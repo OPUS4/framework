@@ -41,6 +41,8 @@ namespace Opus\Db;
  * @category    Framework
  * @package     Opus\Db
  *
+ * TODO nothing preventing creation of table classes directly
+ *
  */
 abstract class TableGateway extends \Zend_Db_Table_Abstract
 {

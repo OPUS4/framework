@@ -47,7 +47,7 @@ use Opus\Model\Xml\Version1;
  * Plugin creating and deleting xml cache entries.
  *
  * @category    Framework
- * @package     Opus\Document_Plugin
+ * @package     Opus\Document\Plugin
  * @uses        \Opus\Model\Plugin\AbstractPlugin
  */
 class XmlCache extends AbstractPlugin
@@ -58,7 +58,7 @@ class XmlCache extends AbstractPlugin
     /**
      * Function is only called if document was modified.
      *
-     * @see {Opus\Model\Plugin\PluginInterface::postStore}
+     * @see PluginInterface::postStore
      */
     public function postStore(ModelInterface $model)
     {
@@ -83,7 +83,9 @@ class XmlCache extends AbstractPlugin
     }
 
     /**
-     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
+     * @see PluginInterface::postDelete
+     *
+     * @param int $modelId Model ID
      */
     public function postDelete($modelId)
     {

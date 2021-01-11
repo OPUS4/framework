@@ -34,6 +34,7 @@
 
 namespace Opus\Collection\Plugin;
 
+use Opus\Db\Collections;
 use Opus\Db\TableGateway;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractCollection;
@@ -52,7 +53,7 @@ class DeleteSubTree extends AbstractCollection
 
         $this->updateDocuments($model);
 
-        $collections = TableGateway::getInstance('Opus\Db\Collections');
+        $collections = TableGateway::getInstance(Collections::class);
         $collections->deleteSubTree($model->getId());
     }
 }
