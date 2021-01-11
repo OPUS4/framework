@@ -70,6 +70,33 @@ class DoiManagerTest extends TestCase
         $this->assertNotNull($doiManager);
     }
 
+    public function testGetDoiLogger()
+    {
+        $doiManager = new DoiManager();
+        $doiLogger = $doiManager->getDoiLogger();
+
+        $this->assertNotNull($doiLogger);
+        $this->assertInstanceOf(\Zend_Log::class, $doiLogger);
+    }
+
+    /**
+     * TODO Use helper function from OPUSVIER-4400 to read file
+     */
+    public function testGetDoiLoggerFilters()
+    {
+        $doiManager = new DoiManager();
+        $doiLogger = $doiManager->getDoiLogger();
+
+        $debugMessage = 'debug level message';
+        $doiLogger->debug($debugMessage);
+
+        $config = \Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus-doi.log';
+        $content = file_get_contents($path);
+
+        $this->assertContains($debugMessage, $content);
+    }
+
     public function testRegisterMissingArg()
     {
         $doiManager = new DoiManager();
