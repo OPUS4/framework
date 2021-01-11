@@ -36,6 +36,7 @@ namespace Opus\Model\Plugin;
 
 use Opus\Collection;
 use Opus\Date;
+use Opus\Db\Collections;
 use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\DocumentFinder;
@@ -52,18 +53,18 @@ abstract class AbstractCollection extends AbstractPlugin
      * make sure documents related to Collection[Role]s in subtree are updated
      * (XML-Cache and server_date_published)
      *
-     * @param Collection Starting point for recursive update to documents
+     * @param Collection $collection Starting point for recursive update to documents
      */
-    protected function updateDocuments($model)
+    protected function updateDocuments($collection)
     {
-        if (is_null($model) || is_null($model->getId())) {
-            // TODO explain why this is right
+        if (is_null($collection) || is_null($collection->getId())) {
+            // no collection provided or collection has not been saved, so there is no ID
             return;
         }
 
-        $collections = TableGateway::getInstance('Opus\Db\Collections');
+        $collections = TableGateway::getInstance(Collections::class);
 
-        $collectionIdSelect = $collections->selectSubtreeById($model->getId(), 'id');
+        $collectionIdSelect = $collections->selectSubtreeById($collection->getId(), 'id');
 
         $documentFinder = new DocumentFinder();
         $documentFinder->setCollectionId($collectionIdSelect);
