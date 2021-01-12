@@ -56,6 +56,7 @@ use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
 use Opus\Model\Filter;
 use Opus\Model\ModelException;
+use Opus\Model\NotFoundException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
@@ -80,8 +81,6 @@ use OpusTest\TestAsset\TestCase;
  */
 class DocumentTest extends TestCase
 {
-
-    private $testFiles;
 
     /**
      * Set up test fixture.
@@ -429,13 +428,13 @@ class DocumentTest extends TestCase
      *
      * @return void
      */
-    public function testDelete()
+    public function testDeleteDocument()
     {
-        $doc = new Document();
-        $docid = $doc->store();
-        $doc->delete();
+        $doc = Document::new();
+        $docId = $doc->store();
+        $doc->deleteDocument();
 
-        $doc = new Document($docid);
+        $doc = Document::get($docId);
         $this->assertEquals('deleted', $doc->getServerState(), "Server state should be set to 'deleted' now.");
     }
 
@@ -444,14 +443,14 @@ class DocumentTest extends TestCase
      *
      * @return void
      */
-    public function testDeletePermanent()
+    public function testDelete()
     {
-        $doc = new Document();
-        $docid = $doc->store();
-        $doc->deletePermanent();
+        $doc = Document::new();
+        $docId = $doc->store();
+        $doc->delete();
 
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $doc = new Document($docid);
+        Document::get($docId);
     }
 
     /**
@@ -461,7 +460,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentWithAuthorPermanently()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType('doctoral_thesis');
 
         $author = new Person();
@@ -473,10 +472,10 @@ class DocumentTest extends TestCase
 
         $linkId = $doc->getPersonAuthor(0)->getId();
 
-        $doc->deletePermanent();
+        $doc->delete();
 
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $doc = new Document($modelId);
+        Document::get($modelId);
     }
 
     /**
@@ -484,7 +483,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentWithMissingFile()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType('doctoral_thesis');
 
         $modelId = $doc->store();
@@ -500,7 +499,7 @@ class DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Document($modelId);
+        $doc = Document::get($modelId);
 
         $file = $doc->getFile(0);
 
@@ -514,10 +513,10 @@ class DocumentTest extends TestCase
 
         $this->assertFalse(is_file($filePath)); // file is gone
 
-        $doc->deletePermanent(); // delete document with missing file
+        $doc->delete(); // delete document with missing file
 
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $doc = new Document($modelId);
+        Document::get($modelId);
     }
 
     /**
@@ -527,7 +526,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesPersonLinks()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $author = new Person();
@@ -535,13 +534,14 @@ class DocumentTest extends TestCase
         $author->setLastName('Gandi');
 
         $doc->addPersonAuthor($author);
-        $modelId = $doc->store();
+        $doc->store();
 
         $linkId = $doc->getPersonAuthor(0)->getId();
 
-        $doc->deletePermanent();
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $link = new DocumentPerson($linkId);
+        new DocumentPerson($linkId);
     }
 
     /**
@@ -551,7 +551,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesDnbInstituteLink()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $dnbInstitute = new DnbInstitute();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
         $dnbInstitute->setCity('Calisota');
@@ -559,10 +559,11 @@ class DocumentTest extends TestCase
         $doc->addThesisPublisher($dnbInstitute);
         $doc->store();
         $linkid = $doc->getThesisPublisher(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
 
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $link = new DocumentDnbInstitute($linkid);
+        new DocumentDnbInstitute($linkid);
 
         $this->fail("Document delete has not been cascaded.");
     }
@@ -574,7 +575,8 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesLicenceLink()
     {
-        $doc = new Document();
+        $doc = Document::new();
+
         $licence = new Licence();
         $licence->setNameLong('LongName');
         $licence->setLinkLicence('http://long.org/licence');
@@ -582,10 +584,11 @@ class DocumentTest extends TestCase
         $doc->addLicence($licence);
         $doc->store();
         $linkid = $doc->getLicence(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
 
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $link = new DocumentLicence($linkid);
+        new DocumentLicence($linkid);
 
         $this->fail("Document delete has not been cascaded.");
     }
@@ -597,7 +600,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesEnrichments()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $enrichmentkey = new EnrichmentKey();
@@ -611,9 +614,11 @@ class DocumentTest extends TestCase
         $doc->addEnrichment($enrichment);
         $doc->store();
         $id = $doc->getEnrichment(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $enrichment = new Enrichment($id);
+        new Enrichment($id);
     }
 
     /**
@@ -623,7 +628,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesIdentifiers()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $isbn = new Identifier();
@@ -632,9 +637,11 @@ class DocumentTest extends TestCase
         $doc->addIdentifierIsbn($isbn);
         $doc->store();
         $id = $doc->getIdentifierIsbn(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $isbn = new Identifier($id);
+        new Identifier($id);
     }
 
     /**
@@ -644,7 +651,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesPatents()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $patent = new Patent();
@@ -656,9 +663,11 @@ class DocumentTest extends TestCase
         $doc->addPatent($patent);
         $doc->store();
         $id = $doc->getPatent(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $patent = new Patent($id);
+        new Patent($id);
     }
 
     /**
@@ -668,7 +677,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesNotes()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $note = new Note();
@@ -677,9 +686,11 @@ class DocumentTest extends TestCase
         $doc->addNote($note);
         $doc->store();
         $id = $doc->getNote(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $note = new Note($id);
+        new Note($id);
     }
 
     /**
@@ -689,7 +700,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesSubjects()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $subject = new SubjectSwd();
@@ -698,9 +709,11 @@ class DocumentTest extends TestCase
         $doc->addSubject($subject);
         $doc->store();
         $id = $doc->getSubject(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $subject = new Subject($id);
+        new Subject($id);
     }
 
     /**
@@ -710,7 +723,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesTitles()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $title = new Title();
@@ -720,9 +733,11 @@ class DocumentTest extends TestCase
         $doc->addTitleMain($title);
         $doc->store();
         $id = $doc->getTitleMain(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $title = new Title($id);
+        new Title($id);
     }
 
     /**
@@ -732,7 +747,7 @@ class DocumentTest extends TestCase
      */
     public function testDeleteDocumentCascadesAbstracts()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
         $abstract = new Title();
@@ -742,9 +757,11 @@ class DocumentTest extends TestCase
         $doc->addTitleAbstract($abstract);
         $doc->store();
         $id = $doc->getTitleAbstract(0)->getId();
-        $doc->deletePermanent();
+
+        $doc->delete();
+
         $this->setExpectedException('Opus\Model\NotFoundException');
-        $abstract = new Title($id);
+        new Title($id);
     }
 
     /**
@@ -756,7 +773,7 @@ class DocumentTest extends TestCase
     {
         $max_docs = 5;
         for ($i = 0; $i < $max_docs; $i++) {
-            $doc = new Document();
+            $doc = Document::new();
             $doc->setType("doctoral_thesis");
             $doc->store();
         }
@@ -4030,7 +4047,7 @@ class DocumentTest extends TestCase
         $newObj->setEdition('012345678');
         $newObj->store();
 
-        $doc->deletePermanent();
+        $doc->delete();
     }
 
     /**
@@ -4060,7 +4077,7 @@ class DocumentTest extends TestCase
         $newObj->store();
 
         $patent->setCountries('France');
-        $doc->delete();
+        $doc->deleteDocument();
 
         $doc = new Document($docId);
         $patents = $doc->getPatent();
@@ -4099,7 +4116,7 @@ class DocumentTest extends TestCase
 
         $doc->setEdition('2nd');
 
-        $doc->delete();
+        $doc->deleteDocument();
 
         $doc = new Document($docId);
 
@@ -4361,5 +4378,68 @@ class DocumentTest extends TestCase
             'City' => 'Berlin',
             'import.filename' => 'testimport1.zip'
         ], $values);
+    }
+
+    public function testDeleteDocumentWithFile()
+    {
+        $doc = Document::new();
+        $doc->setType('article');
+
+        $docId = $doc->store();
+
+        $config = \Zend_Registry::get('Zend_Config');
+        $tempFile = $config->workspacePath . '/' . uniqid();
+        touch($tempFile);
+
+        $file = $doc->addFile();
+        $file->setPathName('test.txt');
+        $file->setMimeType('text/plain');
+        $file->setTempFile($tempFile);
+
+        $doc->store();
+
+        $doc = Document::get($docId);
+
+        $files = $doc->getFile();
+
+        $this->assertCount(1, $files);
+
+        $file = $files[0];
+
+        $this->assertTrue($file->exists());
+
+        $doc->delete();
+
+        $this->assertFalse($file->exists());
+
+        $this->setExpectedException(NotFoundException::class);
+
+        Document::get($docId);
+    }
+
+    public function testDetectStateChange()
+    {
+        $doc = Document::new();
+        $doc = Document::get($doc->store());
+
+        $field = $doc->getField('ServerState');
+
+        $this->assertFalse($field->isModified());
+
+        $doc->setServerState(Document::STATE_DELETED);
+
+        $this->assertTrue($field->isModified());
+
+        $doc = Document::get($doc->store());
+
+        $field = $doc->getField('ServerState');
+
+        $this->assertFalse($field->isModified());
+        $this->assertEquals(Document::STATE_DELETED, $doc->getServerState());
+        $this->assertEquals(Document::STATE_DELETED, $field->getValue());
+
+        $doc->setServerState(Document::STATE_DELETED);
+
+        $this->assertFalse($field->isModified());
     }
 }

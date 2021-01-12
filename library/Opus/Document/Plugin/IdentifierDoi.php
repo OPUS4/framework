@@ -51,18 +51,20 @@ use Opus\Model\Plugin\ServerStateChangeListener;
 class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
 {
 
-    // was muss hier alles ausgewertet werden:
-    // automatische Generierung einer DOI für das vorliegende Dokument, wenn
-    // 1. noch keine DOI vorhanden
-    // 2. Enrichment opus.doi.autoCreate wurde gesetzt
-
-    // außerdem automatische Registrierung der DOI (Aufruf MDS-Webservice von DataCite)
-    // wenn DOI vorhanden und die Konfigurationseinstellung doi.registerAtPublish ist auf true/1 gesetzt
-
-
-    // laut Spezifikation: jedes OPUS-Dokument kann maximal eine zugeordnete DOI haben
-    // diese DOI ist entweder lokal oder extern
-    // im Rahmen der automatischen DOI-Registrierung werden nur lokale DOIs betrachtet
+    /**
+     * was muss hier alles ausgewertet werden:
+     * automatische Generierung einer DOI für das vorliegende Dokument, wenn
+     * 1. noch keine DOI vorhanden
+     * 2. Enrichment opus.doi.autoCreate wurde gesetzt
+     *
+     * außerdem automatische Registrierung der DOI (Aufruf MDS-Webservice von DataCite)
+     * wenn DOI vorhanden und die Konfigurationseinstellung doi.registerAtPublish ist auf true/1 gesetzt
+     *
+     *
+     * laut Spezifikation: jedes OPUS-Dokument kann maximal eine zugeordnete DOI haben
+     * diese DOI ist entweder lokal oder extern
+     * im Rahmen der automatischen DOI-Registrierung werden nur lokale DOIs betrachtet
+     */
     public function postStoreInternal(ModelInterface $model)
     {
         $log = \Zend_Registry::get('Zend_Log');
@@ -83,19 +85,28 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         $this->handlePublishEvent($model, $log);
     }
 
-    public function postDelete($modelId)
+    public function preDelete(ModelInterface $doc)
     {
-        // check if database contains document with given id
-        $doc = null;
-        try {
-            $doc = new Document($modelId);
-        } catch (NotFoundException $e) {
+        if ($doc === null) {
             // ignore silently and exit method since we do not need to perform any action
             return;
         }
 
         if ($doc != null && $doc->getServerState() === 'deleted') {
             $this->handleDeleteEvent($doc);
+        }
+    }
+
+    /**
+     * Removes metadata for DOI, if document gets "deleted".
+     *
+     * @param $document
+     * @return mixed|void
+     */
+    public function serverStateChanged($document)
+    {
+        if ($document != null && $document->getServerState() === 'deleted') {
+            $this->handleDeleteEvent($document);
         }
     }
 
