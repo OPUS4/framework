@@ -96,7 +96,7 @@ class DoiManager
         if (is_null($this->doiLog)) {
             $format = '%timestamp% %priorityName%: %message%';
             $logService = LogService::getInstance();
-            $this->doiLog = $logService->createLog('opus-doi', 'DEBUG', $format);
+            $this->doiLog = $logService->createLog('opus-doi', \Zend_Log::DEBUG, $format);
             $this->doiLog->setLevel(null);
         }
 
