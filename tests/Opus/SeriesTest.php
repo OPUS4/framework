@@ -678,36 +678,36 @@ class SeriesTest extends TestCase
 
     public function testGetNumberOfAssociatedPublishedDocuments()
     {
-        $s = new Series();
-        $s->setTitle('foo');
-        $s->store();
+        $series = new Series();
+        $series->setTitle('foo');
+        $series->store();
 
-        $d1 = new Document();
-        $d1->addSeries($s)->setNumber('123');
-        $d1->store();
+        $doc1 = new Document();
+        $doc1->addSeries($series)->setNumber('123');
+        $doc1->store();
 
-        $d2 = new Document();
-        $d2->addSeries($s)->setNumber('456');
-        $d2->store();
+        $doc2 = new Document();
+        $doc2->addSeries($series)->setNumber('456');
+        $doc2->store();
 
-        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
+        $this->assertTrue($series->getNumOfAssociatedPublishedDocuments() === 0);
 
-        $d1->setServerState('published');
-        $d1->store();
+        $doc1->setServerState(Document::STATE_PUBLISHED);
+        $doc1->store();
 
-        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 1);
+        $this->assertTrue($series->getNumOfAssociatedPublishedDocuments() === 1);
 
-        $d2->setServerState('published');
-        $d2->store();
+        $doc2->setServerState(Document::STATE_PUBLISHED);
+        $doc2->store();
 
-        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 2);
+        $this->assertTrue($series->getNumOfAssociatedPublishedDocuments() === 2);
 
-        $d2->delete();
-        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 1);
+        $doc2->deleteDocument();
+        $this->assertTrue($series->getNumOfAssociatedPublishedDocuments() === 1);
 
-        $d1->setServerState('inprogress');
-        $d1->store();
-        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
+        $doc1->setServerState(Document::STATE_INPROGRESS);
+        $doc1->store();
+        $this->assertTrue($series->getNumOfAssociatedPublishedDocuments() === 0);
     }
 
     /**
