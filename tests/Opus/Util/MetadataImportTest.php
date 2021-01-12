@@ -62,7 +62,7 @@ class MetadataImportTest extends TestCase
             $ids = Document::getAllIds();
             $last_id = array_pop($ids);
             $doc = new Document($last_id);
-            $doc->deletePermanent();
+            $doc->delete();
         }
         parent::tearDown();
     }
@@ -254,7 +254,7 @@ class MetadataImportTest extends TestCase
 
     private function loadInputFile()
     {
-        $doc = new\DOMDocument();
+        $doc = new \DOMDocument();
         $doc->load($this->xmlDir . $this->filename);
         $this->xml = $doc->saveXML();
     }

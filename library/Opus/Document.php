@@ -1216,7 +1216,7 @@ class Document extends AbstractDb
      * Sets document to state deleted.
      *
      * Documents are not deleted from database like other model objects. Calling
-     * deletePermanent removes a document from the database.
+     * delete removes a document from the database.
      *
      * TODO call deleteDocument in this function to trigger state change plugins?
      */

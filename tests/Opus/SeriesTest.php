@@ -123,29 +123,29 @@ class SeriesTest extends TestCase
 
     public function testAssignSeriesToDocumentWithNumber()
     {
-        $d = new Document();
-        $d->store();
+        $doc = Document::new();
+        $doc->store();
 
-        $s = new Series();
-        $s->setTitle('foo');
-        $s->store();
+        $series = new Series();
+        $series->setTitle('foo');
+        $series->store();
 
         $this->assertEquals(1, count(Series::getAll()), 'Wrong number of objects retrieved.');
 
-        $d = new Document($d->getId());
-        $d->addSeries($s)->setNumber('1');
-        $d->store();
+        $doc = Document::get($doc->getId());
+        $doc->addSeries($series)->setNumber('1');
+        $doc->store();
 
-        $d = new Document($d->getId());
-        $this->assertEquals(1, count($d->getSeries()));
-        $series = $d->getSeries();
-        $s = $series[0];
-        $this->assertEquals('foo', $s->getTitle());
-        $this->assertEquals('1', $s->getNumber());
+        $doc = Document::get($doc->getId());
+        $this->assertEquals(1, count($doc->getSeries()));
+        $series = $doc->getSeries();
+        $series = $series[0];
+        $this->assertEquals('foo', $series->getTitle());
+        $this->assertEquals('1', $series->getNumber());
 
         // cleanup
-        $d->deletePermanent();
-        $s->delete();
+        $doc->delete();
+        $series->delete();
     }
 
     /*
@@ -742,7 +742,7 @@ class SeriesTest extends TestCase
 
         $this->assertEquals($docId, $series->getDocumentIdForNumber('III'));
 
-        $doc->deletePermanent();
+        $doc->delete();
 
         $this->assertNull($series->getDocumentIdForNumber('III'));
     }

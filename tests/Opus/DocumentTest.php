@@ -4033,9 +4033,11 @@ class DocumentTest extends TestCase
      *
      * This is caused by the truncate check after saving an object. The function deletePermanent calls delete first.
      * Delete is a status change, so it is an update operation for the database. After an update the truncate check
-     * verifies that all the values have been stored completelly. The framework only stores changed values. The check
+     * verifies that all the values have been stored completely. The framework only stores changed values. The check
      * verifies all values. The old longer value has not been changed and therefore is not stored when delete is called.
      * The database contains the shorter value so the truncation check fails.
+     *
+     * TODO review this test - is it still valid after deletePermanent was removed?
      */
     public function testNoTruncateExceptionDeletingDocumentUsingOutOfDateObject()
     {
