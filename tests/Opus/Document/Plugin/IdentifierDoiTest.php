@@ -62,7 +62,7 @@ class IdentifierDoiTest extends TestCase
 
     private function createMinimalDocument($enrichmentValue = null)
     {
-        $model = new Document();
+        $model = Document::new();
         $model->setServerState('published');
 
         if (! is_null($enrichmentValue)) {
@@ -77,8 +77,7 @@ class IdentifierDoiTest extends TestCase
             $model->setEnrichment($enrichments);
         }
 
-        $docId = $model->store();
-        return $docId;
+        return $model->store();
     }
 
     /**
@@ -271,7 +270,7 @@ class IdentifierDoiTest extends TestCase
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
 
-        $doc = new Document($docId);
+        $doc = Document::get($docId);
         // simuliere eine erfolgreiche DOI-Registrierung durch Setzen des Status auf registered
         $dois = $doc->getIdentifier();
         $doi = $dois[0];
@@ -279,10 +278,10 @@ class IdentifierDoiTest extends TestCase
         $doc->setIdentifier($dois);
         $doc->store();
 
-        $doc = new Document($docId);
-        $doc->delete();
+        $doc = Document::get($docId);
+        $doc->deleteDocument();
 
-        $doc = new Document($docId);
+        $doc = Document::get($docId);
         $dois = $doc->getIdentifier();
         $this->assertCount(1, $dois);
         $doi = $dois[0];
