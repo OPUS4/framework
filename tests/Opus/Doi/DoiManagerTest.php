@@ -70,6 +70,16 @@ class DoiManagerTest extends TestCase
         $this->assertNotNull($doiManager);
     }
 
+    public function testGetInstance()
+    {
+        $manager = DoiManager::getInstance();
+        $this->assertNotNull($manager);
+        $this->assertInstanceOf(DoiManager::class, $manager);
+
+        $manager2 = DoiManager::getInstance();
+        $this->assertSame($manager, $manager2);
+    }
+
     public function testGetDoiLogger()
     {
         $doiManager = new DoiManager();

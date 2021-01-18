@@ -1222,15 +1222,8 @@ class Document extends AbstractDb
      */
     public function delete()
     {
-        $this->callPluginMethod('preDelete');
-
-        $docId = $this->getId();
-
         $this->deleteFiles(); // TODO is this really necessary?
         parent::delete();
-
-        // TODO removes document from cache - that should not be necessary for basic delete (hide)
-        $this->callPluginMethod('postDelete', $docId);
     }
 
     /**

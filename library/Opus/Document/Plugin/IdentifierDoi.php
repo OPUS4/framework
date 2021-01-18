@@ -40,7 +40,6 @@ use Opus\Doi\DoiManager;
 use Opus\Doi\RegistrationException;
 use Opus\Identifier;
 use Opus\Model\ModelInterface;
-use Opus\Model\NotFoundException;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\ServerStateChangeListener;
 
@@ -77,12 +76,14 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         $serverState = $model->getServerState();
         $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
 
-        if ($serverState !== 'published') {
+        if ($serverState === Document::STATE_PUBLISHED) {
+            $this->handlePublishEvent($model, $log);
+        } elseif ($serverState === Document::STATE_DELETED && $model->getServerStateChanged()) {
+            $this->handleDeleteEvent($model);
+        } else {
             $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
             return;
         }
-
-        $this->handlePublishEvent($model, $log);
     }
 
     public function preDelete(ModelInterface $doc)
@@ -110,14 +111,14 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         }
     }
 
-    private function handleDeleteEvent($document)
+    protected function handleDeleteEvent($document)
     {
         // Metadatensatz für DOI auf den Status "inactive" setzen
-        $doiManager = new DoiManager();
+        $doiManager = $this->getDoiManager();
         $doiManager->deleteMetadataForDoi($document);
     }
 
-    private function handlePublishEvent($document, $log)
+    protected function handlePublishEvent($document, $log)
     {
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
@@ -161,10 +162,10 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
      *
      * @param $model Document zu dem die DOI hinzugefügt werden soll
      */
-    private function addDoi($model, $log)
+    protected function addDoi($model, $log)
     {
         try {
-            $doiManager = new DoiManager();
+            $doiManager = $this->getDoiManager();
             $doiValue = $doiManager->generateNewDoi($model);
         } catch (DoiException $e) {
             $message = 'could not generate DOI value for document ' . $model->getId() . ': ' . $e->getMessage();
@@ -191,7 +192,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
      *
      * @param $model
      */
-    private function registerDoi($model, $log, $config)
+    protected function registerDoi($model, $log, $config)
     {
         // prüfe ob Konfigurationseinstellung eine Registrierung vorgibt
         if (! isset($config->doi->registerAtPublish) || ! (filter_var($config->doi->registerAtPublish, FILTER_VALIDATE_BOOLEAN))) {
@@ -203,7 +204,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         $log->info('start registration of DOI for document ' . $model->getId());
 
         try {
-            $doiManager = new DoiManager();
+            $doiManager = $this->getDoiManager();
             $registeredDoi = $doiManager->register($model);
             if (is_null($registeredDoi)) {
                 $log->err('could not apply DOI registration on document ' . $model->getId());
@@ -213,5 +214,10 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         } catch (DoiException $e) {
             $log->err('unexpected error in DOI-registration of document ' . $model->getId() . ': ' . $e->getMessage());
         }
+    }
+
+    protected function getDoiManager()
+    {
+        return DoiManager::getInstance();
     }
 }
