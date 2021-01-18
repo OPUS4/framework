@@ -337,6 +337,42 @@ class IdentifierDoiTest extends TestCase
         $doc->delete();
     }
 
+    /**
+     * TODO should the metadata be removed from registry if the document is deleted completely?
+     */
+    public function testDoNotHandleDeleteEventWhenPermanentlyDeletingDocumentAlreadyDeleted()
+    {
+        $doiConfig = [
+            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
+            'prefix' => '10.000/',
+            'localPrefix' => 'opustest',
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
+            'doi.registration.datacite.serviceUrl' => 'localhost'
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
+        $docId = $this->createMinimalDocument();
+
+        $doc = Document::get($docId);
+        // simuliere eine erfolgreiche DOI-Registrierung durch Setzen des Status auf registered
+        $dois = $doc->getIdentifier();
+        $doi = $dois[0];
+        $doi->setStatus('registered');
+        $doc->setIdentifier($dois);
+        $doc->store();
+
+        $doc = Document::get($docId);
+        $doc->setServerState(Document::STATE_DELETED);
+        $doc->store();
+
+        // mock DoiManager to check if function is called
+        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        DoiManager::setInstance($doiManagerMock);
+        $doiManagerMock->expects($this->never())->method('deleteMetadataForDoi');
+
+        $doc = Document::get($docId);
+        $doc->delete();
+    }
+
     public function testDoiGenerationWithMissingGenerationClass()
     {
         $doiConfig = [

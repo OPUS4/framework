@@ -1222,6 +1222,8 @@ class Document extends AbstractDb
      */
     public function delete()
     {
+        $this->setServerState(self::STATE_DELETED); // TODO triggers handling of DOI deletion - better way?
+
         $this->deleteFiles(); // TODO is this really necessary?
         parent::delete();
     }
