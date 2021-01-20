@@ -1780,9 +1780,6 @@ class PersonTest extends TestCase
 
     /**
      * OPUSVIER-3764
-     *
-     * @expectedException \Opus\Model\ModelException
-     * @expectedExceptionMessage No Opus\Db\Documents with id
      */
     public function testDeleteAssignedPerson()
     {
@@ -1803,8 +1800,9 @@ class PersonTest extends TestCase
 
         // $doc = new Document($docId);
 
-        $doc->deletePermanent();
+        $doc->delete();
 
+        $this->setExpectedException(ModelException::class, 'No Opus\Db\Documents with id');
         new Document($docId);
     }
 

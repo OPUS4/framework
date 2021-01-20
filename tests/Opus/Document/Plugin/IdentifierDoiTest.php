@@ -35,6 +35,7 @@
 namespace OpusTest\Document\Plugin;
 
 use Opus\Document;
+use Opus\Doi\DoiManager;
 use Opus\Enrichment;
 use Opus\EnrichmentKey;
 use Opus\Identifier;
@@ -44,6 +45,14 @@ class IdentifierDoiTest extends TestCase
 {
 
     const ENRICHMENT_KEY_NAME = 'opus.doi.autoCreate';
+
+    public function tearDown()
+    {
+        // cleanup mock DoiManager
+        DoiManager::setInstance(null);
+
+        parent::tearDown();
+    }
 
     private function setupEnrichmentKey()
     {
@@ -62,7 +71,7 @@ class IdentifierDoiTest extends TestCase
 
     private function createMinimalDocument($enrichmentValue = null)
     {
-        $model = new Document();
+        $model = Document::new();
         $model->setServerState('published');
 
         if (! is_null($enrichmentValue)) {
@@ -77,8 +86,7 @@ class IdentifierDoiTest extends TestCase
             $model->setEnrichment($enrichments);
         }
 
-        $docId = $model->store();
-        return $docId;
+        return $model->store();
     }
 
     /**
@@ -259,7 +267,7 @@ class IdentifierDoiTest extends TestCase
      * Der Status der lokalen DOI wird nicht verändert.
      *
      */
-    public function testHandleDeleteEvent()
+    public function testHandleDeleteEventForSetServerStateDeleted()
     {
         $doiConfig = [
             'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
@@ -271,7 +279,7 @@ class IdentifierDoiTest extends TestCase
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
 
-        $doc = new Document($docId);
+        $doc = Document::get($docId);
         // simuliere eine erfolgreiche DOI-Registrierung durch Setzen des Status auf registered
         $dois = $doc->getIdentifier();
         $doi = $dois[0];
@@ -279,16 +287,90 @@ class IdentifierDoiTest extends TestCase
         $doc->setIdentifier($dois);
         $doc->store();
 
-        $doc = new Document($docId);
-        $doc->delete();
+        // mock DoiManager to check if function is called
+        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        DoiManager::setInstance($doiManagerMock);
+        $doiManagerMock->expects($this->once())->method('deleteMetadataForDoi');
 
-        $doc = new Document($docId);
+        $doc = Document::get($docId);
+        $doc->setServerState(Document::STATE_DELETED);
+        $doc->store();
+
+        $doc = Document::get($docId);
         $dois = $doc->getIdentifier();
         $this->assertCount(1, $dois);
         $doi = $dois[0];
         $this->assertEquals('doi', $doi->getType());
         $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
         $this->assertEquals('registered', $doi->getStatus());
+    }
+
+    /**
+     * TODO should the metadata be removed from registry if the document is deleted completely?
+     */
+    public function testHandleDeleteEventForPermanentDelete()
+    {
+        $doiConfig = [
+            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
+            'prefix' => '10.000/',
+            'localPrefix' => 'opustest',
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
+            'doi.registration.datacite.serviceUrl' => 'localhost'
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
+        $docId = $this->createMinimalDocument();
+
+        $doc = Document::get($docId);
+        // simuliere eine erfolgreiche DOI-Registrierung durch Setzen des Status auf registered
+        $dois = $doc->getIdentifier();
+        $doi = $dois[0];
+        $doi->setStatus('registered');
+        $doc->setIdentifier($dois);
+        $doc->store();
+
+        // mock DoiManager to check if function is called
+        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        DoiManager::setInstance($doiManagerMock);
+        $doiManagerMock->expects($this->once())->method('deleteMetadataForDoi');
+
+        $doc = Document::get($docId);
+        $doc->delete();
+    }
+
+    /**
+     * TODO should the metadata be removed from registry if the document is deleted completely?
+     */
+    public function testDoNotHandleDeleteEventWhenPermanentlyDeletingDocumentAlreadyDeleted()
+    {
+        $doiConfig = [
+            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
+            'prefix' => '10.000/',
+            'localPrefix' => 'opustest',
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
+            'doi.registration.datacite.serviceUrl' => 'localhost'
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
+        $docId = $this->createMinimalDocument();
+
+        $doc = Document::get($docId);
+        // simuliere eine erfolgreiche DOI-Registrierung durch Setzen des Status auf registered
+        $dois = $doc->getIdentifier();
+        $doi = $dois[0];
+        $doi->setStatus('registered');
+        $doc->setIdentifier($dois);
+        $doc->store();
+
+        $doc = Document::get($docId);
+        $doc->setServerState(Document::STATE_DELETED);
+        $doc->store();
+
+        // mock DoiManager to check if function is called
+        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        DoiManager::setInstance($doiManagerMock);
+        $doiManagerMock->expects($this->never())->method('deleteMetadataForDoi');
+
+        $doc = Document::get($docId);
+        $doc->delete();
     }
 
     public function testDoiGenerationWithMissingGenerationClass()

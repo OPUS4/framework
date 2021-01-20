@@ -173,4 +173,14 @@ class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListener
         );
         return count($files) > 0;
     }
+
+    /**
+     * @param $document
+     * @return mixed|void
+     *
+     * TODO don't do anything, interface used to be just a marker
+     */
+    public function serverStateChanged($document)
+    {
+    }
 }

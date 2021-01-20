@@ -209,9 +209,25 @@ use Opus\Storage\FileNotFoundException;
  * @method DocumentPerson addPerson(Person $person)
  * @method void setPerson(DocumentPerson[] $persons)
  * @method DocumentPerson[] getPerson()
+ *
+ * @method File addFile()
  */
 class Document extends AbstractDb
 {
+
+    const STATE_DELETED = 'deleted';
+
+    const STATE_INPROGRESS = 'inprogress';
+
+    const STATE_RESTRICTED = 'restricted';
+
+    const STATE_UNPUBLISHED = 'unpublished';
+
+    const STATE_PUBLISHED = 'published';
+
+    const STATE_TEMPORARY = 'temporary';
+
+    const STATE_AUDITED = 'audited';
 
     /**
      * Specify then table gateway.
@@ -1151,7 +1167,7 @@ class Document extends AbstractDb
     protected function _storeServerState($value)
     {
         if (true === empty($value)) {
-            $value = 'unpublished';
+            $value = self::STATE_UNPUBLISHED;
             $this->setServerState($value);
         }
         $this->_primaryTableRow->server_state = $value;
@@ -1185,55 +1201,52 @@ class Document extends AbstractDb
     }
 
     /**
-     * Sets document to state deleted.
+     * Changes state of document to deleted.
      *
-     * Documents are not deleted from database like other model objects. Calling
-     * deletePermanent removes a document from the database.
+     * TODO review this function and eliminate once it is clear, that "delete" is simply used like any other state
+     *      change
      */
-    public function delete()
+    public function deleteDocument()
     {
-        $this->callPluginMethod('preDelete');
-
-        $this->setServerState('deleted');
+        $this->setServerState(self::STATE_DELETED);
         $this->store();
-
-        // TODO removes document from cache - that should not be necessary for basic delete (hide)
-        $this->callPluginMethod('postDelete', $this->getId());
     }
 
     /**
-     * Remove the model instance from the database.
+     * Sets document to state deleted.
      *
-     * @see    Opus\Model\AbstractDb::delete()
-     * @return void
+     * Documents are not deleted from database like other model objects. Calling
+     * delete removes a document from the database.
      *
-     * TODO: Only remove if document does not have an URN/DOI!
+     * TODO call deleteDocument in this function to trigger state change plugins?
      */
-    public function deletePermanent()
+    public function delete()
     {
-        $docId = $this->getId();
+        $this->setServerState(self::STATE_DELETED); // TODO triggers handling of DOI deletion - better way?
 
-        // run plugins for regular delete (hide) operation first
-        $this->callPluginMethod('preDelete');
-        // TODO moved here instead of calling $this->delete(); - keeps old behavoir, but should maybe moved down
-        // TODO removes document from cache - that should not be necessary for basic delete (hide)
-        $this->callPluginMethod('postDelete', $this->getId());
+        $this->deleteFiles(); // TODO is this really necessary?
+        parent::delete();
+    }
 
-        // remove all files permanently
+    /**
+     * Deletes all document files.
+     *
+     * @throws ModelException
+     *
+     * TODO this will trigger InvalidateDocumentCache for every file deleted
+     */
+    public function deleteFiles()
+    {
         $files = $this->getFile();
 
         foreach ($files as $file) {
             try {
                 $file->doDelete($file->delete());
             } catch (FileNotFoundException $osfnfe) {
-                // if the file was not found (permant delete still succeeds)
+                // if the file was not found (permanent deletion will still succeed)
                 $this->log($osfnfe->getMessage());
             }
         }
-
-        parent::delete();
-
-        $this->callPluginMethod('postDeletePermanent', $docId);
     }
 
     /**
@@ -1311,7 +1324,7 @@ class Document extends AbstractDb
      *
      * Overwrites getFile()-method
      *
-     * @return Opus\File[]
+     * @return File[]
      */
     public function getFile($param = null)
     {

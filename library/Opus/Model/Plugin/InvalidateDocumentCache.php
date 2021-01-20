@@ -184,7 +184,8 @@ class InvalidateDocumentCache extends AbstractPlugin
     /**
      * Return configuration of ignored model fields.
      *
-     * @return \Zend_Config|\Zend_Config_Ini
+     * @throws \Zend_Config_Exception
+     * @return \Zend_Config
      */
     public static function getFilterConfig()
     {

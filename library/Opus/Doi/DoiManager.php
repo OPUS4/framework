@@ -35,6 +35,7 @@
 
 namespace Opus\Doi;
 
+use http\Exception\InvalidArgumentException;
 use Opus\Log\LogService;
 use Opus\Document;
 use Opus\DocumentFinder;
@@ -73,6 +74,11 @@ class DoiManager
     private $keepRegistrationXml = true;
 
     /**
+     * @var DoiManager
+     */
+    private static $singleton;
+
+    /**
      * Opus\Doi\DoiManager constructor.
      * @throws \Zend_Exception
      *
@@ -86,6 +92,23 @@ class DoiManager
         $this->doiLog = $this->getDoiLogger();
     }
 
+    public static function getInstance()
+    {
+        if (self::$singleton === null) {
+            self::$singleton = new DoiManager();
+        }
+
+        return self::$singleton;
+    }
+
+    public static function setInstance($instance)
+    {
+        if ($instance !== null && ! $instance instanceof DoiManager) {
+            throw new \InvalidArgumentException('Argument must be instance of ' . __CLASS__ . ' or null');
+        }
+        self::$singleton = $instance;
+    }
+
     /**
      * Creates logger for DOI messages.
      *
@@ -96,7 +119,7 @@ class DoiManager
         if (is_null($this->doiLog)) {
             $format = '%timestamp% %priorityName%: %message%';
             $logService = LogService::getInstance();
-            $this->doiLog = $logService->createLog('opus-doi', 'DEBUG', $format);
+            $this->doiLog = $logService->createLog('opus-doi', \Zend_Log::DEBUG, $format);
             $this->doiLog->setLevel(null);
         }
 

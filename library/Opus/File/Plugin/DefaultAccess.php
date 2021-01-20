@@ -33,6 +33,7 @@
 namespace Opus\File\Plugin;
 
 use Opus\File;
+use Opus\LoggingTrait;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\UserRole;
@@ -49,7 +50,7 @@ use Opus\UserRole;
 class DefaultAccess extends AbstractPlugin
 {
 
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Post-store hook will be called right after the document has been stored

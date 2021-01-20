@@ -122,7 +122,7 @@ class XmlCacheTest extends TestCase
         $result = $this->_cacheTable->fetchAll();
         $beforeDelete = $result->count();
 
-        $doc->deletePermanent();
+        $doc->delete();
 
         $result = $this->_cacheTable->fetchAll();
         $afterDelete = $result->count();

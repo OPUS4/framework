@@ -206,6 +206,6 @@ class SequenceNumberTest extends TestCase
         );
         $this->assertEquals(11, $identifiers[0]->getValue());
 
-        $existing_model->deletePermanent();
+        $existing_model->delete();
     }
 }
