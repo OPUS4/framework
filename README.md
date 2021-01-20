@@ -36,6 +36,11 @@ In order to run the unit tests you need to create database and a configuration f
 
 ### Creating the database
 
+The database can be setup by executing the `setup.sh` script. It will create the configuration file and the database with the chosen database name.
+
+    cd framework
+    ./bin/setup.sh
+
 The database schema can be created using the `createdb.php` script.
 
     ant create-database
@@ -43,6 +48,8 @@ The database schema can be created using the `createdb.php` script.
 The database access parameters are stored in `tests/config.ini` and needs to be configured with the correct user and database name.
 
 ### Configuring the Framework
+
+This step is optional and needs to be executed only if the previous steps didn't work. 
 
 The configuration file (`tests/config.ini`) can be created using the following command. 
 
@@ -62,7 +69,7 @@ The script will ask you for values for the placeholders in the configuration tem
 
 The workspace directory for testing can be created using 
 
-    ant prepare-workspace
+    ant prepare
 
 ### Testing
 
