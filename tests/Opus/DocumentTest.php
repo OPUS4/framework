@@ -40,6 +40,7 @@ namespace OpusTest;
 
 use Opus\Collection;
 use Opus\CollectionRole;
+use Opus\Config;
 use Opus\Date;
 use Opus\Db\TableGateway;
 use Opus\DnbInstitute;
@@ -91,7 +92,7 @@ class DocumentTest extends TestCase
     {
         // Set up a mock language list.
         $list = ['de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch'];
-        \Zend_Registry::set('Available_Languages', $list);
+        Config::getInstance()->setAvailableLanguages($list);
 
         parent::setUp();
     }

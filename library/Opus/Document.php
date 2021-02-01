@@ -564,9 +564,9 @@ class Document extends AbstractDb
     public function initFieldOptionsForDisplayAndValidation()
     {
         // Initialize available languages
-        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
-            $this->getField('Language')
-                    ->setDefault(\Zend_Registry::get('Available_Languages'));
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $this->getField('Language')->setDefault($availableLanguages);
         }
         $this->getField('Language')->setSelection(true);
 

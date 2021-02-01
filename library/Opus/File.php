@@ -133,8 +133,9 @@ class File extends AbstractDependentModel
         $mimetype = new Field('MimeType');
 
         $filelanguage = new Field('Language');
-        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
-            $filelanguage->setDefault(\Zend_Registry::get('Available_Languages'));
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $filelanguage->setDefault($availableLanguages);
         }
         $filelanguage->setSelection(true);
 
