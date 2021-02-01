@@ -278,8 +278,8 @@ class LocalCounter
         if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
-        $registry = \Zend_Registry::getInstance();
-        $tempDir = $registry->get('temp_dir');
+
+        $tempDir = Config::getInstance()->getTempPath();
         //initialize log data
         $md5Ip = "h".md5($ip);
 
@@ -287,7 +287,7 @@ class LocalCounter
         //TODO determine file type of file id
         $filetype = 'pdf';
 
-        $dom = new\DOMDocument();
+        $dom = new \DOMDocument();
         if (is_readable($tempDir . '~localstat.xml') === false) {
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);

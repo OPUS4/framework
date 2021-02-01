@@ -35,6 +35,7 @@
 
 namespace OpusTest\Statistic;
 
+use Opus\Config;
 use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\Statistic\LocalCounter;
@@ -68,7 +69,8 @@ class LocalCounterTest extends TestCase
     {
         parent::setUp();
 
-        $path = \Zend_Registry::get('temp_dir') . '~localstat.xml';
+
+        $path = Config::getInstance()->getTempPath() . '~localstat.xml';
         @unlink($path);
 
         $this->_document = new Document();
@@ -90,7 +92,7 @@ class LocalCounterTest extends TestCase
     {
         parent::tearDown();
 
-        $path = \Zend_Registry::get('temp_dir') . '~localstat.xml';
+        $path = Config::getInstance()->getTempPath() . '~localstat.xml';
         @unlink($path);
     }
 
