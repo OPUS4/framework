@@ -35,6 +35,7 @@
 namespace Opus\Db;
 
 use Opus\Bootstrap\Base;
+use Opus\Config;
 use Opus\Version;
 
 /**
@@ -65,16 +66,15 @@ class DatabaseBootstrap extends Base
         $logger->debug('Initializing database.');
 
         // use custom DB adapter
-        $config = Config::get();
-
-        $config->merge(new \Zend_Config([
+        $config = new \Zend_Config([
             'db' => [
                 'adapter' => 'Mysqlutf8',
                 'params' => [
                     'adapterNamespace' => 'OpusDb'
                 ]
             ]
-        ]));
+        ], true);
+        $config->merge(Config::get());
 
         // Use \Zend_Db factory to create a database adapter
         // and make it the default for all tables.
