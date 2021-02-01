@@ -58,7 +58,7 @@ class MailNotification extends AbstractWorker
     public function __construct($logger = null, $lookupRecipients = true)
     {
         $this->setLogger($logger);
-        $this->config = \Zend_Registry::get('Zend_Config');
+        $this->config = Config::get();
         $this->lookupRecipients = $lookupRecipients;
     }
 

@@ -136,7 +136,7 @@ class DocumentFinder
      */
     public function debug()
     {
-        \Zend_Registry::get('Zend_Log')->debug($this->_select->__toString());
+        Log::get()->debug($this->_select->__toString());
         return $this;
     }
 

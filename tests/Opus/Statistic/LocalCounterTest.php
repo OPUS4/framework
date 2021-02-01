@@ -117,7 +117,7 @@ class LocalCounterTest extends TestCase
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'statistics' => ['localCounterEnabled' => 1]
         ]));
 
@@ -144,7 +144,7 @@ class LocalCounterTest extends TestCase
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'statistics' => ['localCounterEnabled' => 1]
         ]));
 

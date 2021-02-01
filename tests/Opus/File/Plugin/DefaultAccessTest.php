@@ -124,7 +124,7 @@ class DefaultAccessTest extends TestCase
      */
     public function testPostStoreAddNoRoleToNewModel()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $config->securityPolicy->files->defaultAccessRole = '';
 
         $userRole = UserRole::fetchByName('user');
@@ -147,7 +147,7 @@ class DefaultAccessTest extends TestCase
 
     public function testPostStoreAddsGuestToNewModel()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
 
         $guestRole = UserRole::fetchByName('guest');
@@ -173,7 +173,7 @@ class DefaultAccessTest extends TestCase
 
     public function testPostStoreAddConfiguredRoleToNewModel()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
         $config->securityPolicy->files->defaultAccessRole = 'user';
 

@@ -55,7 +55,7 @@ class SendMail
      */
     public function __construct()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (isset($config, $config->mail->opus)) {
             if (isset($config->mail->opus->transport) && $config->mail->opus->transport == 'file') {
                 // erlaubt das Speichern von E-Mails in Dateien, die im Verzeichnis mail.opus.file abgelegt werden
@@ -122,7 +122,7 @@ class SendMail
         $returnPath = null
     ) {
 
-        $logger = \Zend_Registry::get('Zend_Log');
+        $logger = Log::get();
 
         if (trim($from) === '') {
             throw new MailException('No sender address given.');

@@ -391,7 +391,7 @@ class AbstractModelTest extends TestCase
         $logger = $model->getLogger();
 
         $this->assertNotNull($logger);
-        $this->assertEquals(\Zend_Registry::get('Zend_Log'), $logger);
+        $this->assertEquals(Log::get(), $logger);
     }
 
     public function testSetLogger()
@@ -403,7 +403,7 @@ class AbstractModelTest extends TestCase
         $model->setLogger($logger);
 
         $this->assertEquals($logger, $model->getLogger());
-        $this->assertNotEquals(\Zend_Registry::get('Zend_Log'), $model->getLogger());
+        $this->assertNotEquals(Log::get(), $model->getLogger());
     }
 
     public function testToArrayWithPerson()

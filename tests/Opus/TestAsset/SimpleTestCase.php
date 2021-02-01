@@ -38,6 +38,8 @@ use Opus\Config;
  * Superclass for all tests.  Providing maintainance tasks.
  *
  * @category Tests
+ *
+ * TODO needs refactoring
  */
 abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
 {
@@ -60,7 +62,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function adjustConfiguration($overlay, $callback = null)
     {
-        $previous = \Zend_Registry::get('Zend_Config');
+        $previous = Config::get();
         $updated  = new \Zend_Config([], true);
 
         $updated
@@ -73,7 +75,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         $updated->setReadOnly();
 
-        \Zend_Registry::set('Zend_Config', $updated);
+        Config::set($updated);
 
         return $previous;
     }
@@ -98,26 +100,9 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * Standard setUp method for clearing database.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $config = \Zend_Registry::get('Zend_Config');
-        if (! is_null($config)) {
-            $this->config_backup = clone $config;
-        }
-    }
-
     protected function tearDown()
     {
-        if (! is_null($this->config_backup)) {
-            \Zend_Registry::set('Zend_Config', $this->config_backup);
-        }
+        Config::set(null);
 
         parent::tearDown();
     }

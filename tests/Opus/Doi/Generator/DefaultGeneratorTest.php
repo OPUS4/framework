@@ -247,9 +247,6 @@ class DefaultGeneratorTest extends TestCase
 
     private function adaptDoiConfiguration($doiConfig)
     {
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['doi' => $doiConfig]))
-        );
+        Config::get()->merge(new \Zend_Config(['doi' => $doiConfig]));
     }
 }

@@ -60,7 +60,7 @@ class FileTest extends TestCase
     {
         parent::setUp();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
 
         $this->__src_path = $path . '/src';

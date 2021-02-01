@@ -34,6 +34,7 @@
 
 namespace OpusTest\Doi;
 
+use Opus\Config;
 use OpusTest\TestAsset\TestCase;
 
 /**
@@ -61,7 +62,7 @@ class DoiManagerDataCiteTest extends TestCase
     public function testRegisterAndVerifyDocSuccessfully()
     {
         // add url to config to allow creation of frontdoor URLs
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4/'
         ]));
 
@@ -100,11 +101,8 @@ class DoiManagerDataCiteTest extends TestCase
     public function testVerifySuccessfully()
     {
         // add url to config to allow creation of frontdoor URLs
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(
-                new \Zend_Config(['url' => 'http://localhost/opus4/'])
-            )
+        Config::get()->merge(
+            new \Zend_Config(['url' => 'http://localhost/opus4/'])
         );
 
         $this->adaptDoiConfiguration([
@@ -139,11 +137,8 @@ class DoiManagerDataCiteTest extends TestCase
     public function testVerifyFailed()
     {
         // add url to config to allow creation of frontdoor URLs
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(
-                new \Zend_Config(['url' => 'http://localhost/opus4/'])
-            )
+        Config::get()->merge(
+            new \Zend_Config(['url' => 'http://localhost/opus4/'])
         );
 
         $this->adaptDoiConfiguration([
@@ -174,13 +169,10 @@ class DoiManagerDataCiteTest extends TestCase
 
     public function testUpdateLandingPageUrlOfDoiWithExistingDoi()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
-        \Zend_Registry::set(
-            'Zend_Config',
-            $config->merge(
-                new \Zend_Config(['url' => 'http://localhost/opus4'])
-            )
+        $config->merge(
+            new \Zend_Config(['url' => 'http://localhost/opus4'])
         );
 
         $this->adaptDoiConfiguration([
@@ -212,11 +204,8 @@ class DoiManagerDataCiteTest extends TestCase
         $doi = $doiManager->verify($docId);
         $this->assertEquals('registered', $doi->getStatus());
 
-        \Zend_Registry::set(
-            'Zend_Config',
-            $config->merge(
-                new \Zend_Config(['url' => 'http://localhost/opus5'])
-            )
+        $config->merge(
+            new \Zend_Config(['url' => 'http://localhost/opus5'])
         );
 
         $this->adaptDoiConfiguration([

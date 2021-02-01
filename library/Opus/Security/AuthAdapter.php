@@ -113,7 +113,7 @@ class AuthAdapter implements \Zend_Auth_Adapter_Interface
         // Check if password is correcct, but for old hashes.  Neede for
         // migrating md5-hashed passwords to SHA1-hashes.
         if ($account->isPasswordCorrectOldHash($this->_password) === true) {
-            \Zend_Registry::get('Zend_Log')->warn('Migrating old password-hash for user: ' . $this->_login);
+            Log::get()->warn('Migrating old password-hash for user: ' . $this->_login);
             $account->setPassword($this->_password)->store();
             $account = new Account(null, null, $this->_login);
         }

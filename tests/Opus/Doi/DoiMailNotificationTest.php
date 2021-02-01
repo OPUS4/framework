@@ -134,7 +134,7 @@ class DoiMailNotificationTest extends TestCase
 
     public function testSendMailSingle()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4'
         ]));
 
@@ -152,7 +152,7 @@ class DoiMailNotificationTest extends TestCase
 
     public function testSendMailMultiple()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4'
         ]));
 
@@ -177,7 +177,7 @@ class DoiMailNotificationTest extends TestCase
 
     private function adaptDoiConfiguration($doiConfig)
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['doi' => $doiConfig]));
+        Config::get()->merge(new \Zend_Config(['doi' => $doiConfig]));
     }
 
     private function createTestDocWithDoi($doiValue)

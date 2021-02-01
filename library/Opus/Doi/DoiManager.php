@@ -87,8 +87,8 @@ class DoiManager
      */
     public function __construct()
     {
-        $this->config = \Zend_Registry::get('Zend_Config');
-        $this->defaultLog = \Zend_Registry::get('Zend_Log');
+        $this->config = Config::get();
+        $this->defaultLog = Log::get();
         $this->doiLog = $this->getDoiLogger();
     }
 

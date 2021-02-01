@@ -104,7 +104,7 @@ class Cache implements \Opus\Model\Xml\XmlCacheInterface
                         'error message: ' . $error->message . "\n\t" .
                         'line:column: ' . $error->line . ':' . $error->column;
                 }
-                \Zend_Registry::get('Zend_Log')->err($errMsg);
+                Log::get()->err($errMsg);
                 throw new ModelException($errMsg);
             }
         }

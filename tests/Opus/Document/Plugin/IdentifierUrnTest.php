@@ -34,6 +34,7 @@
 
 namespace OpusTest\Document\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Document\Plugin\IdentifierUrn;
 use Opus\File;
@@ -68,7 +69,7 @@ class IdentifierUrnTest extends TestCase
         $this->assertEquals(1, count($urns));
         $this->assertEquals('urn', $urns[0]->getType());
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $urnItem = new Urn($config->urn->nid, $config->urn->nss);
         $checkDigit = $urnItem->getCheckDigit($model->getId());
         $urnString = 'urn:' . $config->urn->nid . ':' . $config->urn->nss . '-' . $model->getId() . $checkDigit;
@@ -309,10 +310,7 @@ class IdentifierUrnTest extends TestCase
 
     private function adaptUrnConfiguration($urnConfig)
     {
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['urn' => $urnConfig]))
-        );
+        Config::get()->merge(new \Zend_Config(['urn' => $urnConfig]));
     }
 
     private function addFileToDoc(Document $doc)

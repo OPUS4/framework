@@ -195,7 +195,7 @@ class CollectionTest extends TestCase
 
     public function testGetDefaultThemeIfSetDefaultTheme()
     {
-        $default_theme = \Zend_Registry::get('Zend_Config')->theme;
+        $default_theme = Config::get()->theme;
         $this->assertFalse(empty($default_theme), 'Could not get theme from config');
 
         $this->object->setTheme($default_theme);
@@ -210,7 +210,7 @@ class CollectionTest extends TestCase
         $this->object->setTheme(null);
         $this->object->store();
 
-        $default_theme = \Zend_Registry::get('Zend_Config')->theme;
+        $default_theme = Config::get()->theme;
         $this->assertFalse(empty($default_theme), 'Could not get theme from config');
 
         $collection = new Collection($this->object->getId());

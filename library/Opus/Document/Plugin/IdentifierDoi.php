@@ -66,7 +66,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
      */
     public function postStoreInternal(ModelInterface $model)
     {
-        $log = \Zend_Registry::get('Zend_Log');
+        $log = Log::get();
 
         if (! ($model instanceof Document)) {
             $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
@@ -130,7 +130,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
             $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
         }
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (is_null($generateDoi)) {
             // Enrichment opus.doi.autoCreate wurde nicht gefunden - verwende Standardwert für die DOI-Erzeugung aus Konfiguration

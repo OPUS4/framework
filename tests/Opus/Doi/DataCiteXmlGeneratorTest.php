@@ -82,7 +82,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         ]);
         $lang->store();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
         $this->srcPath = $this->path . DIRECTORY_SEPARATOR . 'src';
@@ -92,18 +92,16 @@ class DataCiteXmlGeneratorTest extends TestCase
         mkdir($this->destPath, 0777, true);
         mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
-        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(
-            new \Zend_Config([
-                'workspacePath' => $this->destPath,
-                'checksum' => [
-                    'maxVerificationSize' => 1,
-                ],
-                'doi' => [
-                    'prefix' => '10.2345',
-                    'localPrefix' => 'opustest'
-                ]
-            ])
-        ));
+        Config::get()->merge(new \Zend_Config([
+            'workspacePath' => $this->destPath,
+            'checksum' => [
+                'maxVerificationSize' => 1,
+            ],
+            'doi' => [
+                'prefix' => '10.2345',
+                'localPrefix' => 'opustest'
+            ]
+        ]));
     }
 
     public function tearDown()
@@ -493,7 +491,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     public function testGetStylesheetPathConfiguredWithBadPath()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'datacite' => ['stylesheetPath' => 'doesnotexist']
         ]));
 
@@ -513,7 +511,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
         $path = stream_get_meta_data($temp)['uri'];
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'datacite' => ['stylesheetPath' => $path]
         ]));
 

@@ -773,7 +773,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             return $metadata['metadata'][$column]['LENGTH'];
         } else {
             $class = get_called_class();
-            \Zend_Registry::get('Zend_Log')->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
+            Log::get()->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
             return null;
         }
     }

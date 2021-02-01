@@ -183,7 +183,7 @@ class Identifier extends AbstractDependentModel
      */
     private function checkUrnCollision($value, $docId = null)
     {
-        $log = \Zend_Registry::get('Zend_Log');
+        $log = Log::get();
         $log->debug('check URN collision for URN ' . $value);
 
         $finder = new DocumentFinder();
@@ -234,7 +234,7 @@ class Identifier extends AbstractDependentModel
             return false;
         }
 
-        $log = \Zend_Registry::get('Zend_Log');
+        $log = Log::get();
         $log->debug('check collision for local DOI ' . $this->getValue());
 
         if ($this->isDoiUnique()) {

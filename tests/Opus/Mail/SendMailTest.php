@@ -33,6 +33,7 @@
 
 namespace OpusTest\Mail;
 
+use Opus\Config;
 use Opus\Mail\SendMail;
 use OpusTest\TestAsset\TestCase;
 
@@ -70,7 +71,7 @@ class SendMailTest extends TestCase
      */
     public function testConstructor()
     {
-        \Zend_Registry::set('Zend_Config', $this->_config_dummy);
+        Config::set($this->_config_dummy);
         $mail = new SendMail();
     }
 
@@ -79,7 +80,7 @@ class SendMailTest extends TestCase
      */
     public function testConstructorWoConfig()
     {
-        \Zend_Registry::set('Zend_Config', null);
+        Config::set(new \Zend_Config([]));
         $mail = new SendMail();
     }
 
@@ -88,7 +89,7 @@ class SendMailTest extends TestCase
      */
     public function testSendmailWoParameters()
     {
-        \Zend_Registry::set('Zend_Config', null);
+        Config::set(new \Zend_Config([]));
         $mail = new SendMail();
         $this->setExpectedException('Opus\Mail\MailException');
         $mail->sendMail(null, null, null, null, null);
@@ -144,7 +145,7 @@ class SendMailTest extends TestCase
     {
         $recipient = ['recipients' => ['address' => 'recipient@testmail.de', 'name' => 'John R. Public']];
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (! isset($config, $config->mail->opus)) {
             $this->markTestSkipped('Test mail server is not configured yet.');
         }

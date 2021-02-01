@@ -41,7 +41,7 @@ class DoiGeneratorFactory
 
     public static function create()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         // versuche die Generierungsklasse für DOIs zu instanziieren
         if (! isset($config->doi->generatorClass)) {

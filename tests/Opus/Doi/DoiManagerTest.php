@@ -46,11 +46,8 @@ class DoiManagerTest extends TestCase
 
     public function testConstructor()
     {
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(
-                new \Zend_Config(['url' => 'http://localhost/opus4'])
-            )
+        Config::get()->merge(
+            new \Zend_Config(['url' => 'http://localhost/opus4'])
         );
         $this->adaptDoiConfiguration(['prefix' => '']);
         $doiManager = new DoiManager();
@@ -59,11 +56,8 @@ class DoiManagerTest extends TestCase
 
     public function testConstructorAlt()
     {
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(
-                new \Zend_Config(['url' => 'http://localhost/opus4/'])
-            )
+        Config::get()->merge(
+            new \Zend_Config(['url' => 'http://localhost/opus4/'])
         );
         $this->adaptDoiConfiguration(['prefix' => '']);
         $doiManager = new DoiManager();
@@ -100,7 +94,7 @@ class DoiManagerTest extends TestCase
         $debugMessage = 'debug level message';
         $doiLogger->debug($debugMessage);
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus-doi.log';
         $content = file_get_contents($path);
 
@@ -215,7 +209,7 @@ class DoiManagerTest extends TestCase
 
     public function testRegisterDocWithRequiredPropsButCompleteConfig()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org'
         ]));
         $this->adaptDoiConfiguration([
@@ -255,7 +249,7 @@ class DoiManagerTest extends TestCase
     public function testRegisterPendingWithDoc()
     {
         // add url to config to allow creation of frontdoor URLs
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4/'
         ]));
 
@@ -284,7 +278,7 @@ class DoiManagerTest extends TestCase
     public function testVerifyRegisteredBefore()
     {
         // add url to config to allow creation of frontdoor URLs
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://localhost/opus4/'
         ]));
 
@@ -348,7 +342,7 @@ class DoiManagerTest extends TestCase
 
     public function verifyWithVerifiedDoiWithReverification($hostname, $port)
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org'
         ]));
 
@@ -694,7 +688,7 @@ class DoiManagerTest extends TestCase
 
     private function adaptDoiConfiguration($doiConfig)
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['doi' => $doiConfig]));
+        Config::get()->merge(new \Zend_Config(['doi' => $doiConfig]));
     }
 
     private function addRequiredPropsToDoc($doc)
@@ -741,7 +735,7 @@ class DoiManagerTest extends TestCase
 
     public function testGetLandingPageBaseUrl()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org/',
             'doi' => [
                 'landingPageBaseUri' => '/frontdoor/index/index/docId'
@@ -756,7 +750,7 @@ class DoiManagerTest extends TestCase
 
     public function testGetLangingPageBaseUrlConfiguredForShortUrl()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org/',
             'doi' => [
                 'landingPageBaseUri' => ''
@@ -784,7 +778,7 @@ class DoiManagerTest extends TestCase
         $doc = new Document();
         $docId = $doc->store();
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org/',
             'doi' => [
                 'landingPageBaseUri' => '/frontdoor/index/index/docId/'
@@ -804,7 +798,7 @@ class DoiManagerTest extends TestCase
         $doc = new Document();
         $docId = $doc->store();
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org/',
             'doi' => [
                 'landingPageBaseUri' => 'frontdoor/index/index/docId'
@@ -824,7 +818,7 @@ class DoiManagerTest extends TestCase
         $doc = new Document();
         $docId = $doc->store();
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org/',
             'doi' => [
                 'landingPageBaseUri' => null
@@ -841,7 +835,7 @@ class DoiManagerTest extends TestCase
 
     public function testGetLandingPageUrlOfDocForId()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'url' => 'http://www.example.org/',
             'doi' => [
                 'landingPageBaseUri' => '/frontdoor/index/index/docId/'

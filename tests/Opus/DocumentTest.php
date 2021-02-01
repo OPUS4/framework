@@ -489,7 +489,7 @@ class DocumentTest extends TestCase
 
         $modelId = $doc->store();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $tempFile = $config->workspacePath . '/' . uniqid();
         touch($tempFile);
 
@@ -1502,7 +1502,7 @@ class DocumentTest extends TestCase
      */
     public function testDocumentCacheContainsFileWithOutdatedData()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $filename = $config->workspacePath;
         touch($filename);
 
@@ -2227,7 +2227,7 @@ class DocumentTest extends TestCase
      */
     public function testGetFileSortOrder()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
         touch($path);
 
@@ -2266,7 +2266,7 @@ class DocumentTest extends TestCase
     {
         $this->markTestSkipped('TODO noch nicht gefixt, aber langfristig evtl. auch nicht notwendig');
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
         touch($path);
 
@@ -2304,7 +2304,7 @@ class DocumentTest extends TestCase
      */
     public function testGetFileSortingWithEqualSortOrder()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
         touch($path);
 
@@ -2545,7 +2545,7 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $tempFile = $config->workspacePath . '/tmp/' . uniqid();
 
         touch($tempFile);
@@ -3975,7 +3975,7 @@ class DocumentTest extends TestCase
 
     public function testGetDefaultPluginsConfigured()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'model' => [
                 'plugins' => [
                     'document' => [
@@ -4390,7 +4390,7 @@ class DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $tempFile = $config->workspacePath . '/' . uniqid();
         touch($tempFile);
 

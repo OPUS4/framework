@@ -71,7 +71,7 @@ class DefaultAccess extends AbstractPlugin
             return;
         }
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (! is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
             $roleName = $config->securityPolicy->files->defaultAccessRole;

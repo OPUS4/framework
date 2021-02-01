@@ -229,7 +229,7 @@ class Collection extends AbstractDb
         }
 
         $table = TableGateway::getInstance('Opus\Db\CollectionsEnrichments');
-        $theme = \Zend_Registry::get('Zend_Config')->theme; // TODO Weitere Abhängigkeit auf Applikation, oder?
+        $theme = Config::get()->theme; // TODO Weitere Abhängigkeit auf Applikation, oder?
 
         // Search for theme in database and, if exists, overwrite default theme.
         $select = $table->select()
@@ -269,7 +269,7 @@ class Collection extends AbstractDb
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
-        if ($theme == '' || \Zend_Registry::get('Zend_Config')->theme === $theme) {
+        if ($theme == '' || Config::get()->theme === $theme) {
             // No need to store default theme setting.  Delete row if exists.
             if (isset($row)) {
                 $row->delete();

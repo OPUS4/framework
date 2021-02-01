@@ -351,12 +351,9 @@ class RealmTest extends TestCase
 
     public function testcheckModuleForDisabledSecurity()
     {
-        $config = new \Zend_Config(
-            [
-            'security' => '0',
-            ]
-        );
-        \Zend_Registry::set('Zend_Config', $config);
+        Config::set(new \Zend_Config([
+            'security' => '0'
+        ]));
 
         $this->setUpUserUser();
 
