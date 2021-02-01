@@ -62,7 +62,7 @@ class Mysqlutf8Test extends TestCase
         parent::setUp();
 
         // Clean setup of default database adapter
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         // Backup existing adapter
         $this->dba_backup = \Zend_Db_Table::getDefaultAdapter();
@@ -73,9 +73,6 @@ class Mysqlutf8Test extends TestCase
         }
         $db = \Zend_Db::factory($config->db);
         \Zend_Db_Table::setDefaultAdapter($db);
-
-        // Register the adapter within\Zend_Registry.
-        \Zend_Registry::getInstance()->set('db_adapter', $db);
     }
 
     /**
@@ -93,7 +90,6 @@ class Mysqlutf8Test extends TestCase
 
         // Restore existing adapter
         \Zend_Db_Table::setDefaultAdapter($this->dba_backup);
-        \Zend_Registry::getInstance()->set('db_adapter', $this->dba_backup);
 
         parent::tearDown();
     }
