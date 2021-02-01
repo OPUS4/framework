@@ -57,17 +57,7 @@ class DateTest extends TestCase
      */
     public function setUp()
     {
-        $this->_locale_backup = \Zend_Registry::get('Zend_Locale');
-        \Zend_Registry::set('Zend_Locale', new \Zend_Locale('de'));
-    }
-
-    /**
-     * Restore previously set locale
-     *
-     */
-    public function tearDown()
-    {
-        \Zend_Registry::set('Zend_Locale', $this->_locale_backup);
+        \Zend_Locale::setDefault('de');
     }
 
     /**
@@ -96,7 +86,7 @@ class DateTest extends TestCase
 
         $zd = $od->getZendDate();
         $this->assertNotNull($zd, 'Object expected.');
-        $this->assertTrue($zd instanceof\Zend_Date, 'Returned object is not\Zend_Date.');
+        $this->assertTrue($zd instanceof \Zend_Date, 'Returned object is not\Zend_Date.');
     }
 
     /**
@@ -213,7 +203,7 @@ class DateTest extends TestCase
     public function testIfParsingOfIsoDateSwapsDayAndMonth()
     {
         $locale = new \Zend_Locale("en");
-        \Zend_Registry::set('Zend_Locale', $locale);
+        \Zend_Locale::set($locale);
         $date = new Date('2010-06-04T02:36:53Z');
 
         $this->assertEquals(4, $date->getDay());
