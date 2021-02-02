@@ -35,6 +35,7 @@
 namespace Opus\Job\Worker;
 
 use Opus\Account;
+use Opus\Config;
 use Opus\Job;
 use Opus\Mail\SendMail;
 

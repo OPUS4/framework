@@ -34,6 +34,8 @@
 
 namespace Opus\Mail;
 
+use Opus\Log;
+
 /**
  * Override
  *

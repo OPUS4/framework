@@ -34,6 +34,7 @@
 
 namespace Opus\Model;
 
+use Opus\Log;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Conf;
 use Opus\Model\Xml\Strategy;

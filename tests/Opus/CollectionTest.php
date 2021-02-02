@@ -38,6 +38,7 @@ namespace OpusTest;
 
 use Opus\Collection;
 use Opus\CollectionRole;
+use Opus\Config;
 use Opus\Db\Collections;
 use Opus\Document;
 use Opus\Model\Xml\Cache;

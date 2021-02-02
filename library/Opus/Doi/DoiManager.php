@@ -35,7 +35,8 @@
 
 namespace Opus\Doi;
 
-use http\Exception\InvalidArgumentException;
+use Opus\Config;
+use Opus\Log;
 use Opus\Log\LogService;
 use Opus\Document;
 use Opus\DocumentFinder;

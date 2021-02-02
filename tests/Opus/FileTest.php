@@ -34,6 +34,7 @@
 
 namespace OpusTest;
 
+use Opus\Config;
 use Opus\Date;
 use Opus\Document;
 use Opus\File;

@@ -33,6 +33,7 @@
 
 namespace Opus\Doi\Generator;
 
+use Opus\Config;
 use Opus\Doi\DoiException;
 use Opus\Util\ClassLoaderHelper;
 

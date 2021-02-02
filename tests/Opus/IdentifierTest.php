@@ -36,6 +36,7 @@
 
 namespace OpusTest;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Identifier;

@@ -34,6 +34,7 @@
 
 namespace OpusTest\Doi;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Doi\DoiManager;
 use Opus\Identifier;

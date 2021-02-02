@@ -32,6 +32,7 @@
 
 namespace Opus\File\Plugin;
 
+use Opus\Config;
 use Opus\File;
 use Opus\LoggingTrait;
 use Opus\Model\ModelInterface;

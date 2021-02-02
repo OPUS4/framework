@@ -36,10 +36,12 @@
 
 namespace Opus\Document\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Document\DocumentException;
 use Opus\Identifier;
 use Opus\Identifier\Urn;
+use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\ServerStateChangeListener;

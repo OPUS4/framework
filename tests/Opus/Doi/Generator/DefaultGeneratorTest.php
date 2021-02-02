@@ -33,6 +33,7 @@
 
 namespace OpusTest\Doi\Generator;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Doi\Generator\DoiGeneratorException;

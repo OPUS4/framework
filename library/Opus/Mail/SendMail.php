@@ -35,6 +35,9 @@
 
 namespace Opus\Mail;
 
+use Opus\Config;
+use Opus\Log;
+
 /**
  * Methods to send e-mails via \Zend_Mail, but with mail server from config.ini.
  *

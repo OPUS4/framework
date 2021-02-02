@@ -34,6 +34,7 @@
 
 namespace OpusTest\Doi;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Doi\ConfigRecipientProvider;
 use Opus\Doi\DoiMailNotification;

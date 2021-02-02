@@ -35,6 +35,7 @@
 
 namespace OpusTest\Db\Adapter\Pdo;
 
+use Opus\Config;
 use OpusTest\TestAsset\TestCase;
 
 /**

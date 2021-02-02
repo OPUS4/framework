@@ -34,7 +34,9 @@
 
 namespace Opus\Doi;
 
+use Opus\Config;
 use Opus\Document;
+use Opus\Log;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
 

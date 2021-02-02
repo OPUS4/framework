@@ -37,6 +37,7 @@
 namespace Opus\Model;
 
 use Opus\Db\TableGateway;
+use Opus\Log;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 

@@ -33,6 +33,7 @@
 
 namespace OpusTest\Doi;
 
+use Opus\Config;
 use Opus\Doi\ConfigRecipientProvider;
 use OpusTest\TestAsset\TestCase;
 

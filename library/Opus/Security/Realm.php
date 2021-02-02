@@ -36,7 +36,9 @@
 
 namespace Opus\Security;
 
+use Opus\Config;
 use Opus\Db\TableGateway;
+use Opus\Log;
 
 /**
  * This singleton class encapsulates all security specific information

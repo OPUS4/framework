@@ -35,6 +35,7 @@
 
 namespace OpusTest;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;

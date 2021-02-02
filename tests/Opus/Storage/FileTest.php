@@ -34,6 +34,7 @@
 
 namespace OpusTest\Storage;
 
+use Opus\Config;
 use Opus\Storage\File;
 use OpusTest\TestAsset\TestCase;
 

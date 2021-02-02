@@ -35,6 +35,7 @@
 
 namespace OpusTest\Security;
 
+use Opus\Config;
 use Opus\Db\TableGateway;
 use Opus\Security\Realm;
 use Opus\Security\SecurityException;

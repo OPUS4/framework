@@ -33,6 +33,7 @@
 
 namespace OpusTest\Util;
 
+use Opus\Config;
 use OpusTest\TestAsset\TestCase;
 
 class FileTest extends TestCase

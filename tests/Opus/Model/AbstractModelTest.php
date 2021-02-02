@@ -39,6 +39,7 @@ namespace OpusTest\Model;
 use Opus\Date;
 use Opus\Document;
 use Opus\Language;
+use Opus\Log;
 use Opus\Model\Field;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;

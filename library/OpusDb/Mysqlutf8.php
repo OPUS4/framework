@@ -33,7 +33,9 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+use Opus\Config;
 use Opus\Database;
+use Opus\Log;
 
 /**
  * Extend standard PDO MySQL adapter to use UTF-8 strings by passing

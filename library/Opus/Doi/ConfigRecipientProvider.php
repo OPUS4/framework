@@ -33,6 +33,8 @@
 
 namespace Opus\Doi;
 
+use Opus\Config;
+
 /**
  * Provides array with recipients for DOI notifications from application configuration.
  *

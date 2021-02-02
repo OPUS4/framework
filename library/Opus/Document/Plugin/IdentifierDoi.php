@@ -34,11 +34,13 @@
 
 namespace Opus\Document\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Doi\DoiException;
 use Opus\Doi\DoiManager;
 use Opus\Doi\RegistrationException;
 use Opus\Identifier;
+use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\ServerStateChangeListener;

@@ -34,6 +34,8 @@
 
 namespace Opus\Doi;
 
+use Opus\Config;
+use Opus\Log;
 use Opus\Mail\MailException;
 use Opus\Mail\SendMail;
 

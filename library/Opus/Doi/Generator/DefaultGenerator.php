@@ -33,6 +33,8 @@
 
 namespace Opus\Doi\Generator;
 
+use Opus\Config;
+
 class DefaultGenerator implements DoiGeneratorInterface
 {
 
