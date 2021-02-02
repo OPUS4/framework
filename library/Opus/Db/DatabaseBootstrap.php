@@ -75,6 +75,7 @@ class DatabaseBootstrap extends Base
             ]
         ], true);
         $config->merge(Config::get());
+        Config::set($config); // TODO do not replace the original config object (find a better way)
 
         // Use \Zend_Db factory to create a database adapter
         // and make it the default for all tables.

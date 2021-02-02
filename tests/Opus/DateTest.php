@@ -49,7 +49,7 @@ use OpusTest\TestAsset\TestCase;
 class DateTest extends TestCase
 {
 
-    protected $_locale_backup;
+    protected $locale_backup;
 
     /**
      * Prepare german locale setup.
@@ -57,6 +57,7 @@ class DateTest extends TestCase
      */
     public function setUp()
     {
+        parent::setUp();
         \Zend_Locale::setDefault('de');
     }
 
@@ -203,7 +204,7 @@ class DateTest extends TestCase
     public function testIfParsingOfIsoDateSwapsDayAndMonth()
     {
         $locale = new \Zend_Locale("en");
-        \Zend_Locale::set($locale);
+        \Zend_Locale::setDefault($locale);
         $date = new Date('2010-06-04T02:36:53Z');
 
         $this->assertEquals(4, $date->getDay());

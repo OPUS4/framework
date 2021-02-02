@@ -46,6 +46,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
     private $config_backup;
 
+    // TODO get rid of this two constants - filter_var() can handle it
     const CONFIG_VALUE_FALSE = ''; //\Zend_Config übersetzt false in den Wert ''
 
     const CONFIG_VALUE_TRUE = '1'; //\Zend_Config übersetzt true in den Wert '1'
@@ -100,9 +101,22 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
         );
     }
 
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $config = Config::get();
+
+        if ($config !== null) {
+            $this->config_backup = clone $config;
+        } else {
+            $this->fail('no config');
+        }
+    }
+
     protected function tearDown()
     {
-        Config::set(null);
+        Config::set($this->config_backup);
 
         parent::tearDown();
     }
