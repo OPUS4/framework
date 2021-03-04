@@ -35,7 +35,8 @@
 
 namespace Opus\Doi;
 
-use http\Exception\InvalidArgumentException;
+use Opus\Config;
+use Opus\Log;
 use Opus\Log\LogService;
 use Opus\Document;
 use Opus\DocumentFinder;
@@ -87,8 +88,8 @@ class DoiManager
      */
     public function __construct()
     {
-        $this->config = \Zend_Registry::get('Zend_Config');
-        $this->defaultLog = \Zend_Registry::get('Zend_Log');
+        $this->config = Config::get();
+        $this->defaultLog = Log::get();
         $this->doiLog = $this->getDoiLogger();
     }
 

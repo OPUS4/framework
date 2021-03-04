@@ -274,7 +274,7 @@ class Document extends AbstractDb
     public function getDefaultPlugins()
     {
         if (is_null(self::$defaultPlugins)) {
-            $config = \Zend_Registry::get('Zend_Config'); // use function
+            $config = Config::get(); // use function
 
             if (isset($config->model->plugins->document)) {
                 $plugins = $config->model->plugins->document;
@@ -564,9 +564,9 @@ class Document extends AbstractDb
     public function initFieldOptionsForDisplayAndValidation()
     {
         // Initialize available languages
-        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
-            $this->getField('Language')
-                    ->setDefault(\Zend_Registry::get('Available_Languages'));
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $this->getField('Language')->setDefault($availableLanguages);
         }
         $this->getField('Language')->setSelection(true);
 
@@ -1023,7 +1023,7 @@ class Document extends AbstractDb
         try {
             $table->update(['server_date_modified' => "$date"], $where);
         } catch (\Exception $e) {
-            $logger = \Zend_Registry::get('Zend_Log');
+            $logger = Log::get();
             if (! is_null($logger)) {
                 $logger->err(__METHOD__ . ' ' . $e);
             }
@@ -1091,7 +1091,7 @@ class Document extends AbstractDb
             // get constructor values from configuration file
             // if nothing has been configured there, do not build an URN!
             // at least the first two values MUST be set
-            $config = \Zend_Registry::get('Zend_Config');
+            $config = Config::get();
 
             if (isset($config) && is_object($config->urn)) {
                 $nid = $config->urn->nid;
@@ -1397,8 +1397,7 @@ class Document extends AbstractDb
      */
     protected function logger($message)
     {
-        $registry = \Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
+        $logger = Log::get();
         $logger->info($this->getDisplayName() . ": $message");
     }
 

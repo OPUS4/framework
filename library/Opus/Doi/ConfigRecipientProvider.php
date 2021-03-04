@@ -33,6 +33,8 @@
 
 namespace Opus\Doi;
 
+use Opus\Config;
+
 /**
  * Provides array with recipients for DOI notifications from application configuration.
  *
@@ -47,7 +49,7 @@ class ConfigRecipientProvider implements NotificationRecipientProvider
 
     public function getRecipients()
     {
-        $config = \Zend_Registry::get('Zend_Config'); // TODO use Trait or Application_Configuration
+        $config = Config::get(); // TODO use Trait or Application_Configuration
 
         $recipientAddresses = [];
 

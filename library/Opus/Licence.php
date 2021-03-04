@@ -167,8 +167,9 @@ class Licence extends AbstractDb
         $descText->setTextarea(true);
 
         $licenceLanguage = new Field('Language');
-        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
-            $licenceLanguage->setDefault(\Zend_Registry::get('Available_Languages'));
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $licenceLanguage->setDefault($availableLanguages);
         }
         $licenceLanguage->setSelection(true);
         $licenceLanguage->setMandatory(true);

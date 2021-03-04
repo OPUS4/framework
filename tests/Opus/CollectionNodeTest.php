@@ -62,9 +62,9 @@ class CollectionNodeTest extends TestCase
 
     public function setUp()
     {
-        $this->markTestSkipped("deprecated");
-
         parent::setUp();
+
+        $this->markTestSkipped("deprecated");
 
         $this->_role_name     = "role-name-" . rand();
         $this->_role_oai_name = "role-oainame-" . rand();

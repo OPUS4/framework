@@ -33,6 +33,7 @@
 
 namespace OpusTest\Document\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Document\Plugin\SequenceNumber;
 use Opus\Identifier;
@@ -44,20 +45,16 @@ class SequenceNumberTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $config = \Zend_Registry::get('Zend_Config');
-        $config = new \Zend_Config($config->toArray(), 1);
-        $config = $config->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'sequence' => [
                 'identifier_type' => 'serial',
             ],
         ]));
-        \Zend_Registry::set('Zend_Config', $config);
     }
 
     public function testExceptionOnInvalidModel()
     {
-        $config = new \Zend_Config([]);
-        \Zend_Registry::set('Zend_Config', $config);
+        Config::set(new \Zend_Config([]));
 
         $model = new Identifier();
         $plugin = new SequenceNumber();
@@ -68,8 +65,7 @@ class SequenceNumberTest extends TestCase
 
     public function testDontGenerateIdIfConfigNotSet()
     {
-        $config = new \Zend_Config([]);
-        \Zend_Registry::set('Zend_Config', $config);
+        Config::set(new \Zend_Config([]));
 
         $model = new Document();
         $model->setServerState('published');

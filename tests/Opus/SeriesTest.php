@@ -35,6 +35,7 @@
 
 namespace OpusTest;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
@@ -350,7 +351,7 @@ class SeriesTest extends TestCase
 
     public function testGetAllSortedByTitle()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE]
         ]));
 
@@ -435,7 +436,7 @@ class SeriesTest extends TestCase
 
     public function testGetAllSortedBySortKeyOverriddenToSortByTitle()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE]
         ]));
 

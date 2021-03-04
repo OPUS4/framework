@@ -34,6 +34,8 @@
 
 namespace Opus\Doi;
 
+use Opus\Config;
+use Opus\Log;
 use Opus\Mail\MailException;
 use Opus\Mail\SendMail;
 
@@ -54,8 +56,8 @@ class DoiMailNotification
     public function __construct()
     {
         $this->notifications = [];
-        $this->config = \Zend_Registry::get('Zend_Config');
-        $this->log = \Zend_Registry::get('Zend_Log');
+        $this->config = Config::get();
+        $this->log = Log::get();
     }
 
     public function setRecipientProvider($provider)

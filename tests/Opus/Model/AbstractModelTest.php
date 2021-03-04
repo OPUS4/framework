@@ -39,6 +39,7 @@ namespace OpusTest\Model;
 use Opus\Date;
 use Opus\Document;
 use Opus\Language;
+use Opus\Log;
 use Opus\Model\Field;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
@@ -391,7 +392,7 @@ class AbstractModelTest extends TestCase
         $logger = $model->getLogger();
 
         $this->assertNotNull($logger);
-        $this->assertEquals(\Zend_Registry::get('Zend_Log'), $logger);
+        $this->assertEquals(Log::get(), $logger);
     }
 
     public function testSetLogger()
@@ -403,7 +404,7 @@ class AbstractModelTest extends TestCase
         $model->setLogger($logger);
 
         $this->assertEquals($logger, $model->getLogger());
-        $this->assertNotEquals(\Zend_Registry::get('Zend_Log'), $model->getLogger());
+        $this->assertNotEquals(Log::get(), $model->getLogger());
     }
 
     public function testToArrayWithPerson()

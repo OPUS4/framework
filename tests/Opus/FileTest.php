@@ -34,6 +34,7 @@
 
 namespace OpusTest;
 
+use Opus\Config;
 use Opus\Date;
 use Opus\Document;
 use Opus\File;
@@ -64,7 +65,7 @@ class FileTest extends TestCase
     {
         parent::setUp();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
         $this->_src_path = $path . DIRECTORY_SEPARATOR . 'src';
@@ -619,15 +620,12 @@ class FileTest extends TestCase
      */
     public function testDisabledVerifyInConfig()
     {
-
-        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(
-            new \Zend_Config([
-                'workspacePath' => $this->_dest_path,
-                'checksum' => [
-                    'maxVerificationSize' => 0,
-                ],
-            ])
-        ));
+        Config::get()->merge(new \Zend_Config([
+            'workspacePath' => $this->_dest_path,
+            'checksum' => [
+                'maxVerificationSize' => 0,
+            ],
+        ]));
 
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
@@ -635,14 +633,12 @@ class FileTest extends TestCase
 
         $this->assertFalse($file->canVerify());
 
-        \Zend_Registry::set('Zend_Config', \Zend_Registry::get('Zend_Config')->merge(
-            new \Zend_Config([
-                'workspacePath' => $this->_dest_path,
-                'checksum' => [
-                    'maxVerificationSize' => -1,
-                ],
-            ])
-        ));
+        Config::get()->merge(new \Zend_Config([
+            'workspacePath' => $this->_dest_path,
+            'checksum' => [
+                'maxVerificationSize' => -1,
+            ]
+        ]));
 
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
@@ -861,7 +857,7 @@ class FileTest extends TestCase
 
     private function createTestFile($filename)
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (! isset($config->workspacePath)) {
             throw new \Exception("config key 'workspacePath' not defined in config file");
         }
@@ -972,7 +968,7 @@ class FileTest extends TestCase
 
     public function testVisibleInOaiDefaultConfigurable()
     {
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'files' => ['visibleInOaiDefault' => 0]
         ]));
 
@@ -993,7 +989,7 @@ class FileTest extends TestCase
         $this->assertInstanceOf('Opus\File', $file);
         $this->assertEquals(0, $file->getVisibleInOai());
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'files' => ['visibleInOaiDefault' => 1]
         ]));
 

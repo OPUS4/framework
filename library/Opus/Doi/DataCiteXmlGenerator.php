@@ -34,7 +34,9 @@
 
 namespace Opus\Doi;
 
+use Opus\Config;
 use Opus\Document;
+use Opus\Log;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
 
@@ -71,7 +73,7 @@ class DataCiteXmlGenerator
     {
         if (is_null($this->doiLog)) {
             // use standard logger if nothing is set
-            $this->doiLog = \Zend_Registry::get('Zend_Log');
+            $this->doiLog = Log::get();
         }
 
         return $this->doiLog;
@@ -105,7 +107,7 @@ class DataCiteXmlGenerator
             $success = $xslt->load($xsltPath);
         }
 
-        $log = \Zend_Registry::get('Zend_Log'); // TODO use LoggingTrait
+        $log = Log::get(); // TODO use LoggingTrait
 
         if (! $success) {
             $message = "could not find XSLT file $xsltPath";
@@ -467,7 +469,7 @@ class DataCiteXmlGenerator
      */
     public function getStylesheetPath()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         $stylesheetPath = null;
 
@@ -475,7 +477,7 @@ class DataCiteXmlGenerator
             $stylesheetPath = $config->datacite->stylesheetPath;
 
             if (! is_readable($stylesheetPath)) {
-                \Zend_Registry::get('Zend_Log')->warn('Configured DataCite XSLT file not found');
+                Log::get()->warn('Configured DataCite XSLT file not found');
                 $stylesheetPath = null;
             }
         }

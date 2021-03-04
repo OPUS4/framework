@@ -240,7 +240,7 @@ class File
             return @mime_content_type($fullFile);
         } else {
             $message = __CLASS__ . ": Neither PECL fileinfo, nor mime_content_type could be found.";
-            $logger = \Zend_Registry::get('Zend_Log');
+            $logger = Log::get();
             $logger->err($message);
 
             return $this->getFileMimeTypeFromExtension($file);

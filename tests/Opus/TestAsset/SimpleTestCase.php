@@ -38,12 +38,15 @@ use Opus\Config;
  * Superclass for all tests.  Providing maintainance tasks.
  *
  * @category Tests
+ *
+ * TODO needs refactoring
  */
 abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
 {
 
     private $config_backup;
 
+    // TODO get rid of this two constants - filter_var() can handle it
     const CONFIG_VALUE_FALSE = ''; //\Zend_Config übersetzt false in den Wert ''
 
     const CONFIG_VALUE_TRUE = '1'; //\Zend_Config übersetzt true in den Wert '1'
@@ -60,7 +63,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function adjustConfiguration($overlay, $callback = null)
     {
-        $previous = \Zend_Registry::get('Zend_Config');
+        $previous = Config::get();
         $updated  = new \Zend_Config([], true);
 
         $updated
@@ -73,7 +76,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
         $updated->setReadOnly();
 
-        \Zend_Registry::set('Zend_Config', $updated);
+        Config::set($updated);
 
         return $previous;
     }
@@ -98,26 +101,22 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * Standard setUp method for clearing database.
-     *
-     * @return void
-     */
     protected function setUp()
     {
         parent::setUp();
 
-        $config = \Zend_Registry::get('Zend_Config');
-        if (! is_null($config)) {
+        $config = Config::get();
+
+        if ($config !== null) {
             $this->config_backup = clone $config;
+        } else {
+            $this->fail('no config');
         }
     }
 
     protected function tearDown()
     {
-        if (! is_null($this->config_backup)) {
-            \Zend_Registry::set('Zend_Config', $this->config_backup);
-        }
+        Config::set($this->config_backup);
 
         parent::tearDown();
     }

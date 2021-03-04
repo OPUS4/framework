@@ -33,6 +33,8 @@
 
 namespace Opus\Doi\Generator;
 
+use Opus\Config;
+
 class DefaultGenerator implements DoiGeneratorInterface
 {
 
@@ -40,7 +42,7 @@ class DefaultGenerator implements DoiGeneratorInterface
 
     public function __construct()
     {
-        $this->config = \Zend_Registry::get('Zend_Config');
+        $this->config = Config::get();
     }
 
     /**

@@ -131,7 +131,7 @@ class Series extends AbstractDb
      */
     public static function getAll()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAllFrom('Opus\Series', self::$_tableGatewayClass, null, 'title');
@@ -149,7 +149,7 @@ class Series extends AbstractDb
      */
     public static function getAllSortedBySortKey()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAll();

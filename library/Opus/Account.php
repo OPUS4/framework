@@ -191,7 +191,7 @@ class Account extends AbstractDb
         try {
             return parent::store();
         } catch (\Exception $ex) {
-            $logger = \Zend_Registry::get('Zend_Log');
+            $logger = Log::get();
             if (null !== $logger) {
                 $message = "Unknown exception while storing account: ";
                 $message .= $ex->getMessage();
@@ -243,7 +243,7 @@ class Account extends AbstractDb
         $login = $this->_convertToScalar($login);
         $loginField = $this->getField('Login');
         if ($loginField->getValidator()->isValid($login) === false) {
-            \Zend_Registry::get('Zend_Log')->debug('Login not valid: ' . $login);
+            Log::get()->debug('Login not valid: ' . $login);
             throw new SecurityException('Login name is empty or contains invalid characters.');
         }
         $loginField->setValue($login);
@@ -273,7 +273,7 @@ class Account extends AbstractDb
      */
     public function setPasswordDirectly($password)
     {
-        $logger = \Zend_Registry::get('Zend_Log');
+        $logger = Log::get();
         if (null !== $logger) {
             $message = "WARNING: Setting password directly for user '" . $this->getLogin() . "'.";
             $logger->warn(__METHOD__ . ': ' . $message);

@@ -34,6 +34,7 @@
 
 namespace Opus\Model;
 
+use Opus\Log;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Conf;
 use Opus\Model\Xml\Strategy;
@@ -254,7 +255,7 @@ class Xml
     public function getDomDocument()
     {
         $model = $this->_config->model;
-        $logger = \Zend_Registry::get('Zend_Log');
+        $logger = Log::get();
 
         $result = $this->getDomDocumentFromXmlCache();
         if (! is_null($result)) {
@@ -286,7 +287,7 @@ class Xml
     private function getDomDocumentFromXmlCache()
     {
         $model = $this->_config->model;
-        $logger = \Zend_Registry::get('Zend_Log');
+        $logger = Log::get();
 
         if (null === $this->_cache) {
             $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));

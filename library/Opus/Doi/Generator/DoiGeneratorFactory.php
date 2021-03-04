@@ -33,6 +33,7 @@
 
 namespace Opus\Doi\Generator;
 
+use Opus\Config;
 use Opus\Doi\DoiException;
 use Opus\Util\ClassLoaderHelper;
 
@@ -41,7 +42,7 @@ class DoiGeneratorFactory
 
     public static function create()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         // versuche die Generierungsklasse für DOIs zu instanziieren
         if (! isset($config->doi->generatorClass)) {

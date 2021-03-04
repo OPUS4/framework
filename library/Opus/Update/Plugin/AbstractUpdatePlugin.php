@@ -71,7 +71,7 @@ abstract class AbstractUpdatePlugin
     public function getConfig()
     {
         if (is_null($this->_config)) {
-            $this->_config = \Zend_Registry::get('Zend_Config');
+            $this->_config = Config::get();
         }
         return $this->_config;
     }

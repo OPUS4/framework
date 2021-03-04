@@ -33,9 +33,11 @@
 
 namespace Opus\Document\Plugin;
 
+use Opus\Config;
 use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\Document\DocumentException;
+use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\PluginInterface;
@@ -72,7 +74,7 @@ class SequenceNumber extends AbstractPlugin
      */
     public function postStoreInternal(ModelInterface $model)
     {
-        $log = \Zend_Registry::get('Zend_Log');
+        $log = Log::get();
         $log->debug('Opus\Document\Plugin\SequenceNumber::postStore() with id ' . $model->getId());
 
         if (! ($model instanceof Document)) {
@@ -87,7 +89,7 @@ class SequenceNumber extends AbstractPlugin
             return;
         }
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (! isset($config, $config->sequence->identifier_type)) {
             $log->debug('Sequence auto creation is not configured. skipping...');
             return;

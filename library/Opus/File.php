@@ -133,8 +133,9 @@ class File extends AbstractDependentModel
         $mimetype = new Field('MimeType');
 
         $filelanguage = new Field('Language');
-        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
-            $filelanguage->setDefault(\Zend_Registry::get('Available_Languages'));
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $filelanguage->setDefault($availableLanguages);
         }
         $filelanguage->setSelection(true);
 
@@ -198,7 +199,7 @@ class File extends AbstractDependentModel
             throw new ModelException('ParentId is not set!');
         }
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $filesPath = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
         $this->_storage = new \Opus\Storage\File($filesPath, $this->getParentId());
 
@@ -408,7 +409,7 @@ class File extends AbstractDependentModel
      */
     public function canVerify()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         $maxVerifyFilesize = -1;
         if (isset($config->checksum->maxVerificationSize)) {
@@ -449,7 +450,7 @@ class File extends AbstractDependentModel
 
     public function _setDefaults()
     {
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (isset($config->files->visibleInOaiDefault)) {
             $this->setVisibleInOai(filter_var($config->files->visibleInOaiDefault, FILTER_VALIDATE_BOOLEAN));

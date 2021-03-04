@@ -34,6 +34,7 @@
 
 namespace OpusTest\Document\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Doi\DoiManager;
 use Opus\Enrichment;
@@ -63,10 +64,7 @@ class IdentifierDoiTest extends TestCase
 
     private function adaptDoiConfiguration($doiConfig)
     {
-        \Zend_Registry::set(
-            'Zend_Config',
-            \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config(['doi' => $doiConfig]))
-        );
+        Config::get()->merge(new \Zend_Config(['doi' => $doiConfig]));
     }
 
     private function createMinimalDocument($enrichmentValue = null)

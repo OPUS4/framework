@@ -33,6 +33,7 @@
 
 namespace OpusTest\Doi;
 
+use Opus\Config;
 use Opus\Doi\ConfigRecipientProvider;
 use OpusTest\TestAsset\TestCase;
 
@@ -48,7 +49,7 @@ class ConfigRecipientProviderTest extends TestCase
         $this->assertInternalType('array', $recipients);
         $this->assertCount(0, $recipients);
 
-        \Zend_Registry::get('Zend_Config')->merge(new \Zend_Config([
+        Config::get()->merge(new \Zend_Config([
             'doi' => [
                 'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
                 'notificationEmail' => [

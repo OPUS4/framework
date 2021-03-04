@@ -35,6 +35,7 @@
 
 namespace OpusTest\Security;
 
+use Opus\Config;
 use Opus\Db\TableGateway;
 use Opus\Security\Realm;
 use Opus\Security\SecurityException;
@@ -351,12 +352,9 @@ class RealmTest extends TestCase
 
     public function testcheckModuleForDisabledSecurity()
     {
-        $config = new \Zend_Config(
-            [
-            'security' => '0',
-            ]
-        );
-        \Zend_Registry::set('Zend_Config', $config);
+        Config::set(new \Zend_Config([
+            'security' => '0'
+        ]));
 
         $this->setUpUserUser();
 

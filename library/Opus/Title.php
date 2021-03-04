@@ -89,8 +89,10 @@ class Title extends AbstractDependentModel
     protected function _init()
     {
         $language = new Field('Language');
-        if (\Zend_Registry::isRegistered('Available_Languages') === true) {
-            $language->setDefault(\Zend_Registry::get('Available_Languages'));
+
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $language->setDefault($availableLanguages);
         }
         $language->setSelection(true);
         $language->setMandatory(true);

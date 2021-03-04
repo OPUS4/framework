@@ -35,6 +35,7 @@
 namespace Opus\Job\Worker;
 
 use Opus\Account;
+use Opus\Config;
 use Opus\Job;
 use Opus\Mail\SendMail;
 
@@ -58,7 +59,7 @@ class MailNotification extends AbstractWorker
     public function __construct($logger = null, $lookupRecipients = true)
     {
         $this->setLogger($logger);
-        $this->config = \Zend_Registry::get('Zend_Config');
+        $this->config = Config::get();
         $this->lookupRecipients = $lookupRecipients;
     }
 

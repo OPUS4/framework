@@ -34,6 +34,7 @@
 
 namespace OpusTest\Storage;
 
+use Opus\Config;
 use Opus\Storage\File;
 use OpusTest\TestAsset\TestCase;
 
@@ -60,7 +61,7 @@ class FileTest extends TestCase
     {
         parent::setUp();
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         $path = $config->workspacePath . '/' . uniqid();
 
         $this->__src_path = $path . '/src';

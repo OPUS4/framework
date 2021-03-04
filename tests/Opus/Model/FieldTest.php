@@ -700,7 +700,7 @@ class FieldTest extends TestCase
         }
         $result = $field->getValue();
 
-        $this->assertTrue($result instanceof\Zend_Date, 'Value has not been casted to valueModelClass object.');
+        $this->assertTrue($result instanceof \Zend_Date, 'Value has not been casted to valueModelClass object.');
     }
 
     /**

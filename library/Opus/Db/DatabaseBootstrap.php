@@ -35,6 +35,7 @@
 namespace Opus\Db;
 
 use Opus\Bootstrap\Base;
+use Opus\Config;
 use Opus\Version;
 
 /**
@@ -73,12 +74,8 @@ class DatabaseBootstrap extends Base
                 ]
             ]
         ], true);
-
-        // Include the above made configuration changes in the application configuration.
-        $config->merge(\Zend_Registry::get('Zend_Config'));
-
-        // Put manipulated database configuration back to registry.
-        \Zend_Registry::set('Zend_Config', $config);
+        $config->merge(Config::get());
+        Config::set($config); // TODO do not replace the original config object (find a better way)
 
         // Use \Zend_Db factory to create a database adapter
         // and make it the default for all tables.
@@ -87,17 +84,15 @@ class DatabaseBootstrap extends Base
         try {
             $db = \Zend_Db::factory($config->db);
             \Zend_Db_Table::setDefaultAdapter($db);
-
-            // Register the adapter within \Zend_Registry.
-            \Zend_Registry::set('db_adapter', $db);
         } catch (\Zend_Db_Adapter_Exception $e) {
             $logger->err($e);
             throw new \Exception('OPUS Bootstrap Error: Could not connect to database.');
         }
 
         // Check database version
-        if (! \Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
-            ! \Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
+        if (! isset($config->opus->disableDatabaseVersionCheck) ||
+            ! filter_var($config->opus->disableDatabaseVersionCheck, FILTER_VALIDATE_BOOLEAN)
+            ) {
             try {
                 $query = $db->query('SELECT version FROM schema_version');
 

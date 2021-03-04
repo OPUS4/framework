@@ -34,6 +34,8 @@
 
 namespace Opus\Mail;
 
+use Opus\Log;
+
 /**
  * Override
  *
@@ -65,7 +67,7 @@ class Transport extends \Zend_Mail_Transport_Smtp
             $port = $config->port;
         }
 
-        \Zend_Registry::get('Zend_Log')->info(__CLASS__ . " Using mail server {$smtp}:{$port}");
+        Log::get()->info(__CLASS__ . " Using mail server {$smtp}:{$port}");
 
         parent::__construct($smtp, ['port' => $port]);
     }

@@ -36,7 +36,9 @@
 
 namespace Opus\Security;
 
+use Opus\Config;
 use Opus\Db\TableGateway;
+use Opus\Log;
 
 /**
  * This singleton class encapsulates all security specific information
@@ -138,7 +140,7 @@ class Realm implements IRealm
         $accounts = TableGateway::getInstance('Opus\Db\Accounts');
         $account = $accounts->fetchRow($accounts->select()->where('login = ?', $username));
         if (null === $account) {
-            $logger = \Zend_Registry::get('Zend_Log');
+            $logger = Log::get();
             $message = "An user with the given name: $username could not be found.";
             if (! is_null($logger)) {
                 $logger->err($message);
@@ -357,7 +359,7 @@ class Realm implements IRealm
     public function skipSecurityChecks()
     {
         // Check if security is switched off
-        $conf = \Zend_Registry::get('Zend_Config');
+        $conf = Config::get();
         if (isset($conf->security) && (! filter_var($conf->security, FILTER_VALIDATE_BOOLEAN))) {
             return true;
         }

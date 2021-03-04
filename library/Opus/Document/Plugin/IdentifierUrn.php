@@ -36,10 +36,12 @@
 
 namespace Opus\Document\Plugin;
 
+use Opus\Config;
 use Opus\Document;
 use Opus\Document\DocumentException;
 use Opus\Identifier;
 use Opus\Identifier\Urn;
+use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\ServerStateChangeListener;
@@ -61,7 +63,7 @@ class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListener
     public function postStoreInternal(ModelInterface $model)
     {
 
-        $log = \Zend_Registry::get('Zend_Log');
+        $log = Log::get();
 
         if (! ($model instanceof Document)) {
             $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
@@ -86,7 +88,7 @@ class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListener
             $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
         }
 
-        $config = \Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (is_null($generateUrn)) {
             // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
             $generateUrn = (isset($config->urn->autoCreate) && filter_var($config->urn->autoCreate, FILTER_VALIDATE_BOOLEAN));
