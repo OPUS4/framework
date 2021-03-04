@@ -14,7 +14,7 @@
     "ext-fileinfo": "*",
     "ext-libxml": "*",
     "zendframework/zendframework1": "1.12.*",
-    "opus4-repo/opus4-common": "dev-OPUSVIER-4518",
+    "opus4-repo/opus4-common": "dev-master",
     "opus4-repo/opus4-doi": "4.7"
   },
   "autoload": {
