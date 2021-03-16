@@ -259,17 +259,23 @@ class Properties
      * Returns all the properties of a model.
      *
      * @param mixed $model Model object
+     * @param string $type Model type
      * @return array Associative array with property keys and values
      * @throws PropertiesException
      * @throws UnknownModelTypeException
      */
-    public function getProperties($model)
+    public function getProperties($model, $type = null)
     {
         $adapter = $this->getAdapter();
 
-        $modelType = $this->getModelType($model);
-        $modelTypeId = $this->getModelTypeId($modelType);
-        $modelId = $this->getModelId($model);
+        if ($type !== null && (is_int($model) || ctype_digit($model))) {
+            $modelTypeId = $this->getModelTypeId($type);
+            $modelId = $model;
+        } else {
+            $modelType = $this->getModelType($model);
+            $modelTypeId = $this->getModelTypeId($modelType);
+            $modelId = $this->getModelId($model);
+        }
 
         $select = $adapter->select()
             ->from(['p' => self::TABLE_PROPERTIES], ['k.name', 'p.value'])
@@ -322,13 +328,18 @@ class Properties
      * @throws PropertiesException
      * @throws UnknownModelTypeException
      */
-    public function removeProperties($model)
+    public function removeProperties($model, $type = null)
     {
         $adapter = $this->getAdapter();
 
-        $modelType = $this->getModelType($model);
-        $modelTypeId = $this->getModelTypeId($modelType);
-        $modelId = $this->getModelId($model);
+        if ($type !== null && (is_int($model) || ctype_digit($model))) {
+            $modelTypeId = $this->getModelTypeId($type);
+            $modelId = $model;
+        } else {
+            $modelType = $this->getModelType($model);
+            $modelTypeId = $this->getModelTypeId($modelType);
+            $modelId = $this->getModelId($model);
+        }
 
         try {
             $adapter->beginTransaction();
@@ -375,10 +386,28 @@ class Properties
         }
     }
 
-    public function findModels($key, $value, $type = null)
+    public function findModels($key, $value, $modelType = null)
     {
-        // TODO implement findModels
-        return [];
+        $keyId = $this->getKeyId($key);
+
+        $adapter = $this->getAdapter();
+
+        $select = $adapter->select()
+            ->from(self::TABLE_PROPERTIES, ['model_id'])
+            ->where('key_id = ?', $keyId);
+
+        if ($modelType !== null) {
+            $modelTypeId = $this->getModelTypeId($modelType);
+            $select->where('model_type_id = ?', $modelTypeId);
+        }
+
+        $value = $adapter->fetchCol($select);
+
+        if ($value === false) {
+            return null;
+        } else {
+            return $value;
+        }
     }
 
     /**

@@ -34,6 +34,7 @@
 namespace OpusTest\Model;
 
 use Opus\Document;
+use Opus\Identifier;
 use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
@@ -437,6 +438,89 @@ class PropertiesTest extends TestCase
         $this->assertCount(0, $props);
     }
 
+    public function testGetPropertiesWithIdAndType()
+    {
+        $doc = Document::new();
+        $identifier = Identifier::new();
+        $identifier->setType('isbn');
+        $identifier->setValue('testisbn');
+        $doc->addIdentifier($identifier);
+        $docId = $doc->store();
+        $identifierId = $identifier->getId();
+
+        $this->assertEquals($docId, $identifierId); // both are the first objects of their type
+
+        $properties = $this->properties;
+        $properties->registerType('document');
+        $properties->registerType('identifier');
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+        $identifier->setProperty('key1', 'idValue1');
+
+        $props = $properties->getProperties($docId, 'document');
+
+        $this->assertEquals([
+            'key1' => 'value1',
+            'key2' => 'value2'
+        ], $props);
+
+        $props = $properties->getProperties($identifierId, 'identifier');
+
+        $this->assertEquals([
+            'key1' => 'idValue1',
+        ], $props);
+    }
+
+    public function testGetPropertiesWithIdAndBadType()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $properties = $this->properties;
+        $properties->registerType('document');
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+
+        $this->setExpectedException(UnknownModelTypeException::class);
+
+        $properties->getProperties($docId, 'identifier');
+    }
+
+    public function testGetPropertiesWithUnknownId()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $properties = $this->properties;
+        $properties->registerType('document');
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+
+        $props = $properties->getProperties($docId + 1, 'document');
+
+        $this->assertInternalType('array', $props);
+        $this->assertEmpty($props);
+    }
+
+    public function testGetPropertiesWithBadId()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $properties = $this->properties;
+        $properties->registerType('document');
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $properties->getProperties(1.5, 'document');
+    }
+
     public function testSetProperty()
     {
         $properties = $this->properties;
@@ -750,6 +834,58 @@ class PropertiesTest extends TestCase
         $properties->removeProperties($model);
     }
 
+    public function testRemovePropertiesWithModelIdAndType()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+
+        $this->assertEquals('value1', $doc->getProperty('key1'));
+        $this->assertEquals('value2', $doc->getProperty('key2'));
+
+        $properties = $this->properties;
+        $properties->removeProperties($docId, $doc->getModelType());
+
+        $this->assertNull($doc->getProperty('key1'));
+        $this->assertNull($doc->getProperty('key2'));
+    }
+
+    public function testRemovePropertiesWithBadModelIdAndType()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+
+        $this->assertEquals('value1', $doc->getProperty('key1'));
+        $this->assertEquals('value2', $doc->getProperty('key2'));
+
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $properties = $this->properties;
+        $properties->removeProperties(1.5, $doc->getModelType());
+    }
+
+    public function testRemovePropertiesWithModelIdAndBadType()
+    {
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $doc->setProperty('key1', 'value1');
+        $doc->setProperty('key2', 'value2');
+
+        $this->assertEquals('value1', $doc->getProperty('key1'));
+        $this->assertEquals('value2', $doc->getProperty('key2'));
+
+        $this->setExpectedException(UnknownModelTypeException::class);
+
+        $properties = $this->properties;
+        $properties->removeProperties($docId, 'icecream');
+    }
+
     public function testRemoveProperty()
     {
         $properties = $this->properties;
@@ -895,7 +1031,7 @@ class PropertiesTest extends TestCase
     /**
      * TODO Is this functionality necessary?
      */
-    public function testFindModels()
+    public function testFindModelsTypeNull()
     {
         $properties = $this->properties;
 
@@ -913,11 +1049,31 @@ class PropertiesTest extends TestCase
 
         $result = $properties->findModels($key, $value);
 
+        // var_dump($result);
+
         $this->markTestIncomplete();
     }
 
     public function testFindModelsWithType()
     {
+        $properties = $this->properties;
+
+        $key = 'testkey';
+        $value = 'testvalue';
+
+        $properties->registerType('document');
+        $properties->registerKey($key);
+
+        $expected = [];
+
+        $model = Document::new();
+        $modelId = $model->store();
+        $properties->setProperty($model, $key, $value);
+
+        $result = $properties->findModels($key, $value, $model->getModelType());
+
+        // var_dump($result);
+
         $this->markTestIncomplete();
     }
 
