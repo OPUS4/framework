@@ -673,7 +673,7 @@ abstract class AbstractModel implements PropertySupportInterface
      *
      * TODO should probably handled in separate class (revisit with ZF3)
      */
-    private static function getPropertiesService()
+    protected static function getPropertiesService()
     {
         if (self::$propertiesService === null) {
             $service = new Properties();

@@ -30,7 +30,7 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -38,9 +38,12 @@ namespace OpusTest\Model;
 
 use Opus\Date;
 use Opus\Document;
+use Opus\Identifier;
 use Opus\Language;
 use Opus\Log;
 use Opus\Model\Field;
+use Opus\Model\NotFoundException;
+use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Person;
@@ -592,18 +595,105 @@ class AbstractModelTest extends TestCase
         $doc->setProperty($key, $value);
     }
 
-    public function testDeleteModelRemovesProperties()
+    public function testDeletingModelRemovesProperties()
     {
-        $this->markTestIncomplete();
+        $doc = Document::new();
+        $identifier = Identifier::new();
+        $identifier->setType('isbn');
+        $identifier->setValue('testvalue');
+        $doc->addIdentifier($identifier);
+
+        $docId = $doc->store();
+        $identifierId = $identifier->getId();
+
+        $identifier->setProperty('registered', 'true');
+
+        $propertiesService = new Properties();
+
+        $properties = $propertiesService->getProperties($identifier);
+
+        $this->assertCount(1, $properties);
+        $this->assertEquals([
+            'registered' => 'true'
+        ], $properties);
+
+        $doc->setIdentifier([]); // remove/delete identifier
+        $doc->store();
+
+        try {
+            Identifier::get($identifierId);
+            $this->fail('identifier was not deleted');
+        } catch (NotFoundException $ex) {
+            // document was deleted - everything is fine
+        }
+
+        $properties = $propertiesService->getProperties($identifierId, $identifier->getModelType());
+
+        $this->assertCount(0, $properties);
     }
 
-    public function testDeleteDocumentDoesNotRemoveProperties()
+    public function testSettingDocumentDeletedDoesNotRemoveProperties()
     {
-        $this->markTestIncomplete();
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $doc->setProperty('prop1', 'value1');
+        $doc->setProperty('prop2', 'value2');
+
+        $propertiesService = new Properties();
+
+        $properties = $propertiesService->getProperties($doc);
+
+        $this->assertCount(2, $properties);
+        $this->assertEquals([
+            'prop1' => 'value1',
+            'prop2' => 'value2'
+        ], $properties);
+
+        $doc->deleteDocument();
+
+        $doc = Document::get($docId);
+
+        $this->assertEquals(Document::STATE_DELETED, $doc->getServerState());
+
+        $properties = $propertiesService->getProperties($doc);
+
+        $this->assertCount(2, $properties);
+        $this->assertEquals([
+            'prop1' => 'value1',
+            'prop2' => 'value2'
+        ], $properties);
     }
 
-    public function testDeleteDocumentPermanentlyRemovesProperties()
+    public function testDeletingDocumentRemovesProperties()
     {
-        $this->markTestIncomplete();
+        $doc = Document::new();
+        $docId = $doc->store();
+
+        $doc->setProperty('prop1', 'value1');
+        $doc->setProperty('prop2', 'value2');
+
+        $propertiesService = new Properties();
+
+        $properties = $propertiesService->getProperties($doc);
+
+        $this->assertCount(2, $properties);
+        $this->assertEquals([
+            'prop1' => 'value1',
+            'prop2' => 'value2'
+        ], $properties);
+
+        $doc->delete();
+
+        try {
+            $doc = Document::get($docId);
+            $this->fail('document was not deleted');
+        } catch (NotFoundException $ex) {
+            // document was deleted - everything is fine
+        }
+
+        $properties = $propertiesService->getProperties($docId, $doc->getModelType());
+
+        $this->assertCount(0, $properties);
     }
 }

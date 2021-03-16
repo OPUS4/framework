@@ -603,6 +603,9 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             throw new ModelException($msg);
         }
 
+        $properties = self::getPropertiesService();
+        $properties->removeProperties($modelId, $this->getModelType());
+
         $this->callPluginMethod('postDelete', $modelId);
     }
 
