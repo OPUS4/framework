@@ -28,12 +28,13 @@
  * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Doi;
 
+use Laminas\Log\Logger;
 use Opus\Config;
 use Opus\Document;
 use Opus\Doi\DoiManager;
@@ -81,7 +82,7 @@ class DoiManagerTest extends TestCase
         $doiLogger = $doiManager->getDoiLogger();
 
         $this->assertNotNull($doiLogger);
-        $this->assertInstanceOf(\Zend_Log::class, $doiLogger);
+        $this->assertInstanceOf(Logger::class, $doiLogger);
     }
 
     /**

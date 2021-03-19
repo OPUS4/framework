@@ -28,12 +28,13 @@
  * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Job\Worker;
 
+use Laminas\Log\Logger;
 use Opus\Account;
 use Opus\Config;
 use Opus\Job;
@@ -51,7 +52,7 @@ class MailNotification extends AbstractWorker
 
     /**
      * Constructs worker.
-     * @param \Zend_Log $logger
+     * @param Logger $logger
      * @param boolean $lookupRecipients wenn true, dann erwartet die Methode Usernamen (d.h. Accounts)
      *                                  und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
      *                                  Adressen erwartet in der Form wie sie Opus\Mail\SendMail erwartet

@@ -25,12 +25,14 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
 */
 
 namespace Opus\Job;
 
+use Laminas\Log\Logger;
 use Opus\Job;
 use Opus\Job\Worker\WorkerInterface;
 
@@ -68,7 +70,7 @@ class Runner
     /**
      * Holds the instance of the current logger.
      *
-     * @var \Zend_Log
+     * @var Logger
      */
     protected $_logger = null;
 
@@ -86,10 +88,10 @@ class Runner
     /**
      * Set the current logger instance.
      *
-     * @param \Zend_Log $log Logger.
+     * @param Logger $log Logger.
      * @return Runner Fluent interface.
      */
-    public function setLogger(\Zend_Log $logger)
+    public function setLogger(Logger $logger)
     {
         $this->_logger = $logger;
     }

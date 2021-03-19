@@ -28,12 +28,13 @@
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi;
 
+use Laminas\Log\Logger;
 use Opus\Config;
 use Opus\Document;
 use Opus\Log;
@@ -79,7 +80,7 @@ class DataCiteXmlGenerator
         return $this->doiLog;
     }
 
-    public function setDoiLog(\Zend_Log $logger)
+    public function setDoiLog(Logger $logger)
     {
         $this->doiLog = $logger;
     }
@@ -465,7 +466,7 @@ class DataCiteXmlGenerator
     /**
      * Returns path to DataCite XSLT file.
      *
-     * TODO refactor getting \Zend_Config and \Zend_Log
+     * TODO refactor getting Config and Logger
      */
     public function getStylesheetPath()
     {

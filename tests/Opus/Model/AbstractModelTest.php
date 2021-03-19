@@ -400,7 +400,7 @@ class AbstractModelTest extends TestCase
 
     public function testSetLogger()
     {
-        $logger = new \Zend_Log();
+        $logger = new Logger();
 
         $model = new AbstractModelMock();
 
