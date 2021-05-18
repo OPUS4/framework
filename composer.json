@@ -41,7 +41,8 @@
     "mayflower/php-codebrowser": "~1.1",
     "squizlabs/php_codesniffer": "2.*",
     "opus4-repo/codesniffer": "dev-master",
-    "zendframework/zend-coding-standard": "~1.0.0"
+    "zendframework/zend-coding-standard": "~1.0.0",
+    "phpmetrics/phpmetrics": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -74,6 +75,7 @@
     "cs-report": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml",
     "phpmd": "phpmd library xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
     "phploc": "phploc --log-csv build/phploc.csv src",
-    "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true"
+    "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true",
+    "metrics": "phpmetrics --report-html=build/metrics ."
   }
 }
