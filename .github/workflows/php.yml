@@ -13,6 +13,9 @@ jobs:
       - name: Change to PHP7.0
         run: sudo update-alternatives --set php /usr/bin/php7.0
 
+      - name: Update Ubuntu packages
+        run: sudo apt-get update
+
       - name: Install Composer and Dependencies
         run: curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
 
