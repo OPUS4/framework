@@ -19,6 +19,7 @@
 
 namespace Opus\Job\Worker;
 
+use Laminas\Log\Logger;
 use Opus\Job;
 
 /**
@@ -49,7 +50,7 @@ interface WorkerInterface
     /**
      * Set logging facility.
      *
-     * @param \Zend_Log $logger Logger instance.
+     * @param Logger $logger Logger instance.
      * @return void
      */
     public function setLogger($logger);

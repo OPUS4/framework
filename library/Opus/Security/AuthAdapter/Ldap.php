@@ -27,12 +27,16 @@
  * @category    Framework
  * @package     Opus\Security
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
 */
 
 namespace Opus\Security\AuthAdapter;
 
+use Laminas\Log\Filter\Priority;
+use Laminas\Log\Logger;
+use Laminas\Log\Writer\Stream;
 use Opus\Account;
 use Opus\Security\AuthAdapter;
 
@@ -84,15 +88,16 @@ class Ldap extends AuthAdapter
                 if ($log_path) {
                     $messages = $result->getMessages();
 
-                    $logger = new \Zend_Log();
-                    $logger->addWriter(new \Zend_Log_Writer_Stream($log_path));
-                    $filter = new \Zend_Log_Filter_Priority(Zend_Log::DEBUG);
-                    $logger->addFilter($filter);
+                    $logger = new Logger();
+                    $writer = new Stream($log_path);
+                    $logger->addWriter($writer);
+                    $filter = new Priority(Logger::DEBUG);
+                    $writer->addFilter($filter);
 
                     foreach ($messages as $i => $message) {
                         if ($i-- > 1) { // $messages[2] and up are log messages
                             $message = str_replace("\n", "\n  ", $message);
-                            $logger->log("Ldap: $i: $message", \Zend_Log::DEBUG);
+                            $logger->log("Ldap: $i: $message", Logger::DEBUG);
                         }
                     }
                 }

@@ -27,12 +27,14 @@
  * @category    Framework
  * @package     Opus\Model
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
 */
 
 namespace Opus\Job\Worker;
 
+use Laminas\Log\Logger;
 use Opus\Job;
 
 /**
@@ -45,7 +47,7 @@ class MetadataImport extends AbstractWorker
 
     /**
      * Constructs worker.
-     * @param \Zend_Log $logger
+     * @param Logger $logger
      */
     public function __construct($logger = null)
     {

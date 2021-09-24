@@ -29,12 +29,13 @@
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Kaustabh Barman <barman@zib.de>
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi;
 
+use Laminas\Log\Logger;
 use Opus\Config;
 use Opus\Log;
 use Opus\Log\LogService;
@@ -50,19 +51,19 @@ class DoiManager
 
     /**
      * Logger for DOI specific information kept separate for convenience, easy access.
-     * @var Zend_Log
+     * @var Logger
      */
     private $doiLog;
 
     /**
      * Logger for normal messages, debugging.
-     * @var \Zend_Log
+     * @var Logger
      */
     private $defaultLog;
 
     /**
      * Configuration of the entire application.
-     * @var \Zend_Config
+     * @var \Laminas\Config\Config
      */
     private $config;
 
@@ -113,14 +114,14 @@ class DoiManager
     /**
      * Creates logger for DOI messages.
      *
-     * @return Zend_Log
+     * @return Logger
      */
     public function getDoiLogger()
     {
         if (is_null($this->doiLog)) {
             $format = '%timestamp% %priorityName%: %message%';
             $logService = LogService::getInstance();
-            $this->doiLog = $logService->createLog('opus-doi', \Zend_Log::DEBUG, $format);
+            $this->doiLog = $logService->createLog('opus-doi', Logger::DEBUG, $format);
             $this->doiLog->setLevel(null);
         }
 

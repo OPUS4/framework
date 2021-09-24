@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -205,7 +206,7 @@ class DefaultAccessTest extends TestCase
 
         $logger = $plugin->getLogger();
 
-        $this->assertInstanceOf('Zend_Log', $logger);
+        $this->assertInstanceOf(Logger::class, $logger);
     }
 
     public function testSetLogger()

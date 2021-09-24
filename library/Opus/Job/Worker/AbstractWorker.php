@@ -27,11 +27,14 @@
  * @category    Framework
  * @package     Opus\Job
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Job\Worker;
+
+use Laminas\Log\Logger;
+use Laminas\Log\Writer\Noop;
 
 /**
  * Abstract base class for Opus job worker classes.
@@ -42,24 +45,25 @@ abstract class AbstractWorker implements WorkerInterface
     /**
      * Hold current logger instance.
      *
-     * @var \Zend_Log
+     * @var Logger
      */
     protected $_logger = null;
 
     /**
      * Set logging facility.
      *
-     * @param \Zend_Log $logger Logger instance.
+     * @param Logger $logger Logger instance.
      * @return void
      */
     public function setLogger($logger)
     {
         if (null === $logger) {
-            $this->_logger = new \Zend_Log(new \Zend_Log_Writer_Null());
-        } elseif ($logger instanceof \Zend_Log) {
+            $this->_logger = new Logger();
+            $this->_logger->addWriter(new Noop());
+        } elseif ($logger instanceof Logger) {
             $this->_logger = $logger;
         } else {
-            throw new \InvalidArgumentException('Zend_Log instance expected.');
+            throw new \InvalidArgumentException('\Laminas\Log\Logger instance expected.');
         }
     }
 }

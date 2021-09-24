@@ -27,12 +27,13 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use Laminas\Log\Logger;
 use Opus\Update\Plugin\DatabaseSchema;
 
 /**
@@ -64,12 +65,12 @@ class Database
     const DEFAULT_COLLATE = 'utf8mb4_unicode_ci';
 
     /**
-     * @var \Zend_Config
+     * @var \Laminas\Config\Config
      */
     private $_config;
 
     /**
-     * @var \Zend_Log
+     * @var Logger
      */
     private $_logger;
 
@@ -369,7 +370,7 @@ class Database
 
     /**
      * Returns logger.
-     * @return mixed|\Zend_Log
+     * @return mixed|Logger
      * @throws \Zend_Exception
      */
     public function getLogger()
