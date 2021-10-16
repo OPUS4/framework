@@ -15,7 +15,8 @@
     "ext-libxml": "*",
     "zendframework/zendframework1": "1.12.*",
     "opus4-repo/opus4-common": "dev-master",
-    "opus4-repo/opus4-doi": "4.7"
+    "opus4-repo/opus4-doi": "4.7",
+    "doctrine/dbal": "2.13.4"
   },
   "autoload": {
     "psr-4": {
