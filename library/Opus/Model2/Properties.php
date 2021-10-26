@@ -33,6 +33,7 @@
 
 namespace Opus\Model2;
 
+use Opus\Db2\Database;
 use Opus\Db2\TableGateway;
 use Opus\Model\DbException;
 use Opus\Model\PropertiesException;
@@ -63,7 +64,7 @@ use Opus\Model\UnknownPropertyKeyException;
  * TODO cache key ids?
  * TODO see getTable function (the model class/interface should be database independent)
  */
-class Properties
+class Properties extends TableGateway
 {
 
     /**
@@ -245,14 +246,12 @@ class Properties
             return;
         }
 
-        $table = $this->getTable();
-
         $modelType = $this->getModelType($model);
         $modelTypeId = $this->getModelTypeId($modelType);
         $modelId = $this->getModelId($model);
         $keyId = $this->getKeyId($key);
 
-        $table->insertIgnoreDuplicate([
+        $this->insertIgnoreDuplicate([
             'model_type_id' => $modelTypeId,
             'model_id' => $modelId,
             'key_id' => $keyId,
@@ -607,24 +606,11 @@ class Properties
     }
 
     /**
-     * Returns database table class for properties table.
-     * @return TableGateway Database class for table
-     *
-     * TODO perhaps we could get rid of Opus\Db\Properties or more precise this class here should probably be
-     *      Opus\Db\Properties and there should be another Opus\Model\Properties that is database independent
-     */
-    protected function getTable()
-    {
-        return TableGateway::getInstance('Opus\Db\Properties');
-    }
-
-    /**
      * Returns database adapter for queries.
      * @return \Zend_Db_Adapter_Abstract Database adapter
      */
     protected function getAdapter()
     {
-        $table = $this->getTable();
-        return $table->getAdapter();
+        return Database::getConnection();
     }
 }
