@@ -35,7 +35,7 @@ namespace OpusTest\Model2;
 
 use Opus\Document;
 use Opus\Identifier;
-use Opus\Model2\Properties;
+use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Model\UnknownPropertyKeyException;
