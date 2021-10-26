@@ -143,6 +143,8 @@ class MetadataImportTest extends TestCase
      */
     public function testUpdateDocument()
     {
+        $this->resetDatabase();
+
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();
         $importer = new MetadataImport($this->xml);
