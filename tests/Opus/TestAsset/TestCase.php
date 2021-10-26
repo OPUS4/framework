@@ -33,6 +33,8 @@
 
 namespace OpusTest\TestAsset;
 
+use Opus\Db2\Database;
+
 /**
  * Superclass for all tests.  Providing maintainance tasks.
  *
@@ -49,16 +51,21 @@ class TestCase extends SimpleTestCase
     private function _clearTables()
     {
         // This is needed to workaround the constraints on the parent_id column.
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
+        $conn = Database::getConnection();
 
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+        $this->assertNotNull($conn);
 
-        foreach ($adapter->listTables() as $tableName) {
-            self::clearTable($tableName);
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
+        $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+
+        $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+        $schema = $conn->getSchemaManager();
+
+        foreach ($schema->listTables() as $table) {
+            self::clearTable($table->getName());
         }
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
+
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     /**
@@ -70,13 +77,14 @@ class TestCase extends SimpleTestCase
      */
     protected function clearTable($tablename)
     {
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
+        $conn = Database::getConnection();
 
-        $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('TRUNCATE ' . $tablename);
+        $this->assertNotNull($conn);
 
-        $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+        $tablename = $conn->quoteIdentifier($tablename);
+        $conn->executeStatement('TRUNCATE ' . $tablename . ';');
+
+        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
         $this->assertEquals(0, $count, "Table $tablename is not empty!");
     }
 
