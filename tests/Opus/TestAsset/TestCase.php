@@ -43,12 +43,37 @@ use Opus\Db2\Database;
 class TestCase extends SimpleTestCase
 {
 
+    private $tables;
+
+    protected function resetDatabase()
+    {
+        $this->clearTables(true);
+    }
+
+    protected function getTables()
+    {
+        if ($this->tables === null) {
+            $conn = Database::getConnection();
+
+            $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+            $schema = $conn->getSchemaManager();
+
+            $this->tables = [];
+
+            foreach ($schema->listTables() as $table) {
+                $this->tables[] = $table->getName();
+            }
+        }
+
+        return $this->tables;
+    }
+
     /**
      * Empty all listed tables.
      *
      * @return void
      */
-    private function _clearTables()
+    protected function clearTables($always = false)
     {
         // This is needed to workaround the constraints on the parent_id column.
         $conn = Database::getConnection();
@@ -58,11 +83,10 @@ class TestCase extends SimpleTestCase
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
         $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
-        $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-        $schema = $conn->getSchemaManager();
+        $tables = $this->getTables();
 
-        foreach ($schema->listTables() as $table) {
-            self::clearTable($table->getName());
+        foreach ($tables as $name) {
+            self::clearTable($name, $always);
         }
 
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
@@ -75,14 +99,19 @@ class TestCase extends SimpleTestCase
      * @param string $tablename Name of the table to be cleared.
      * @return void
      */
-    protected function clearTable($tablename)
+    protected function clearTable($tablename, $always = false)
     {
         $conn = Database::getConnection();
 
         $this->assertNotNull($conn);
 
         $tablename = $conn->quoteIdentifier($tablename);
-        $conn->executeStatement('TRUNCATE ' . $tablename . ';');
+
+        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+
+        if ($count > 0 || $always) {
+            $conn->executeStatement('TRUNCATE ' . $tablename);
+        }
 
         $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
         $this->assertEquals(0, $count, "Table $tablename is not empty!");
@@ -132,7 +161,7 @@ class TestCase extends SimpleTestCase
     {
         parent::setUp();
 
-        $this->_clearTables();
+        $this->clearTables();
     }
 
     protected function prepareXpathFromResultString($resultString)
