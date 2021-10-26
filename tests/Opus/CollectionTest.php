@@ -68,6 +68,8 @@ class CollectionTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(true, ['collections_roles', 'collections']);
+
         $this->_role_name = "role-name-" . rand();
         $this->_role_oai_name = "role-oainame-" . rand();
 
@@ -88,6 +90,7 @@ class CollectionTest extends TestCase
         if (is_object($this->role_fixture)) {
             $this->role_fixture->delete();
         }
+
         parent::tearDown();
     }
 
@@ -761,36 +764,38 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root = new Collection(1);
+        $colId = 1; // $this->object->getId();
+
+        $root = new Collection($colId);
         $children = $root->getChildren();
 
-        $this->assertEquals($children[2]->getNumber(), 'test3', 'Test fixture was modified.');
-        $this->assertEquals($children[3]->getNumber(), 'test4', 'Test fixture was modified.');
+        $this->assertEquals('test3', $children[2]->getNumber(), 'Test fixture was modified.');
+        $this->assertEquals('test4', $children[3]->getNumber(), 'Test fixture was modified.');
 
         $collection = new Collection(8);
-        $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
+        $this->assertEquals('test4', $collection->getNumber(), 'Test fixture was modified.');
 
         $collection->moveBeforePrevSibling();
 
-        $root = new Collection(1);
+        $root = new Collection($colId);
         $children = $root->getChildren();
         $this->assertEquals(7, count($children));
 
-        $this->assertEquals($children[2]->getNumber(), 'test4');
+        $this->assertEquals('test4', $children[2]->getNumber());
 
         $childrenOfTest4 = $children[2]->getChildren();
 
-        $this->assertEquals($childrenOfTest4[0]->getNumber(), 'test4.1');
-        $this->assertEquals($childrenOfTest4[1]->getNumber(), 'test4.2');
+        $this->assertEquals('test4.1', $childrenOfTest4[0]->getNumber());
+        $this->assertEquals('test4.2', $childrenOfTest4[1]->getNumber());
 
-        $this->assertEquals($children[3]->getNumber(), 'test3');
+        $this->assertEquals('test3', $children[3]->getNumber());
 
         $childrenOfTest3 = $children[3]->getChildren();
-        $this->assertEquals($childrenOfTest3[0]->getNumber(), 'test3.1');
-        $this->assertEquals($childrenOfTest3[1]->getNumber(), 'test3.2');
+        $this->assertEquals('test3.1', $childrenOfTest3[0]->getNumber());
+        $this->assertEquals('test3.2', $childrenOfTest3[1]->getNumber());
 
         $childrenOfTest3_2 = $childrenOfTest3[1]->getChildren();
-        $this->assertEquals($childrenOfTest3_2[0]->getNumber(), 'test3.2.1');
+        $this->assertEquals('test3.2.1', $childrenOfTest3_2[0]->getNumber());
 
         $this->validateNestedSet();
     }

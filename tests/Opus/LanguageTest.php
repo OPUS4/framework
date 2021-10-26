@@ -45,6 +45,21 @@ use OpusTest\TestAsset\TestCase;
 class LanguageTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'languages',
+            'documents',
+            'document_subjects',
+            'document_files',
+            'document_title_abstracts',
+            'document_licences',
+            'link_documents_licences'
+        ]);
+    }
+
     public function testStoreLanguage()
     {
         $lang = new Language();

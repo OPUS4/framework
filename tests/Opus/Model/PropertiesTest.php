@@ -31,7 +31,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Model;
+namespace OpusTest\Model2;
 
 use Opus\Document;
 use Opus\Identifier;
@@ -56,6 +56,16 @@ class PropertiesTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'model_properties',
+            'model_types',
+            'propertykeys',
+            'persons',
+            'document_identifiers',
+            'link_persons_documents'
+        ]);
 
         $this->properties = new Properties();
     }
@@ -440,6 +450,8 @@ class PropertiesTest extends TestCase
 
     public function testGetPropertiesWithIdAndType()
     {
+        $this->resetDatabase();
+
         $doc = Document::new();
         $identifier = Identifier::new();
         $identifier->setType('isbn');

@@ -52,6 +52,9 @@ class MetadataImportTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables();
+
         $this->documentImported = false;
         $this->xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
     }
@@ -143,6 +146,8 @@ class MetadataImportTest extends TestCase
      */
     public function testUpdateDocument()
     {
+        $this->resetDatabase();
+
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();
         $importer = new MetadataImport($this->xml);

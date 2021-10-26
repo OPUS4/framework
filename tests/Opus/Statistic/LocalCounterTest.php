@@ -69,6 +69,7 @@ class LocalCounterTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['documents', 'document_statistics']);
 
         $path = Config::getInstance()->getTempPath() . '~localstat.xml';
         @unlink($path);

@@ -263,6 +263,8 @@ class DatabaseTest extends TestCase
 
     public function testGetVersionNullForOldDatabase()
     {
+        $this->clearTables(false, ['schema_version']);
+
         $database = new Database();
 
         $version = $database->getVersion();

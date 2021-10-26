@@ -56,6 +56,8 @@ class DefaultAccessTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['user_roles', 'documents', 'document_files']);
+
         $guestRole = new UserRole();
         $guestRole->setName('guest');
         $guestRole->store();

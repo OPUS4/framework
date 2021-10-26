@@ -65,6 +65,11 @@ class EnrichmentKeyTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, [
+            'enrichmentkeys',
+            'document_enrichments'
+        ]);
+
         $this->unreferencedEnrichmentKey = new EnrichmentKey();
         $this->unreferencedEnrichmentKey->setName('foo');
         $this->unreferencedEnrichmentKey->store();

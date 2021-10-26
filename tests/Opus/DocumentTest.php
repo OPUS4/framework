@@ -95,6 +95,8 @@ class DocumentTest extends TestCase
         Config::getInstance()->setAvailableLanguages($list);
 
         parent::setUp();
+
+        $this->clearTables(false);
     }
 
     public function tearDown()

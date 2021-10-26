@@ -68,6 +68,8 @@ class XmlCacheTest extends TestCase
 
         parent::setUp();
 
+        $this->clearTables(false, ['document_xml_cache', 'documents']);
+
         $this->_cacheTable = TableGateway::getInstance('Opus\Db\DocumentXmlCache');
     }
 

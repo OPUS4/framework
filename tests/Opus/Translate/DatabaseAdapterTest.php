@@ -33,7 +33,7 @@
 
 namespace OpusTest\Translate;
 
-use Opus\Translate\Dao;
+use Opus\Db2\Translations;
 use OpusTest\TestAsset\TestCase;
 
 class DatabaseAdapterTest extends TestCase
@@ -41,10 +41,13 @@ class DatabaseAdapterTest extends TestCase
 
     private $cache;
 
+    private $translations;
+
     public function setUp()
     {
         parent::setUp();
         $this->cache = \Zend_Translate::getCache();
+        $this->translations = new Translations();
     }
 
     public function tearDown()
@@ -55,9 +58,11 @@ class DatabaseAdapterTest extends TestCase
 
     public function testUsingAdapter()
     {
+        $this->resetDatabase();
+
         \Zend_Translate::clearCache();
 
-        $database = new Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
@@ -90,7 +95,7 @@ class DatabaseAdapterTest extends TestCase
      */
     public function testUpdatingTranslation()
     {
-        $database = new Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
@@ -157,7 +162,7 @@ class DatabaseAdapterTest extends TestCase
     {
         \Zend_Translate::clearCache();
 
-        $database = new Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',

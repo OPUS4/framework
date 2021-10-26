@@ -85,6 +85,10 @@ class CollectionRoleTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(true, [
+            'collections_roles', 'collections', 'documents', 'link_documents_collections'
+        ]);
+
         // Create first dummy role, just to make sure ID=1 exists.
         self::createRandomObject()->store();
 

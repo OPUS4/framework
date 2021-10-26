@@ -78,6 +78,8 @@ class PersonTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['persons', 'documents', 'link_persons_documents']);
+
         // create documents
         for ($i = 0; $i < 10; $i++) {
             $doc = new Document();

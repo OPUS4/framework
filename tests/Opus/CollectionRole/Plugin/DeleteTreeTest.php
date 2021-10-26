@@ -46,6 +46,13 @@ use OpusTest\TestAsset\TestCase;
 class DeleteTreeTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['collections_roles', 'collections']);
+    }
+
     public function testPreDelete()
     {
         $collectionRole = new CollectionRole();
@@ -96,8 +103,6 @@ class DeleteTreeTest extends TestCase
         $collectionRole->setOaiName('ColRole1OaiName');
         $colRole1Id = $collectionRole->store(); // ID = 1
 
-        $this->assertEquals('1', $colRole1Id, "Unexpected ID");
-
         $root = $collectionRole->addRootCollection();
         $collection = $root->addLastChild();
         $collectionRole->store();
@@ -114,19 +119,17 @@ class DeleteTreeTest extends TestCase
 
         sleep(2);
 
-        $this->assertEquals('2', $collectionId);
-
         $collectionRole = new CollectionRole();
         $collectionRole->setName('ColRole2Name');
         $collectionRole->setOaiName('ColRole2OaiName');
         $colRole2Id = $collectionRole->store();
 
-        $this->assertEquals('2', $colRole2Id);
+        $this->assertNotEquals($colRole1Id, $colRole2Id);
 
         $collectionRole->delete(); // deleting CollectionRole 2 should not affect document
 
         // make sure collection 2 still exists
-        $collection = new Collection($collectionId);
+        new Collection($collectionId);
 
         // make sure document ServerDateModified wasn't changed
         $doc = new Document($docId);

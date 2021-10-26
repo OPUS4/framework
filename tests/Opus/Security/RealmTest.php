@@ -55,6 +55,20 @@ class RealmTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'user_roles',
+            'accounts',
+            'link_accounts_roles',
+            'access_modules',
+            'ipranges',
+            'link_ipranges_roles',
+            'documents',
+            'access_documents',
+            'document_files',
+            'file_hashvalues',
+            'access_files'
+        ]);
     }
 
     protected function tearDown()

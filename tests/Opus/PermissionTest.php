@@ -44,6 +44,14 @@ class PermissionTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'user_roles',
+            'accounts',
+            'access_modules',
+            'link_accounts_roles'
+        ]);
+
         $this->setUpDatabase();
     }
 

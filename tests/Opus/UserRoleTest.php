@@ -53,6 +53,8 @@ class UserRoleTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['user_roles', 'documents', 'access_documents']);
+
         $ur = new UserRole();
         $ur->setName('unit-test');
         $ur->store();

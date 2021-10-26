@@ -61,6 +61,14 @@ class InvalidateDocumentCacheTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'collections_roles',
+            'collections',
+            'link_documents_collections'
+        ]);
+
         $this->collectionRole = new CollectionRole();
         $this->collectionRole->setName("role-name-" . rand());
         $this->collectionRole->setOaiName("role-oainame-" . rand());

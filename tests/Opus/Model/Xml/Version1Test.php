@@ -279,7 +279,7 @@ class Version1Test extends TestCase
     public function testCreateFromXml($xml, $model, $msg)
     {
         $xmlHelper = new Xml;
-        if ($xml instanceof\DOMDocument) {
+        if ($xml instanceof \DOMDocument) {
             $xmlHelper->setDomDocument($xml);
         } else {
             $xmlHelper->setXml($xml);

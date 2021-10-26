@@ -47,6 +47,8 @@ class AccountTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(true, ['accounts', 'user_roles']);
+
         $account = new Account();
         $account->setLogin('dummy');
         $account->setPassword('dummypassword');

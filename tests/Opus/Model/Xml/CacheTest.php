@@ -54,6 +54,13 @@ class CacheTest extends TestCase
      */
     private $_maxEntries = 5;
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['document_xml_cache', 'documents', 'document_title_abstracts']);
+    }
+
     /**
      * Fill cache with some "random" data
      *

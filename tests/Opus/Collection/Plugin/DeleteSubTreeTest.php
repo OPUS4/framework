@@ -48,7 +48,6 @@ class DeleteSubTreeTest extends TestCase
 
     public function testPreDelete()
     {
-
         $collectionRole = new CollectionRole();
         $collectionRole->setName('testRole');
         $collectionRole->setOaiName('testRole');

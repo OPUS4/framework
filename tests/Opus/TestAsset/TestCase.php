@@ -33,6 +33,8 @@
 
 namespace OpusTest\TestAsset;
 
+use Opus\Db2\Database;
+
 /**
  * Superclass for all tests.  Providing maintainance tasks.
  *
@@ -41,24 +43,55 @@ namespace OpusTest\TestAsset;
 class TestCase extends SimpleTestCase
 {
 
+    private $tables;
+
+    protected function resetDatabase()
+    {
+        $this->clearTables(true);
+    }
+
+    protected function getTables()
+    {
+        if ($this->tables === null) {
+            $conn = Database::getConnection();
+
+            $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+            $schema = $conn->getSchemaManager();
+
+            $this->tables = [];
+
+            foreach ($schema->listTables() as $table) {
+                $this->tables[] = $table->getName();
+            }
+        }
+
+        return $this->tables;
+    }
+
     /**
      * Empty all listed tables.
      *
      * @return void
      */
-    private function _clearTables()
+    protected function clearTables($always = false, $tables = null)
     {
         // This is needed to workaround the constraints on the parent_id column.
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
+        $conn = Database::getConnection();
 
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+        $this->assertNotNull($conn);
 
-        foreach ($adapter->listTables() as $tableName) {
-            self::clearTable($tableName);
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
+        $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+
+        if ($tables === null) {
+            $tables = $this->getTables();
         }
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
+
+        foreach ($tables as $name) {
+            self::clearTable($name, $always);
+        }
+
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     /**
@@ -68,16 +101,22 @@ class TestCase extends SimpleTestCase
      * @param string $tablename Name of the table to be cleared.
      * @return void
      */
-    protected function clearTable($tablename)
+    protected function clearTable($tablename, $always = false)
     {
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
+        $conn = Database::getConnection();
 
-        $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('TRUNCATE ' . $tablename);
+        $this->assertNotNull($conn);
 
-        $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-        $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        $tablename = $conn->quoteIdentifier($tablename);
+
+        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+
+        if ($count > 0 || $always) {
+            $conn->executeStatement('TRUNCATE ' . $tablename);
+
+            $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+            $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        }
     }
 
     /**
@@ -123,8 +162,6 @@ class TestCase extends SimpleTestCase
     protected function setUp()
     {
         parent::setUp();
-
-        $this->_clearTables();
     }
 
     protected function prepareXpathFromResultString($resultString)

@@ -66,6 +66,8 @@ class EnrichmentTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['documents', 'enrichmentkeys', 'document_enrichments']);
+
         $this->_enrichmentkey = new EnrichmentKey();
         $this->_enrichmentkey->setName('valid');
         $this->_enrichmentkey->store();
