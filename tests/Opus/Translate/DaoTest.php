@@ -52,6 +52,13 @@ class DaoTest extends TestCase
         $this->translations = new Translations();
     }
 
+    public function tearDown()
+    {
+        $this->translations->removeAll();
+
+        parent::tearDown();
+    }
+
     public function testAddTranslations()
     {
         $dao = $this->translations;
