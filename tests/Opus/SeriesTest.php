@@ -45,6 +45,17 @@ use OpusTest\TestAsset\TestCase;
 class SeriesTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'document_series',
+            'link_documents_series'
+        ]);
+    }
+
     /**
      * Test if a document series can be retrieved by getAll().
      *

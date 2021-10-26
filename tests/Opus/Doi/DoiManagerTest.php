@@ -45,6 +45,13 @@ use OpusTest\TestAsset\TestCase;
 class DoiManagerTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false);
+    }
+
     public function testConstructor()
     {
         Config::get()->merge(

@@ -47,6 +47,13 @@ use OpusTest\TestAsset\TestCase;
 class IdentifierTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['documents', 'document_identifiers']);
+    }
+
     private function createDocumentWithIdentifierUrn($urn)
     {
         $document = new Document();

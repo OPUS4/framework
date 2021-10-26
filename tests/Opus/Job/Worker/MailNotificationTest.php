@@ -44,6 +44,8 @@ class MailNotificationTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['accounts']);
+
         $account = new Account();
         $account->setLogin('admin')
             ->setPassword('foobar-'.rand())

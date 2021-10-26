@@ -64,6 +64,9 @@ class AccountTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, ['accounts']);
+
         $this->_accounts = TableGateway::getInstance('Opus\Db\Accounts');
     }
 

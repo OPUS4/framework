@@ -51,6 +51,13 @@ use OpusTest\TestAsset\TestCase;
 class LicenceTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['document_licences', 'link_documents_licences']);
+    }
+
     /**
      * Test if a set of licences can be retrieved by getAll().
      *

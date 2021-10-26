@@ -41,6 +41,18 @@ use OpusTest\TestAsset\TestCase;
 class UserRecipientProviderTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'accounts',
+            'user_roles',
+            'access_modules',
+            'link_accounts_roles'
+        ]);
+    }
+
     public function testGetRecipients()
     {
         $role = new UserRole();

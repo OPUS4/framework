@@ -50,6 +50,13 @@ use OpusTest\TestAsset\TestCase;
 class DnbInstituteTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['dnb_institutes', 'documents', 'link_documents_dnb_institutes']);
+    }
+
     public function testStoreAndLoadDnbInstitute()
     {
         $name = 'Forschungsinstitut für Code Coverage';

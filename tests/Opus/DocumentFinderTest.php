@@ -59,6 +59,18 @@ use OpusTest\TestAsset\TestCase;
 class DocumentFinderTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'persons',
+            'link_persons_documents',
+            'document_title_abstracts'
+        ]);
+    }
+
     private function prepareDocuments()
     {
         $publishedDoc1 = new Document();

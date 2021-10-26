@@ -40,6 +40,16 @@ use OpusTest\TestAsset\TestCase;
 class SubjectTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'document_subjects'
+        ]);
+    }
+
     public function testGetMatchingSubjects()
     {
         $doc = new Document();

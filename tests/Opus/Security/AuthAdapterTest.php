@@ -80,6 +80,8 @@ class AuthAdapterTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, ['accounts']);
+
         $bob = new Account();
         $bob->setLogin('bob')->setPassword('secret')->store();
 

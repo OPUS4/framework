@@ -47,6 +47,18 @@ class IdentifierDoiTest extends TestCase
 
     const ENRICHMENT_KEY_NAME = 'opus.doi.autoCreate';
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'enrichmentkeys',
+            'documents',
+            'document_identifiers',
+            'document_enrichments'
+        ]);
+    }
+
     public function tearDown()
     {
         // cleanup mock DoiManager

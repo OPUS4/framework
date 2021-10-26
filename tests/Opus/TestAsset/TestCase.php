@@ -73,7 +73,7 @@ class TestCase extends SimpleTestCase
      *
      * @return void
      */
-    protected function clearTables($always = false)
+    protected function clearTables($always = false, $tables = null)
     {
         // This is needed to workaround the constraints on the parent_id column.
         $conn = Database::getConnection();
@@ -83,7 +83,9 @@ class TestCase extends SimpleTestCase
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
         $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
-        $tables = $this->getTables();
+        if ($tables === null) {
+            $tables = $this->getTables();
+        }
 
         foreach ($tables as $name) {
             self::clearTable($name, $always);
@@ -160,8 +162,6 @@ class TestCase extends SimpleTestCase
     protected function setUp()
     {
         parent::setUp();
-
-        $this->clearTables();
     }
 
     protected function prepareXpathFromResultString($resultString)

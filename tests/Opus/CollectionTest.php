@@ -68,7 +68,7 @@ class CollectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->resetDatabase();
+        $this->clearTables(true, ['collections_roles', 'collections']);
 
         $this->_role_name = "role-name-" . rand();
         $this->_role_oai_name = "role-oainame-" . rand();

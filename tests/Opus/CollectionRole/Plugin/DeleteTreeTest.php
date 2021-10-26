@@ -46,6 +46,13 @@ use OpusTest\TestAsset\TestCase;
 class DeleteTreeTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['collections_roles', 'collections']);
+    }
+
     public function testPreDelete()
     {
         $collectionRole = new CollectionRole();

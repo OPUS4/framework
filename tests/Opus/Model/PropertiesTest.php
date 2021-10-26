@@ -57,6 +57,16 @@ class PropertiesTest extends TestCase
     {
         parent::setUp();
 
+        $this->clearTables(false, [
+            'documents',
+            'model_properties',
+            'model_types',
+            'propertykeys',
+            'persons',
+            'document_identifiers',
+            'link_persons_documents'
+        ]);
+
         $this->properties = new Properties();
     }
 
