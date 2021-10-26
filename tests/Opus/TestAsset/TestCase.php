@@ -111,10 +111,10 @@ class TestCase extends SimpleTestCase
 
         if ($count > 0 || $always) {
             $conn->executeStatement('TRUNCATE ' . $tablename);
-        }
 
-        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-        $this->assertEquals(0, $count, "Table $tablename is not empty!");
+            $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+            $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        }
     }
 
     /**
