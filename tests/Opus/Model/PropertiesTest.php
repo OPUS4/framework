@@ -440,6 +440,8 @@ class PropertiesTest extends TestCase
 
     public function testGetPropertiesWithIdAndType()
     {
+        $this->resetDatabase();
+
         $doc = Document::new();
         $identifier = Identifier::new();
         $identifier->setType('isbn');

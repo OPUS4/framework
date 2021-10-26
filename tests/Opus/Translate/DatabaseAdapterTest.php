@@ -58,6 +58,8 @@ class DatabaseAdapterTest extends TestCase
 
     public function testUsingAdapter()
     {
+        $this->resetDatabase();
+
         \Zend_Translate::clearCache();
 
         $database = $this->translations;
