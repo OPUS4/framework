@@ -217,7 +217,7 @@ class Translations extends TableGateway implements StorageInterface
 
         $select = $queryBuilder->select('k.key', 'locale', 'value')
             ->from('translations', 't')
-            ->join('t','translationkeys', 'k', 't.key_id = k.id');
+            ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
         if (! is_null($module)) {
             $select->where('k.module = ?');
@@ -344,7 +344,7 @@ class Translations extends TableGateway implements StorageInterface
         $queryBuilder = $conn->createQueryBuilder();
 
         $select = $queryBuilder->select('k.key', 'locale', 'value', 'k.module')
-            ->from('translations', 't' )
+            ->from('translations', 't')
             ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
         if (! is_null($modules)) {
