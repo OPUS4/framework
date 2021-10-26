@@ -33,8 +33,9 @@
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Opus\Translate\StorageInterface;
-use Opus\Db\TableGateway;
+use Opus\Db2\TableGateway;
 use Opus\Translate\TranslateException;
 
 /**
@@ -57,52 +58,54 @@ use Opus\Translate\TranslateException;
  * TODO remove old Zend_Db Dao class
  * TODO remove dependency on TableGateway class or?
  */
-class Translations implements StorageInterface
+class Translations extends TableGateway implements StorageInterface
 {
 
-    const TABLE_TRANSLATION_KEYS = 'Opus\Db\TranslationKeys';
+    const TABLE_TRANSLATION_KEYS = 'translationkeys';
 
-    const TABLE_TRANSLATIONS = 'Opus\Db\Translations';
+    const TABLE_TRANSLATIONS = 'translations';
+
 
     /**
      * @param $key
      * @param null $module
      * @return mixed|void
      *
-     * TODO TableGateway dependency
+     * TODO SQL injection?
      */
     public function remove($key, $module = null)
     {
-        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
+        $database = $this->getDatabaseAdapter();
 
-        $where = $keysTable->getAdapter()->quoteInto('`key` = ?', $key);
-
-        $keysTable->delete($where);
+        $database->delete(
+            self::TABLE_TRANSLATION_KEYS,
+            ['`key`' => $key]
+        );
     }
 
     /**
      * Deletes all translations.
      *
-     * TODO TableGateway dependency
+     * TODO better way to delete all rows?
      */
     public function removeAll()
     {
-        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
+        $database = $this->getDatabaseAdapter();
 
-        $keysTable->delete('1 = 1');
+        $database->delete(self::TABLE_TRANSLATION_KEYS, ['1' => '1']);
     }
 
     /**
      * Deletes all translations for a module.
      * @param $module
      *
-     * TODO TableGateway dependency
+     * TODO SQL injection?
      */
     public function removeModule($module)
     {
-        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
-        $where = $keysTable->getAdapter()->quoteInto('`module` = ?', $module);
-        $keysTable->delete($where);
+        $database = $this->getDatabaseAdapter();
+
+        $database->delete(self::TABLE_TRANSLATION_KEYS, ['`module`' => $module]);
     }
 
     /**
@@ -112,8 +115,6 @@ class Translations implements StorageInterface
      *
      * @param $key
      * @param $translation
-     *
-     * TODO TableGatway dependency
      */
     public function setTranslation($key, $translation, $module = 'default')
     {
@@ -121,23 +122,19 @@ class Translations implements StorageInterface
             return $this->remove($key, $module);
         }
 
-        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
-
-        $database = $keysTable->getAdapter();
+        $database = $this->getDatabaseAdapter();
 
         $database->beginTransaction();
 
-        $keysTable->insertIgnoreDuplicate([
+        $this->insertIgnoreDuplicate(self::TABLE_TRANSLATION_KEYS, 'id', [
             'key' => $key,
             'module' => $module
-        ], 'id');
+        ]);
 
         $keyId = $database->lastInsertId();
 
-        $translationsTable = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
-
         foreach ($translation as $language => $value) {
-            $translationsTable->insertIgnoreDuplicate([
+            $this->insertIgnoreDuplicate(self::TABLE_TRANSLATIONS, null, [
                 'key_id' => $keyId,
                 'locale' => $language,
                 'value' => $value
@@ -158,22 +155,24 @@ class Translations implements StorageInterface
      */
     public function getTranslation($key, $locale = null, $module = null)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $database->select()
-            ->from(['t' => 'translations'], ['locale', 'value'])
-            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id')
-            ->where('keys.key = ?', $key);
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $select = $queryBuilder->select('locale', 'value')
+            ->from('translations', 't')
+            ->join('t', 'translationkeys', 'k', 't.key_id = k.id')
+            ->where("k.key = ?"); // TODO SQL injection
 
         if (! is_null($locale)) {
-            $select->where('t.locale = ?', $locale);
+            $select->andWhere("t.locale = '$locale'"); // TODO SQL injection
         }
 
         if (! is_null($module)) {
-            $select->where('keys.module = ?', $module);
+            $select->andWhere("k.module = '$module'"); // TODO SQL injection
         }
 
-        $rows = $database->fetchAll($select);
+        $rows = $conn->fetchAllAssociative($select, [$key]);
 
         if (count($rows) > 0) {
             $result = [];
@@ -212,17 +211,19 @@ class Translations implements StorageInterface
      */
     public function getTranslations($module = null)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $database->select()
-            ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
-            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $select = $queryBuilder->select('k.key', 'locale', 'value')
+            ->from('translations', 't')
+            ->join('t','translationkeys', 'k', 't.key_id = k.id');
 
         if (! is_null($module)) {
-            $select->where('keys.module = ?', $module);
+            $select->where('k.module = ?');
         }
 
-        $rows = $database->fetchAll($select);
+        $rows = $conn->fetchAllAssociative($select, [$module]);
 
         $result = [];
 
@@ -239,17 +240,19 @@ class Translations implements StorageInterface
 
     public function getTranslationsByLocale($module = null)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $database->select()
-            ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
-            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $select = $queryBuilder->select('k.key', 'locale', 'value')
+            ->from('translations', 't')
+            ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
         if (! is_null($module)) {
-            $select->where('keys.module = ?', $module);
+            $select->where('k.module = ?');
         }
 
-        $rows = $database->fetchAll($select);
+        $rows = $conn->fetchAllAssociative($select, [$module]);
 
         $result = [];
 
@@ -272,24 +275,20 @@ class Translations implements StorageInterface
      */
     public function addTranslations($translations, $module = 'default')
     {
-        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
+        $conn = $this->getDatabaseAdapter();
 
-        $database = $keysTable->getAdapter();
-
-        $database->beginTransaction();
+        $conn->beginTransaction();
 
         foreach ($translations as $key => $locales) {
-            $keysTable->insertIgnoreDuplicate([
+            $this->insertIgnoreDuplicate(self::TABLE_TRANSLATION_KEYS, 'id', [
                 'key' => $key,
                 'module' => $module
             ]);
 
-            $keyId = $keysTable->getAdapter()->lastInsertId();
-
-            $translationsTable = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
+            $keyId = $conn->lastInsertId();
 
             foreach ($locales as $language => $value) {
-                $translationsTable->insertIgnoreDuplicate([
+                $this->insertIgnoreDuplicate(self::TABLE_TRANSLATIONS, null, [
                     'key_id' => $keyId,
                     'locale' => $language,
                     'value'  => $value
@@ -297,7 +296,7 @@ class Translations implements StorageInterface
             }
         }
 
-        $database->commit();
+        $conn->commit();
     }
 
     /**
@@ -317,48 +316,49 @@ class Translations implements StorageInterface
      */
     public function renameKey($key, $newKey, $module = 'default')
     {
-        $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
-
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         $where = [];
-
-        $where[] = $database->quoteInto('`key` = ?', $key);
-
-        $where[] = $database->quoteInto('`module` = ?', $module);
+        $where['`key`'] = $key;
+        $where['`module`'] = $module;
 
         $data = [
-            'key' => $newKey
+            '`key`' => $newKey
         ];
 
-        $database->beginTransaction();
+        $conn->beginTransaction();
 
         try {
-            $keysTable->update($data, $where);
-        } catch (\Zend_Db_Statement_Exception $ndbse) {
-            throw new TranslateException($ndbse);
+            $conn->update(self::TABLE_TRANSLATION_KEYS, $data, $where);
+        } catch (UniqueConstraintViolationException $ex) {
+            throw new TranslateException($ex);
         }
 
-        $database->commit();
+        $conn->commit();
     }
 
     public function getTranslationsWithModules($modules = null)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $database->select()
-            ->from(['t' => 'translations'], ['keys.key', 'locale', 'value', 'keys.module'])
-            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $select = $queryBuilder->select('k.key', 'locale', 'value', 'k.module')
+            ->from('translations', 't' )
+            ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
         if (! is_null($modules)) {
             if (is_array($modules)) {
-                $select->where('keys.module IN (?)', $modules);
+                $select->where('k.module IN (?)');
+                $rows = $conn->fetchAllAssociative($select, [$modules], [$conn::PARAM_STR_ARRAY]);
             } else {
-                $select->where('keys.module = ?', $modules);
+                $select->where('k.module = ?');
+                $rows = $conn->fetchAllAssociative($select, [$modules]);
             }
+        } else {
+            $rows = $conn->fetchAllAssociative($select);
         }
 
-        $rows = $database->fetchAll($select);
 
         $result = [];
 
@@ -380,20 +380,17 @@ class Translations implements StorageInterface
      */
     public function getModules()
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $database->select()
-            ->from(['keys' => 'translationkeys'], ['keys.module'])->distinct();
+        $queryBuilder = $conn->createQueryBuilder();
 
-        $rows = $database->fetchCol($select);
+        $select = $queryBuilder
+            ->select('module')
+            ->from(self::TABLE_TRANSLATION_KEYS)
+            ->distinct();
+
+        $rows = $conn->fetchFirstColumn($select);
 
         return $rows;
-    }
-
-    private function getDatabaseAdapter()
-    {
-        $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
-
-        return $table->getAdapter();
     }
 }

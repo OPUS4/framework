@@ -44,9 +44,9 @@ use Opus\Config;
 class Database
 {
 
-    private $conn;
+    private static $conn;
 
-    public function getConnectionParams()
+    public static function getConnectionParams()
     {
         $config = Config::get(); // TODO use function (no direkt class dependency)
 
@@ -59,20 +59,22 @@ class Database
         return $params;
     }
 
-    public function getConnection()
+    public static function getConnection()
     {
-        if ($this->conn === null) {
-            $params = $this->getConnectionParams();
+        if (self::$conn === null) {
+            $params = self::getConnectionParams();
 
             $db = new \Opus\Database();
 
-            $pdo = $db->getPdo();
+            $dbName = $db->getName();
+
+            $pdo = $db->getPdo($dbName);
 
             $params['pdo'] = $pdo;
 
-            $this->conn = DriverManager::getConnection($params);
+            self::$conn = DriverManager::getConnection($params);
         }
 
-        return $this->conn;
+        return self::$conn;
     }
 }

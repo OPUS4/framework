@@ -44,47 +44,31 @@ namespace Opus\Db2;
  * TODO nothing preventing creation of table classes directly
  *
  */
-abstract class TableGateway extends \Zend_Db_Table_Abstract
+abstract class TableGateway
 {
-    /**
-     * Holds all table gateway instances.
-     *
-     * @var array  Defaults to array().
-     */
-    private static $instances = [];
+
+    private $connection;
 
     /**
-     * Delivers the singleton instances.
-     *
-     * @param  mixed  $class The class name of the instance to get.
-     *
-     * @return TableGateway
+     * @return \Doctrine\DBAL\Connection
      */
-    final public static function getInstance($class)
+    public function getDatabaseAdapter()
     {
-        if (! isset(self::$instances[$class])) {
-            $object = new $class();
-            self::$instances[$class] = $object;
+        if ($this->connection === null) {
+            $this->connection = Database::getConnection();
         }
-        return self::$instances[$class];
+
+        return $this->connection;
     }
 
     /**
-     * Delivers all currently available singleton instances.
-     *
-     * @return array
+     * TODO remove once Zend-Db has been removed from the framework
      */
-    final public static function getAllInstances()
+    public function getDatabaseAdapterZend()
     {
-        return self::$instances;
-    }
+        $table = \Opus\Db\TableGateway::getInstance('Opus\Db\Translations');
 
-    /**
-     * Clear database instances.
-     */
-    final public static function clearInstances()
-    {
-        self::$instances = [];
+        return $table->getAdapter();
     }
 
     /**
@@ -97,23 +81,23 @@ abstract class TableGateway extends \Zend_Db_Table_Abstract
      * @param array $data
      * @return void
      */
-    public function insertIgnoreDuplicate($data)
+    public function insertIgnoreDuplicate($table, $primary, $data)
     {
-        $adapter = $this->getAdapter();
+        $database = $this->getDatabaseAdapter();
 
         $q_keys = [];
         $q_values = [];
         $update = '';
 
         foreach ($data as $key => $value) {
-            $quotedKey = $adapter->quoteIdentifier($key);
+            $quotedKey = $database->quoteIdentifier($key);
             $q_keys[] = $quotedKey;
-            $q_values[] = $adapter->quote($value);
+            $q_values[] = $database->quote($value);
             $update .= " $quotedKey=VALUES($quotedKey),";
         }
 
         // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
-        $primaryKey = $this->_primary;
+        $primaryKey = $primary;
 
         if (! is_null($primaryKey) and ! is_array($primaryKey)) {
             // no support for composite keys
@@ -122,13 +106,12 @@ abstract class TableGateway extends \Zend_Db_Table_Abstract
             $update = rtrim($update, ',');
         }
 
-        $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name) .
-                ' (' . implode(', ', $q_keys) . ') ' .
+        $insert = 'INSERT INTO ' . $table .                ' (' . implode(', ', $q_keys) . ') ' .
                 ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
 
-        $adapter->query($insert);
+        $stmt = $database->prepare($insert);
 
-        return;
+        $stmt->executeStatement();
     }
 
     /**
@@ -138,15 +121,15 @@ abstract class TableGateway extends \Zend_Db_Table_Abstract
      * @param array $data
      * @return void
      */
-    public function deleteWhereArray($data)
+    public function deleteWhereArray($table, $data)
     {
-        $adapter = $this->getAdapter();
+        $database = $this->getDatabaseAdapter();
 
         $q_clauses = [];
 
         foreach ($data as $key => $value) {
-            $q_key = $adapter->quoteIdentifier($key);
-            $q_value = $adapter->quote($value);
+            $q_key = $database->quoteIdentifier($key);
+            $q_value = $database->quote($value);
             if (is_array($value)) {
                 $q_clauses[] = $q_key . ' IN (' . $q_value .')';
             } else {
@@ -155,31 +138,6 @@ abstract class TableGateway extends \Zend_Db_Table_Abstract
         }
 
         $where = implode(" AND ", $q_clauses);
-        $this->delete($where);
-        return;
-    }
-
-    /**
-     * FIXME: Constructor should be private due to singleton pattern. This
-     * conflicts with the signature of the \Zend_Db_Table_Abstract contructor.
-     * private function __construct() {}
-     */
-
-    /**
-     * Singleton classes cannot be cloned!
-     *
-     * @return void
-     */
-    final private function __clone()
-    {
-    }
-
-    /**
-     * Singleton classes should not be put to sleep!
-     *
-     * @return void
-     */
-    final private function __sleep()
-    {
+        $database->delete($table, $where);
     }
 }
