@@ -99,19 +99,19 @@ class Properties extends TableGateway
      * Registers a model type.
      *
      * @param string $type Identifier for model type
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws DbException
      */
-    public function registerType($type)
+    public function registerType($type): void
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         if (! in_array($type, $this->getTypes())) {
             try {
-                $adapter->beginTransaction();
-                $adapter->insert(self::TABLE_TYPES, ['type' => $type]);
-                $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
-                $adapter->rollBack();
+                $conn->beginTransaction();
+                $conn->insert(self::TABLE_TYPES, ['type' => $type]);
+                $conn->commit();
+            } catch (\Doctrine\DBAL\Exception $e) {
+                $conn->rollBack();
                 throw new DbException($e);
             }
         }
@@ -126,17 +126,17 @@ class Properties extends TableGateway
      * @throws DbException
      * @throws UnknownModelTypeException
      */
-    public function unregisterType($type)
+    public function unregisterType($type): void
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         if (in_array($type, $this->getTypes())) {
             try {
-                $adapter->beginTransaction();
-                $adapter->delete(self::TABLE_TYPES, ['type = ?' => $type]);
-                $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
-                $adapter->rollBack(); // finish transaction without doing anything
+                $conn->beginTransaction();
+                $conn->delete(self::TABLE_TYPES, ['type' => $type]);
+                $conn->commit();
+            } catch (\Doctrine\DBAL\Exception $e) {
+                $conn->rollBack(); // finish transaction without doing anything
                 throw new DbException($e);
             }
         } else {
@@ -148,14 +148,17 @@ class Properties extends TableGateway
      * Returns all registered model types.
      * @return string[] Model types
      */
-    public function getTypes()
+    public function getTypes(): array
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $adapter->select()
-            ->from(self::TABLE_TYPES, ['type']);
+        $queryBuilder = $conn->createQueryBuilder();
 
-        return $adapter->fetchCol($select);
+        $select = $queryBuilder
+            ->select('type')
+            ->from(self::TABLE_TYPES);
+
+        return $conn->fetchFirstColumn($select);
     }
 
     /**
