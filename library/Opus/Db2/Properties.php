@@ -342,13 +342,14 @@ class Properties extends TableGateway
     /**
      * Removes all properties of a model.
      * @param mixed $model Model object
+     * @param string|null $type Model type
      * @throws DbException
      * @throws PropertiesException
      * @throws UnknownModelTypeException
      */
-    public function removeProperties($model, $type = null)
+    public function removeProperties($model, ?string $type = null): void
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
@@ -360,14 +361,14 @@ class Properties extends TableGateway
         }
 
         try {
-            $adapter->beginTransaction();
-            $adapter->delete(self::TABLE_PROPERTIES, [
-                'model_type_id = ?' => $modelTypeId,
-                'model_id = ?' => $modelId
+            $conn->beginTransaction();
+            $conn->delete(self::TABLE_PROPERTIES, [
+                'model_type_id' => $modelTypeId,
+                'model_id' => $modelId
             ]);
-            $adapter->commit();
-        } catch (\Exception $e) {
-            $adapter->rollBack();
+            $conn->commit();
+        } catch (\Doctrine\DBAL\Exception $e) {
+            $conn->rollBack();
             throw new DbException($e);
         }
     }
@@ -381,9 +382,9 @@ class Properties extends TableGateway
      * @throws UnknownModelTypeException
      * @throws UnknownPropertyKeyException
      */
-    public function removeProperty($model, $key)
+    public function removeProperty($model, string $key): void
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         $keyId = $this->getKeyId($key);
         $modelType = $this->getModelType($model);
@@ -391,15 +392,15 @@ class Properties extends TableGateway
         $modelId = $this->getModelId($model);
 
         try {
-            $adapter->beginTransaction();
-            $adapter->delete(self::TABLE_PROPERTIES, [
-                'model_type_id = ?' => $modelTypeId,
-                'model_id = ?' => $modelId,
-                'key_id = ?' => $keyId
+            $conn->beginTransaction();
+            $conn->delete(self::TABLE_PROPERTIES, [
+                'model_type_id' => $modelTypeId,
+                'model_id' => $modelId,
+                'key_id' => $keyId
             ]);
-            $adapter->commit();
-        } catch (\Zend_Db_Adapter_Exception $e) {
-            $adapter->rollBack();
+            $conn->commit();
+        } catch (\Doctrine\DBAL\Exception $e) {
+            $conn->rollBack();
             throw new DbException($e);
         }
     }
@@ -408,18 +409,22 @@ class Properties extends TableGateway
     {
         $keyId = $this->getKeyId($key);
 
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $adapter->select()
-            ->from(self::TABLE_PROPERTIES, ['model_id'])
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $select = $queryBuilder
+            ->select('model_id')
+            ->from(self::TABLE_PROPERTIES)
             ->where('key_id = ?', $keyId);
 
         if ($modelType !== null) {
             $modelTypeId = $this->getModelTypeId($modelType);
-            $select->where('model_type_id = ?', $modelTypeId);
-        }
-
-        $value = $adapter->fetchCol($select);
+            $select->where('model_type_id = ?');
+            $value = $conn->fetchFirstColumn($select, [$keyId, $modelTypeId]);
+        } else {
+             $value = $conn->fetchFirstColumn($select, [$keyId]);
+         }
 
         if ($value === false) {
             return null;
@@ -435,24 +440,24 @@ class Properties extends TableGateway
      * @throws DbException
      * @throws UnknownPropertyKeyException
      */
-    public function renameKey($oldKey, $newKey)
+    public function renameKey(string $oldKey, string $newKey): void
     {
         $this->validateKey($newKey);
 
         $keyId = $this->getKeyId($oldKey);
 
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         try {
-            $adapter->beginTransaction();
-            $adapter->update(self::TABLE_KEYS, [
+            $conn->beginTransaction();
+            $conn->update(self::TABLE_KEYS, [
                 'name' => $newKey
             ], [
                 "id = $keyId"
             ]);
-            $adapter->commit();
-        } catch (\Zend_Db_Adapter_Exception $e) {
-            $adapter->rollback();
+            $conn->commit();
+        } catch (\Doctrine\DBAL\Exception $e) {
+            $conn->rollback();
             throw new DbException($e);
         }
     }
@@ -498,7 +503,7 @@ class Properties extends TableGateway
      * Enables/disables automatic registration of keys.
      * @param $enabled bool Enable/disable auto registration
      */
-    public function setAutoRegisterKeyEnabled($enabled)
+    public function setAutoRegisterKeyEnabled(bool $enabled)
     {
         if ($enabled === null) {
             throw new \InvalidArgumentException('Argument must not be null');
@@ -626,14 +631,5 @@ class Properties extends TableGateway
         if (preg_match(self::KEY_PATTERN, $key) === 0) {
             throw new \InvalidArgumentException("Key '$key' is not valid.");
         }
-    }
-
-    /**
-     * Returns database adapter for queries.
-     * @return \Zend_Db_Adapter_Abstract Database adapter
-     */
-    protected function getAdapter()
-    {
-        return Database::getConnection();
     }
 }
