@@ -33,74 +33,59 @@
 
 namespace Opus\Db2;
 
-use Doctrine\DBAL\DriverManager;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
-use Opus\Config;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- *
- * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
- *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
+ * @ORM\Entity
+ * @ORM\Table(name="languages")
  */
-class Database
+class Language
 {
-    private static $conn;
-    private static $entityManager;
-
-    public static function getConnectionParams()
-    {
-        $config = Config::get(); // TODO use function (no direkt class dependency)
-
-        if (isset($config->db->params)) {
-            $dbConfig = $config->db->params;
-        }
-
-        $params = $dbConfig->toArray();
-
-        return $params;
-    }
-
-    public static function getConnection()
-    {
-        if (self::$conn === null) {
-            $params = self::getConnectionParams();
-
-            $db = new \Opus\Database();
-
-            $dbName = $db->getName();
-
-            $pdo = $db->getPdo($dbName);
-
-            $params['pdo'] = $pdo;
-
-            self::$conn = DriverManager::getConnection($params);
-
-            self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-        }
-
-        return self::$conn;
-    }
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
+    private $id;
 
     /**
-     * @return EntityManager
-     * @throws ORMException
+     * @ORM\Column(type="string", length=3, options={"fixed" = true})
      */
-    public static function getEntityManager()
-    {
-        $isDevMode = true;
-        $proxyDir = null;
-        $cache = null;
-        $useSimpleAnnotationReader = false;
-        $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__), $isDevMode, $proxyDir, $cache, $useSimpleAnnotationReader);
+    private $part2B;
 
-        $conn = self::getConnection();
+    /**
+     * @ORM\Column(type="string", length=3, options={"fixed" = true})
+     */
+    private $part2T;
 
-        if (self::$entityManager === null){
-            self::$entityManager = EntityManager::create($conn, $config);
-        }
+    /**
+     * @ORM\Column(type="string", length=2, options={"fixed" = true})
+     */
+    private $part1;
 
-        return self::$entityManager;
-    }
+    /**
+     * @ORM\Column(type="string", columnDefinition="ENUM('I','M','S')")
+     */
+    private $scope;
+
+    /**
+     * @ORM\Column(type="string", columnDefinition="ENUM('A','C','E','H','L','S')")
+     */
+    private $type;
+
+    /**
+     * @ORM\Column(type="string", length=150)
+     */
+    private $refName;
+
+    /**
+     * @ORM\Column(type="string", length=150)
+     */
+    private $comment;
+
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    private $active;
+
 }
