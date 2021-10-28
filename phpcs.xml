@@ -1,10 +1,22 @@
 <?xml version="1.0"?>
 <ruleset name="OPUS 4 coding standard">
-    <rule ref="./vendor/zendframework/zend-coding-standard/ruleset.xml">
-        <!-- TODO remove excludes after switch to ZF3 -->
-        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
-        <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps" />
-    </rule>
+    <rule ref="./vendor/laminas/laminas-coding-standard/src/LaminasCodingStandard/ruleset.xml" />
     <file>library</file>
-    <file>tests</file>
+    <!--file>tests</file-->
+
+    <!-- Loosening the Laminas coding style to allow our customary annotations. -->
+    <rule ref="SlevomatCodingStandard.Commenting.ForbiddenAnnotations">
+        <properties>
+            <property name="forbiddenAnnotations" type="array">
+                <element value="@api"/>
+                <element value="@created"/>
+                <element value="@subpackage"/>
+                <element value="@version"/>
+                <element value="@expectedException"/>
+                <element value="@expectedExceptionCode"/>
+                <element value="@expectedExceptionMessage"/>
+                <element value="@expectedExceptionMessageRegExp"/>
+            </property>
+        </properties>
+    </rule>
 </ruleset>
