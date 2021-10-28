@@ -259,7 +259,7 @@ class Properties extends TableGateway
         $modelId = $this->getModelId($model);
         $keyId = $this->getKeyId($key);
 
-        $this->insertIgnoreDuplicate([
+        $this->insertIgnoreDuplicate(self::TABLE_PROPERTIES, null, [
             'model_type_id' => $modelTypeId,
             'model_id' => $modelId,
             'key_id' => $keyId,
@@ -296,9 +296,9 @@ class Properties extends TableGateway
             ->from(self::TABLE_PROPERTIES, 'p')
             ->join('p',self::TABLE_KEYS, 'k', 'p.key_id = k.id')
             ->where('p.model_type_id = ?')
-            ->where('p.model_id = ?');
+            ->andWhere('p.model_id = ?');
 
-        $result = $conn->fetchAllAssociative($select, [$modelTypeId, $modelId]);
+        $result = $conn->fetchAllKeyValue($select, [$modelTypeId, $modelId]);
 
         return $result;
     }
@@ -327,8 +327,8 @@ class Properties extends TableGateway
             ->select('value')
             ->from(self::TABLE_PROPERTIES)
             ->where('model_type_id = ?')
-            ->where('key_id = ?')
-            ->where('model_id = ?');
+            ->andWhere('key_id = ?')
+            ->andWhere('model_id = ?');
 
         $value = $conn->fetchOne($select, [$modelTypeId, $keyId, $modelId]);
 
@@ -416,15 +416,15 @@ class Properties extends TableGateway
         $select = $queryBuilder
             ->select('model_id')
             ->from(self::TABLE_PROPERTIES)
-            ->where('key_id = ?', $keyId);
+            ->where('key_id = ?');
 
         if ($modelType !== null) {
             $modelTypeId = $this->getModelTypeId($modelType);
-            $select->where('model_type_id = ?');
+            $select->andWhere('model_type_id = ?');
             $value = $conn->fetchFirstColumn($select, [$keyId, $modelTypeId]);
         } else {
-             $value = $conn->fetchFirstColumn($select, [$keyId]);
-         }
+            $value = $conn->fetchFirstColumn($select, [$keyId]);
+        }
 
         if ($value === false) {
             return null;
@@ -453,7 +453,7 @@ class Properties extends TableGateway
             $conn->update(self::TABLE_KEYS, [
                 'name' => $newKey
             ], [
-                "id = $keyId"
+                'id' => $keyId
             ]);
             $conn->commit();
         } catch (\Doctrine\DBAL\Exception $e) {
@@ -556,7 +556,7 @@ class Properties extends TableGateway
             ->select('name', 'id')
             ->from(self::TABLE_KEYS);
 
-        $result = $conn->fetchAllAssociative($select);
+        $result = $conn->fetchAllKeyValue($select);
 
         if (isset($result[$key])) {
             return $result[$key];
@@ -607,10 +607,9 @@ class Properties extends TableGateway
             ->select('type', 'id')
             ->from(self::TABLE_TYPES);
 
-        $result = $conn->fetchAllAssociative($select);
+        $result = $conn->fetchAllKeyValue($select);
 
         if (isset($result[$type])) {
-            // TODO: what return value(s) does this method exactly return?
             return $result[$type];
         } else {
             if ($this->isAutoRegisterTypeEnabled()) {
