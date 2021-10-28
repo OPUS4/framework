@@ -101,7 +101,7 @@ class Properties extends TableGateway
      * @param string $type Identifier for model type
      * @throws DbException
      */
-    public function registerType(string $type): void
+    public function registerType($type)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -126,7 +126,7 @@ class Properties extends TableGateway
      * @throws DbException
      * @throws UnknownModelTypeException
      */
-    public function unregisterType(string $type): void
+    public function unregisterType($type)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -148,7 +148,7 @@ class Properties extends TableGateway
      * Returns all registered model types.
      * @return string[] Model types
      */
-    public function getTypes(): array
+    public function getTypes()
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -172,7 +172,7 @@ class Properties extends TableGateway
      * @param string $key Name of property
      * @throws DbException
      */
-    public function registerKey(string $key): void
+    public function registerKey($key)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -199,7 +199,7 @@ class Properties extends TableGateway
      * @throws DbException
      * @throws UnknownPropertyKeyException
      */
-    public function unregisterKey(string $key): void
+    public function unregisterKey($key)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -221,7 +221,7 @@ class Properties extends TableGateway
      * Returns all registered keys.
      * @return string[] Names of properties
      */
-    public function getKeys(): array
+    public function getKeys()
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -247,7 +247,7 @@ class Properties extends TableGateway
      *
      * TODO transaction?
      */
-    public function setProperty($model, string $key, string $value): void
+    public function setProperty($model, $key, $value)
     {
         if ($value === null) {
             $this->removeProperty($model, $key);
@@ -276,7 +276,7 @@ class Properties extends TableGateway
      * @throws PropertiesException
      * @throws UnknownModelTypeException
      */
-    public function getProperties($model, ?string $type = null): array
+    public function getProperties($model, $type = null)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -312,7 +312,7 @@ class Properties extends TableGateway
      * @throws UnknownModelTypeException
      * @throws UnknownPropertyKeyException
      */
-    public function getProperty($model, string $key): ?string
+    public function getProperty($model, $key)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -347,7 +347,7 @@ class Properties extends TableGateway
      * @throws PropertiesException
      * @throws UnknownModelTypeException
      */
-    public function removeProperties($model, ?string $type = null): void
+    public function removeProperties($model, $type = null)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -382,7 +382,7 @@ class Properties extends TableGateway
      * @throws UnknownModelTypeException
      * @throws UnknownPropertyKeyException
      */
-    public function removeProperty($model, string $key): void
+    public function removeProperty($model, $key)
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -440,7 +440,7 @@ class Properties extends TableGateway
      * @throws DbException
      * @throws UnknownPropertyKeyException
      */
-    public function renameKey(string $oldKey, string $newKey): void
+    public function renameKey($oldKey, $newKey)
     {
         $this->validateKey($newKey);
 
@@ -463,19 +463,19 @@ class Properties extends TableGateway
     }
 
     /**
-     * Returns true if auto registration of model types is enabled.
+     * Returns true if automatic registration of model types is enabled.
      * @return bool true if automatic registration is enabled
      */
-    public function isAutoRegisterTypeEnabled(): bool
+    public function isAutoRegisterTypeEnabled()
     {
         return $this->autoRegisterType;
     }
 
     /**
-     * Enabled/disables automatic registration of model types.
+     * Enables/disables automatic registration of model types.
      * @param boolean $enabled Enables/disables auto registration
      */
-    public function setAutoRegisterTypeEnabled(bool $enabled)
+    public function setAutoRegisterTypeEnabled($enabled)
     {
         if ($enabled === null) {
             throw new \InvalidArgumentException('Argument must not be null');
@@ -491,7 +491,7 @@ class Properties extends TableGateway
     }
 
     /**
-     * Returns if automatic registration for keys is enabled.
+     * Returns true if automatic registration of keys is enabled.
      * @return bool true if automatic registration is enabled
      */
     public function isAutoRegisterKeyEnabled()
@@ -503,7 +503,7 @@ class Properties extends TableGateway
      * Enables/disables automatic registration of keys.
      * @param $enabled bool Enable/disable auto registration
      */
-    public function setAutoRegisterKeyEnabled(bool $enabled)
+    public function setAutoRegisterKeyEnabled($enabled)
     {
         if ($enabled === null) {
             throw new \InvalidArgumentException('Argument must not be null');
@@ -525,7 +525,7 @@ class Properties extends TableGateway
      * @return int Model identifier
      * @throws PropertiesException
      */
-    protected function getModelId($model): int
+    protected function getModelId($model)
     {
         $modelId = $model->getId();
 
@@ -542,7 +542,7 @@ class Properties extends TableGateway
      * @return int
      * @throws UnknownPropertyKeyException
      */
-    protected function getKeyId(string $key): int
+    protected function getKeyId($key)
     {
         if ($key === null) {
             throw new \InvalidArgumentException('Key argument must not be null');
@@ -575,7 +575,7 @@ class Properties extends TableGateway
      * @param mixed $model Model object
      * @return string Type of model
      */
-    protected function getModelType($model): string
+    protected function getModelType($model)
     {
         if ($model === null) {
             throw new \InvalidArgumentException('Model argument must not be null');
@@ -597,7 +597,7 @@ class Properties extends TableGateway
      * @throws UnknownModelTypeException
      * @throws \Doctrine\DBAL\Exception
      */
-    protected function getModelTypeId(string $type): int
+    protected function getModelTypeId($type)
     {
         $conn = $this->getDatabaseAdapter();
 
