@@ -103,7 +103,7 @@ class Properties extends TableGateway
      */
     public function registerType($type)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         if (! in_array($type, $this->getTypes())) {
             try {
@@ -128,7 +128,7 @@ class Properties extends TableGateway
      */
     public function unregisterType($type)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         if (in_array($type, $this->getTypes())) {
             try {
@@ -150,7 +150,7 @@ class Properties extends TableGateway
      */
     public function getTypes()
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -174,7 +174,7 @@ class Properties extends TableGateway
      */
     public function registerKey($key)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         if (! in_array($key, $this->getKeys())) {
             $this->validateKey($key);
@@ -201,7 +201,7 @@ class Properties extends TableGateway
      */
     public function unregisterKey($key)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         if (in_array($key, $this->getKeys())) {
             try {
@@ -223,7 +223,7 @@ class Properties extends TableGateway
      */
     public function getKeys()
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -278,7 +278,7 @@ class Properties extends TableGateway
      */
     public function getProperties($model, $type = null)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
@@ -314,7 +314,7 @@ class Properties extends TableGateway
      */
     public function getProperty($model, $key)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $modelType = $this->getModelType($model);
         $keyId = $this->getKeyId($key);
@@ -349,7 +349,7 @@ class Properties extends TableGateway
      */
     public function removeProperties($model, $type = null)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
@@ -384,7 +384,7 @@ class Properties extends TableGateway
      */
     public function removeProperty($model, $key)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $keyId = $this->getKeyId($key);
         $modelType = $this->getModelType($model);
@@ -409,7 +409,7 @@ class Properties extends TableGateway
     {
         $keyId = $this->getKeyId($key);
 
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -446,7 +446,7 @@ class Properties extends TableGateway
 
         $keyId = $this->getKeyId($oldKey);
 
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         try {
             $conn->beginTransaction();
@@ -548,7 +548,7 @@ class Properties extends TableGateway
             throw new \InvalidArgumentException('Key argument must not be null');
         }
 
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -599,7 +599,7 @@ class Properties extends TableGateway
      */
     protected function getModelTypeId($type)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 

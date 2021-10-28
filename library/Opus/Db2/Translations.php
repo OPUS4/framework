@@ -75,9 +75,9 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function remove($key, $module = null)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
-        $database->delete(
+        $conn->delete(
             self::TABLE_TRANSLATION_KEYS,
             ['`key`' => $key]
         );
@@ -90,9 +90,9 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function removeAll()
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
-        $database->delete(self::TABLE_TRANSLATION_KEYS, ['1' => '1']);
+        $conn->delete(self::TABLE_TRANSLATION_KEYS, ['1' => '1']);
     }
 
     /**
@@ -103,9 +103,9 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function removeModule($module)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
-        $database->delete(self::TABLE_TRANSLATION_KEYS, ['`module`' => $module]);
+        $conn->delete(self::TABLE_TRANSLATION_KEYS, ['`module`' => $module]);
     }
 
     /**
@@ -122,16 +122,16 @@ class Translations extends TableGateway implements StorageInterface
             return $this->remove($key, $module);
         }
 
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
-        $database->beginTransaction();
+        $conn->beginTransaction();
 
         $this->insertIgnoreDuplicate(self::TABLE_TRANSLATION_KEYS, 'id', [
             'key' => $key,
             'module' => $module
         ]);
 
-        $keyId = $database->lastInsertId();
+        $keyId = $conn->lastInsertId();
 
         foreach ($translation as $language => $value) {
             $this->insertIgnoreDuplicate(self::TABLE_TRANSLATIONS, null, [
@@ -141,7 +141,7 @@ class Translations extends TableGateway implements StorageInterface
             ]);
         }
 
-        $database->commit();
+        $conn->commit();
     }
 
     /**
@@ -155,7 +155,7 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function getTranslation($key, $locale = null, $module = null)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -211,7 +211,7 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function getTranslations($module = null)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -240,7 +240,7 @@ class Translations extends TableGateway implements StorageInterface
 
     public function getTranslationsByLocale($module = null)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -275,7 +275,7 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function addTranslations($translations, $module = 'default')
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $conn->beginTransaction();
 
@@ -316,7 +316,7 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function renameKey($key, $newKey, $module = 'default')
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $where = [];
         $where['`key`'] = $key;
@@ -339,7 +339,7 @@ class Translations extends TableGateway implements StorageInterface
 
     public function getTranslationsWithModules($modules = null)
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
@@ -380,7 +380,7 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function getModules()
     {
-        $conn = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $queryBuilder = $conn->createQueryBuilder();
 
