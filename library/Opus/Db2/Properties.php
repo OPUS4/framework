@@ -101,7 +101,7 @@ class Properties extends TableGateway
      * @param string $type Identifier for model type
      * @throws DbException
      */
-    public function registerType($type): void
+    public function registerType(string $type): void
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -126,7 +126,7 @@ class Properties extends TableGateway
      * @throws DbException
      * @throws UnknownModelTypeException
      */
-    public function unregisterType($type): void
+    public function unregisterType(string $type): void
     {
         $conn = $this->getDatabaseAdapter();
 
@@ -158,7 +158,9 @@ class Properties extends TableGateway
             ->select('type')
             ->from(self::TABLE_TYPES);
 
-        return $conn->fetchFirstColumn($select);
+        $result = $conn->fetchFirstColumn($select);
+
+        return $result;
     }
 
     /**
@@ -168,21 +170,21 @@ class Properties extends TableGateway
      * would have to be updated if the key is already present in the table.
      *
      * @param string $key Name of property
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws DbException
      */
-    public function registerKey($key)
+    public function registerKey(string $key): void
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         if (! in_array($key, $this->getKeys())) {
             $this->validateKey($key);
 
             try {
-                $adapter->beginTransaction();
-                $adapter->insert(self::TABLE_KEYS, ['name' => $key]);
-                $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
-                $adapter->rollBack();
+                $conn->beginTransaction();
+                $conn->insert(self::TABLE_KEYS, ['name' => $key]);
+                $conn->commit();
+            } catch (\Doctrine\DBAL\Exception $e) {
+                $conn->rollBack();
                 throw new DbException($e);
             }
         }
@@ -194,18 +196,20 @@ class Properties extends TableGateway
      * This will remove that key from the properties of all models.
      *
      * @param string $key Name of property
+     * @throws DbException
+     * @throws UnknownPropertyKeyException
      */
-    public function unregisterKey($key)
+    public function unregisterKey(string $key): void
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         if (in_array($key, $this->getKeys())) {
             try {
-                $adapter->beginTransaction();
-                $adapter->delete(self::TABLE_KEYS, ['name = ?' => $key]);
-                $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
-                $adapter->rollBack(); // finish transaction without doing anything
+                $conn->beginTransaction();
+                $conn->delete(self::TABLE_KEYS, ['name' => $key]);
+                $conn->commit();
+            } catch (\Doctrine\DBAL\Exception $e) {
+                $conn->rollBack(); // finish transaction without doing anything
                 throw new DbException($e);
             }
         } else {
@@ -217,14 +221,17 @@ class Properties extends TableGateway
      * Returns all registered keys.
      * @return string[] Names of properties
      */
-    public function getKeys()
+    public function getKeys(): array
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $adapter->select()
-            ->from(self::TABLE_KEYS, ['name']);
+        $queryBuilder = $conn->createQueryBuilder();
 
-        $result = $adapter->fetchCol($select);
+        $select = $queryBuilder
+            ->select('name')
+            ->from(self::TABLE_KEYS);
+
+        $result = $conn->fetchFirstColumn($select);
 
         return $result;
     }
@@ -240,7 +247,7 @@ class Properties extends TableGateway
      *
      * TODO transaction?
      */
-    public function setProperty($model, $key, $value)
+    public function setProperty($model, string $key, string $value): void
     {
         if ($value === null) {
             $this->removeProperty($model, $key);
@@ -264,14 +271,14 @@ class Properties extends TableGateway
      * Returns all the properties of a model.
      *
      * @param mixed $model Model object
-     * @param string $type Model type
+     * @param string|null $type Model type
      * @return array Associative array with property keys and values
      * @throws PropertiesException
      * @throws UnknownModelTypeException
      */
-    public function getProperties($model, $type = null)
+    public function getProperties($model, ?string $type = null): array
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
@@ -282,13 +289,16 @@ class Properties extends TableGateway
             $modelId = $this->getModelId($model);
         }
 
-        $select = $adapter->select()
-            ->from(['p' => self::TABLE_PROPERTIES], ['k.name', 'p.value'])
-            ->join(['k' => self::TABLE_KEYS], 'p.key_id = k.id')
-            ->where('p.model_type_id = ?', $modelTypeId)
-            ->where('p.model_id = ?', $modelId);
+        $queryBuilder = $conn->createQueryBuilder();
 
-        $result = $adapter->fetchPairs($select);
+        $select = $queryBuilder
+            ->select('k.name', 'p.value')
+            ->from(self::TABLE_PROPERTIES, 'p')
+            ->join('p',self::TABLE_KEYS, 'k', 'p.key_id = k.id')
+            ->where('p.model_type_id = ?')
+            ->where('p.model_id = ?');
+
+        $result = $conn->fetchAllAssociative($select, [$modelTypeId, $modelId]);
 
         return $result;
     }
@@ -302,28 +312,31 @@ class Properties extends TableGateway
      * @throws UnknownModelTypeException
      * @throws UnknownPropertyKeyException
      */
-    public function getProperty($model, $key)
+    public function getProperty($model, string $key): ?string
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
         $modelType = $this->getModelType($model);
         $keyId = $this->getKeyId($key);
         $modelTypeId = $this->getModelTypeId($modelType);
         $modelId = $this->getModelId($model);
 
-        $select = $adapter->select()
-            ->from(self::TABLE_PROPERTIES, ['value'])
-            ->where('model_type_id = ?', $modelTypeId)
-            ->where('key_id = ?', $keyId)
-            ->where('model_id = ?', $modelId);
+        $queryBuilder = $conn->createQueryBuilder();
 
-        $value = $adapter->fetchOne($select);
+        $select = $queryBuilder
+            ->select('value')
+            ->from(self::TABLE_PROPERTIES)
+            ->where('model_type_id = ?')
+            ->where('key_id = ?')
+            ->where('model_id = ?');
+
+        $value = $conn->fetchOne($select, [$modelTypeId, $keyId, $modelId]);
 
         if ($value === false) {
             return null;
-        } else {
-            return $value;
         }
+
+        return $value;
     }
 
     /**
@@ -448,7 +461,7 @@ class Properties extends TableGateway
      * Returns true if auto registration of model types is enabled.
      * @return bool true if automatic registration is enabled
      */
-    public function isAutoRegisterTypeEnabled()
+    public function isAutoRegisterTypeEnabled(): bool
     {
         return $this->autoRegisterType;
     }
@@ -457,7 +470,7 @@ class Properties extends TableGateway
      * Enabled/disables automatic registration of model types.
      * @param boolean $enabled Enables/disables auto registration
      */
-    public function setAutoRegisterTypeEnabled($enabled)
+    public function setAutoRegisterTypeEnabled(bool $enabled)
     {
         if ($enabled === null) {
             throw new \InvalidArgumentException('Argument must not be null');
@@ -507,7 +520,7 @@ class Properties extends TableGateway
      * @return int Model identifier
      * @throws PropertiesException
      */
-    protected function getModelId($model)
+    protected function getModelId($model): int
     {
         $modelId = $model->getId();
 
@@ -524,17 +537,21 @@ class Properties extends TableGateway
      * @return int
      * @throws UnknownPropertyKeyException
      */
-    protected function getKeyId($key)
+    protected function getKeyId(string $key): int
     {
         if ($key === null) {
             throw new \InvalidArgumentException('Key argument must not be null');
         }
 
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $adapter->select()->from(self::TABLE_KEYS, ['name', 'id']);
+        $queryBuilder = $conn->createQueryBuilder();
 
-        $result = $adapter->fetchPairs($select);
+        $select = $queryBuilder
+            ->select('name', 'id')
+            ->from(self::TABLE_KEYS);
+
+        $result = $conn->fetchAllAssociative($select);
 
         if (isset($result[$key])) {
             return $result[$key];
@@ -553,7 +570,7 @@ class Properties extends TableGateway
      * @param mixed $model Model object
      * @return string Type of model
      */
-    protected function getModelType($model)
+    protected function getModelType($model): string
     {
         if ($model === null) {
             throw new \InvalidArgumentException('Model argument must not be null');
@@ -573,17 +590,22 @@ class Properties extends TableGateway
      * @param string $type Model type
      * @return int
      * @throws UnknownModelTypeException
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws \Doctrine\DBAL\Exception
      */
-    protected function getModelTypeId($type)
+    protected function getModelTypeId(string $type): int
     {
-        $adapter = $this->getAdapter();
+        $conn = $this->getDatabaseAdapter();
 
-        $select = $adapter->select()->from(self::TABLE_TYPES, ['type', 'id']);
+        $queryBuilder = $conn->createQueryBuilder();
 
-        $result = $adapter->fetchPairs($select);
+        $select = $queryBuilder
+            ->select('type', 'id')
+            ->from(self::TABLE_TYPES);
+
+        $result = $conn->fetchAllAssociative($select);
 
         if (isset($result[$type])) {
+            // TODO: what return value(s) does this method exactly return?
             return $result[$type];
         } else {
             if ($this->isAutoRegisterTypeEnabled()) {
