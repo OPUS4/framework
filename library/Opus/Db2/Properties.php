@@ -288,7 +288,7 @@ class Properties extends TableGateway
         $select = $queryBuilder
             ->select('k.name', 'p.value')
             ->from(self::TABLE_PROPERTIES, 'p')
-            ->join('p',self::TABLE_KEYS, 'k', 'p.key_id = k.id')
+            ->join('p', self::TABLE_KEYS, 'k', 'p.key_id = k.id')
             ->where('p.model_type_id = ?')
             ->andWhere('p.model_id = ?');
 
