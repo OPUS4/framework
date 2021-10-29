@@ -50,15 +50,27 @@ abstract class TableGateway
     private $connection;
 
     /**
+     * Returns the database connection.
      * @return \Doctrine\DBAL\Connection
      */
-    public function getDatabaseAdapter()
+    public function getConnection()
     {
         if ($this->connection === null) {
             $this->connection = Database::getConnection();
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Returns a new SQL query builder instance for the connection.
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
+    public function getQueryBuilder()
+    {
+        $conn = $this->getConnection();
+
+        return $conn->createQueryBuilder();
     }
 
     /**
@@ -83,16 +95,16 @@ abstract class TableGateway
      */
     public function insertIgnoreDuplicate($table, $primary, $data)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $q_keys = [];
         $q_values = [];
         $update = '';
 
         foreach ($data as $key => $value) {
-            $quotedKey = $database->quoteIdentifier($key);
+            $quotedKey = $conn->quoteIdentifier($key);
             $q_keys[] = $quotedKey;
-            $q_values[] = $database->quote($value);
+            $q_values[] = $conn->quote($value);
             $update .= " $quotedKey=VALUES($quotedKey),";
         }
 
@@ -109,7 +121,7 @@ abstract class TableGateway
         $insert = 'INSERT INTO ' . $table .                ' (' . implode(', ', $q_keys) . ') ' .
                 ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
 
-        $stmt = $database->prepare($insert);
+        $stmt = $conn->prepare($insert);
 
         $stmt->executeStatement();
     }
@@ -123,13 +135,13 @@ abstract class TableGateway
      */
     public function deleteWhereArray($table, $data)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
         $q_clauses = [];
 
         foreach ($data as $key => $value) {
-            $q_key = $database->quoteIdentifier($key);
-            $q_value = $database->quote($value);
+            $q_key = $conn->quoteIdentifier($key);
+            $q_value = $conn->quote($value);
             if (is_array($value)) {
                 $q_clauses[] = $q_key . ' IN (' . $q_value .')';
             } else {
@@ -138,6 +150,6 @@ abstract class TableGateway
         }
 
         $where = implode(" AND ", $q_clauses);
-        $database->delete($table, $where);
+        $conn->delete($table, $where);
     }
 }

@@ -31,11 +31,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Model2;
+namespace OpusTest\Db2;
 
 use Opus\Document;
 use Opus\Identifier;
-use Opus\Model2\Properties;
+use Opus\Db2\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Model\UnknownPropertyKeyException;
