@@ -63,6 +63,17 @@ abstract class TableGateway
     }
 
     /**
+     * Returns a new SQL query builder instance for the connection.
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
+    public function getQueryBuilder()
+    {
+        $conn = $this->getConnection();
+
+        return $conn->createQueryBuilder();
+    }
+
+    /**
      * TODO remove once Zend-Db has been removed from the framework
      */
     public function getDatabaseAdapterZend()

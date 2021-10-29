@@ -150,15 +150,13 @@ class Properties extends TableGateway
      */
     public function getTypes()
     {
-        $conn = $this->getConnection();
-
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('type')
             ->from(self::TABLE_TYPES);
 
-        $result = $conn->fetchFirstColumn($select);
+        $result = $select->execute()->fetchFirstColumn($select);
 
         return $result;
     }
@@ -223,15 +221,13 @@ class Properties extends TableGateway
      */
     public function getKeys()
     {
-        $conn = $this->getConnection();
-
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('name')
             ->from(self::TABLE_KEYS);
 
-        $result = $conn->fetchFirstColumn($select);
+        $result = $queryBuilder->execute()->fetchFirstColumn($select);
 
         return $result;
     }
@@ -278,8 +274,6 @@ class Properties extends TableGateway
      */
     public function getProperties($model, $type = null)
     {
-        $conn = $this->getConnection();
-
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
             $modelId = $model;
@@ -289,7 +283,7 @@ class Properties extends TableGateway
             $modelId = $this->getModelId($model);
         }
 
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('k.name', 'p.value')
@@ -298,7 +292,9 @@ class Properties extends TableGateway
             ->where('p.model_type_id = ?')
             ->andWhere('p.model_id = ?');
 
-        $result = $conn->fetchAllKeyValue($select, [$modelTypeId, $modelId]);
+        $select->setParameters([$modelTypeId, $modelId]);
+
+        $result = $queryBuilder->execute()->fetchAllKeyValue($select);
 
         return $result;
     }
@@ -314,14 +310,12 @@ class Properties extends TableGateway
      */
     public function getProperty($model, $key)
     {
-        $conn = $this->getConnection();
-
         $modelType = $this->getModelType($model);
         $keyId = $this->getKeyId($key);
         $modelTypeId = $this->getModelTypeId($modelType);
         $modelId = $this->getModelId($model);
 
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('value')
@@ -330,7 +324,9 @@ class Properties extends TableGateway
             ->andWhere('key_id = ?')
             ->andWhere('model_id = ?');
 
-        $value = $conn->fetchOne($select, [$modelTypeId, $keyId, $modelId]);
+        $select->setParameters([$modelTypeId, $keyId, $modelId]);
+
+        $value = $queryBuilder->execute()->fetchOne($select);
 
         if ($value === false) {
             return null;
@@ -409,9 +405,7 @@ class Properties extends TableGateway
     {
         $keyId = $this->getKeyId($key);
 
-        $conn = $this->getConnection();
-
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('model_id')
@@ -421,9 +415,11 @@ class Properties extends TableGateway
         if ($modelType !== null) {
             $modelTypeId = $this->getModelTypeId($modelType);
             $select->andWhere('model_type_id = ?');
-            $value = $conn->fetchFirstColumn($select, [$keyId, $modelTypeId]);
+            $select->setParameters([$keyId, $modelTypeId]);
+            $value = $queryBuilder->execute()->fetchFirstColumn($select);
         } else {
-            $value = $conn->fetchFirstColumn($select, [$keyId]);
+            $select->setParameters([$keyId]);
+            $value = $queryBuilder->execute()->fetchFirstColumn($select);
         }
 
         if ($value === false) {
@@ -548,15 +544,13 @@ class Properties extends TableGateway
             throw new \InvalidArgumentException('Key argument must not be null');
         }
 
-        $conn = $this->getConnection();
-
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('name', 'id')
             ->from(self::TABLE_KEYS);
 
-        $result = $conn->fetchAllKeyValue($select);
+        $result = $queryBuilder->execute()->fetchAllKeyValue($select);
 
         if (isset($result[$key])) {
             return $result[$key];
@@ -599,15 +593,13 @@ class Properties extends TableGateway
      */
     protected function getModelTypeId($type)
     {
-        $conn = $this->getConnection();
-
-        $queryBuilder = $conn->createQueryBuilder();
+        $queryBuilder = $this->getQueryBuilder();
 
         $select = $queryBuilder
             ->select('type', 'id')
             ->from(self::TABLE_TYPES);
 
-        $result = $conn->fetchAllKeyValue($select);
+        $result = $queryBuilder->execute()->fetchAllKeyValue($select);
 
         if (isset($result[$type])) {
             return $result[$type];
