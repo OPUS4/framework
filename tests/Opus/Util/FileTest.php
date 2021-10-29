@@ -152,13 +152,18 @@ class FileTest extends TestCase
 
     /**
      * Test adding directory separator to path with trailing whitespaces.
+     *
+     * TODO is the function meant to keep the trailing whitespaces or remove them?
+     *      the original implementation of the function contains a line for removing whitespace including a comment
+     *      about it, but the line didn't work, so the function kept the whitespace (like it is tested here), but
+     *      was that the goal?
      */
     public function testAddDirectorySeparatorWithTrailingWhitespaces()
     {
-        $path = $this->__src_path . '   ';
+        $path = $this->__src_path;
         $this->assertEquals(
             $path . DIRECTORY_SEPARATOR,
-            File::addDirectorySeparator($path)
+            File::addDirectorySeparator($path . '    ')
         );
     }
 }
