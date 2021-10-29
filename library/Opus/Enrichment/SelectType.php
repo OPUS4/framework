@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,24 +25,38 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Application
  * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
- * @copyright   Copyright (c) 2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Enrichment;
 
+use Admin_Form_Document_Enrichment;
+use Zend_Validate_InArray;
+
+use function array_key_exists;
+use function array_keys;
+use function array_search;
+use function is_array;
+use function is_bool;
+use function strtok;
+use function trim;
+
+/**
+ * phpcs:disable
+ */
 class SelectType extends AbstractType
 {
-
     /**
      * enthält die zur Auswahl stehenden Werte
      *
      * @var
      */
-    private $values = null;
+    private $values;
 
     private $validation = 'none';
 
@@ -60,7 +75,7 @@ class SelectType extends AbstractType
      */
     public function getValidation()
     {
-        if (is_null($this->values)) {
+        if ($this->values === null) {
             return null; // wenn keine Werteliste definiert ist, braucht auch keine Validierung spezifiziert werden
         }
         return $this->validation;
@@ -85,20 +100,20 @@ class SelectType extends AbstractType
 
     public function getFormElement($value = null)
     {
-        $form = new \Admin_Form_Document_Enrichment();
+        $form    = new Admin_Form_Document_Enrichment();
         $options = ['required' => true];
-        $element = $form->createElement($this->getFormElementName(), \Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
+        $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
 
-        if (! is_null($this->values)) {
+        if ($this->values !== null) {
             $element->setMultiOptions($this->values);
-            $validator = new \Zend_Validate_InArray(array_keys($this->values));
+            $validator = new Zend_Validate_InArray(array_keys($this->values));
             $element->addValidator($validator);
         }
 
         // wenn es sich um ein Select-Element handelt, dann steht in $value
         // der Index des ausgewählten Eintrags (Zählung beginnt bei 0)
         // der ausgewählte Wert muss aus dem Index abgeleitet werden wenn
-        if (! is_null($value)) {
+        if ($value !== null) {
             $value = array_search($value, $this->values);
             $element->setValue($value);
         }
@@ -112,9 +127,9 @@ class SelectType extends AbstractType
     public function getOptionsAsString()
     {
         $result = null;
-        if (! is_null($this->values)) {
+        if ($this->values !== null) {
             foreach ($this->values as $value) {
-                if (is_null($result)) {
+                if ($result === null) {
                     $result = "";
                 } else {
                     $result .= "\n";
@@ -139,10 +154,10 @@ class SelectType extends AbstractType
         }
 
         $separator = "\r\n";
-        $line = strtok($string, $separator);
+        $line      = strtok($string, $separator);
         while ($line !== false) {
             if (trim($line) !== '') {
-                if ($this->values == null) {
+                if ($this->values === null) {
                     $this->values = [];
                 }
                 $this->values[] = $line;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,70 +25,76 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Model;
 
-use Opus\Model\Xml\Strategy;
+use DOMDocument;
+use InvalidArgumentException;
+use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
 use Opus\Security\SecurityException;
+
+use function array_diff;
+use function array_intersect;
+use function array_merge;
+use function in_array;
+use function is_string;
+use function rtrim;
+use function substr;
 
 /**
  * Wrapper class for all domain models in the Opus framework.
  * Defines field blacklist to restrict access and field reporting
  * of concrete Models.
- *
- * @category    Framework
- * @package     Opus\Model
  */
 class Filter extends AbstractModel
 {
-
-
     /**
      * Model instance that gets filtered.
      *
-     * @var AbstractModel
+     * @var parent
      */
-    private $_model = null;
+    private $model;
 
     /**
      * List of fields to be filtered.
      *
      * @var array Array of fieldnames.
      */
-    private $_blacklist = [];
+    private $blacklist = [];
 
     /**
      * List of fields to define sort order.
      *
      * @var array Array of fieldnames defining sort order.
      */
-    private $_sortorder = [];
+    private $sortorder = [];
 
     /**
      * Just here to implement abstract interface.
      *
      * @see \Opus\Model\Abstract#_init()
      */
-    protected function _init()
+    protected function init()
     {
     }
 
     /**
      * Set model to filter.
      *
-     * @param AbstractModel $model Filter source.
-     * @return Filter Fluent interface.
+     * @param parent $model Filter source.
+     * @return $this Fluent interface.
      */
-    public function setModel(AbstractModel $model)
+    public function setModel(parent $model)
     {
-        $this->_model = $model;
+        $this->model = $model;
         return $this;
     }
 
@@ -95,11 +102,11 @@ class Filter extends AbstractModel
      * Set List of fields to be filtered.
      *
      * @param array $list Array of fields that shall be filtered.
-     * @return Filter Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setBlacklist(array $list)
     {
-        $this->_blacklist = $list;
+        $this->blacklist = $list;
         return $this;
     }
 
@@ -107,11 +114,11 @@ class Filter extends AbstractModel
      * Set list of fields to allow access to.
      *
      * @param array $list Array of fields that shall be allowed to be accessed.
-     * @return Filter Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setWhitelist(array $list)
     {
-        $this->_blacklist = array_diff($this->_model->describe(), $list);
+        $this->blacklist = array_diff($this->model->describe(), $list);
         return $this;
     }
 
@@ -119,11 +126,11 @@ class Filter extends AbstractModel
      * Define field sort order for result of describe().
      *
      * @param array $sort Array of field names specifying the order.
-     * @return Filter Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setSortOrder(array $sort)
     {
-        $this->_sortorder = $sort;
+        $this->sortorder = $sort;
         return $this;
     }
 
@@ -132,19 +139,20 @@ class Filter extends AbstractModel
      * that are listed on the blacklist.
      *
      * @see    \Opus\Model\Abstract::_internalFields
+     *
      * @return array    List of fields
      */
     public function describe()
     {
-        $result = $this->_model->describe();
+        $result = $this->model->describe();
 
         // ensure sort order by removing all sorted fields from output
         // and put sort order list on top of the result
-        $sortorder = array_intersect($this->_sortorder, $result);
-        $result = array_diff($result, $sortorder);
-        $result = array_merge($sortorder, $result);
+        $sortorder = array_intersect($this->sortorder, $result);
+        $result    = array_diff($result, $sortorder);
+        $result    = array_merge($sortorder, $result);
 
-        $result = array_diff($result, $this->_blacklist);
+        $result = array_diff($result, $this->blacklist);
         return $result;
     }
 
@@ -157,10 +165,10 @@ class Filter extends AbstractModel
      */
     public function getField($name)
     {
-        if (in_array($name, $this->_blacklist)) {
+        if (in_array($name, $this->blacklist)) {
             throw new ModelException('Requested field is hidden by the blacklist.');
         }
-        return $this->_model->getField($name);
+        return $this->model->getField($name);
     }
 
     /**
@@ -169,7 +177,7 @@ class Filter extends AbstractModel
      *
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
-     * @throws \InvalidArgumentException When adding a link to a field without an argument.
+     * @throws InvalidArgumentException When adding a link to a field without an argument.
      * @throws ModelException     If an unknown field or method is requested.
      * @throws SecurityException  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
@@ -177,7 +185,7 @@ class Filter extends AbstractModel
     public function __call($name, array $arguments)
     {
         $fieldname = substr($name, 3);
-        if (in_array($fieldname, $this->_blacklist)) {
+        if (in_array($fieldname, $this->blacklist)) {
             throw new ModelException('Requested field is hidden by the blacklist.');
         }
         $argstring = '';
@@ -189,7 +197,7 @@ class Filter extends AbstractModel
             }
         }
         $result = null;
-        eval('$result = $this->_model->$name('. rtrim($argstring, ',') . ');');
+        eval('$result = $this->model->$name(' . rtrim($argstring, ',') . ');');
         return $result;
     }
 
@@ -200,10 +208,10 @@ class Filter extends AbstractModel
      */
     public function toArray()
     {
-        $modelArray = $this->_model->toArray();
+        $modelArray = $this->model->toArray();
 
         $filteredFields = $this->describe();
-        $result = [];
+        $result         = [];
         foreach ($filteredFields as $filteredField) {
             $result[$filteredField] = $modelArray[$filteredField];
         }
@@ -214,17 +222,17 @@ class Filter extends AbstractModel
     /**
      * Returns a DOM representation of the filtered model.
      *
-     * @param array $excludeFields Array of fields that shall not be serialized.
-     * @param Strategy $strategy Version of Xml to process
-     * @param bool $excludeEmptyFields If set to false, fields with empty values are included in the resulting DOM.
-     * @return \DomDocument A Dom representation of the model.
+     * @param null|array             $excludeFields Array of fields that shall not be serialized.
+     * @param null|StrategyInterface $strategy Version of Xml to process
+     * @param bool                   $excludeEmptyFields If set to false, fields with empty values are included in the resulting DOM.
+     * @return DOMDocument A Dom representation of the model.
      */
-    public function toXml(array $excludeFields = null, $strategy = null, $excludeEmptyFields = true)
+    public function toXml(?array $excludeFields = null, $strategy = null, $excludeEmptyFields = true)
     {
-        if (is_null($excludeFields) === true) {
+        if ($excludeFields === null) {
             $excludeFields = [];
         }
-        if (is_null($strategy) === true) {
+        if ($strategy === null) {
             $strategy = new Version1();
         }
         $xml = new Xml();
@@ -240,10 +248,10 @@ class Filter extends AbstractModel
     /**
      * Returns the filtered model.
      *
-     * @return AbstractModel The filtered model.
+     * @return parent The filtered model.
      */
     public function getModel()
     {
-        return $this->_model;
+        return $this->model;
     }
 }

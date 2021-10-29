@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model2;
 
+use InvalidArgumentException;
 use Opus\Document;
 use Opus\Identifier;
 use Opus\Model\Properties;
@@ -42,15 +45,14 @@ use Opus\Model\UnknownPropertyKeyException;
 use Opus\Person;
 use Opus\Version;
 use OpusTest\TestAsset\TestCase;
+use ReflectionClass;
+use Zend_Db_Adapter_Exception;
 
 /**
- * Class Opus\Model\PropertiesTest
- *
  * TODO test database adapter problems - is the exception caught and another thrown?
  */
 class PropertiesTest extends TestCase
 {
-
     protected $properties;
 
     public function setUp()
@@ -64,7 +66,7 @@ class PropertiesTest extends TestCase
             'propertykeys',
             'persons',
             'document_identifiers',
-            'link_persons_documents'
+            'link_persons_documents',
         ]);
 
         $this->properties = new Properties();
@@ -115,7 +117,7 @@ class PropertiesTest extends TestCase
 
     public function testUnregisterType()
     {
-        $type = 'identifier';
+        $type  = 'identifier';
         $type2 = 'document';
 
         $properties = $this->properties;
@@ -138,7 +140,7 @@ class PropertiesTest extends TestCase
 
     public function testUnregisterTypeUnknownType()
     {
-        $type = 'document';
+        $type        = 'document';
         $unknownType = 'patent';
 
         $properties = $this->properties;
@@ -154,8 +156,8 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $docType = 'document';
-        $key = 'testkey';
+        $docType    = 'document';
+        $key        = 'testkey';
         $personType = 'person';
 
         $properties->registerType($docType);
@@ -173,17 +175,17 @@ class PropertiesTest extends TestCase
         $properties->setProperty($person, $key, 'personvalue');
 
         $this->assertEquals([
-            $key => 'docvalue'
+            $key => 'docvalue',
         ], $properties->getProperties($doc));
 
         $this->assertEquals([
-            $key => 'personvalue'
+            $key => 'personvalue',
         ], $properties->getProperties($person));
 
         $properties->unregisterType($docType);
 
         $this->assertEquals([
-            $key => 'personvalue'
+            $key => 'personvalue',
         ], $properties->getProperties($person));
 
         // register type again so it can be checked if there are properties left
@@ -269,13 +271,13 @@ class PropertiesTest extends TestCase
             ['test12'],
             ['test.key'],
             ['key12.23'],
-            ['test.key.with.dots']
+            ['test.key.with.dots'],
         ];
     }
 
     /**
      * @param $key
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Adapter_Exception
      * @dataProvider validKeyProvider
      */
     public function testRegisterKeyValidKey($key)
@@ -298,27 +300,27 @@ class PropertiesTest extends TestCase
             ['2test'],
             ['test..key'],
             ['test.key.'],
-            ['test.key.with.dots.']
+            ['test.key.with.dots.'],
         ];
     }
 
     /**
      * @param $key
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Adapter_Exception
      * @dataProvider invalidKeyProvider
      */
     public function testRegisterKeyInvalidKey($key)
     {
         $properties = $this->properties;
 
-        $this->setExpectedException(\InvalidArgumentException::class, $key);
+        $this->setExpectedException(InvalidArgumentException::class, $key);
 
         $properties->registerKey($key);
     }
 
     public function testUnregisterKey()
     {
-        $key = 'extracted';
+        $key  = 'extracted';
         $key2 = 'source';
 
         $properties = $this->properties;
@@ -343,7 +345,7 @@ class PropertiesTest extends TestCase
 
     public function testUnregisterKeyRemovesModelProperties()
     {
-        $key = 'extracted';
+        $key  = 'extracted';
         $key2 = 'source';
 
         $properties = $this->properties;
@@ -359,14 +361,14 @@ class PropertiesTest extends TestCase
         $properties->setProperty($model, $key2, 'sword');
 
         $this->assertEquals([
-            $key => 'yes',
-            $key2 => 'sword'
+            $key  => 'yes',
+            $key2 => 'sword',
         ], $properties->getProperties($model));
 
         $properties->unregisterKey($key);
 
         $this->assertEquals([
-            $key2 => 'sword'
+            $key2 => 'sword',
         ], $properties->getProperties($model));
     }
 
@@ -429,7 +431,7 @@ class PropertiesTest extends TestCase
 
         $this->assertEquals([
             'key1' => 'value1',
-            'key2' => 'value2'
+            'key2' => 'value2',
         ], $props);
     }
 
@@ -452,12 +454,12 @@ class PropertiesTest extends TestCase
     {
         $this->resetDatabase();
 
-        $doc = Document::new();
+        $doc        = Document::new();
         $identifier = Identifier::new();
         $identifier->setType('isbn');
         $identifier->setValue('testisbn');
         $doc->addIdentifier($identifier);
-        $docId = $doc->store();
+        $docId        = $doc->store();
         $identifierId = $identifier->getId();
 
         $this->assertEquals($docId, $identifierId); // both are the first objects of their type
@@ -474,7 +476,7 @@ class PropertiesTest extends TestCase
 
         $this->assertEquals([
             'key1' => 'value1',
-            'key2' => 'value2'
+            'key2' => 'value2',
         ], $props);
 
         $props = $properties->getProperties($identifierId, 'identifier');
@@ -486,7 +488,7 @@ class PropertiesTest extends TestCase
 
     public function testGetPropertiesWithIdAndBadType()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $properties = $this->properties;
@@ -502,7 +504,7 @@ class PropertiesTest extends TestCase
 
     public function testGetPropertiesWithUnknownId()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $properties = $this->properties;
@@ -519,7 +521,7 @@ class PropertiesTest extends TestCase
 
     public function testGetPropertiesWithBadId()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $properties = $this->properties;
@@ -528,7 +530,7 @@ class PropertiesTest extends TestCase
         $doc->setProperty('key1', 'value1');
         $doc->setProperty('key2', 'value2');
 
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->setExpectedException(InvalidArgumentException::class);
 
         $properties->getProperties(1.5, 'document');
     }
@@ -543,8 +545,8 @@ class PropertiesTest extends TestCase
         $model2 = Document::new();
         $model2->store();
 
-        $key = 'extracted';
-        $value = 'error';
+        $key    = 'extracted';
+        $value  = 'error';
         $value2 = 'value2';
 
         $properties->registerType('document');
@@ -568,7 +570,7 @@ class PropertiesTest extends TestCase
 
         $properties->registerKey($key);
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Model argument must not be null');
+        $this->setExpectedException(InvalidArgumentException::class, 'Model argument must not be null');
 
         $properties->setProperty(null, $key, 'testvalue');
     }
@@ -582,7 +584,7 @@ class PropertiesTest extends TestCase
         $model = Document::new();
         $model->store();
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Key argument must not be null');
+        $this->setExpectedException(InvalidArgumentException::class, 'Key argument must not be null');
 
         $properties->setProperty($model, null, 'testvalue');
     }
@@ -591,7 +593,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Model argument must not be null');
+        $this->setExpectedException(InvalidArgumentException::class, 'Model argument must not be null');
 
         $properties->setProperty(null, null, 'testvalue');
     }
@@ -607,7 +609,7 @@ class PropertiesTest extends TestCase
         $model = new Version(); // Not a \Opus\Model\AbstractModel class
 
         $this->setExpectedException(
-            \InvalidArgumentException::class,
+            InvalidArgumentException::class,
             'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
@@ -638,7 +640,7 @@ class PropertiesTest extends TestCase
         $model = new Version(); // Not a \Opus\Model\AbstractModel class
 
         $this->setExpectedException(
-            \InvalidArgumentException::class,
+            InvalidArgumentException::class,
             'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
@@ -665,8 +667,8 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $key = 'testkey';
-        $value = 'testvalue';
+        $key    = 'testkey';
+        $value  = 'testvalue';
         $value2 = 'testvalue2';
 
         $model = Document::new();
@@ -691,7 +693,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $key = 'testkey';
+        $key  = 'testkey';
         $key2 = 'key2';
 
         $properties->registerKey($key);
@@ -748,7 +750,7 @@ class PropertiesTest extends TestCase
         $model = new Version(); // Does not implement interface
 
         $this->setExpectedException(
-            \InvalidArgumentException::class,
+            InvalidArgumentException::class,
             'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
@@ -791,7 +793,7 @@ class PropertiesTest extends TestCase
 
         $this->assertEquals([
             'key1' => 'value1',
-            'key2' => 'value2'
+            'key2' => 'value2',
         ], $properties->getProperties($model));
 
         $properties->removeProperties($model);
@@ -800,7 +802,7 @@ class PropertiesTest extends TestCase
 
         // check that properties of other model did not get removed
         $this->assertEquals([
-            'key1' => 'value1b'
+            'key1' => 'value1b',
         ], $properties->getProperties($model2));
     }
 
@@ -826,7 +828,7 @@ class PropertiesTest extends TestCase
         $model = new Version();
 
         $this->setExpectedException(
-            \InvalidArgumentException::class,
+            InvalidArgumentException::class,
             'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
@@ -848,7 +850,7 @@ class PropertiesTest extends TestCase
 
     public function testRemovePropertiesWithModelIdAndType()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $doc->setProperty('key1', 'value1');
@@ -866,7 +868,7 @@ class PropertiesTest extends TestCase
 
     public function testRemovePropertiesWithBadModelIdAndType()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $doc->setProperty('key1', 'value1');
@@ -875,7 +877,7 @@ class PropertiesTest extends TestCase
         $this->assertEquals('value1', $doc->getProperty('key1'));
         $this->assertEquals('value2', $doc->getProperty('key2'));
 
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->setExpectedException(InvalidArgumentException::class);
 
         $properties = $this->properties;
         $properties->removeProperties(1.5, $doc->getModelType());
@@ -883,7 +885,7 @@ class PropertiesTest extends TestCase
 
     public function testRemovePropertiesWithModelIdAndBadType()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $doc->setProperty('key1', 'value1');
@@ -902,7 +904,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $key = 'testkey';
+        $key  = 'testkey';
         $key2 = 'key2';
 
         $properties->registerType('document');
@@ -920,19 +922,19 @@ class PropertiesTest extends TestCase
         $properties->setProperty($model2, $key, 'testvalue2');
 
         $this->assertEquals([
-            $key => 'testvalue',
-            $key2 => 'value2'
+            $key  => 'testvalue',
+            $key2 => 'value2',
         ], $properties->getProperties($model));
 
         $properties->removeProperty($model, $key);
 
         $this->assertEquals([
-            $key2 => 'value2'
+            $key2 => 'value2',
         ], $properties->getProperties($model));
 
         // check that property did not get remove from other model
         $this->assertEquals([
-            $key => 'testvalue2'
+            $key => 'testvalue2',
         ], $properties->getProperties($model2));
     }
 
@@ -940,7 +942,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $key = 'testkey';
+        $key  = 'testkey';
         $key2 = 'key2';
 
         $properties->registerType('document');
@@ -954,14 +956,14 @@ class PropertiesTest extends TestCase
         $properties->setProperty($model, $key2, 'value2');
 
         $this->assertEquals([
-            $key => 'testvalue',
-            $key2 => 'value2'
+            $key  => 'testvalue',
+            $key2 => 'value2',
         ], $properties->getProperties($model));
 
         $properties->setProperty($model, $key, null);
 
         $this->assertEquals([
-            $key2 => 'value2'
+            $key2 => 'value2',
         ], $properties->getProperties($model));
     }
 
@@ -1001,7 +1003,7 @@ class PropertiesTest extends TestCase
         $model = new Version();
 
         $this->setExpectedException(
-            \InvalidArgumentException::class,
+            InvalidArgumentException::class,
             'Model argument must be of type Opus\Model\PropertySupportInterface'
         );
 
@@ -1047,7 +1049,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $key = 'testkey';
+        $key   = 'testkey';
         $value = 'testvalue';
 
         $properties->registerType('document');
@@ -1055,7 +1057,7 @@ class PropertiesTest extends TestCase
 
         $expected = [];
 
-        $model = Document::new();
+        $model   = Document::new();
         $modelId = $model->store();
         $properties->setProperty($model, $key, $value);
 
@@ -1070,7 +1072,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $key = 'testkey';
+        $key   = 'testkey';
         $value = 'testvalue';
 
         $properties->registerType('document');
@@ -1078,7 +1080,7 @@ class PropertiesTest extends TestCase
 
         $expected = [];
 
-        $model = Document::new();
+        $model   = Document::new();
         $modelId = $model->store();
         $properties->setProperty($model, $key, $value);
 
@@ -1100,7 +1102,7 @@ class PropertiesTest extends TestCase
         $properties->registerKey($oldKey);
 
         $this->assertEquals([
-            $oldKey
+            $oldKey,
         ], $properties->getKeys());
 
         $model = Document::new();
@@ -1109,17 +1111,17 @@ class PropertiesTest extends TestCase
         $properties->setProperty($model, $oldKey, 'testvalue');
 
         $this->assertEquals([
-            $oldKey => 'testvalue'
+            $oldKey => 'testvalue',
         ], $properties->getProperties($model));
 
         $properties->renameKey($oldKey, $newKey);
 
         $this->assertEquals([
-            $newKey
+            $newKey,
         ], $properties->getKeys());
 
         $this->assertEquals([
-            $newKey => 'testvalue'
+            $newKey => 'testvalue',
         ], $properties->getProperties($model));
     }
 
@@ -1127,14 +1129,14 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $oldKey = 'oldkey';
+        $oldKey     = 'oldkey';
         $invalidKey = 'invalid..key';
 
         $properties->registerType('document');
         $properties->registerKey($oldKey);
 
         $this->assertEquals([
-            $oldKey
+            $oldKey,
         ], $properties->getKeys());
 
         $model = Document::new();
@@ -1143,18 +1145,18 @@ class PropertiesTest extends TestCase
         $properties->setProperty($model, $oldKey, 'testvalue');
 
         $this->assertEquals([
-            $oldKey => 'testvalue'
+            $oldKey => 'testvalue',
         ], $properties->getProperties($model));
 
-        $this->setExpectedException(\InvalidArgumentException::class, $invalidKey);
+        $this->setExpectedException(InvalidArgumentException::class, $invalidKey);
 
         $properties->renameKey($oldKey, $invalidKey);
     }
 
     public function testGetKeyId()
     {
-        $reflect = new \ReflectionClass(Properties::class);
-        $method = $reflect->getMethod('getKeyId');
+        $reflect = new ReflectionClass(Properties::class);
+        $method  = $reflect->getMethod('getKeyId');
         $method->setAccessible(true);
 
         $properties = $this->properties;
@@ -1192,7 +1194,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must not be null');
+        $this->setExpectedException(InvalidArgumentException::class, 'Argument must not be null');
 
         $properties->setAutoRegisterTypeEnabled(null);
     }
@@ -1201,7 +1203,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must be boolean');
+        $this->setExpectedException(InvalidArgumentException::class, 'Argument must be boolean');
 
         $properties->setAutoRegisterTypeEnabled('123');
     }
@@ -1226,7 +1228,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must not be null');
+        $this->setExpectedException(InvalidArgumentException::class, 'Argument must not be null');
 
         $properties->setAutoRegisterKeyEnabled(null);
     }
@@ -1235,7 +1237,7 @@ class PropertiesTest extends TestCase
     {
         $properties = $this->properties;
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Argument must be boolean');
+        $this->setExpectedException(InvalidArgumentException::class, 'Argument must be boolean');
 
         $properties->setAutoRegisterKeyEnabled('test');
     }
@@ -1245,7 +1247,7 @@ class PropertiesTest extends TestCase
         $properties = $this->properties;
         $properties->setAutoRegisterTypeEnabled(true);
 
-        $key = 'testkey';
+        $key   = 'testkey';
         $value = 'testvalue';
 
         $properties->registerKey($key);
@@ -1260,7 +1262,7 @@ class PropertiesTest extends TestCase
         $this->assertEquals($value, $properties->getProperty($model, $key));
 
         $this->assertEquals([
-            'document'
+            'document',
         ], $properties->getTypes());
     }
 
@@ -1269,7 +1271,7 @@ class PropertiesTest extends TestCase
         $properties = $this->properties;
         $properties->setAutoRegisterKeyEnabled(true);
 
-        $key = 'testkey';
+        $key   = 'testkey';
         $value = 'testvalue';
 
         $properties->registerType('document');
@@ -1284,7 +1286,7 @@ class PropertiesTest extends TestCase
         $this->assertEquals($value, $properties->getProperty($model, $key));
 
         $this->assertEquals([
-            $key
+            $key,
         ], $properties->getKeys());
     }
 
@@ -1295,7 +1297,7 @@ class PropertiesTest extends TestCase
         $properties->setAutoRegisterTypeEnabled(true);
         $properties->setAutoRegisterKeyEnabled(true);
 
-        $key = 'testkey';
+        $key   = 'testkey';
         $value = 'testvalue';
 
         $model = Document::new();
@@ -1309,11 +1311,11 @@ class PropertiesTest extends TestCase
         $this->assertEquals($value, $properties->getProperty($model, $key));
 
         $this->assertEquals([
-            $key
+            $key,
         ], $properties->getKeys());
 
         $this->assertEquals([
-            'document'
+            'document',
         ], $properties->getTypes());
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,91 +25,108 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model;
 
+use Exception;
+use InvalidArgumentException;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
+use Zend_Validate_Interface;
+
+use function array_merge;
+use function array_pop;
+use function array_values;
+use function count;
+use function get_class;
+use function gettype;
+use function in_array;
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_object;
+use function is_string;
+use function is_subclass_of;
+use function spl_object_hash;
 
 /**
  * Domain model for fields in the Opus framework
  *
- * @category Framework
- * @package  Opus\Model
- *
  * TODO remove presentation layer functions like setCheckbox etc.
+ *
+ * phpcs:disable
  */
-class Field implements ModificationTracking
+class Field implements ModificationTrackingInterface
 {
-
     /**
      * Hold validator.
      *
-     * @var \Zend_Validate_Interface
+     * @var Zend_Validate_Interface
      */
-    protected $_validator = null;
+    protected $validator;
 
     /**
      * Hold multiplicity constraint.
      *
-     * @var Integer|String
+     * @var int|string
      */
-    protected $_multiplicity = 1;
+    protected $multiplicity = 1;
 
     /**
      * Simple check for multiple values.
      *
      * @var bool
      */
-    private $_hasMultipleValues = false;
+    private $hasMultipleValues = false;
 
     /**
      * Specifiy whether the field is required or not.
      *
      * @var unknown_type
      */
-    protected $_mandatory = false;
+    protected $mandatory = false;
 
     /**
      * Hold the fields value.
      *
      * @var mixed
      */
-    protected $_value = null;
+    protected $value;
 
     /**
      * Holds the classname for external fields.
      *
      * @var string
      */
-    protected $_valueModelClass = null;
+    protected $valueModelClass;
 
     /**
      * Holds the classname for link fields.
      *
      * @var string
      */
-    protected $_linkModelClass = null;
+    protected $linkModelClass;
 
     /**
      * Holds the classname of the model that the field belongs to.
      */
-    protected $_owningModelClass = null;
+    protected $owningModelClass;
 
     /**
      * Holds the name of the sort field...
      *
      * @var string
      */
-    protected $_sortFieldName = null;
+    protected $sortFieldName;
 
     /**
      * Holds the fields default values. For selection list fields this should
@@ -116,53 +134,49 @@ class Field implements ModificationTracking
      *
      * @var mixed
      */
-    protected $_default = null;
-
+    protected $default;
 
     /**
      * Internal name of the field.
      *
      * @var string
      */
-    protected $_name = '';
+    protected $name = '';
 
     /**
      * Specify if a field can be displayed as a text box.
      *
-     * @var boolean
+     * @var bool
      */
-    protected $_textarea = false;
-
+    protected $textarea = false;
 
     /**
      * Specify if a field can be displayed as a selection list.
      *
-     * @var boolean
+     * @var bool
      */
-    protected $_selection = false;
+    protected $selection = false;
 
     /**
      * Specify if a field can be displayed as a checkbox.
      *
-     * @var boolean
+     * @var bool
      */
-    protected $_checkbox = false;
+    protected $checkbox = false;
 
     /**
      * Set to true if the field value has been modified.
      *
-     * @var boolean Saves the state of the field.
+     * @var bool Saves the state of the field.
      */
-    protected $_modified = false;
-
+    protected $modified = false;
 
     /**
      * Set of pending delete operations for dependent Models.
      *
      * @var array Associative array mapping object hashes to array('model' => $instance, 'token' => $deleteToken);
      */
-    protected $_pendingDeletes = [];
-
+    protected $pendingDeletes = [];
 
     /**
      * Create an new field instance and set the given name.
@@ -177,101 +191,101 @@ class Field implements ModificationTracking
      */
     public function __construct($name)
     {
-        $this->_name = $name;
+        $this->name = $name;
     }
 
     /**
      * Get the internal name of the field.
      *
-     * @return String Internal field name.
+     * @return string Internal field name.
      */
     public function getName()
     {
-        return $this->_name;
+        return $this->name;
     }
 
     /**
      * Set a validator for the field.
      *
-     * @param \Zend_Validate_Interface $validator A validator.
-     * @return Field Provide fluent interface.
+     * @param Zend_Validate_Interface $validator A validator.
+     * @return $this Provide fluent interface.
      */
-    public function setValidator(\Zend_Validate_Interface $validator)
+    public function setValidator(Zend_Validate_Interface $validator)
     {
-        $this->_validator = $validator;
+        $this->validator = $validator;
         return $this;
     }
 
     /**
      * Get the assigned validator for the field.
      *
-     * @return \Zend_Validate_Interface The fields validator if one is assigned.
+     * @return Zend_Validate_Interface The fields validator if one is assigned.
      */
     public function getValidator()
     {
-        return $this->_validator;
+        return $this->validator;
     }
 
     /**
      * Set multiplicity constraint for multivalue fields.
      *
-     * @param integer|string $max Upper limit for multiple values, either a number or "*" for infinity.
-     * @throws \InvalidArgumentException If $max is neither "*" nor an integer.
-     * @return Field Provide fluent interface.
+     * @param int|string $max Upper limit for multiple values, either a number or "*" for infinity.
+     * @throws InvalidArgumentException If $max is neither "*" nor an integer.
+     * @return $this Provide fluent interface.
      */
     public function setMultiplicity($max)
     {
         if ($max !== '*') {
             if ((is_int($max) === false) or ($max < 1)) {
-                throw new \InvalidArgumentException('Only integer values > 1 or "*" allowed.');
+                throw new InvalidArgumentException('Only integer values > 1 or "*" allowed.');
             }
         }
-        $this->_multiplicity = $max;
-        $this->_hasMultipleValues = (($max > 1) or ($max === '*'));
+        $this->multiplicity      = $max;
+        $this->hasMultipleValues = $max > 1 || $max === '*';
         return $this;
     }
 
     /**
      * Return the fields maximum number of values.
      *
-     * @return integer|string Upper limit for multiple values, either a number or "*" for infinity.
+     * @return int|string Upper limit for multiple values, either a number or "*" for infinity.
      */
     public function getMultiplicity()
     {
-        return $this->_multiplicity;
+        return $this->multiplicity;
     }
 
     /**
      * Return whether the field has a multiplicity greater 1.
      *
-     * @return Boolean True, if field can have multiple values.
+     * @return bool True, if field can have multiple values.
      */
     public function hasMultipleValues()
     {
-        return $this->_hasMultipleValues;
+        return $this->hasMultipleValues;
     }
 
     /**
      * Set the mandatory flag for the field. This flag states out whether a field is required
      * to have a value or not.
      *
-     * @param boolean $mandatory Set to true if the field shall be a required field.
-     * @return Field Provide fluent interface.
+     * @param bool $mandatory Set to true if the field shall be a required field.
+     * @return $this Provide fluent interface.
      */
     public function setMandatory($mandatory)
     {
-        $this->_mandatory = (bool) $mandatory;
+        $this->mandatory = (bool) $mandatory;
         return $this;
     }
 
     /**
      * Get the mandatory flag.
      *
-     * @return Boolean True, if the field is marked tobe mandatory.
+     * @return bool True, if the field is marked tobe mandatory.
      */
     public function isMandatory()
     {
-        return $this->_mandatory;
+        return $this->mandatory;
     }
 
     /**
@@ -282,9 +296,9 @@ class Field implements ModificationTracking
      * It also calls delete() on models that appear to be in the value list, but not in the given argument. (see #434)
      *
      * @param mixed $value The field value to be set.
-     * @throws \InvalidArgumentException If Multivalue option and input argument do not match
+     * @throws InvalidArgumentException If Multivalue option and input argument do not match
      *         (an array is required but not given).
-     * @return Field Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function setValue($value)
     {
@@ -294,31 +308,31 @@ class Field implements ModificationTracking
             // because Opus\Date points to its Opus\Model\DateField objects and those back to Opus\Date. Therefore
             // Opus\Date implements Opus\Model\Comparable, which is in any case better to ensure that the comparison
             // follows meaningful rules.
-            if ($value instanceof Comparable) {
-                if ($value->compare($this->_value) == 0) {
+            if ($value instanceof ComparableInterface) {
+                if ($value->compare($this->value) === 0) {
                     return $this;
                 }
 
                 // weak comparison for objects
-                // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
+                // TODO: DateTimeZone===DateTimeZone always returns true in weak equal check!  Why?
                 // TODO: Why weak comparisons? They are tricky in PHP.
-            } elseif ($value == $this->_value) {
+            } elseif ($value == $this->value) {
                 return $this;
             }
         } else {
             // strong comparison for other values
-            if ($value === $this->_value) {
+            if ($value === $this->value) {
                 return $this;
             }
         }
 
-        if (true === is_array($value) and 1 === count($value)) {
+        if (true === is_array($value) && 1 === count($value)) {
             $value = array_pop($value);
-        } elseif (true === is_array($value) and 0 === count($value)) {
+        } elseif (true === is_array($value) && 0 === count($value)) {
             $value = null;
         } elseif (is_bool($value)) {
             // make sure 'false' is not converted to '' (empty string), but 0 for database
-            $value = (int)$value;
+            $value = (int) $value;
         }
 
         // if null is given, delete dependent objects
@@ -327,12 +341,12 @@ class Field implements ModificationTracking
         } else {
             // otherwise process the given value(s)
             $multiValueCondition = $this->hasMultipleValues();
-            $arrayCondition = is_array($value);
+            $arrayCondition      = is_array($value);
 
             // Reject input if an array is required but not is given
-            if (($multiValueCondition === false) and ($arrayCondition === true)) {
-                throw new \InvalidArgumentException(
-                    'Multivalue option and input argument do not match. (Field ' . $this->_name . ')'
+            if ($multiValueCondition === false && $arrayCondition === true) {
+                throw new InvalidArgumentException(
+                    'Multivalue option and input argument do not match. (Field ' . $this->name . ')'
                 );
             }
 
@@ -347,7 +361,7 @@ class Field implements ModificationTracking
 
             // Check type of the values if _valueModelClass is set
             // and reject any input that is not of this type
-            $this->_typeCheckValues($values);
+            $this->typeCheckValues($values);
 
             // determine Opus\Model\Dependent\AbstractDependentModel instances that
             // are in the current value set but not in the given
@@ -362,8 +376,8 @@ class Field implements ModificationTracking
         // Re-set sort order:
         $this->_fixSortOrder($value);
 
-        $this->_value = $value;
-        $this->_modified = true;
+        $this->value    = $value;
+        $this->modified = true;
         return $this;
     }
 
@@ -373,15 +387,14 @@ class Field implements ModificationTracking
      * TODO For authors for instance this function prevents specifying the order using SortOrder.
      *
      * @param array $values
-     * @return void
      */
     private function _fixSortOrder($values, $sortValue = 1)
     {
-        if (is_null($values)) {
+        if ($values === null) {
             return;
         }
 
-        $sortField = $this->_sortFieldName;
+        $sortField = $this->sortFieldName;
         if (! is_string($sortField)) {
             return;
         }
@@ -389,7 +402,7 @@ class Field implements ModificationTracking
         $values = is_array($values) ? $values : [$values];
 
         foreach ($values as $valueNew) {
-            $field = $valueNew->getField($sortField);
+            $field        = $valueNew->getField($sortField);
             $oldSortValue = $field->getValue();
             if ($oldSortValue != $sortValue) {
                 $field->setValue($sortValue);
@@ -403,21 +416,22 @@ class Field implements ModificationTracking
      * but not in the given in the update value and issue delete() to these Models.
      *
      * @param array &$values Reference to value update set.
-     * @return void
      */
     private function _deleteUnreferencedDependentModels(array &$values)
     {
         // arrayfy field value for iteration
-        $fvals = $this->_value;
+        $fvals = $this->value;
         if (false === is_array($fvals)) {
             $fvals = [$fvals];
         }
 
         $nids = [];
-        if (false === is_null($this->_valueModelClass)) {
+        if ($this->valueModelClass !== null) {
             foreach ($values as $val) {
-                if (false === $val instanceof AbstractDependentModel
-                    or true === is_null($val->getId())) {
+                if (
+                    false === $val instanceof AbstractDependentModel
+                    or $val->getId() === null
+                ) {
                     continue;
                 }
                 $nids[] = $val->getId();
@@ -429,7 +443,7 @@ class Field implements ModificationTracking
         foreach ($fvals as $victim) {
             if ($victim instanceof AbstractDependentModel) {
                 $vid = $victim->getId();
-                if (false === is_null($vid) and false === in_array($vid, $nids)) {
+                if ($vid !== null && false === in_array($vid, $nids)) {
                     $removees[] = $victim;
                 }
             }
@@ -440,17 +454,15 @@ class Field implements ModificationTracking
 
     /**
      * Check if the values have the correct type.
-     *
-     * @return void
      */
-    private function _typeCheckValues(array $values)
+    private function typeCheckValues(array $values)
     {
-        if (is_null($this->_valueModelClass)) {
+        if ($this->valueModelClass === null) {
             return;
         }
 
         // determine expected type
-        $etype = $this->_valueModelClass;
+        $etype = $this->valueModelClass;
 
         // typecheck each array element
         foreach ($values as $v) {
@@ -462,7 +474,7 @@ class Field implements ModificationTracking
             // values must be objects - should be checked before get_class.
             if (false === is_object($v)) {
                 throw new ModelException(
-                    "Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})"
+                    "Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->name})"
                 );
             }
 
@@ -477,7 +489,7 @@ class Field implements ModificationTracking
             if ($vtype !== $etype) {
                 if (false === is_subclass_of($vtype, $etype)) {
                     throw new ModelException(
-                        "Value of type $vtype given but expected $etype. (Field {$this->_name})"
+                        "Value of type $vtype given but expected $etype. (Field {$this->name})"
                     );
                 }
             }
@@ -488,36 +500,32 @@ class Field implements ModificationTracking
      * Prepare delete calls to all dependent models stored in this field.
      * To actually delete those dependent model doPendingDeleteOperations() has to be called.
      *
-     * @param array $removees (Optional) Array of Opus\Model\Dependent\AbstractDependentModel instances to be deleted.
-     * @return void
+     * @param null|array $removees (Optional) Array of Opus\Model\Dependent\AbstractDependentModel instances to be deleted.
      */
-    private function _deleteDependentModels(array $removees = null)
+    private function _deleteDependentModels(?array $removees = null)
     {
         if (null === $removees) {
-            $removees = is_array($this->_value) ? $this->_value : [$this->_value];
+            $removees = is_array($this->value) ? $this->value : [$this->value];
         }
 
         foreach ($removees as $submodel) {
             if ($submodel instanceof AbstractDependentModel) {
-                $token = $submodel->delete();
-                $objhash = spl_object_hash($submodel);
-                $this->_pendingDeletes[$objhash] = ['model' => $submodel, 'token' => $token];
+                $token                           = $submodel->delete();
+                $objhash                         = spl_object_hash($submodel);
+                $this->pendingDeletes[$objhash] = ['model' => $submodel, 'token' => $token];
             }
         }
     }
 
     /**
      * Perform all pending delete operations for dependent Models.
-     *
-     * @return void
      */
     public function doPendingDeleteOperations()
     {
-        foreach (array_values($this->_pendingDeletes) as $info) {
+        foreach (array_values($this->pendingDeletes) as $info) {
             $info['model']->doDelete($info['token']);
         }
     }
-
 
     /**
      * If a value model class is set for this field,
@@ -530,21 +538,21 @@ class Field implements ModificationTracking
      */
     private function _tryCastValuesToModel(array $values)
     {
-        if (is_null($this->_valueModelClass)) {
+        if ($this->valueModelClass === null) {
             return $values;
         }
 
         foreach ($values as $i => $value) {
-            if (is_object($value) or is_null($value)) {
+            if (is_object($value) || $value === null) {
                 continue;
             }
 
             try {
-                $valueObj = new $this->_valueModelClass($value);
+                $valueObj   = new $this->valueModelClass($value);
                 $values[$i] = $valueObj;
-            } catch (\Exception $ex) {
+            } catch (Exception $ex) {
                 throw new ModelException(
-                    "Failed to cast value '$value' to class '{$this->_valueModelClass}'. (Field {$this->_name})",
+                    "Failed to cast value '$value' to class '{$this->valueModelClass}'. (Field {$this->name})",
                     null,
                     $ex
                 );
@@ -553,35 +561,33 @@ class Field implements ModificationTracking
         return $values;
     }
 
-
-
     /**
      * Get the field's value. If the field is a multi-valued one it is guaranteed
      * that an array is returned.
      *
-     * @param  integer $index (Optional) The index of the value, if it's an array.
-     * @throws \InvalidArgumentException If you try to access an index, that does not exists.
+     * @param  null|int $index (Optional) The index of the value, if it's an array.
+     * @throws InvalidArgumentException If you try to access an index, that does not exists.
      * @return Mixed Whatever the value of the field might be.
      */
     public function getValue($index = null)
     {
         // wrap start value in array if multivalue option is set for this field
-        $this->_value = $this->_wrapValueInArrayIfRequired($this->_value);
+        $this->value = $this->_wrapValueInArrayIfRequired($this->value);
 
         // Caller requested a specific array index
-        if (! is_null($index)) {
-            if (true === is_array($this->_value)) {
-                if (true === isset($this->_value[$index])) {
-                    return $this->_value[$index];
+        if ($index !== null) {
+            if (true === is_array($this->value)) {
+                if (true === isset($this->value[$index])) {
+                    return $this->value[$index];
                 } else {
-                    throw new \InvalidArgumentException('Unvalid index: ' . $index);
+                    throw new InvalidArgumentException('Unvalid index: ' . $index);
                 }
             } else {
-                throw new \InvalidArgumentException('Invalid index (' . $index . '). Requested value is not an array.');
+                throw new InvalidArgumentException('Invalid index (' . $index . '). Requested value is not an array.');
             }
         }
 
-        return $this->_value;
+        return $this->value;
     }
 
     /**
@@ -598,7 +604,7 @@ class Field implements ModificationTracking
             return $value;
         }
 
-        if (is_null($value)) {
+        if ($value === null) {
             return [];
         }
 
@@ -610,53 +616,55 @@ class Field implements ModificationTracking
      * to the already existing field values.
      *
      * @param mixed $value The value to add.
-     * @throws \InvalidArgumentException If no more values can be added to this value
+     * @throws InvalidArgumentException If no more values can be added to this value
      *         (f.e. multiplicity allows 2 values an both are set already).
-     * @return Field Fluent interface.
+     * @return $this Fluent interface.
      */
     public function addValue($value)
     {
         if ($this->hasMultipleValues() === false) {
             // One cannot add an array of values to an single-multiplicity field
-            if (is_array($value) or is_null($this->_value) === false) {
-                throw new \InvalidArgumentException('Cannot add multiple values to ' . $this->_name);
+            if (is_array($value) or $this->value !== null) {
+                throw new \InvalidArgumentException('Cannot add multiple values to ' . $this->name);
             } else {
                 $this->setValue($value);
                 return $this;
             }
         }
 
-        $this->_value = $this->_wrapValueInArrayIfRequired($this->_value);
+        $this->value = $this->_wrapValueInArrayIfRequired($this->value);
 
         // Check type of the values if _valueModelClass is set
         // and reject any input that is not of this type
-        if (null !== $this->_valueModelClass) {
+        if (null !== $this->valueModelClass) {
             foreach ($value as $v) {
                 $vtype = get_class($v);
-                $etype = $this->_valueModelClass;
+                $etype = $this->valueModelClass;
                 if (get_class($v) !== $etype) {
                     throw new ModelException(
-                        "Value of type $vtype given but expected $etype. (Field {$this->_name})"
+                        "Value of type $vtype given but expected $etype. (Field {$this->name})"
                     );
                 }
             }
         }
 
         // Check multiplicity constraint
-        if (is_int($this->_multiplicity) === true) {
-            if ((count($value) > $this->_multiplicity)
-                or ((count($value) + count($this->_value)) > $this->_multiplicity)) {
-                throw new \InvalidArgumentException(
-                    'Field ' . $this->_name . ' cannot hold more then ' . $this->_multiplicity . ' values.'
+        if (is_int($this->multiplicity) === true) {
+            if (
+                (count($value) > $this->multiplicity)
+                or ((count($value) + count($this->value)) > $this->multiplicity)
+            ) {
+                throw new InvalidArgumentException(
+                    'Field ' . $this->name . ' cannot hold more then ' . $this->multiplicity . ' values.'
                 );
             }
         }
 
-        if (is_string($this->_sortFieldName)) {
-            $sortField = $this->_sortFieldName;
+        if (is_string($this->sortFieldName)) {
+            $sortField = $this->sortFieldName;
 
             $sortValueMax = 0;
-            foreach ($this->_value as $valueOld) {
+            foreach ($this->value as $valueOld) {
                 $sortValue = $valueOld->getField($sortField)->getValue();
                 if ($sortValue > $sortValueMax) {
                     $sortValueMax = $sortValue;
@@ -668,12 +676,12 @@ class Field implements ModificationTracking
 
         // Add the value to the array
         if (is_array($value) === true) {
-            $this->_value = array_merge($this->_value, $value);
+            $this->value = array_merge($this->value, $value);
         } else {
-            $this->_value[] = $value;
+            $this->value[] = $value;
         }
 
-        $this->_modified = true;
+        $this->modified = true;
         return $this;
     }
 
@@ -681,14 +689,13 @@ class Field implements ModificationTracking
      * Set the fields default value.
      *
      * @param mixed $value The field default value to be set.
-     * @return Field Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function setDefault($value)
     {
-        $this->_default = $value;
+        $this->default = $value;
         return $this;
     }
-
 
     /**
      * Get the fields default value.
@@ -697,50 +704,48 @@ class Field implements ModificationTracking
      */
     public function getDefault()
     {
-        return $this->_default;
+        return $this->default;
     }
 
     /**
      * Set the textarea property. Override other properties if textarea is set
      * to true.
      *
-     * @param boolean $value True, if the field can be displayed as a text box.
-     * @return void
+     * @param bool $value True, if the field can be displayed as a text box.
      */
     public function setTextarea($value)
     {
-        $this->_textarea = (bool) $value;
-        if ($this->_textarea === true) {
-            $this->_checkbox = false;
-            $this->_selection = false;
+        $this->textarea = (bool) $value;
+        if ($this->textarea === true) {
+            $this->checkbox  = false;
+            $this->selection = false;
         }
     }
 
     /**
      * Return textarea property.
      *
-     * @return Boolean True, if the field can be displayed as a text box.
+     * @return bool True, if the field can be displayed as a text box.
      */
     public function isTextarea()
     {
-        return $this->_textarea;
+        return $this->textarea;
     }
-
 
     /**
      * Set the selection property. Override other properties if selection is
      * set to true.
      *
-     * @param boolean $value True, if the field can be displayed as a selection
+     * @param bool $value True, if the field can be displayed as a selection
      *                       list.
-     * @return Field Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function setSelection($value)
     {
-        $this->_selection = (bool) $value;
-        if ($this->_selection === true) {
-            $this->_checkbox = false;
-            $this->_textarea = false;
+        $this->selection = (bool) $value;
+        if ($this->selection === true) {
+            $this->checkbox = false;
+            $this->textarea = false;
         }
         return $this;
     }
@@ -748,11 +753,11 @@ class Field implements ModificationTracking
     /**
      * Return selection property.
      *
-     * @return Boolean True, if the field can be displayed as a selection list.
+     * @return bool True, if the field can be displayed as a selection list.
      */
     public function isSelection()
     {
-        return $this->_selection;
+        return $this->selection;
     }
 
     /**
@@ -762,18 +767,18 @@ class Field implements ModificationTracking
      */
     public function getValueModelClass()
     {
-        return $this->_valueModelClass;
+        return $this->valueModelClass;
     }
 
     /**
      * Set the name of model class if the field holds model instances.
      *
      * @param  string $classname The name of the class that is used as model for this field or null.
-     * @return Field Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setValueModelClass($classname)
     {
-        $this->_valueModelClass = $classname;
+        $this->valueModelClass = $classname;
         return $this;
     }
 
@@ -784,38 +789,40 @@ class Field implements ModificationTracking
      */
     public function getLinkModelClass()
     {
-        return $this->_linkModelClass;
+        return $this->linkModelClass;
     }
 
     /**
      * Set the name of model class if the field holds link model instances.
      *
      * @param  string $classname The name of the class that is used as model for this field or null.
-     * @return Field Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setLinkModelClass($classname)
     {
-        $this->_linkModelClass = $classname;
+        $this->linkModelClass = $classname;
         return $this;
     }
 
     /**
      * Return the name of the model class that owns the field.
+     *
      * @return string Class name of the model that own the field or null.
      */
     public function getOwningModelClass()
     {
-        return $this->_owningModelClass;
+        return $this->owningModelClass;
     }
 
     /**
      * Set the name of the model class that owns the field.
+     *
      * @param string $classname The name of the class that owns the field.
-     * @return Field Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setOwningModelClass($classname)
     {
-        $this->_owningModelClass = $classname;
+        $this->owningModelClass = $classname;
         return $this;
     }
 
@@ -823,46 +830,44 @@ class Field implements ModificationTracking
      * Set the name of model field for sorting.
      *
      * @param  string $classname The field name used as model for sorting.
-     * @return Field Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setSortFieldName($fieldname)
     {
-        $this->_sortFieldName = $fieldname;
+        $this->sortFieldName = $fieldname;
         return $this;
     }
 
     /**
      * Tell whether the fields value has been modified.
      *
-     * @return boolean
+     * @return bool
      */
     public function isModified()
     {
-        if ($this->_value instanceof ModificationTracking) {
-            if (true === $this->_value->isModified()) {
-                $this->_modified = true;
+        if ($this->value instanceof ModificationTrackingInterface) {
+            if (true === $this->value->isModified()) {
+                $this->modified = true;
             }
-        } elseif (is_array($this->_value)) {
-            foreach ($this->_value as $value) {
-                if ($value instanceof ModificationTracking) {
+        } elseif (is_array($this->value)) {
+            foreach ($this->value as $value) {
+                if ($value instanceof ModificationTrackingInterface) {
                     if (true === $value->isModified()) {
-                        $this->_modified = true;
+                        $this->modified = true;
                     }
                 }
             }
         }
 
-        return $this->_modified;
+        return $this->modified;
     }
 
     /**
      * Set the modified flag back to false.
-     *
-     * @return void
      */
     public function clearModified()
     {
-        $this->_modified = false;
+        $this->modified = false;
         $this->clearModifiedOfValueModels();
     }
 
@@ -871,11 +876,11 @@ class Field implements ModificationTracking
      */
     protected function clearModifiedOfValueModels()
     {
-        if ($this->_value instanceof ModificationTracking) {
-            $this->_value->setModified(false);
-        } elseif (is_array($this->_value)) {
-            foreach ($this->_value as $value) {
-                if ($value instanceof ModificationTracking) {
+        if ($this->value instanceof ModificationTrackingInterface) {
+            $this->value->setModified(false);
+        } elseif (is_array($this->value)) {
+            foreach ($this->value as $value) {
+                if ($value instanceof ModificationTrackingInterface) {
                     $value->setModified(false);
                 }
             }
@@ -884,27 +889,25 @@ class Field implements ModificationTracking
 
     /**
      * Trigger indication of modification.
-     *
-     * @return void
      */
     public function setModified($modified = true)
     {
-        $this->_modified = $modified;
+        $this->modified = $modified;
     }
 
     /**
      * Set the checkbox property. Override other properties if checkbox is
      * set to true.
      *
-     * @param boolean $value True, if the field can be displayed as a checkbox
-     * @return Field Provide fluent interface.
+     * @param bool $value True, if the field can be displayed as a checkbox
+     * @return $this Provide fluent interface.
      */
     public function setCheckbox($value)
     {
-        $this->_checkbox = (bool) $value;
-        if ($this->_checkbox === true) {
-            $this->_selection = false;
-            $this->_textarea = false;
+        $this->checkbox = (bool) $value;
+        if ($this->checkbox === true) {
+            $this->selection = false;
+            $this->textarea  = false;
         }
         return $this;
     }
@@ -912,10 +915,10 @@ class Field implements ModificationTracking
     /**
      * Return checkbox property.
      *
-     * @return Boolean True, if the field can be displayed as a checkbox.
+     * @return bool True, if the field can be displayed as a checkbox.
      */
     public function isCheckbox()
     {
-        return $this->_checkbox;
+        return $this->checkbox;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENCE
  * This code is free software: you can redistribute it and/or modify
@@ -11,15 +12,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
 namespace Opus\Job\Worker;
 
 use Opus\Job;
+use Zend_Log;
 
 /**
  * Basic process interface as required to define
@@ -27,7 +30,6 @@ use Opus\Job;
  *
  * @category    Framework
  * @package     Opus\Job
- * @subpackage  Worker
  */
 interface WorkerInterface
 {
@@ -49,8 +51,7 @@ interface WorkerInterface
     /**
      * Set logging facility.
      *
-     * @param \Zend_Log $logger Logger instance.
-     * @return void
+     * @param Zend_Log $logger Logger instance.
      */
     public function setLogger($logger);
 }

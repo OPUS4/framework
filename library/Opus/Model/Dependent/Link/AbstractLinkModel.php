@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Dependent\Link;
@@ -39,35 +41,38 @@ use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 
+use function array_key_exists;
+use function array_merge;
+use function get_class;
+use function substr;
+
 /**
  * Abstract class for all links to independent models in the Opus framework.
  *
- * @category    Framework
- * @package     Opus\Model
+ * phpcs:disable
  */
 abstract class AbstractLinkModel extends AbstractDependentModel
 {
-
     /**
      * The model to link to.
      *
      * @var mixed
      */
-    protected $_model;
+    protected $model;
 
     /**
      * The linked models foreign key.
      *
      * @var mixed
      */
-    protected $_modelKey;
+    protected $modelKey;
 
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = '';
+    protected $modelClass = '';
 
     /**
      * FIXME:Bad design workaround for modification tracking.
@@ -75,14 +80,14 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      * tracking for it. Thus we have to track the modification of this using
      * a special private variable.
      *
-     * @var boolean
+     * @var bool
      */
-    private $_isModified = false;
+    private $isModified = false;
 
      /** Plugins to load
-     *
-     * @var array
-     */
+      *
+      * @var array
+      */
     public function getDefaultPlugins()
     {
         return null;
@@ -92,19 +97,18 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      * Set the model that is linked to.
      *
      * @param  AbstractModel $model The new model to link to.
-     * @return void
      */
     public function setModel(AbstractModel $model)
     {
-        if (($model instanceof $this->_modelClass) === false) {
+        if ($model instanceof $this->modelClass === false) {
             throw new ModelException(
-                get_class($this) . ' expects ' . $this->_modelClass . ' as a link target, ' .
-                get_class($model) . ' given.'
+                static::class . ' expects ' . $this->modelClass . ' as a link target, '
+                . get_class($model) . ' given.'
             );
         }
 
-        $this->_model = $model;
-        $this->_isModified = true;
+        $this->model      = $model;
+        $this->isModified = true;
     }
 
     /**
@@ -114,7 +118,7 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function getModel()
     {
-        return $this->_model;
+        return $this->model;
     }
 
     /**
@@ -124,7 +128,7 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function getModelClass()
     {
-        return $this->_modelClass;
+        return $this->modelClass;
     }
 
     /**
@@ -134,7 +138,7 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function getModelKey()
     {
-        return $this->_modelKey;
+        return $this->modelKey;
     }
 
     /**
@@ -151,13 +155,13 @@ abstract class AbstractLinkModel extends AbstractDependentModel
         $fieldname = substr($name, 3);
 
         // use own __call method if field is appended to the link model
-        if (true === isset($this->_fields[$fieldname])) {
+        if (true === isset($this->fields[$fieldname])) {
             return parent::__call($name, $arguments);
         } else {
             if (array_key_exists(0, $arguments) === true) {
-                return $this->_model->$name($arguments[0]);
+                return $this->model->$name($arguments[0]);
             } else {
-                return $this->_model->$name();
+                return $this->model->$name();
             }
         }
     }
@@ -167,13 +171,14 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      * all fields attached to this link model itself.
      *
      * @see    \Opus\Model\Abstract::_internalFields
+     *
      * @return array    List of fields
      */
     public function describe()
     {
         $result = parent::describe();
-        if (null !== $this->_model) {
-            $result = array_merge($this->_model->describe(), $result);
+        if (null !== $this->model) {
+            $result = array_merge($this->model->describe(), $result);
         }
         return $result;
     }
@@ -183,11 +188,12 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      * all fields attached to this LinkModel itself.
      *
      * @see \Opus\Model\Abstract#describeAll()
+     *
      * @return array    List of fields
      */
     public function describeAll()
     {
-        return array_merge($this->_model->describeAll(), parent::describeAll());
+        return array_merge($this->model->describeAll(), parent::describeAll());
     }
 
     /**
@@ -207,7 +213,7 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function getDisplayName()
     {
-        return $this->_model->getDisplayName();
+        return $this->model->getDisplayName();
     }
 
     /**
@@ -220,10 +226,10 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function getField($name, $ignorePending = false)
     {
-        if (true === isset($this->_fields[$name])) {
+        if (true === isset($this->fields[$name])) {
             return parent::getField($name, $ignorePending); // TODO bug? parent function has only one parameter
         }
-        return $this->_model->getField($name, $ignorePending);
+        return $this->model->getField($name, $ignorePending);
     }
 
     /**
@@ -233,9 +239,8 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function getLinkedModelId()
     {
-        return $this->_model->getId();
+        return $this->model->getId();
     }
-
 
     /**
      * Get a nested associative array representation of the linked model.
@@ -244,22 +249,20 @@ abstract class AbstractLinkModel extends AbstractDependentModel
      */
     public function toArray()
     {
-        return array_merge($this->_model->toArray(), parent::toArray());
+        return array_merge($this->model->toArray(), parent::toArray());
     }
 
     /**
      * Perform security resoure registration.
-     *
-     * @return void
      */
     protected function _postStoreInternalFields()
     {
-        $isNewFlagBackup = $this->_isNewRecord;
-        $this->_isNewRecord = false;
+        $isNewFlagBackup   = $this->isNewRecord;
+        $this->isNewRecord = false;
 
         parent::_postStoreInternalFields();
 
-        $this->_isNewRecord = $isNewFlagBackup;
+        $this->isNewRecord = $isNewFlagBackup;
     }
 
    /**
@@ -281,23 +284,21 @@ abstract class AbstractLinkModel extends AbstractDependentModel
         return parent::getId();
     }
 
-
     /**
      * Tell whether there is a modified field or if the linked
      * model has been newly set via setModel().
      *
-     * @return boolean
+     * @return bool
      */
     public function isModified()
     {
-        return ($this->_isModified) or parent::isModified() or $this->_model->isModified();
+        return ($this->isModified) || parent::isModified() || $this->model->isModified();
     }
 
     /**
      * Clears modification flag, but cannot set it to true.
      *
      * @param bool $modified
-     *
      * @return mixed|void
      *
      * TODO Function should be renamed since it can actually only clear the modification flag.
@@ -305,7 +306,7 @@ abstract class AbstractLinkModel extends AbstractDependentModel
     public function setModified($modified = true)
     {
         if (! $modified) {
-            $this->_isModified = false;
+            $this->isModified = false;
             parent::setModified($modified);
         }
     }
@@ -313,10 +314,10 @@ abstract class AbstractLinkModel extends AbstractDependentModel
     /**
      * This model is valid IFF both link model *and* linked model are valid.
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid()
     {
-        return $this->_model->isValid() && parent::isValid();
+        return $this->model->isValid() && parent::isValid();
     }
 }

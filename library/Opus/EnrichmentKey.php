@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -39,40 +41,40 @@ use Opus\Enrichment\TypeInterface;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
+use Throwable;
+use Zend_Db_Select_Exception;
+use Zend_Db_Table_Row_Exception;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for enrichments in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
  * @method void setName(string $string)
  * @method string getName()
- *
  * @method void setType(string $type)
  * @method string getType()
- *
  * @method void setOptions(string $options)
  * @method string getOptions()
  *
+ * phpcs:disable
  */
 class EnrichmentKey extends AbstractDb
 {
-
     /**
      * Specify the table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\EnrichmentKeys';
+    protected static $tableGatewayClass = Db\EnrichmentKeys::class;
 
     /**
      * Optional cache for database results.
      *
      * @var null
      */
-    private static $allEnrichmentKeys = null;
+    private static $allEnrichmentKeys;
 
     /**
      * Retrieve all Opus\EnrichmentKeys instances from the database. If $reload
@@ -84,9 +86,9 @@ class EnrichmentKey extends AbstractDb
      */
     public static function getAll($reload = true)
     {
-        if ($reload || is_null(self::$allEnrichmentKeys)) {
+        if ($reload || self::$allEnrichmentKeys === null) {
             // cache database result to save database queries later
-            self::$allEnrichmentKeys = self::getAllFrom('Opus\EnrichmentKey', 'Opus\Db\EnrichmentKeys');
+            self::$allEnrichmentKeys = self::getAllFrom(self::class, Db\EnrichmentKeys::class);
         }
 
         return self::$allEnrichmentKeys;
@@ -97,14 +99,12 @@ class EnrichmentKey extends AbstractDb
      * - Name
      * - Type
      * - Options
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $name = new Field('Name');
         $name->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($name);
 
         $field = new Field('Type');
@@ -118,7 +118,7 @@ class EnrichmentKey extends AbstractDb
      * ALTERNATE CONSTRUCTOR: Retrieve Opus\EnrichmentKey instance by name.  Returns
      * null if name is null *or* nothing found.
      *
-     * @param  string $name
+     * @param  null|string $name
      * @return EnrichmentKey
      */
     public static function fetchByName($name = null)
@@ -127,9 +127,9 @@ class EnrichmentKey extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
         if (isset($row)) {
             return new EnrichmentKey($row);
@@ -156,8 +156,8 @@ class EnrichmentKey extends AbstractDb
      */
     public static function getAllReferenced()
     {
-        $table = TableGateway::getInstance('Opus\Db\DocumentEnrichments');
-        $db = $table->getAdapter();
+        $table  = TableGateway::getInstance(Db\DocumentEnrichments::class);
+        $db     = $table->getAdapter();
         $select = $db->select()->from('document_enrichments');
         $select->reset('columns');
         $select->columns("key_name")->distinct(true);
@@ -173,13 +173,12 @@ class EnrichmentKey extends AbstractDb
     {
         $typeObj = $this->getEnrichmentType();
 
-        if (is_null($typeObj)) {
+        if ($typeObj === null) {
             return null;
         }
 
         $typeObj->setOptions($this->getOptions());
-        $result = $typeObj->getOptionsAsString();
-        return $result;
+        return $typeObj->getOptionsAsString();
     }
 
     /**
@@ -191,14 +190,14 @@ class EnrichmentKey extends AbstractDb
      */
     public function getEnrichmentType()
     {
-        if (is_null($this->getType()) || $this->getType() === '') {
+        if ($this->getType() === null || $this->getType() === '') {
             return null;
         }
 
         $typeClass = 'Opus\Enrichment\\' . $this->getType();
         try {
             $typeObj = new $typeClass();
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->getLogger()->err('could not find enrichment type class ' . $typeClass);
             return null;
         }
@@ -213,21 +212,21 @@ class EnrichmentKey extends AbstractDb
      * Achtung: diese Methode ändert *nicht* den Namen des EnrichmentKeys in der
      * Tabelle enrichmentkeys.
      *
-     * @param string $newName neuer Name des EnrichmentKey
+     * @param string        $newName neuer Name des EnrichmentKey
      * @param string | null $oldName ursprünglicher Name des EnrichmentKey, wenn null, dann
      *                      wird der aktuelle Name des EnrichmentKey verwendet
      */
     public function rename($newName, $oldName = null)
     {
-        if (is_null($oldName)) {
+        if ($oldName === null) {
             $oldName = $this->getName();
         }
         if ($oldName === $newName) {
             // keine Umbenennung erforderlich
             return;
         }
-        $table = TableGateway::getInstance(Enrichment::getTableGatewayClass());
-        $db = $table->getAdapter();
+        $table                    = TableGateway::getInstance(Enrichment::getTableGatewayClass());
+        $db                       = $table->getAdapter();
         $renameEnrichmentKeyQuery = ' UPDATE document_enrichments '
             . ' SET key_name = ?'
             . ' WHERE key_name = ?;';
@@ -243,8 +242,8 @@ class EnrichmentKey extends AbstractDb
      */
     public function deleteFromDocuments()
     {
-        $table = TableGateway::getInstance(Enrichment::getTableGatewayClass());
-        $db = $table->getAdapter();
+        $table                    = TableGateway::getInstance(Enrichment::getTableGatewayClass());
+        $db                       = $table->getAdapter();
         $deleteEnrichmentKeyQuery = ' DELETE FROM document_enrichments WHERE key_name = ?;';
         $db->query($deleteEnrichmentKeyQuery, $this->getName());
     }
@@ -256,7 +255,7 @@ class EnrichmentKey extends AbstractDb
      *
      * @return mixed|void
      * @throws ModelException
-     * @throws \Zend_Db_Table_Row_Exception
+     * @throws Zend_Db_Table_Row_Exception
      */
     public function store()
     {
@@ -285,13 +284,14 @@ class EnrichmentKey extends AbstractDb
 
     /**
      * Returns names of all enrichment keys.
+     *
      * @return array
-     * @throws \Zend_Db_Select_Exception
+     * @throws Zend_Db_Select_Exception
      */
     public static function getKeys()
     {
-        $table = TableGateway::getInstance('Opus\Db\EnrichmentKeys');
-        $db = $table->getAdapter();
+        $table  = TableGateway::getInstance(Db\EnrichmentKeys::class);
+        $db     = $table->getAdapter();
         $select = $db->select()->from('enrichmentkeys');
         $select->reset('columns');
         $select->columns('name');

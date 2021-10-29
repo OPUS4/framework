@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,6 +35,8 @@
 
 namespace Opus\Model\Dependent\Link;
 
+use Opus\Db\LinkDocumentsDnbInstitutes;
+use Opus\DnbInstitute;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 
@@ -42,84 +45,72 @@ use Opus\Model\ModelException;
  *
  * @category    Framework
  * @package     Opus\Model
- *
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setDepartment(string $department)
  * @method string getDepartment()
- *
  * @method void setAddress(string $address)
  * @method string getAddress()
- *
  * @method void setCity(string $city)
  * @method string getCity()
- *
  * @method void setPhone(string $phone)
  * @method string getPhone()
- *
  * @method void setDnbContactId(string $contactId)
  * @method string getDnbContactId()
- *
  * @method void setIsGrantor(boolean $isGrantor)
  * @method boolean getIsGrantor()
- *
  * @method void setIsPublisher(boolean $isPublisher)
  * @method boolean getIsPublisher()
- *
  * @method void setRole(string $role)
  * @method string getRole()
  */
 class DocumentDnbInstitute extends AbstractLinkModel
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\LinkDocumentsDnbInstitutes';
+    protected static $tableGatewayClass = LinkDocumentsDnbInstitutes::class;
 
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * The linked model's foreign key.
      *
      * @var mixed
      */
-    protected $_modelKey = 'dnb_institute_id';
+    protected $modelKey = 'dnb_institute_id';
 
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = 'Opus\DnbInstitute';
+    protected $modelClass = DnbInstitute::class;
 
     /**
      * Fields that should not be displayed on a form.
      *
      * @var array  Defaults to array('File').
      */
-    protected $_internalFields = ['Role'];
+    protected $internalFields = ['Role'];
 
     /**
      * Initialize model with the following values:
      * - DnbInstitute
      * - Role
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $modelClass = $this->_modelClass;
-        if (is_null($this->getId()) === false) {
-            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
+        $modelClass = $this->modelClass;
+        if ($this->getId() !== null) {
+            $this->setModel(new $modelClass($this->primaryTableRow->{$this->modelKey}));
         } else {
             $this->setModel(new $modelClass());
         }
@@ -130,15 +121,13 @@ class DocumentDnbInstitute extends AbstractLinkModel
 
     /**
      * Persist foreign model & link.
-     *
-     * @return void
      */
     public function store()
     {
-        $this->_primaryTableRow->dnb_institute_id = $this->_model->store();
+        $this->primaryTableRow->dnb_institute_id = $this->model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->{$this->_modelKey}) {
+        if ($this->getId() !== $this->primaryTableRow->{$this->modelKey}) {
             parent::store();
         }
     }
@@ -155,7 +144,7 @@ class DocumentDnbInstitute extends AbstractLinkModel
      * TODO change Role field behaviour?
      * TODO the implementation does not feel clean - Why?
      *
-     * @param $data
+     * @param array $data
      * @throws ModelException
      */
     public function updateFromArray($data)

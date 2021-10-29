@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Util
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Util;
 
+use DOMDocument;
+use Exception;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Model\NotFoundException;
@@ -41,9 +45,13 @@ use Opus\Util\MetadataImportInvalidXmlException;
 use Opus\Util\MetadataImportSkippedDocumentsException;
 use OpusTest\TestAsset\TestCase;
 
+use function array_pop;
+use function count;
+use function dirname;
+use function get_class;
+
 class MetadataImportTest extends TestCase
 {
-
     private $documentImported;
     private $filename;
     private $xml;
@@ -56,15 +64,15 @@ class MetadataImportTest extends TestCase
         $this->clearTables();
 
         $this->documentImported = false;
-        $this->xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
+        $this->xmlDir           = dirname(dirname(dirname(__FILE__))) . '/import/';
     }
 
     public function tearDown()
     {
         if ($this->documentImported) {
-            $ids = Document::getAllIds();
-            $last_id = array_pop($ids);
-            $doc = new Document($last_id);
+            $ids    = Document::getAllIds();
+            $lastId = array_pop($ids);
+            $doc    = new Document($lastId);
             $doc->delete();
         }
         parent::tearDown();
@@ -73,14 +81,14 @@ class MetadataImportTest extends TestCase
     public function testInvalidXmlExceptionWhenNotWellFormed()
     {
         $importer = new MetadataImport('This ist no XML');
-        $this->setExpectedException('Opus\Util\MetadataImportInvalidXmlException');
+        $this->setExpectedException(MetadataImportInvalidXmlException::class);
         $importer->run();
     }
 
     public function testInvalidXmlExceptionWhenNotWellFormedWithFile()
     {
         $importer = new MetadataImport($this->xmlDir . 'test_import_badformed.xml', true);
-        $this->setExpectedException('Opus\Util\MetadataImportInvalidXmlException');
+        $this->setExpectedException(MetadataImportInvalidXmlException::class);
         $importer->run();
     }
 
@@ -90,7 +98,7 @@ class MetadataImportTest extends TestCase
         $this->loadInputFile();
         $importer = new MetadataImport($this->xml);
 
-        $this->setExpectedException('Opus\Util\MetadataImportInvalidXmlException');
+        $this->setExpectedException(MetadataImportInvalidXmlException::class);
         $importer->run();
     }
 
@@ -121,8 +129,8 @@ class MetadataImportTest extends TestCase
         $importer->run();
 
         $finder = new DocumentFinder();
-        $docId = $finder->ids()[0];
-        $doc = new Document($docId);
+        $docId  = $finder->ids()[0];
+        $doc    = new Document($docId);
         $this->assertEquals(1, $doc->getPageFirst());
         $this->assertEquals(2, $doc->getPageLast());
         $this->assertEquals(3, $doc->getPageNumber());
@@ -137,7 +145,7 @@ class MetadataImportTest extends TestCase
         $this->loadInputFile();
         $importer = new MetadataImport($this->xml);
 
-        $this->setExpectedException('Opus\Util\MetadataImportSkippedDocumentsException');
+        $this->setExpectedException(MetadataImportSkippedDocumentsException::class);
         $importer->run();
     }
 
@@ -155,7 +163,7 @@ class MetadataImportTest extends TestCase
         $importer->run();
         try {
             $importedDoc = new Document(1);
-            $titleMain = $importedDoc->getTitleMain();
+            $titleMain   = $importedDoc->getTitleMain();
             $this->assertEquals('La Vie un Rose', $titleMain[0]->getValue());
         } catch (NotFoundException $e) {
             $this->fail("Import failed");
@@ -168,8 +176,8 @@ class MetadataImportTest extends TestCase
         $importer->run();
 
         $updatedDoc = new Document(1);
-        $titleMain = $updatedDoc->getTitleMain();
-        $abstracts = $updatedDoc->getTitleAbstract();
+        $titleMain  = $updatedDoc->getTitleMain();
+        $abstracts  = $updatedDoc->getTitleAbstract();
 
         $this->assertEquals('La Vie en Rose', $titleMain[0]->getValue(), "Update failed");
         $this->assertEquals(1, count($abstracts), 'Expected 1 abstract after update');
@@ -186,7 +194,6 @@ class MetadataImportTest extends TestCase
 
         $importer->run();
 
-
         $this->filename = 'test_import_minimal_update1.xml';
         $this->loadInputFile();
         $importer = new MetadataImport($this->xml);
@@ -194,7 +201,7 @@ class MetadataImportTest extends TestCase
         $importer->run();
         try {
             $importedDoc = new Document(1);
-            $titleMain = $importedDoc->getTitleMain();
+            $titleMain   = $importedDoc->getTitleMain();
             $this->assertEquals('La Vie en Rose', $titleMain[0]->getValue());
         } catch (NotFoundException $e) {
             $this->fail("Import failed");
@@ -208,7 +215,7 @@ class MetadataImportTest extends TestCase
         $importer->run();
 
         $updatedDoc = new Document(1);
-        $abstracts = $updatedDoc->getTitleAbstract();
+        $abstracts  = $updatedDoc->getTitleAbstract();
 
         $this->assertEquals(2, count($abstracts), 'Expected 2 abstracts after update');
     }
@@ -225,14 +232,14 @@ class MetadataImportTest extends TestCase
         $importer->run();
         try {
             $importedDoc = new Document(1);
-            $titleMain = $importedDoc->getTitleMain();
+            $titleMain   = $importedDoc->getTitleMain();
             $this->assertEquals('La Vie un Rose', $titleMain[0]->getValue());
         } catch (NotFoundException $e) {
             $this->fail("Import failed");
         }
         $this->filename = 'test_import_minimal_corrupted_update.xml';
         $this->loadInputFile();
-        $importer = new MetadataImport($this->xml);
+        $importer          = new MetadataImport($this->xml);
         $expectedException = false;
         try {
             $importer->run();
@@ -241,14 +248,14 @@ class MetadataImportTest extends TestCase
         } catch (MetadataImportSkippedDocumentsException $e) {
             // expected exception
             $expectedException = true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail('unexpected exception was thrown: ' . get_class($e));
         }
 
         $this->assertTrue($expectedException, "The expected exception did not occur.");
 
         $updatedDoc = new Document(1);
-        $titleMain = $updatedDoc->getTitleMain();
+        $titleMain  = $updatedDoc->getTitleMain();
         $this->assertNotEmpty($titleMain, 'Existing Document was corrupted on failed update attempt.');
         $this->assertEquals(
             'La Vie un Rose',
@@ -259,7 +266,7 @@ class MetadataImportTest extends TestCase
 
     private function loadInputFile()
     {
-        $doc = new \DOMDocument();
+        $doc = new DOMDocument();
         $doc->load($this->xmlDir . $this->filename);
         $this->xml = $doc->saveXML();
     }
@@ -276,7 +283,7 @@ class MetadataImportTest extends TestCase
 
         $importer->run();
         $importedDoc = new Document(1);
-        $authors = $importedDoc->getPersonAuthor();
+        $authors     = $importedDoc->getPersonAuthor();
 
         $this->assertEquals(1, count($authors));
         $this->assertEquals(1, $authors[0]->getAllowEmailContact());

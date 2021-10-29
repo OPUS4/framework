@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -38,28 +39,35 @@ use Opus\Account;
 use Opus\Config;
 use Opus\Job;
 use Opus\Mail\SendMail;
+use Zend_Log;
+
+use function implode;
+use function is_array;
+use function trim;
 
 /**
  * Worker for sending out email notifications for newly published documents.
+ *
+ * phpcs:disable
  */
 class MailNotification extends AbstractWorker
 {
-
     const LABEL = 'opus-mail-publish-notification';
-    private $config = null;
+    private $config;
     private $lookupRecipients = true;
 
     /**
      * Constructs worker.
-     * @param \Zend_Log $logger
-     * @param boolean $lookupRecipients wenn true, dann erwartet die Methode Usernamen (d.h. Accounts)
-     *                                  und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
-     *                                  Adressen erwartet in der Form wie sie Opus\Mail\SendMail erwartet
+     *
+     * @param null|Zend_Log $logger
+     * @param bool          $lookupRecipients wenn true, dann erwartet die Methode Usernamen (d.h. Accounts)
+     *                                           und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
+     *                                           Adressen erwartet in der Form wie sie Opus\Mail\SendMail erwartet
      */
     public function __construct($logger = null, $lookupRecipients = true)
     {
         $this->setLogger($logger);
-        $this->config = Config::get();
+        $this->config           = Config::get();
         $this->lookupRecipients = $lookupRecipients;
     }
 
@@ -81,24 +89,24 @@ class MailNotification extends AbstractWorker
      */
     public function work(Job $job)
     {
-        $data = $job->getData(true);
+        $data    = $job->getData(true);
         $message = $data['message'];
         $subject = $data['subject'];
-        $users = $data['users'];
+        $users   = $data['users'];
 
-        $from = $this->_getFrom();
-        $fromName = $this->_getFromName();
-        $replyTo = $this->_getReplyTo();
+        $from        = $this->_getFrom();
+        $fromName    = $this->_getFromName();
+        $replyTo     = $this->_getReplyTo();
         $replyToName = $this->_getReplyToName();
-        $returnPath = $this->_getReturnPath();
+        $returnPath  = $this->_getReturnPath();
 
-        if (! is_null($users) and ! is_array($users)) {
+        if ($users !== null && ! is_array($users)) {
             $users = [$users];
         }
 
         $recipient = [];
         if ($this->lookupRecipients) {
-            $this->_logger->debug(__CLASS__ . ': Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
+            $this->logger->debug(self::class . ': Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
             $recipient = $this->getRecipients($users);
         } else {
             $recipient = $users;
@@ -110,8 +118,8 @@ class MailNotification extends AbstractWorker
 
         $mailSendMail = new SendMail();
 
-        $this->_logger->info(__CLASS__ . ': Sending notification email...');
-        $this->_logger->debug(__CLASS__ . ': sender: ' . $from);
+        $this->logger->info(self::class . ': Sending notification email...');
+        $this->logger->debug(self::class . ': sender: ' . $from);
         $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient, $replyTo, $replyToName, $returnPath);
 
         return true;
@@ -132,6 +140,7 @@ class MailNotification extends AbstractWorker
 
     /**
      * Returns the 'from name' for notification.
+     *
      * @return string
      */
     protected function _getFromName()
@@ -171,7 +180,6 @@ class MailNotification extends AbstractWorker
 
     public function getRecipients($users = null)
     {
-
         if (! is_array($users)) {
             $users = [$users];
         }
@@ -180,19 +188,19 @@ class MailNotification extends AbstractWorker
         foreach ($users as $user) {
             $account = Account::fetchAccountByLogin($user);
 
-            if (is_null($account)) {
-                $this->_logger->warn(__CLASS__ . ": User '$user' does not exist... skipping mail.");
+            if ($account === null) {
+                $this->logger->warn(self::class . ": User '$user' does not exist... skipping mail.");
                 continue;
             }
 
             $mail = $account->getEmail();
-            if (is_null($mail) or trim($mail) == '') {
-                $this->_logger->warn(__CLASS__ . ": No mail address for user '$user'... skipping mail.");
+            if ($mail === null || trim($mail) === '') {
+                $this->logger->warn(self::class . ": No mail address for user '$user'... skipping mail.");
                 continue;
             }
 
             $allRecipients[] = [
-                'name' => $account->getFirstName() . ' ' . $account->getLastName(),
+                'name'    => $account->getFirstName() . ' ' . $account->getLastName(),
                 'address' => $mail,
             ];
         }

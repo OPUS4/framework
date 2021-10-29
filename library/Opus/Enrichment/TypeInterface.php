@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,18 +25,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Application
  * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
- * @copyright   Copyright (c) 2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Enrichment;
 
 interface TypeInterface
 {
-
     /**
      * Name für Anzeige, z.B. Auswahl beim Anlegen eines neuen EnrichmentKeys
      *
@@ -49,7 +50,6 @@ interface TypeInterface
      * gewünscht wird, so muss diese Methode null oder den Leerstring zurückliefern.
      *
      * @return mixed
-     *
      */
     public function getDescription();
 
@@ -74,7 +74,7 @@ interface TypeInterface
      * Ist der übergebene Wert nicht null, so wird der Wert auch gleich in das
      * erzeugte Formularelement eingetragen.
      *
-     * @param null $value anzuzeigender Wert des Enrichments
+     * @param null|string $value anzuzeigender Wert des Enrichments
      */
     public function getFormElement($value = null);
 
@@ -90,7 +90,6 @@ interface TypeInterface
      * interne Felder
      *
      * @param string|array $string
-     *
      */
     public function setOptionsFromString($string);
 
@@ -98,12 +97,9 @@ interface TypeInterface
      * Erzeugt eine textuelle Repräsentation der Typkonfiguration, die dem Benutzer
      * angezeigt werden kann.
      *
-     * @param $string
-     *
      * @return mixed
      */
     public function getOptionsAsString();
-
 
     /**
      * Sollen bereits vorhandene Werte für ein Enrichment dieses Typs vor der Speicherung validiert werden?

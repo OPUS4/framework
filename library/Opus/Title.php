@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,39 +25,38 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for titles in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
- *
  * @method void setValue(string $value)
  * @method string getValue()
- *
  * @method void setType(string $type)
  * @method string getType()
  */
 class Title extends AbstractDependentModel
 {
-
     const TYPE_MAIN = 'main';
 
     const TYPE_PARENT = 'parent';
@@ -68,25 +68,23 @@ class Title extends AbstractDependentModel
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DocumentTitleAbstracts';
+    protected static $tableGatewayClass = Db\DocumentTitleAbstracts::class;
 
     /**
      * Initialize model with the following fields:
      * - Language
      * - Title
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $language = new Field('Language');
 
@@ -98,17 +96,17 @@ class Title extends AbstractDependentModel
         $language->setMandatory(true);
         $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty())
+            ->setValidator(new Zend_Validate_NotEmpty())
             ->setTextarea(true);
 
         $type = new Field('Type');
         $type->setMandatory(false);
         $type->setSelection(true);
         $type->setDefault([
-            'main' => 'main',
-            'parent' => 'parent',
-            'sub' => 'sub',
-            'additional' => 'additional'
+            'main'       => 'main',
+            'parent'     => 'parent',
+            'sub'        => 'sub',
+            'additional' => 'additional',
         ]);
 
         $this->addField($language)

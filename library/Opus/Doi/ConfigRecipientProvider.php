@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,10 +26,11 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Application
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Doi;
@@ -44,9 +46,11 @@ use Opus\Config;
  *
  * TODO not really needed (however it is tested) :-)
  */
-class ConfigRecipientProvider implements NotificationRecipientProvider
+class ConfigRecipientProvider implements NotificationRecipientProviderInterface
 {
-
+    /**
+     * @return array
+     */
     public function getRecipients()
     {
         $config = Config::get(); // TODO use Trait or Application_Configuration
@@ -60,10 +64,10 @@ class ConfigRecipientProvider implements NotificationRecipientProvider
         $recipients = [];
 
         foreach ($recipientAddresses as $recipient) {
-            $entry = [];
-            $entry['name'] = $recipient;
+            $entry            = [];
+            $entry['name']    = $recipient;
             $entry['address'] = $recipient;
-            $recipients[] = $entry;
+            $recipients[]     = $entry;
         }
 
         return $recipients;

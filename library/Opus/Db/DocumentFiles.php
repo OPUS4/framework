@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db;
@@ -37,13 +39,10 @@ namespace Opus\Db;
 /**
  * Table gateway class to table 'document_files'.
  *
- * @category    Framework
- * @package     Opus\Db
- *
+ * phpcs:disable
  */
 class DocumentFiles extends TableGateway
 {
-
     /**
      * Real database name of the documents table.
      *
@@ -55,21 +54,21 @@ class DocumentFiles extends TableGateway
      * All dependant Tables,
      * i.e. those that contain a document_files_id as a foreign key.
      *
-     * @var array $_dependantTables
+     * @var array
      */
-    protected $_dependentTables = ['Opus\Db\FileHashvalues'];
+    protected $_dependentTables = [FileHashvalues::class];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
-     * @var array $_referenceMap
+     * @var array
      */
     protected $_referenceMap = [
         'Documents' => [
-            'columns' => 'document_id',
-            'refTableClass' => 'Opus\Db\Documents',
-            'refColumns' => 'id'
-        ]
+            'columns'       => 'document_id',
+            'refTableClass' => Documents::class,
+            'refColumns'    => 'id',
+        ],
     ];
 }

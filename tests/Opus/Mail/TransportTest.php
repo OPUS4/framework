@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,39 +25,39 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Mail;
 
 use Opus\Mail\Transport;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
 
 /**
  * Test cases for class Opus\Mail\Transport.
  *
  * @category Tests
  * @package  Opus\Mail
- *
  * @group    MailSendMailTest
  */
 class TransportTest extends TestCase
 {
-
     /**
      * No cleanup needed.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
-
 
     public function testConstructorWoConfig()
     {
@@ -65,9 +66,9 @@ class TransportTest extends TestCase
 
     public function testConstructorWithConfig()
     {
-        $config = new \Zend_Config([
-                'smtp' => 'foobar',
-                'port' => 25252,
+        $config = new Zend_Config([
+            'smtp' => 'foobar',
+            'port' => 25252,
         ]);
 
         $transport = new Transport($config);

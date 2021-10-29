@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,34 +25,48 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Security
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Security;
 
 use Opus\Config;
+use Opus\Db\AccessDocuments;
+use Opus\Db\AccessFiles;
+use Opus\Db\AccessModules;
+use Opus\Db\Accounts;
+use Opus\Db\DocumentFiles;
+use Opus\Db\Documents;
+use Opus\Db\Ipranges;
+use Opus\Db\LinkAccountsRoles;
+use Opus\Db\LinkIprangesRoles;
 use Opus\Db\TableGateway;
+use Opus\Db\UserRoles;
 use Opus\Security\Realm;
 use Opus\Security\SecurityException;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function count;
+use function ip2long;
+use function md5;
 
 /**
  * Test for Opus\Security\Realm.
  *
  * @package Opus\Security
  * @category Tests
- *
  * @group RealmTest
  */
 class RealmTest extends TestCase
 {
-
     protected function setUp()
     {
         parent::setUp();
@@ -67,7 +82,7 @@ class RealmTest extends TestCase
             'access_documents',
             'document_files',
             'file_hashvalues',
-            'access_files'
+            'access_files',
         ]);
     }
 
@@ -79,87 +94,93 @@ class RealmTest extends TestCase
     private function setUpUserAdmin()
     {
         // create role
-        $rol = TableGateway::getInstance('Opus\Db\UserRoles');
+        $rol   = TableGateway::getInstance(UserRoles::class);
         $rolId = $rol->insert(['name' => 'administrator']);
 
         // create account
-        $acc = TableGateway::getInstance('Opus\Db\Accounts');
+        $acc   = TableGateway::getInstance(Accounts::class);
         $accId = $acc->insert(['login' => 'admin', 'password' => md5('adminadmin')]);
 
         // connect role and account
-        $lar = TableGateway::getInstance('Opus\Db\LinkAccountsRoles');
+        $lar = TableGateway::getInstance(LinkAccountsRoles::class);
         $lar->insert(['account_id' => $accId, 'role_id' => $rolId]);
     }
 
     private function setUpUserUser()
     {
         // create role
-        $rol = TableGateway::getInstance('Opus\Db\UserRoles');
+        $rol   = TableGateway::getInstance(UserRoles::class);
         $rolId = $rol->insert(['name' => 'userrole']);
 
         // connect role and module
-        $lar = TableGateway::getInstance('Opus\Db\AccessModules');
+        $lar = TableGateway::getInstance(AccessModules::class);
         $lar->insert(['role_id' => $rolId, 'module_name' => 'admin']);
 
-
         // create account
-        $acc = TableGateway::getInstance('Opus\Db\Accounts');
+        $acc   = TableGateway::getInstance(Accounts::class);
         $accId = $acc->insert(['login' => 'user', 'password' => md5('useruser')]);
 
         // connect role and account
-        $lar = TableGateway::getInstance('Opus\Db\LinkAccountsRoles');
+        $lar = TableGateway::getInstance(LinkAccountsRoles::class);
         $lar->insert(['account_id' => $accId, 'role_id' => $rolId]);
     }
 
     private function setUpIp()
     {
         // create role
-        $rol = TableGateway::getInstance('Opus\Db\UserRoles');
+        $rol   = TableGateway::getInstance(UserRoles::class);
         $rolId = $rol->insert(['name' => 'iprole']);
 
         // connect role and module
-        $lar = TableGateway::getInstance('Opus\Db\AccessModules');
+        $lar = TableGateway::getInstance(AccessModules::class);
         $lar->insert(['role_id' => $rolId, 'module_name' => 'oai']);
 
-
         // create ip
-        $acc = TableGateway::getInstance('Opus\Db\Ipranges');
+        $acc    = TableGateway::getInstance(Ipranges::class);
         $ipFrom = ip2long('127.0.0.1');
-        $ipTo = ip2long('127.0.0.42');
-        $ipId = $acc->insert(['startingip' => $ipFrom, 'endingip' => $ipTo]);
+        $ipTo   = ip2long('127.0.0.42');
+        $ipId   = $acc->insert(['startingip' => $ipFrom, 'endingip' => $ipTo]);
 
         // connect role and account
-        $lir = TableGateway::getInstance('Opus\Db\LinkIprangesRoles');
+        $lir = TableGateway::getInstance(LinkIprangesRoles::class);
         $lir->insert(['iprange_id' => $ipId, 'role_id' => $rolId]);
     }
 
+    /**
+     * @param int $rolId
+     * @return mixed
+     */
     private function setUpDocument($rolId)
     {
         // document
-        $doc = TableGateway::getInstance('Opus\Db\Documents');
+        $doc = TableGateway::getInstance(Documents::class);
 
         // server_date_created does not have a default value in schema and therefore must be set
         $docId = $doc->insert(['server_date_created' => '1234']);
 
         // connect document and role
-        $ad = TableGateway::getInstance('Opus\Db\AccessDocuments');
+        $ad   = TableGateway::getInstance(AccessDocuments::class);
         $adId = $ad->insert(['document_id' => $docId, 'role_id' => $rolId]);
 
         return $docId;
     }
 
+    /**
+     * @param int $rolId
+     * @return mixed
+     */
     private function setUpFile($rolId)
     {
         $docId = $this->setUpDocument($rolId);
 
         // file
-        $file = TableGateway::getInstance('Opus\Db\DocumentFiles');
+        $file = TableGateway::getInstance(DocumentFiles::class);
 
         // path_name does not have a default value and therefore must be set
         $fileId = $file->insert(['document_id' => $docId, 'path_name' => 'test.txt']);
 
         // connect file and role
-        $af = TableGateway::getInstance('Opus\Db\AccessFiles');
+        $af   = TableGateway::getInstance(AccessFiles::class);
         $afId = $af->insert(['file_id' => $fileId, 'role_id' => $rolId]);
 
         return $fileId;
@@ -167,14 +188,12 @@ class RealmTest extends TestCase
 
     /**
      * Test getting singleton instance.
-     *
-     * @return void
      */
     public function testGetInstance()
     {
         $realm = Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
-        $this->assertInstanceOf('Opus\Security\Realm', $realm, 'Expected object of type Opus\Security\Realm.');
+        $this->assertInstanceOf(Realm::class, $realm, 'Expected object of type Opus\Security\Realm.');
     }
 
     public function testSetUserSuccess()
@@ -187,13 +206,14 @@ class RealmTest extends TestCase
         $realm->setUser('');
     }
 
-    /**
-     * @expectedException \Opus\Security\SecurityException
-     * @expectedExceptionMessage An user with the given name: userbla could not be found
-     */
     public function testSetUserFailsOnUnknownUser()
     {
         $realm = Realm::getInstance();
+
+        $this->setExpectedException(
+            SecurityException::class,
+            'An user with the given name: userbla could not be found'
+        );
 
         $realm->setUser('userbla');
     }
@@ -241,7 +261,7 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
 
-        $this->setExpectedException('Opus\Security\SecurityException');
+        $this->setExpectedException(SecurityException::class);
         $realm->setIp('12.7.0.0.1');
     }
 
@@ -366,8 +386,8 @@ class RealmTest extends TestCase
 
     public function testcheckModuleForDisabledSecurity()
     {
-        Config::set(new \Zend_Config([
-            'security' => '0'
+        Config::set(new Zend_Config([
+            'security' => '0',
         ]));
 
         $this->setUpUserUser();

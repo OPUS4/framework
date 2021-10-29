@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,23 +25,35 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright Copyright (c) 2010-2018, OPUS 4 development team
+ * @license   http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category  Framework
  * @package   Opus\Db
  * @author    Thoralf Klein <thoralf.klein@zib.de>
- * @copyright Copyright (c) 2010-2018, OPUS 4 development team
- * @license   http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db;
 
-use Opus\Model\ModelException;
+use Exception;
+use InvalidArgumentException;
 use Opus\Model\DbException;
+use Opus\Model\ModelException;
+use Zend_Db_Table_Abstract;
+use Zend_Db_Table_Row;
+use Zend_Db_Table_Row_Abstract;
+use Zend_Db_Table_Select;
+
+use function array_key_exists;
+use function array_merge;
+use function assert;
+use function count;
+use function in_array;
+use function is_object;
 
 /**
  * Table gateway class to nested sets.
  *
- * @category Framework
- * @package  Opus\Db
  * @uses     \Zend_Db_Table_Abstract
  *
  * WARNING: This class does not use transactions.  If you want to be transaction
@@ -53,10 +66,10 @@ use Opus\Model\DbException;
  * ANOTHER WARNING: result in strange behaviour, if you're not using integers
  * ANOTHER WARNING: or submitting NULL values.
  *
+ * phpcs:disable
  */
-abstract class NestedSet extends \Zend_Db_Table_Abstract
+abstract class NestedSet extends Zend_Db_Table_Abstract
 {
-
     /**
      * Table name of the nested set table.
      *
@@ -99,7 +112,6 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
     /**
      * Override setup logic.
      *
-     * @return void
      * @see    \Zend_Db_Table_Abstract::_setup()
      */
     protected function _setup()
@@ -110,23 +122,22 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
         // construction, so we do it manually.  This way, we can assume that
         // $this->_primary[1] is always set!
         $this->_setupPrimaryKey();
-        assert(false === is_null($this->_primary[1]));
+        assert($this->_primary[1] !== null);
     }
 
     /**
      * Retrieve node.
      *
      * @param  int $id Primary key of the node.
-     *
-     * @throws \Exception
-     * @return \Zend_Db_Table_Row_Abstract
+     * @throws Exception
+     * @return Zend_Db_Table_Row_Abstract
      */
     private function getNodeById($id)
     {
         $select = $this->selectNodeById($id);
-        $row = $this->fetchRow($select);
+        $row    = $this->fetchRow($select);
 
-        if (true === is_null($row)) {
+        if ($row === null) {
             throw new ModelException("Node $id not found.");
         }
 
@@ -138,24 +149,20 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * not found.
      *
      * @param  int $treeId ID of tree you want to use.
-     *
-     * @throws \Exception
-     * @return \Zend_Db_Table_Row_Abstract
+     * @throws Exception
+     * @return Zend_Db_Table_Row_Abstract
      */
     public function getRootNode($treeId)
     {
         $select = $this->selectNodeByLeftId($treeId, 1);
-        $row = $this->fetchRow($select);
-
-        return $row;
+        return $this->fetchRow($select);
     }
 
     /**
      * Build SQL statement for retrieving nodes by ID.
      *
      * @param  int $id Primary key of the node.
-     *
-     * @return \Zend_Db_Table_Select
+     * @return Zend_Db_Table_Select
      */
     private function selectNodeById($id)
     {
@@ -169,8 +176,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      *
      * @param  int $treeId ID of tree you want to use.
      * @param  int $leftId Left-ID of the node.
-     *
-     * @return \Zend_Db_Table_Select
+     * @return Zend_Db_Table_Select
      */
     public function selectNodeByLeftId($treeId, $leftId)
     {
@@ -184,7 +190,6 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * Delete the whole tree.  Returns affected rows.
      *
      * @param  int $treeId The id of the tree you want to delete.
-     *
      * @return int
      */
     public function deleteTree($treeId)
@@ -197,15 +202,14 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * Delete node including *all* it's child(s) and return affected rows.
      *
      * @param  int $id The root-node-id of the subtree you want to delete.
-     *
      * @return int The number of affected rows.
      */
     public function deleteSubTree($id)
     {
-        $row = $this->getNodeById($id);
-        $tree = $row->{$this->_tree};
+        $row   = $this->getNodeById($id);
+        $tree  = $row->{$this->_tree};
         $right = (int) $row->{$this->_right};
-        $left = (int) $row->{$this->_left};
+        $left  = (int) $row->{$this->_left};
         $width = $right - $left + 1;
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred
@@ -231,8 +235,8 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
     {
         $row = $this->processNodeParameter($id);
 
-        $tree = $row->{$this->_tree};
-        $left = (int) $row->{$this->_left};
+        $tree   = $row->{$this->_tree};
+        $left   = (int) $row->{$this->_left};
         $parent = $row->{$this->_parent};
 
         $prevLeftIdQuery = "SELECT max(left_id) from collections"
@@ -245,7 +249,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         $prevRow = $this->fetchRow($select);
 
-        if (is_null($prevRow)) {
+        if ($prevRow === null) {
             throw new DbException('No previous sibling found for collection id ' . $id);
         }
 
@@ -263,9 +267,9 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
     {
         $row = $this->processNodeParameter($id);
 
-        $tree = $row->{$this->_tree};
-        $right = (int) $row->{$this->_right};
-        $left = (int) $row->{$this->_left};
+        $tree   = $row->{$this->_tree};
+        $right  = (int) $row->{$this->_right};
+        $left   = (int) $row->{$this->_left};
         $parent = $row->{$this->_parent};
 
         // get left_id of next node; returns null for last child of parent node
@@ -280,7 +284,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         $nextRow = $this->fetchRow($select);
 
-        if (is_null($nextRow)) {
+        if ($nextRow === null) {
             throw new DbException("No next sibling found for collection id $id");
         }
 
@@ -327,16 +331,16 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * the subtree will be moved to the end.
      *
      * @param $id
-     * @param $position int New position from 0 to count($siblings)
+     * @param position int New position from 0 to count( $siblings)
      */
     public function moveSubTreeToPosition($id, $position = null)
     {
         $row = $this->processNodeParameter($id);
 
-        $tree = $row->{$this->_tree}; // id of tree/nested set
-        $left = ( int ) $row->{$this->_left}; // start of subtree
-        $right = ( int ) $row->{$this->_right}; // end of subtree
-        $width = $right - $left + 1; // width of subtree
+        $tree   = $row->{$this->_tree}; // id of tree/nested set
+        $left   = (int) $row->{$this->_left}; // start of subtree
+        $right  = (int) $row->{$this->_right}; // end of subtree
+        $width  = $right - $left + 1; // width of subtree
         $parent = $row->{$this->_parent}; // id of parent node
 
         // get all siblings
@@ -350,21 +354,21 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         $siblingCount = count($siblings);
 
-        if (is_null($position) || $position > $siblingCount) {
+        if ($position === null || $position > $siblingCount) {
             $position = $siblingCount;
         } elseif ($position < 0) {
             $position = 0;
         }
 
-        $nextSibling = ($position < $siblingCount) ? $siblings[$position] : null;
+        $nextSibling = $position < $siblingCount ? $siblings[$position] : null;
 
         $queries = [];
 
-        if (is_null($nextSibling)) {
+        if ($nextSibling === null) {
             // Move subtree to last position
             $lastSibling = $siblings[$siblingCount - 1];
 
-            $lastRight = ( int ) $lastSibling->{$this->_right};
+            $lastRight = (int) $lastSibling->{$this->_right};
 
             if ($lastRight === $right) {
                 // Attempt to move last node to end: do nothing
@@ -381,7 +385,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
             // close gap
             $queries = array_merge($queries, $this->createGapQueries($tree, $right + 1, -$width));
         } else {
-            $newLeft = ( int )$nextSibling->{$this->_left};
+            $newLeft = (int) $nextSibling->{$this->_left};
 
             if ($newLeft === $left) {
                 // Attempt to move node to same position: do nothing
@@ -399,7 +403,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
              */
             // adjust offset for newly created gap
             if ($newLeft < $left) {
-                $left += $width;
+                $left  += $width;
                 $right += $width;
             }
 
@@ -414,8 +418,8 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
     protected function createGapQueries($tree, $start, $delta)
     {
-        $queries = [];
-        $direction = ($delta >= 0) ? 'DESC' : 'ASC';
+        $queries   = [];
+        $direction = $delta >= 0 ? 'DESC' : 'ASC';
         $queries[] = "UPDATE {$this->_name} SET {$this->_right} = {$this->_right} + $delta"
             . " WHERE {$this->_right} >= $start"
             . " AND {$this->_tree} = {$tree} ORDER BY {$this->_right} $direction";
@@ -427,7 +431,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
     protected function createMoveQuery($tree, $left, $right, $offset)
     {
-        $queries = [];
+        $queries   = [];
         $queries[] = "UPDATE {$this->_name}"
             . " SET {$this->_left} = ({$this->_left} + $offset) , {$this->_right} = ({$this->_right} + $offset)"
             . " WHERE {$this->_left} BETWEEN $left AND $right"
@@ -437,12 +441,13 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
     /**
      * TODO check $id !== null
+     *
      * @param $id int
-     * @return \Zend_Db_Table_Row_Abstract
+     * @return Zend_Db_Table_Row_Abstract
      */
     public function processNodeParameter($id)
     {
-        if (is_object($id) and $id instanceof \Zend_Db_Table_Row) {
+        if (is_object($id) && $id instanceof Zend_Db_Table_Row) {
             return $id;
         } else {
             return $this->getNodeById($id);
@@ -451,8 +456,9 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
     /**
      * Performs multiple queries as transaction.
+     *
      * @param $queries
-     * @throws \Exception
+     * @throws Exception
      */
     protected function executeQueries($queries)
     {
@@ -462,7 +468,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
             foreach ($queries as $query) {
                 $this->_db->query($query);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->_db->rollBack();
             throw $e;
         }
@@ -476,11 +482,11 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * FIXME: Might be useful, but needs some testing.  Currently unused.
      *
      * @access public
-     * @return \Zend_Db_Table_Select
+     * @return Zend_Db_Table_Select
      */
     public function selectTreeDepth($treeId)
     {
-        $showFields = [];
+        $showFields   = [];
         $showFields[] = $this->_primary[1];
         $showFields[] = $this->_tree;
         $showFields[] = $this->_left;
@@ -488,7 +494,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
         $showFields[] = $this->_parent;
         $showFields[] = "ROUND((node.{$this->_right} - node.{$this->_left} - 1)/2) AS children";
 
-        $select = $this->select()
+        return $this->select()
                         ->from("{$this->_name} AS parent", "COUNT(parent.{$this->_primary[1]}) - 1 AS depth")
                         ->from("{$this->_name} AS node", $showFields)
                         ->where("node.{$this->_left} BETWEEN parent.{$this->_left} AND parent.{$this->_right}")
@@ -496,8 +502,6 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
                         ->where("parent.{$this->_tree} = ?", $treeId)
                         ->group("node.{$this->_primary[1]}")
                         ->order("node.{$this->_left}");
-
-        return $select;
     }
 
     /**
@@ -517,18 +521,16 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * Retrieve whole tree (as statement!)
      *
      * @access public
-     * @return \Zend_Db_Table_Select
+     * @return Zend_Db_Table_Select
      */
     public function selectSubtreeById($id, $cols = '*')
     {
-        $select = $this->select()
+        return $this->select()
                         ->from("{$this->_name} AS node", $cols)
                         ->from("{$this->_name} AS start", "")
                         ->where("start.{$this->_primary[1]} = ?", $id)
                         ->where("node.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}")
                         ->where("node.{$this->_tree} = start.{$this->_tree}");
-
-        return $select;
     }
 
     /**
@@ -542,19 +544,17 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * @param int   $id   The ID is the parent node.
      * @param mixed $cols The columns to show, defaults to '*'.
      *
-     * @return \Zend_Db_Table_Select
+     * @return Zend_Db_Table_Select
      */
     public function selectParentsById($id, $cols = '*')
     {
-        $select = $this->select()
+        return $this->select()
                         ->from("{$this->_name} AS node", $cols)
                         ->from("{$this->_name} AS target", '')
                         ->where("target.{$this->_left} BETWEEN node.{$this->_left} AND node.{$this->_right}")
                         ->where("target.{$this->_primary[1]} = ?", $id)
                         ->where("node.{$this->_tree} = target.{$this->_tree}")
                         ->order("node.{$this->_left} DESC");
-
-        return $select;
     }
 
     /*
@@ -571,15 +571,14 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * @param int   $id   The ID is the parent node.
      * @param mixed $cols The columns to show, defaults to '*'.
      *
-     * @return \Zend_Db_Table_Select
+     * @return Zend_Db_Table_Select
      */
     public function selectChildrenById($id, $cols = '*')
     {
-        $select = $this->select()
+        return $this->select()
                         ->from("{$this->_name} AS node", $cols)
                         ->where("node.{$this->_parent} = ?", $id)
                         ->order("node.{$this->_left} ASC");
-        return $select;
     }
 
     /*
@@ -593,15 +592,14 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * Actually, this method only initializes left, right and tree id and
      * returns them as array.  The treeId must be added lated.
      *
-     * @param  integer $id The ID of the tree.
-     *
+     * @param  int $id The ID of the tree.
      * @return array
      */
     public function createRoot()
     {
         return [
-            $this->_left => 1,
-            $this->_right => 2
+            $this->_left  => 1,
+            $this->_right => 2,
         ];
     }
 
@@ -614,8 +612,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      *
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
-     * @param  integer $id The ID of the parent row (must be unique in schema!).
-     *
+     * @param  int $id The ID of the parent row (must be unique in schema!).
      * @return array
      */
     public function insertFirstChild($id)
@@ -633,9 +630,9 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         return [
 //                $this->_tree   => $tree,
-            $this->_left => $left + 1,
-            $this->_right => $left + 2,
-            $this->_parent => $id
+            $this->_left   => $left + 1,
+            $this->_right  => $left + 2,
+            $this->_parent => $id,
         ];
     }
 
@@ -648,13 +645,12 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      *
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
-     * @param  integer $id The ID of the parent row (must be unique in schema!).
-     *
+     * @param  int $id The ID of the parent row (must be unique in schema!).
      * @return array
      */
     public function insertLastChild($id)
     {
-        $row = $this->getNodeById($id);
+        $row   = $this->getNodeById($id);
         $right = (int) $row->{$this->_right};
 //        $left = (int) $row->{$this->_left};
         $tree = $row->{$this->_tree};
@@ -667,9 +663,9 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         return [
 //                $this->_tree   => $tree,
-            $this->_left => $right,
-            $this->_right => $right + 1,
-            $this->_parent => $id
+            $this->_left   => $right,
+            $this->_right  => $right + 1,
+            $this->_parent => $id,
         ];
     }
 
@@ -682,17 +678,16 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      *
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
-     * @param  integer $id The sibling row ID (must be unique in schema!).
-     *
-     * @throws \Exception
+     * @param  int $id The sibling row ID (must be unique in schema!).
+     * @throws Exception
      * @return array
      */
     public function insertNextSibling($id)
     {
-        $row = $this->getNodeById($id);
-        $right = (int) $row->{$this->_right};
-        $left = (int) $row->{$this->_left};
-        $tree = $row->{$this->_tree};
+        $row    = $this->getNodeById($id);
+        $right  = (int) $row->{$this->_right};
+        $left   = (int) $row->{$this->_left};
+        $tree   = $row->{$this->_tree};
         $parent = $row->{$this->_parent};
 
         if ($left === 1) {
@@ -707,9 +702,9 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         return [
 //                $this->_tree   => $tree,
-            $this->_left => $right + 1,
-            $this->_right => $right + 2,
-            $this->_parent => $parent
+            $this->_left   => $right + 1,
+            $this->_right  => $right + 2,
+            $this->_parent => $parent,
         ];
     }
 
@@ -722,17 +717,16 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      *
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
-     * @param  integer $id The sibling row ID (must be unique in schema!).
-     *
-     * @throws \Exception
+     * @param  int $id The sibling row ID (must be unique in schema!).
+     * @throws Exception
      * @return array
      */
     public function insertPrevSibling($id)
     {
         $row = $this->getNodeById($id);
 //        $right = (int) $row->{$this->_right};
-        $left = (int) $row->{$this->_left};
-        $tree = $row->{$this->_tree};
+        $left   = (int) $row->{$this->_left};
+        $tree   = $row->{$this->_tree};
         $parent = $row->{$this->_parent};
 
         if ($left === 1) {
@@ -747,9 +741,9 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
         return [
 //                $this->_tree   => $tree,
-            $this->_left => $left,
-            $this->_right => $left + 1,
-            $this->_parent => $parent
+            $this->_left   => $left,
+            $this->_right  => $left + 1,
+            $this->_parent => $parent,
         ];
     }
 
@@ -759,7 +753,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
     public function isRoot($data)
     {
         return array_key_exists($this->_left, $data)
-                and ($data[$this->_left] == 1);
+                and ($data[$this->_left] === 1);
     }
 
     /**
@@ -768,8 +762,8 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
     public function isLeaf($data)
     {
         return array_key_exists($this->_left, $data)
-                and array_key_exists($this->_right, $data)
-                and ($data[$this->_left] + 1 == $data[$this->_right]);
+                && array_key_exists($this->_right, $data)
+                && ($data[$this->_left] + 1 === ( int )$data[$this->_right]);
     }
 
     /**
@@ -782,11 +776,12 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
 
     /**
      * Returns IDs for child nodes.
+     *
      * @return array Array containing IDs of child nodes.
      */
     public function getChildrenIdsById($id)
     {
-        $select = $this->selectChildrenById($id, 'id');
+        $select   = $this->selectChildrenById($id, 'id');
         $children = $this->fetchAll($select);
 
         $childrenIds = [];
@@ -802,7 +797,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
      * Sorts children in the specified order.
      *
      * @param $sortedIds array Node IDs in desired order
-     * @throws \InvalidArgumentException if one of the IDs ist not a child node
+     * @throws InvalidArgumentException if one of the IDs ist not a child node
      */
     public function applySortOrderOfChildren($id, $sortedIds)
     {
@@ -812,7 +807,7 @@ abstract class NestedSet extends \Zend_Db_Table_Abstract
             if (in_array($childId, $childrenIds)) {
                 $this->moveSubTreeToPosition($childId, $index);
             } else {
-                throw new \InvalidArgumentException("ID $childId is no child of ID {$id}");
+                throw new InvalidArgumentException("ID $childId is no child of ID {$id}");
             }
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,14 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Mock;
 
@@ -42,30 +44,26 @@ use Opus\Model\AbstractDb;
  *
  * @package Opus\Model
  * @category Tests
- *
  */
 class ModelWithNonAbstractExtendingClassField extends AbstractDb
 {
-
     /**
      * Define an external field with a model that does not extend
      * Opus\Model\AbstractModel.
      *
      * @var array
      */
-    protected $_externalFields = [
-            'Dummy' => [
-                'model' => 'Opus_Model_Dummy',
-                'table' => null,
-            ],
-        ];
+    protected $externalFields = [
+        'Dummy' => [
+            'model' => 'Opus_Model_Dummy',
+            'table' => null,
+        ],
+    ];
 
     /**
      * Add Dummy field
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $this->addField(new Field('Dummy'));
     }

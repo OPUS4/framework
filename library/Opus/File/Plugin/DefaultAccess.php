@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,10 +25,11 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace Opus\File\Plugin;
@@ -39,18 +41,21 @@ use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\UserRole;
 
+use function strlen;
+use function trim;
+
 /**
  * Plugin for adding "default" privileges to a file.
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
  * TODO NAMESPACE rename class
+ *
+ * @category    Framework
+ * @package     Opus
  */
 class DefaultAccess extends AbstractPlugin
 {
-
     use LoggingTrait;
 
     /**
@@ -62,7 +67,7 @@ class DefaultAccess extends AbstractPlugin
     public function postStore(ModelInterface $model)
     {
         // only index Opus\File instances
-        if (false === ($model instanceof File)) {
+        if (false === $model instanceof File) {
             $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus\File');
             return;
         }
@@ -74,17 +79,17 @@ class DefaultAccess extends AbstractPlugin
 
         $config = Config::get();
 
-        if (! is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
+        if ($config !== null && isset($config->securityPolicy->files->defaultAccessRole)) {
             $roleName = $config->securityPolicy->files->defaultAccessRole;
 
             // Empty name -> don't set any role for access
             if (strlen(trim($roleName)) > 0) {
                 $accessRole = UserRole::fetchByName($roleName);
 
-                if (is_null($accessRole)) {
+                if ($accessRole === null) {
                     $this->getLogger()->err(
-                        __METHOD__ . ": Failed to add role '$roleName' to file " .
-                        $model->getId() . "; '$roleName' role does not exist!"
+                        __METHOD__ . ": Failed to add role '$roleName' to file "
+                        . $model->getId() . "; '$roleName' role does not exist!"
                     );
                     return;
                 }
