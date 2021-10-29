@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Mock;
@@ -43,11 +45,9 @@ use Opus\Model\Field;
  *
  * @category Tests
  * @package Opus\Model
- *
  */
 class ModelDefiningExternalField extends AbstractDb
 {
-
     /**
      * Array of field names for wich _loadExternal has been called.
      *
@@ -55,38 +55,37 @@ class ModelDefiningExternalField extends AbstractDb
      */
     public $loadExternalHasBeenCalledOn = [];
 
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of\Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'OpusTest\Model\Mock\AbstractTableProvider';
+    protected static $tableGatewayClass = AbstractTableProvider::class;
 
     /**
      * Provide a mockup external fields declaration.
      *
      * @var array
      */
-    protected $_externalFields = [
-        'ExternalModel' => [
-            'model' => 'OpusTest\Model\Mock\ModelAbstractDbMock',
-            'through' => 'OpusTest\Model\Mock\LinkToAbstractMock',
+    protected $externalFields = [
+        'ExternalModel'     => [
+            'model'   => ModelAbstractDbMock::class,
+            'through' => LinkToAbstractMock::class,
             'options' => '',
-            'fetch' => 'eager'],
+            'fetch'   => 'eager',
+        ],
         'LazyExternalModel' => [
-            'model' => 'Opus\Model\Mock\AbstractModelMock',
+            'model'   => 'Opus\Model\Mock\AbstractModelMock',
             'through' => '',
             'options' => '',
-            'fetch' => 'lazy']
+            'fetch'   => 'lazy',
+        ],
     ];
 
     /**
      * Initialize model with the a single field "ExternalModel".
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $this->addField(new Field('ExternalModel'));
         $this->addField(new Field('LazyExternalModel'));
@@ -95,9 +94,9 @@ class ModelDefiningExternalField extends AbstractDb
     /**
      * Mock up function to detect calls to loadExternal.
      *
-     * @param string $fieldname A fieldname.
      * @see    \Opus\Model\AbstractModel#_loadExternal()
-     * @return void
+     *
+     * @param string $fieldname A fieldname.
      */
     protected function _loadExternal($fieldname)
     {

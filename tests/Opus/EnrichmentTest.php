@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -37,7 +39,13 @@ namespace OpusTest;
 use Opus\Document;
 use Opus\Enrichment;
 use Opus\EnrichmentKey;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
+
+use function array_diff;
+use function array_intersect;
+use function array_push;
+use function count;
 
 /**
  * Test cases for Opus\Enrichment.
@@ -46,25 +54,20 @@ use OpusTest\TestAsset\TestCase;
  */
 class EnrichmentTest extends TestCase
 {
-
-    /**
-     * @var Document
-    */
+    /** @var Document */
     private $_doc;
 
-     /**
-     * @var EnrichmentKey
-     */
+     /** @var EnrichmentKey */
     private $_enrichmentkey;
 
-    /**
-     * @var EnrichmentKey
-     */
+    /** @var EnrichmentKey */
     private $_anotherenrichmentkey;
 
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, ['documents', 'enrichmentkeys', 'document_enrichments']);
 
         $this->_enrichmentkey = new EnrichmentKey();
         $this->_enrichmentkey->setName('valid');
@@ -136,7 +139,7 @@ class EnrichmentTest extends TestCase
     public function testStoreEnrichmentWithoutValue()
     {
         $this->_doc->addEnrichment()->setKeyName('valid');
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $this->_doc->store();
 
         $doc = new Document($this->_doc->getId());
@@ -147,18 +150,18 @@ class EnrichmentTest extends TestCase
     /* READ */
     public function testLoadEnrichmentFromDocument()
     {
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $this->assertEquals('valid', $enrichment->getKeyName(), 'Loaded other key, then stored.');
         $this->assertEquals('value', $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
     public function testLoadEnrichmentById()
     {
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
 
         $enrichment = new Enrichment($enrichment->getId());
         $this->assertEquals('valid', $enrichment->getKeyName(), 'Loaded other key, then stored.');
@@ -171,16 +174,16 @@ class EnrichmentTest extends TestCase
         $newkey = 'anothervalid';
         $newval = 'anothervalue';
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $enrichment->setKeyName($newkey);
         $enrichment->setValue($newval);
         $doc->store();
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $this->assertEquals($newkey, $enrichment->getKeyName(), 'Loaded other key, then stored.');
         $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
@@ -189,16 +192,16 @@ class EnrichmentTest extends TestCase
     {
         $newkey = 'anothervalid';
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $enrichment->setKeyName($newkey);
         $oldValue = $enrichment->getValue();
         $doc->store();
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $this->assertEquals($newkey, $enrichment->getKeyName(), 'Loaded other key, then stored.');
         $this->assertEquals($oldValue, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
@@ -207,29 +210,29 @@ class EnrichmentTest extends TestCase
     {
         $newval = 'newvalue';
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $enrichment->setValue($newval);
         $doc->store();
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $this->assertEquals('valid', $enrichment->getKeyName(), 'Loaded other key, then stored.');
         $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
     public function testUpdateEnrichmentUnknownKey()
     {
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $enrichment = $enrichments[0];
+        $enrichment  = $enrichments[0];
         $enrichment->setKeyName('unknown');
         $enrichment->setValue('bar');
         $doc->store();
 
-        $doc = new Document($this->_doc->getId());
+        $doc        = new Document($this->_doc->getId());
         $enrichment = $doc->getEnrichment()[0];
         $this->assertEquals('unknown', $enrichment->getKeyName());
         $this->assertEquals('bar', $enrichment->getValue());
@@ -244,12 +247,12 @@ class EnrichmentTest extends TestCase
         $doc->store();
 
         // set duplicate value
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $this->assertTrue(count($enrichments) == 2);
+        $this->assertTrue(count($enrichments)===2);
 
         $enrichment = $enrichments[1];
-        $this->assertTrue($enrichment->getValue() == 'newvalue');
+        $this->assertTrue($enrichment->getValue()==='newvalue');
         $enrichment->setValue('value');
         $doc->store();
 
@@ -266,12 +269,12 @@ class EnrichmentTest extends TestCase
         $doc->store();
 
         // set duplicate key
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $this->assertTrue(count($enrichments) == 2);
+        $this->assertTrue(count($enrichments)===2);
 
         $enrichment = $enrichments[1];
-        $this->assertTrue($enrichment->getKeyName() == 'anothervalid');
+        $this->assertTrue($enrichment->getKeyName()==='anothervalid');
         $enrichment->setKeyName('valid');
         $doc->store();
 
@@ -285,7 +288,7 @@ class EnrichmentTest extends TestCase
         $this->_doc->addEnrichment()->setKeyName('valid')->setValue('anothervalue');
         $this->_doc->store();
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
         $this->assertEquals(2, count($doc->getEnrichment()));
 
@@ -299,15 +302,15 @@ class EnrichmentTest extends TestCase
 
     private function assertKeysAndValues($enrichments, $expectedKeys, $expectedValues)
     {
-        $keys = [];
+        $keys   = [];
         $values = [];
         foreach ($enrichments as $enrichment) {
             array_push($keys, $enrichment->getKeyName());
             array_push($values, $enrichment->getValue());
         }
         // check if arrays contain the same elements
-        $this->assertTrue(count($expectedKeys) == count(array_intersect($keys, $expectedKeys)));
-        $this->assertTrue(count($expectedValues) == count(array_intersect($values, $expectedValues)));
+        $this->assertTrue(count($expectedKeys)===count(array_intersect($keys, $expectedKeys)));
+        $this->assertTrue(count($expectedValues)===count(array_intersect($values, $expectedValues)));
     }
 
     public function testToArray()
@@ -320,7 +323,7 @@ class EnrichmentTest extends TestCase
 
         $this->assertEquals([
             'KeyName' => 'MyKey',
-            'Value' => 'test'
+            'Value'   => 'test',
         ], $data);
     }
 
@@ -328,11 +331,11 @@ class EnrichmentTest extends TestCase
     {
         $enrichment = Enrichment::fromArray([
             'KeyName' => 'MyKey',
-            'Value' => 'test'
+            'Value'   => 'test',
         ]);
 
         $this->assertNotNull($enrichment);
-        $this->assertInstanceOf('Opus\Enrichment', $enrichment);
+        $this->assertInstanceOf(Enrichment::class, $enrichment);
 
         $this->assertEquals('MyKey', $enrichment->getKeyName());
         $this->assertEquals('test', $enrichment->getValue());
@@ -344,11 +347,11 @@ class EnrichmentTest extends TestCase
 
         $enrichment->updateFromArray([
             'KeyName' => 'MyKey',
-            'Value' => 'test'
+            'Value'   => 'test',
         ]);
 
         $this->assertNotNull($enrichment);
-        $this->assertInstanceOf('Opus\Enrichment', $enrichment);
+        $this->assertInstanceOf(Enrichment::class, $enrichment);
 
         $this->assertEquals('MyKey', $enrichment->getKeyName());
         $this->assertEquals('test', $enrichment->getValue());
@@ -358,9 +361,9 @@ class EnrichmentTest extends TestCase
     {
         $enrichments = $this->_doc->getEnrichment();
         $this->assertEquals(1, count($enrichments));
-        $enrichment = $enrichments[0];
+        $enrichment    = $enrichments[0];
         $enrichmentKey = $enrichment->getEnrichmentKey();
-        $this->assertInstanceOf('Opus\EnrichmentKey', $enrichmentKey);
+        $this->assertInstanceOf(EnrichmentKey::class, $enrichmentKey);
         $this->assertEquals('valid', $enrichmentKey->getName());
         $this->assertEquals('valid', $enrichment->getKeyName());
         $this->assertEquals('value', $enrichment->getValue());
@@ -374,19 +377,19 @@ class EnrichmentTest extends TestCase
         $this->_doc->addEnrichment($enrichment);
         $docId = $this->_doc->store();
 
-        $this->_doc = new Document($docId);
+        $this->_doc  = new Document($docId);
         $enrichments = $this->_doc->getEnrichment();
 
         $this->assertEquals(2, count($enrichments));
 
-        $enrichment = $enrichments[0];
+        $enrichment    = $enrichments[0];
         $enrichmentKey = $enrichment->getEnrichmentKey();
-        $this->assertInstanceOf('Opus\EnrichmentKey', $enrichmentKey);
+        $this->assertInstanceOf(EnrichmentKey::class, $enrichmentKey);
         $this->assertEquals('valid', $enrichmentKey->getName());
         $this->assertEquals('valid', $enrichment->getKeyName());
         $this->assertEquals('value', $enrichment->getValue());
 
-        $enrichment = $enrichments[1];
+        $enrichment    = $enrichments[1];
         $enrichmentKey = $enrichment->getEnrichmentKey();
         $this->assertNull($enrichmentKey);
         $this->assertEquals('unregisteredKey', $enrichment->getKeyName());

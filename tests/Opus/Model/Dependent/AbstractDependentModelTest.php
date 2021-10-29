@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Dependent;
@@ -38,58 +40,58 @@ namespace OpusTest\Model\Dependent;
 use Opus\Document;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\ModelException;
+use Opus\Model\Plugin\InvalidateDocumentCache;
 use Opus\Subject;
 use OpusTest\TestAsset\TestCase;
+use Zend_Db_Table_Abstract;
+
+use function class_exists;
 
 /**
  * Test cases for class Opus\Model\Dependent\AbstractDependentModel.
  *
  * @package Opus\Model
  * @category Tests
- *
  * @group DependentAbstractTest
  */
 class AbstractDependentModelTest extends TestCase
 {
-
     /**
      * Class instance under test.
      *
      * @var AbstractDependentModel
      */
-    private $_cut = null;
+    private $cut;
 
     /**
-     *\Zend_Db_Table mockup.
+     * \Zend_Db_Table mockup.
      *
      * @var\Zend_Db_Table
      */
-    private $_mockTableGateway = null;
+    private $mockTableGateway;
 
     /**
-     *\Zend_Db_Table_Row mockup
+     * \Zend_Db_Table_Row mockup
      *
      * @var\Zend_Db_Table_Row
      */
-    private $_mockTableRow = null;
+    private $mockTableRow;
 
     /**
-     *\Zend_Db_Adapter mockup
+     * \Zend_Db_Adapter mockup
      *
      * @var\Zend_Db_Adapter
      */
-    private $_mockAdapter = null;
+    private $mockAdapter;
 
     /**
      * Set up test instance and mock environment.
-     *
-     * @return void
      */
     public function setUp()
     {
         if (false === class_exists('Opus_Model_Dependent_AbstractTest_MockTableGateway', false)) {
             eval('
-                class Opus_Model_Dependent_AbstractTest_MockTableGateway extends\Zend_Db_Table {
+                class Opus_Model_Dependent_AbstractTest_MockTableGateway extends \Zend_Db_Table {
                     protected function _setup() {}
                     protected function _init() {}
 
@@ -115,43 +117,56 @@ class AbstractDependentModelTest extends TestCase
 
         $config = ['dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser'];
 
-        $this->_mockAdapter = $this->getMock(
+        $this->mockAdapter = $this->getMock(
             'Zend_Db_Adapter_Abstract',
-            ['_connect', '_beginTransaction', '_commit', '_rollback',
-                'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId',
-                'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'],
+            [
+                '_connect',
+                '_beginTransaction',
+                '_commit',
+                '_rollback',
+                'listTables',
+                'describeTable',
+                'closeConnection',
+                'prepare',
+                'lastInsertId',
+                'setFetchMode',
+                'limit',
+                'supportsParameters',
+                'isConnected',
+                'getServerVersion',
+            ],
             [$config]
         );
 
-        $this->_mockTableGateway = $this->getMock(
+        $this->mockTableGateway = $this->getMock(
             'Opus_Model_Dependent_AbstractTest_MockTableGateway',
             ['createRow'],
-            [[\Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter]]
+            [[Zend_Db_Table_Abstract::ADAPTER => $this->mockAdapter]]
         );
 
-        $this->_mockTableRow = $this->getMock(
+        $this->mockTableRow = $this->getMock(
             'Zend_Db_Table_Row',
             ['delete'],
-            [['table' => $this->_mockTableGateway]]
+            [['table' => $this->mockTableGateway]]
         );
-        $this->_mockTableRow->expects($this->any())
+        $this->mockTableRow->expects($this->any())
             ->method('delete')
             ->will($this->returnValue(1));
 
-        $this->_mockTableGateway->expects($this->any())
+        $this->mockTableGateway->expects($this->any())
             ->method('createRow')
-            ->will($this->returnValue($this->_mockTableRow));
+            ->will($this->returnValue($this->mockTableRow));
 
-        $this->_cut = $this->getMock(
-            'Opus\Model\Dependent\AbstractDependentModel',
-            ['_init', 'getId'],
-            [null, $this->_mockTableGateway]
+        $this->cut = $this->getMock(
+            AbstractDependentModel::class,
+            ['init', 'getId'],
+            [null, $this->mockTableGateway]
         );
-        $this->_cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
+        $this->cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
         // unregister plugin to avoid side effects using mock object
         // plugin relies on table gateway class which is not available
         try {
-            $this->_cut->unregisterPlugin('Opus\Model\Plugin\InvalidateDocumentCache');
+            $this->cut->unregisterPlugin(InvalidateDocumentCache::class);
         } catch (ModelException $ome) {
         }
     }
@@ -165,75 +180,62 @@ class AbstractDependentModelTest extends TestCase
 
     /**
      * Test if no row is actually deleted on delete() call.
-     *
-     * @return void
      */
     public function testDeleteCallDoesNotDeleteRow()
     {
-        $this->_mockTableRow->expects($this->never())->method('delete');
-        $this->_cut->delete();
+        $this->mockTableRow->expects($this->never())->method('delete');
+        $this->cut->delete();
     }
 
     /**
      * Test if delete() returns a deletion token.
-     *
-     * @return void
      */
     public function testDeleteCallReturnsToken()
     {
-        $token = $this->_cut->delete();
+        $token = $this->cut->delete();
         $this->assertNotNull($token, 'No deletion token returned.');
     }
 
     /**
      * Test if doDelete() rejects invalid deletion token.
-     *
-     * @return void
      */
     public function testInvalidDeletionTokenThrowsException()
     {
-        $this->setExpectedException('Opus\Model\ModelException');
-        $this->_cut->delete();
-        $this->_cut->doDelete('foo');
+        $this->setExpectedException(ModelException::class);
+        $this->cut->delete();
+        $this->cut->doDelete('foo');
     }
 
     /**
      * Test if doDelete() throws Exception if no deletion token has been required.
-     *
-     * @return void
      */
     public function testMissingDeletionTokenThrowsException()
     {
-        $this->setExpectedException('Opus\Model\ModelException');
-        $this->_cut->doDelete(null);
+        $this->setExpectedException(ModelException::class);
+        $this->cut->doDelete(null);
     }
-
 
     /**
      * Test if doDelete() accepts a valid deletion token.
-     *
-     * @return void
      */
     public function testDoDeleteAcceptsValidDeletionToken()
     {
         try {
-            $token = $this->_cut->delete();
-            $this->_cut->doDelete($token);
+            $token = $this->cut->delete();
+            $this->cut->doDelete($token);
         } catch (ModelException $ex) {
-            $this->fail('Valid deletion token rejected with Exception: '.$ex->getMessage());
+            $this->fail('Valid deletion token rejected with Exception: ' . $ex->getMessage());
         }
     }
 
     /**
      * Test if call to doDelete() with valid token deletes the actual row.
-     *
-     * @return void
      */
     public function testDoDeleteRemovesParentRow()
     {
-        $this->_mockTableRow->expects($this->once())->method('delete');
-        $token = $this->_cut->delete();
-        $this->_cut->doDelete($token);
+        $this->mockTableRow->expects($this->once())->method('delete');
+        $token = $this->cut->delete();
+        $this->cut->doDelete($token);
     }
 
     /**
@@ -244,12 +246,12 @@ class AbstractDependentModelTest extends TestCase
     {
         $document = new Document();
 
-        $cachingEnabled = $document->hasPlugin('Opus\Document\Plugin\XmlCache');
+        $cachingEnabled = $document->hasPlugin(Document\Plugin\XmlCache::class);
 
         if ($cachingEnabled) {
             $subject = new Subject(); // inherits from Opus\Model\Dependent\AbstractDependentModel
 
-            $this->assertTrue($subject->hasPlugin('Opus\Model\Plugin\InvalidateDocumentCache'));
+            $this->assertTrue($subject->hasPlugin(InvalidateDocumentCache::class));
         }
     }
 }

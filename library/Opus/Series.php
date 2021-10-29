@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,14 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -39,35 +41,42 @@ namespace Opus;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
+use Zend_Db_Table;
+use Zend_Validate_Int;
+use Zend_Validate_NotEmpty;
+
+use function count;
+use function filter_var;
+use function intval;
+use function strlen;
+use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Domain model for sets in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
  * @method void setTitle(string $title)
  * @method string getTitle()
- *
  * @method void setInfobox(string $info)
  * @method string getInfobox()
- *
  * @method void setVisible(boolean $visible)
  * @method boolean getVisible()
- *
  * @method void setSortOrder(integer $pos)
  * @method integer getSortOrder()
+ *
+ * phpcs:disable
  */
 class Series extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\Series';
+    protected static $tableGatewayClass = Db\Series::class;
 
     /**
      * Plugins to load
@@ -77,20 +86,18 @@ class Series extends AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
     /**
      * Initialize model with fields.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $title = new Field('Title');
         $title->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
 
         $infobox = new Field('Infobox');
         $infobox->setTextarea(true);
@@ -99,7 +106,7 @@ class Series extends AbstractDb
         $visible->setCheckbox(true);
 
         $sortOrder = new Field('SortOrder');
-        $sortOrder->setValidator(new \Zend_Validate_Int());
+        $sortOrder->setValidator(new Zend_Validate_Int());
 
         $this->addField($title)
                 ->addField($infobox)
@@ -113,14 +120,14 @@ class Series extends AbstractDb
      * You need to explicitly call store() on the corresponding model instance
      * of Opus\Series.
      *
-     * @param integer $id
+     * @param int $id
      * @return TableGateway
      */
     public static function createRowWithCustomId($id)
     {
-        $tableGatewayModel = TableGateway::getInstance(self::$_tableGatewayClass);
-        $row = $tableGatewayModel->createRow();
-        $row->id = $id;
+        $tableGatewayModel = TableGateway::getInstance(self::$tableGatewayClass);
+        $row               = $tableGatewayModel->createRow();
+        $row->id           = $id;
         return $row;
     }
 
@@ -134,9 +141,9 @@ class Series extends AbstractDb
         $config = Config::get();
 
         if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
-            $all = self::getAllFrom('Opus\Series', self::$_tableGatewayClass, null, 'title');
+            $all = self::getAllFrom(self::class, self::$tableGatewayClass, null, 'title');
         } else {
-            $all = self::getAllFrom('Opus\Series', self::$_tableGatewayClass);
+            $all = self::getAllFrom(self::class, self::$tableGatewayClass);
         }
 
         return $all;
@@ -155,8 +162,8 @@ class Series extends AbstractDb
             $all = self::getAll();
         } else {
             $all = self::getAllFrom(
-                'Opus\Series',
-                self::$_tableGatewayClass,
+                self::class,
+                self::$tableGatewayClass,
                 null,
                 'sort_order'
             );
@@ -169,13 +176,14 @@ class Series extends AbstractDb
      * Retrieve maximum value in column sort_order.
      * Return 0 if database does not contain any series.
      *
+     * TODO return int
      */
     public static function getMaxSortKey()
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db  = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchOne('SELECT MAX(sort_order) FROM document_series');
 
-        if (is_null($max)) {
+        if ($max === null) {
             return 0;
         }
 
@@ -187,13 +195,12 @@ class Series extends AbstractDb
      */
     public function getDocumentIds()
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
-        $ids = $db->fetchCol(
-            'SELECT document_id FROM link_documents_series ' .
-            'WHERE series_id = ?',
+        $db = Zend_Db_Table::getDefaultAdapter();
+        return $db->fetchCol(
+            'SELECT document_id FROM link_documents_series '
+            . 'WHERE series_id = ?',
             $this->getId()
         );
-        return $ids;
     }
 
     /**
@@ -201,12 +208,11 @@ class Series extends AbstractDb
      */
     public function getDocumentIdsSortedBySortKey()
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
-        $ids = $db->fetchCol(
+        $db = Zend_Db_Table::getDefaultAdapter();
+        return $db->fetchCol(
             'SELECT document_id FROM link_documents_series WHERE series_id = ? ORDER BY doc_sort_order DESC',
             $this->getId()
         );
-        return $ids;
     }
 
     /**
@@ -214,31 +220,30 @@ class Series extends AbstractDb
      */
     public function getDocumentIdForNumber($number)
     {
-        if (strlen(trim($number)) == 0) {
+        if (strlen(trim($number)) === 0) {
             return null;
         }
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
+        $adapter    = Zend_Db_Table::getDefaultAdapter();
         $documentId = $adapter->fetchCol(
             'SELECT document_ID FROM link_documents_series WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
         );
 
-        return (count($documentId) == 1) ? $documentId[0] : null;
+        return count($documentId) === 1 ? $documentId[0] : null;
     }
 
     /**
      * Return true if given series number is available. Otherwise false.
      *
      * @param string $number
-     * @return boolean
-     *
+     * @return bool
      */
     public function isNumberAvailable($number)
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db    = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-            'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
-            'WHERE series_id = ? AND number = ?',
+            'SELECT COUNT(*) AS rows_count FROM link_documents_series '
+            . 'WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
         );
         return $count === '0';
@@ -251,10 +256,10 @@ class Series extends AbstractDb
      */
     public function getNumOfAssociatedDocuments()
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db    = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-            'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
-            'WHERE series_id = ?',
+            'SELECT COUNT(*) AS rows_count FROM link_documents_series '
+            . 'WHERE series_id = ?',
             $this->getId()
         );
         return intval($count);
@@ -268,11 +273,11 @@ class Series extends AbstractDb
      */
     public function getNumOfAssociatedPublishedDocuments()
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db    = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-            'SELECT COUNT(*) AS rows_count ' .
-            'FROM link_documents_series l, documents d ' .
-            'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
+            'SELECT COUNT(*) AS rows_count '
+            . 'FROM link_documents_series l, documents d '
+            . 'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
             $this->getId()
         );
         return intval($count);

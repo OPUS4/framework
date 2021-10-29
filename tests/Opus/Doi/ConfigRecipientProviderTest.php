@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Doi
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Doi;
@@ -36,10 +38,10 @@ namespace OpusTest\Doi;
 use Opus\Config;
 use Opus\Doi\ConfigRecipientProvider;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
 
 class ConfigRecipientProviderTest extends TestCase
 {
-
     public function testGetRecipients()
     {
         $provider = new ConfigRecipientProvider();
@@ -49,14 +51,14 @@ class ConfigRecipientProviderTest extends TestCase
         $this->assertInternalType('array', $recipients);
         $this->assertCount(0, $recipients);
 
-        Config::get()->merge(new \Zend_Config([
+        Config::get()->merge(new Zend_Config([
             'doi' => [
                 'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
-                'notificationEmail' => [
+                'notificationEmail'        => [
                     'doe@localhost',
-                    'jane@localhost'
-                ]
-            ]
+                    'jane@localhost',
+                ],
+            ],
         ]));
 
         $recipients = $provider->getRecipients();
@@ -64,7 +66,7 @@ class ConfigRecipientProviderTest extends TestCase
         $this->assertCount(2, $recipients);
         $this->assertEquals([
             ['name' => 'doe@localhost', 'address' => 'doe@localhost'],
-            ['name' => 'jane@localhost', 'address' => 'jane@localhost']
+            ['name' => 'jane@localhost', 'address' => 'jane@localhost'],
         ], $recipients);
     }
 }

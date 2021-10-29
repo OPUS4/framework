@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Db\Adapter\Pdo
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 use Opus\Config;
@@ -42,11 +44,9 @@ use Opus\Log;
  * 'SET NAMES uft8' via query. This adapter can be found by \Zend_Db::factory()
  * as 'PDO_MYSQLUTF8' adapter.
  *
- * @category    Framework
- * @package     Opus\Db
- *
+ * phpcs:disable
  */
-class OpusDb_Mysqlutf8 extends \Zend_Db_Adapter_Pdo_Mysql
+class OpusDb_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
 {
     /**
      * Number of transaction start attempts.
@@ -57,13 +57,11 @@ class OpusDb_Mysqlutf8 extends \Zend_Db_Adapter_Pdo_Mysql
 
     /**
      * Modifies standard connection behavior to use UTF-8.
-     *
-     * @return void
      */
     protected function _connect()
     {
         // if we already have a PDO object, no need to re-connect.
-        if (is_null($this->_connection) === false) {
+        if ($this->_connection !== null) {
             return;
         }
 
@@ -79,7 +77,7 @@ class OpusDb_Mysqlutf8 extends \Zend_Db_Adapter_Pdo_Mysql
                 $function = array_key_exists('function', $row) ? $row['function'] : '_no_function_';
 
                 $optional = '';
-                if ($row['function'] == 'query' && ! is_null($row['args'][0])) {
+                if ($row['function'] === 'query' && $row['args'][0] !== null) {
                     $optional = "(" . $row['args'][0] . ")";
                 }
 
@@ -107,7 +105,7 @@ class OpusDb_Mysqlutf8 extends \Zend_Db_Adapter_Pdo_Mysql
     protected function _beginTransaction()
     {
         if ($this->_runningTransactions < 1) {
-            $query = $this->getProfiler()->queryStart('real_BEGIN', \Zend_Db_Profiler::TRANSACTION);
+            $query = $this->getProfiler()->queryStart('real_BEGIN', Zend_Db_Profiler::TRANSACTION);
             parent::_beginTransaction();
             $this->getProfiler()->queryEnd($query);
         }
@@ -124,7 +122,7 @@ class OpusDb_Mysqlutf8 extends \Zend_Db_Adapter_Pdo_Mysql
     {
         if ($this->_runningTransactions < 2) {
             // Check for values < 2 to not mask errors on misuse of commit()
-            $query = $this->getProfiler()->queryStart('real_COMMIT', \Zend_Db_Profiler::TRANSACTION);
+            $query = $this->getProfiler()->queryStart('real_COMMIT', Zend_Db_Profiler::TRANSACTION);
             parent::_commit();
             $this->getProfiler()->queryEnd($query);
         }

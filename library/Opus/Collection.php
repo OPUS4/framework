@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,67 +26,73 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Michael Lang <lang@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use DOMDocument;
+use Exception;
+use InvalidArgumentException;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Opus\Model\NotFoundException;
-use Opus\Model\Xml\Strategy;
+use Opus\Model\Xml\StrategyInterface;
+
+use function array_diff;
+use function array_merge;
+use function assert;
+use function explode;
+use function intval;
+use function is_array;
+use function trim;
+use function ucfirst;
+use function usort;
 
 /**
- * Class Opus\Collection
+ * Collection model for documents.
+ *
+ * phpcs:disable
  *
  * @method void setNumber(string $number)
  * @method string getNumber()
- *
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setOaiSubset(string $oaiSubset)
  * @method string getOaiSubset()
- *
  * @method void setVisible(boolean $visible)
  * @method boolean getVisible()
- *
  * @method void setVisiblePublish(boolean $visiblePublish)
  * @method boolean getVisiblePublish
  *
  * Fields proxied from Opus\CollectionRole
- *
  * @method void setRoleId(integer $roleId) // TODO correct?
  * @method integer getRoleId()
- *
  * @method void setRole(CollectionRole $role)
  * @method CollectionRole getRole()
- *
  * @method void setRoleDisplayFrontdoor() // TODO
- *
  * @method void setRoleVisibleFrontdoor() // TODO
- *
  * @method string getDisplayFrontdoor() // TODO
  *
  * TODO check what output array for Opus\Collection looks like - document!!!
  */
 class Collection extends AbstractDb
 {
-
     /**
      * Specify the table gateway.
      *
      * @see \Opus\Db\Collections
      */
-    protected static $_tableGatewayClass = 'Opus\Db\Collections';
+    protected static $tableGatewayClass = Db\Collections::class;
 
     /**
      * Plugins to load
@@ -95,8 +102,8 @@ class Collection extends AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache',
-            'Opus\Collection\Plugin\DeleteSubTree'
+            Model\Plugin\InvalidateDocumentCache::class,
+            Collection\Plugin\DeleteSubTree::class,
         ];
     }
 
@@ -104,18 +111,19 @@ class Collection extends AbstractDb
      * The collections external fields, i.e. those not mapped directly to the
      * Opus\Db\Collections table gateway.
      *
-     * @var array
      * @see \Opus\Model\Abstract::$_externalFields
+     *
+     * @var array
      */
-    protected $_externalFields = [
-        'Theme' => [
+    protected $externalFields = [
+        'Theme'                => [
             'fetch' => 'lazy',
         ],
-        'Role' => [
-            'model' => 'Opus\CollectionRole',
+        'Role'                 => [
+            'model' => CollectionRole::class,
             'fetch' => 'lazy',
         ],
-        'RoleName' => [
+        'RoleName'             => [
             'fetch' => 'lazy',
         ],
         'RoleDisplayFrontdoor' => [
@@ -124,43 +132,44 @@ class Collection extends AbstractDb
         'RoleVisibleFrontdoor' => [
             'fetch' => 'lazy',
         ],
-
-
-        'PositionKey' => [],
-        'PositionId' => [],
+        'PositionKey'          => [],
+        'PositionId'           => [],
 
         // Will contain the Collections to the Root Collection
         'Parents' => [
-            'model' => 'Opus\Collection',
+            'model' => self::class,
             'fetch' => 'lazy',
         ],
 
         // Will contain the Collections with parentId = this->getId
         'Children' => [
-            'model' => 'Opus\Collection',
+            'model' => self::class,
             'fetch' => 'lazy',
         ],
 
         // Pending nodes.
         'PendingNodes' => [
-            'model' => 'Opus\Collection',
+            'model' => self::class,
             'fetch' => 'lazy',
         ],
     ];
 
     /**
      * Sets up field by analyzing collection content table metadata.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $fields = [
-            'Number', 'Name', 'OaiSubset',
-            'RoleId', 'Role', 'RoleName',
-            'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor',
+            'Number',
+            'Name',
+            'OaiSubset',
+            'RoleId',
+            'Role',
+            'RoleName',
+            'RoleDisplayFrontdoor',
+            'RoleVisibleFrontdoor',
             'DisplayFrontdoor',
-            'VisiblePublish'
+            'VisiblePublish',
         ];
 
         foreach ($fields as $field) {
@@ -177,7 +186,6 @@ class Collection extends AbstractDb
         $theme->setSelection(true);
         $this->addField($theme);
 
-
         /**
          * External fields.
          */
@@ -191,14 +199,15 @@ class Collection extends AbstractDb
         $parents->setMultiplicity('*');
         $this->addField($parents);
 
-
         /*
          * Fields used to define the position of new nodes.
         */
         $positionKeys = [
             'Root',
-            'FirstChild', 'LastChild',
-            'NextSibling', 'PrevSibling'
+            'FirstChild',
+            'LastChild',
+            'NextSibling',
+            'PrevSibling',
         ];
 
         $positionKey = new Field('PositionKey');
@@ -224,20 +233,20 @@ class Collection extends AbstractDb
      */
     protected function _fetchTheme()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = TableGateway::getInstance('Opus\Db\CollectionsEnrichments');
+        $table = TableGateway::getInstance(Db\CollectionsEnrichments::class);
         $theme = Config::get()->theme; // TODO Weitere Abhängigkeit auf Applikation, oder?
 
         // Search for theme in database and, if exists, overwrite default theme.
         $select = $table->select()
                         ->where('key_name = ?', "theme")
                         ->where('collection_id = ?', $this->getId());
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
-        if (! is_null($row)) {
+        if ($row !== null) {
             $theme = $row->value;
         }
 
@@ -255,21 +264,21 @@ class Collection extends AbstractDb
      */
     protected function _storeTheme($theme = '')
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        if (true === is_null($theme)) {
+        if ($theme === null) {
             $theme = '';
         }
 
-        $table = TableGateway::getInstance('Opus\Db\CollectionsEnrichments');
+        $table  = TableGateway::getInstance(Db\CollectionsEnrichments::class);
         $select = $table->select()
                         ->where('key_name = ?', "theme")
                         ->where('collection_id = ?', $this->getId());
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
-        if ($theme == '' || Config::get()->theme === $theme) {
+        if ($theme === '' || Config::get()->theme === $theme) {
             // No need to store default theme setting.  Delete row if exists.
             if (isset($row)) {
                 $row->delete();
@@ -277,10 +286,10 @@ class Collection extends AbstractDb
             return;
         }
 
-        if (true === is_null($row)) {
-            $row = $table->createRow();
+        if ($row === null) {
+            $row                = $table->createRow();
             $row->collection_id = $this->getId();
-            $row->key_name = 'theme';
+            $row->key_name      = 'theme';
         }
 
         $row->value = $theme;
@@ -294,14 +303,14 @@ class Collection extends AbstractDb
      */
     public function getDocumentIds()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        assert(! is_null($this->getId()));
-        assert(! is_null($this->getRoleId()));
+        assert($this->getId() !== null);
+        assert($this->getRoleId() !== null);
 
-        $table = TableGateway::getInstance('Opus\Db\LinkDocumentsCollections');
+        $table = TableGateway::getInstance(Db\LinkDocumentsCollections::class);
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
@@ -318,11 +327,11 @@ class Collection extends AbstractDb
      */
     public function getPublishedDocumentIds()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = TableGateway::getInstance('Opus\Db\LinkDocumentsCollections');
+        $table = TableGateway::getInstance(Db\LinkDocumentsCollections::class);
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         $select = $table->select()
@@ -341,16 +350,15 @@ class Collection extends AbstractDb
      */
     protected function _fetchRole()
     {
-        $role = new CollectionRole($this->getRoleId());
-        return $role;
+        return new CollectionRole($this->getRoleId());
     }
 
     protected function _fetchDisplayFrontdoor()
     {
         $displayName = $this->getDisplayName('frontdoor');
-        $parentId = $this->getParentNodeId();
+        $parentId    = $this->getParentNodeId();
         if (! empty($parentId)) {
-            $parent = new Collection($parentId);
+            $parent            = new Collection($parentId);
             $parentDisplayName = $parent->getDisplayFrontdoor(); // implicitly calls $parent->_fetchDisplayFrontdoor()
             if (! empty($parentDisplayName)) {
                 $displayName = $parentDisplayName . ' / ' . $displayName;
@@ -402,7 +410,7 @@ class Collection extends AbstractDb
     protected function _fetchRoleDisplayFrontdoor()
     {
         $role = $this->getRole();
-        if (! is_null($role)) {
+        if ($role !== null) {
             return $role->getDisplayFrontdoor();
         }
     }
@@ -415,8 +423,8 @@ class Collection extends AbstractDb
     protected function _fetchRoleVisibleFrontdoor()
     {
         $role = $this->getRole();
-        if (! is_null($role)) {
-            if ($role->getVisible() == 1 and $role->getVisibleFrontdoor() == 1) {
+        if ($role !== null) {
+            if (( int )$role->getVisible() === 1 && ( int )$role->getVisibleFrontdoor() === 1) {
                 return 'true';
             }
         }
@@ -431,7 +439,7 @@ class Collection extends AbstractDb
     protected function _fetchRoleName()
     {
         $role = $this->getRole();
-        if (! is_null($role)) {
+        if ($role !== null) {
             return $role->getDisplayName();
         }
     }
@@ -443,20 +451,20 @@ class Collection extends AbstractDb
      */
     public function getDisplayName($context = 'browsing', $role = null)
     {
-        if (! is_null($role) && (! $role instanceof CollectionRole || $role->getId() != $this->getRoleId())) {
-            throw new \InvalidArgumentException('given Collection Role is not compatible');
+        if ($role !== null && (! $role instanceof CollectionRole || $role->getId() !== $this->getRoleId())) {
+            throw new InvalidArgumentException('given Collection Role is not compatible');
         }
 
-        if (is_null($role)) {
+        if ($role === null) {
             $role = $this->getRole();
         }
         $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
-        $display = '';
+        $display    = '';
 
         if (false === empty($fieldnames)) {
             foreach (explode(',', $fieldnames) as $fieldname) {
                 $field = $this->_getField(trim($fieldname));
-                if (false === is_null($field)) {
+                if ($field !== null) {
                     $display .= $field->getValue() . ' ';
                 }
             }
@@ -482,22 +490,20 @@ class Collection extends AbstractDb
      * Number and Name).
      *
      * @param string $delimiter
-     *
      * @return string
      */
     public function getNumberAndName($delimiter = ' ')
     {
-        $name = trim($this->getName());
+        $name   = trim($this->getName());
         $number = trim($this->getNumber());
-        if ($number == '') {
+        if ($number === '') {
             return $name;
         }
-        if ($name == '') {
+        if ($name === '') {
             return $number;
         }
         return $number . $delimiter . $name;
     }
-
 
     /**
      * Returns debug name.
@@ -506,30 +512,30 @@ class Collection extends AbstractDb
      */
     public function getDebugName()
     {
-        return get_class($this) . '#' . $this->getId() . '#' . $this->getRoleId();
+        return static::class . '#' . $this->getId() . '#' . $this->getRoleId();
     }
 
     /**
      * Returns the ID of the parent node.
      *
-     * @return integer
+     * @return int
      */
     public function getParentNodeId()
     {
-        $table = $this->_primaryTableRow->getTable();
+        $table         = $this->primaryTableRow->getTable();
         $parentIdField = $table->getParentFieldName();
-        return $this->_primaryTableRow->$parentIdField;
+        return $this->primaryTableRow->$parentIdField;
     }
 
     // TODO: Add documentation for method.
     protected function linkDocument($documentId)
     {
         if (isset($documentId) === false) {
-            throw new \Exception("linkDocument() needs documend_id parameter.");
+            throw new Exception("linkDocument() needs documend_id parameter.");
         }
 
-        if (is_null($this->getId()) === true) {
-            throw new \Exception("linkDocument() only on stored records.");
+        if ($this->getId() === null) {
+            throw new Exception("linkDocument() only on stored records.");
         }
 
         if (! $this->holdsDocumentById($documentId)) {
@@ -541,28 +547,28 @@ class Collection extends AbstractDb
      * Add document to current collection by adding an entry in the relation
      * table "link_documents_collections".
      *
-     * @param int $documentId
+     * @param null|int $documentId
      *
      * TODO: Move method to Opus\Db\LinkDocumentsCollections.
      * TODO: Usable return value.
      */
     public function linkDocumentById($documentId = null)
     {
-        if (is_null($this->getId())) {
-            throw new \Exception("linkDocumentById() is not allowed on NewRecord.");
+        if ($this->getId() === null) {
+            throw new Exception("linkDocumentById() is not allowed on NewRecord.");
         }
 
-        if (is_null($documentId)) {
-            throw new \Exception("linkDocumentById() needs valid document_id.");
+        if ($documentId === null) {
+            throw new Exception("linkDocumentById() needs valid document_id.");
         }
 
-        $table = $this->_primaryTableRow->getTable();
-        $db = $table->getAdapter();
+        $table = $this->primaryTableRow->getTable();
+        $db    = $table->getAdapter();
 
         $insertData = [
             'collection_id' => $this->getId(),
-            'role_id' => $this->getRoleId(),
-            'document_id' => $documentId,
+            'role_id'       => $this->getRoleId(),
+            'document_id'   => $documentId,
         ];
 
         return $db->insert('link_documents_collections', $insertData);
@@ -572,22 +578,22 @@ class Collection extends AbstractDb
      * Removes document from current collection by deleting from the relation
      * table "link_documents_collections".
      *
-     * @param int $documentId
+     * @param null|int $documentId
      *
      * TODO: Move method to Opus\Db\LinkDocumentsCollections.
      * TODO: Usable return value.
      */
     public static function unlinkCollectionsByDocumentId($documentId = null)
     {
-        if (is_null($documentId)) {
+        if ($documentId === null) {
             return;
         }
 
-        $table = TableGateway::getInstance('Opus\Db\LinkDocumentsCollections');
-        $db = $table->getAdapter();
+        $table = TableGateway::getInstance(Db\LinkDocumentsCollections::class);
+        $db    = $table->getAdapter();
 
         $condition = [
-            'document_id = ?' => $documentId
+            'document_id = ?' => $documentId,
         ];
 
         return $db->delete("link_documents_collections", $condition);
@@ -596,7 +602,7 @@ class Collection extends AbstractDb
     /**
      * Checks if document is linked to current collection.
      *
-     * @param  int  $documentId
+     * @param  null|int $documentId
      * @return bool
      *
      * TODO: Move method to Opus\Db\LinkDocumentsCollections.
@@ -604,12 +610,12 @@ class Collection extends AbstractDb
      */
     public function holdsDocumentById($documentId = null)
     {
-        if (is_null($documentId)) {
+        if ($documentId === null) {
             return false;
         }
 
-        $table = $this->_primaryTableRow->getTable();
-        $db = $table->getAdapter();
+        $table = $this->primaryTableRow->getTable();
+        $db    = $table->getAdapter();
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
@@ -639,31 +645,31 @@ class Collection extends AbstractDb
     {
         $role = $this->getRole();
         return [
-            'Id' => $this->getId(),
-            'RoleId' => $this->getRoleId(),
-            'RoleName' => $role->getDisplayName(),
-            'Name' => $this->getName(),
-            'Number' => $this->getNumber(),
-            'OaiSubset' => $this->getOaiSubset(),
+            'Id'                   => $this->getId(),
+            'RoleId'               => $this->getRoleId(),
+            'RoleName'             => $role->getDisplayName(),
+            'Name'                 => $this->getName(),
+            'Number'               => $this->getNumber(),
+            'OaiSubset'            => $this->getOaiSubset(),
             'RoleDisplayFrontdoor' => $role->getDisplayFrontdoor(),
-            'RoleDisplayBrowsing' => $role->getDisplayBrowsing(),
-            'DisplayFrontdoor' => $this->getDisplayName('Frontdoor'),
-            'DisplayBrowsing' => $this->getDisplayName('Browsing')
+            'RoleDisplayBrowsing'  => $role->getDisplayBrowsing(),
+            'DisplayFrontdoor'     => $this->getDisplayName('Frontdoor'),
+            'DisplayBrowsing'      => $this->getDisplayName('Browsing'),
         ];
     }
 
     /**
      * Returns Xml representation of the collection.
      *
-     * @param  array $excludeFields Fields to exclude from the Xml output.
-     * @param Strategy $strategy Version of Xml to process
-     * @return \DomDocument Xml representation of the collection.
+     * @param  null|array    $excludeFields Fields to exclude from the Xml output.
+     * @param null|StrategyInterface $strategy Version of Xml to process
+     * @return DOMDocument Xml representation of the collection.
      */
-    public function toXml(array $excludeFields = null, $strategy = null)
+    public function toXml(?array $excludeFields = null, $strategy = null)
     {
         // TODO: comment why these fields should always be excluded.
         $alwaysExclude = ['Theme'];
-        if (is_null($excludeFields) === true) {
+        if ($excludeFields === null) {
             $excludeFields = $alwaysExclude;
         } else {
             $excludeFields = array_merge($excludeFields, $alwaysExclude);
@@ -676,24 +682,24 @@ class Collection extends AbstractDb
      * with Opus\Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
      *
-     * @param  int     $roleId
-     * @param  string  $number
+     * @param  int    $roleId
+     * @param  string $number
      * @return array   Array of Opus\Collection objects.
      */
     public static function fetchCollectionsByRoleNumber($roleId, $number)
     {
         if (! isset($number)) {
-            throw new \Exception("Parameter 'number' is required.");
+            throw new Exception("Parameter 'number' is required.");
         }
 
         if (! isset($roleId)) {
-            throw new \Exception("Parameter 'role_id' is required.");
+            throw new Exception("Parameter 'role_id' is required.");
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId)
                         ->where('number = ?', "$number");
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
 
         return self::createObjects($rows);
     }
@@ -703,24 +709,24 @@ class Collection extends AbstractDb
      * with Opus\Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
      *
-     * @param  int     $roleId
-     * @param  string  $name
+     * @param  int    $roleId
+     * @param  string $name
      * @return array   Array of Opus\Collection objects.
      */
     public static function fetchCollectionsByRoleName($roleId, $name)
     {
         if (! isset($name)) {
-            throw new \Exception("Parameter 'name' is required.");
+            throw new Exception("Parameter 'name' is required.");
         }
 
         if (! isset($roleId)) {
-            throw new \Exception("Parameter 'role_id' is required.");
+            throw new Exception("Parameter 'role_id' is required.");
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId)
                         ->where('name = ?', $name);
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
 
         return self::createObjects($rows);
     }
@@ -730,18 +736,18 @@ class Collection extends AbstractDb
      * with Opus\Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
      *
-     * @param  int     $roleId
+     * @param  int $roleId
      * @return array   Array of Opus\Collection objects.
      */
     public static function fetchCollectionsByRoleId($roleId)
     {
         if (! isset($roleId)) {
-            throw new \Exception("Parameter 'role_id' is required.");
+            throw new Exception("Parameter 'role_id' is required.");
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId);
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
 
         return self::createObjects($rows);
     }
@@ -749,7 +755,7 @@ class Collection extends AbstractDb
     /**
      * Returns all collection_ids for a given document_id.
      *
-     * @param  int    $documentId
+     * @param  int $documentId
      * @return array  Array of collection Ids.
      *
      * FIXME: This method belongs to Opus\Db\Link\Documents\Collections
@@ -760,8 +766,8 @@ class Collection extends AbstractDb
             return [];
         }
 
-        // FIXME: self::$_tableGatewayClass not possible in static methods.
-        $table = TableGateway::getInstance('Opus\Db\Collections');
+        // FIXME: self::$tableGatewayClass not possible in static methods.
+        $table = TableGateway::getInstance(Db\Collections::class);
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
@@ -770,8 +776,7 @@ class Collection extends AbstractDb
                         ->where('ldc.document_id = ?', $documentId)
                         ->distinct();
 
-        $ids = $table->getAdapter()->fetchCol($select);
-        return $ids;
+        return $table->getAdapter()->fetchCol($select);
     }
 
     /**
@@ -792,13 +797,12 @@ class Collection extends AbstractDb
         //   echo "class: $class\n";
 
         foreach ($array as $element) {
-            $c = new Collection($element);
+            $c         = new Collection($element);
             $results[] = $c;
         }
 
         return $results;
     }
-
 
     /**
      * If this node is new, PositionKey and PositionId define the position
@@ -820,7 +824,6 @@ class Collection extends AbstractDb
     public function _storePositionId()
     {
     }
-
 
     /**
      * Creating new collections.
@@ -848,33 +851,31 @@ class Collection extends AbstractDb
 
     public function moveAfterNextSibling()
     {
-        $nestedsets = $this->_primaryTableRow->getTable();
+        $nestedsets = $this->primaryTableRow->getTable();
         $nestedsets->moveSubTreeAfterNextSibling($this->getId());
     }
 
     public function moveBeforePrevSibling()
     {
-        $nestedsets = $this->_primaryTableRow->getTable();
+        $nestedsets = $this->primaryTableRow->getTable();
         $nestedsets->moveSubTreeBeforePreviousSibling($this->getId());
     }
 
     public function moveToPosition($position)
     {
-        $nestedSets = $this->_primaryTableRow->getTable();
+        $nestedSets = $this->primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId(), $position);
     }
 
     public function moveToStart()
     {
-        $nestedSets = $this->_primaryTableRow->getTable();
+        $nestedSets = $this->primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId(), 0);
     }
 
-    /**
-     */
     public function moveToEnd()
     {
-        $nestedSets = $this->_primaryTableRow->getTable();
+        $nestedSets = $this->primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId());
     }
 
@@ -886,12 +887,12 @@ class Collection extends AbstractDb
      */
     public function _storeInternalFields()
     {
-        if (is_null($this->getRoleId())) {
-            throw new \Exception("RoleId must be set when storing Collection!");
+        if ($this->getRoleId() === null) {
+            throw new Exception("RoleId must be set when storing Collection!");
         }
 
         if ($this->isNewRecord()) {
-            $nestedSets = $this->_primaryTableRow->getTable();
+            $nestedSets = $this->primaryTableRow->getTable();
 
             // Insert new node into the tree.  The position is specified by
             //     PositionKey = { root,   First-/LastChild, Next-/PrevSibling }
@@ -900,7 +901,7 @@ class Collection extends AbstractDb
             $positionId  = $this->getPositionId();
 
             if (false === isset($positionKey)) {
-                throw new \Exception('PositionKey must be set!');
+                throw new Exception('PositionKey must be set!');
             }
 
             $data = null;
@@ -921,7 +922,7 @@ class Collection extends AbstractDb
                     $data = $nestedSets->createRoot();
                     break;
                 default:
-                    throw new \Exception("PositionKey($positionKey) invalid.");
+                    throw new Exception("PositionKey($positionKey) invalid.");
             }
 
             // Dirty fix: After storing the nested set information, the row
@@ -930,7 +931,7 @@ class Collection extends AbstractDb
             // $this->setRoleId( $data['role_id'] );
 
             // Store nested set information in current table row.
-            $this->_primaryTableRow->setFromArray($data);
+            $this->primaryTableRow->setFromArray($data);
         }
 
         return parent::_storeInternalFields();
@@ -940,8 +941,8 @@ class Collection extends AbstractDb
      * PendingNodes: Add new nodes to the tree.  The position depends on the
      * $key parameter.
      *
-     * @param string              $key  (First|Last)Child, (Next|Prev)Sibling.
-     * @param CollectionNode $collection
+     * @param null|string         $key (First|Last)Child, (Next|Prev)Sibling.
+     * @param null|CollectionNode $collection
      * @return <type>
      */
     protected function addPendingNodes($key = null, $collection = null)
@@ -978,12 +979,12 @@ class Collection extends AbstractDb
      */
     public function _storePendingNodes($collections)
     {
-        if (is_null($collections)) {
+        if ($collections === null) {
             return;
         }
 
         if (false === is_array($collections)) {
-            throw new \Exception("Expecting array-value argument!");
+            throw new Exception("Expecting array-value argument!");
         }
 
         foreach ($collections as $collection) {
@@ -1004,15 +1005,15 @@ class Collection extends AbstractDb
      */
     public function getNumSubtreeEntries()
     {
-        $nestedsets = $this->_primaryTableRow->getTable();
-        $subselect = $nestedsets
+        $nestedsets = $this->primaryTableRow->getTable();
+        $subselect  = $nestedsets
                 ->selectSubtreeById($this->getId(), 'id')
                 ->where("start.visible = 1")
                 ->where("node.visible = 1")
                 ->distinct();
 
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
-        $db = $this->_primaryTableRow->getTable()->getAdapter();
+        $db     = $this->primaryTableRow->getTable()->getAdapter();
         $select = $db->select()
                         ->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
                         ->from('documents AS d', [])
@@ -1034,17 +1035,17 @@ class Collection extends AbstractDb
      */
     public function filterSubtreeDocumentIds($docIds)
     {
-        if (is_null($docIds) or (is_array($docIds) && empty($docIds))) {
+        if ($docIds === null || (is_array($docIds) && empty($docIds))) {
             return [];
         }
 
-        $nestedsets = $this->_primaryTableRow->getTable();
-        $subselect = $nestedsets
+        $nestedsets = $this->primaryTableRow->getTable();
+        $subselect  = $nestedsets
                 ->selectSubtreeById($this->getId(), 'id')
                 ->distinct();
 
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
-        $db = $this->_primaryTableRow->getTable()->getAdapter();
+        $db     = $this->primaryTableRow->getTable()->getAdapter();
         $select = $db->select()->from('link_documents_collections AS ldc', 'ldc.document_id')
                         ->where("ldc.collection_id IN ($subselect)")
                         ->where("ldc.document_id IN (?)", $docIds)
@@ -1056,19 +1057,19 @@ class Collection extends AbstractDb
     /**
      * Returns nodes for breadcrumb path.
      *
-     * @return Array of Opus\Collection objects.
+     * @return array of Opus\Collection objects.
      */
 
     public function _fetchParents()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         $select = $table->selectParentsById($this->getId());
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
 
         return self::createObjects($rows);
     }
@@ -1076,18 +1077,18 @@ class Collection extends AbstractDb
     /**
      * Returns children of current collection.
      *
-     * @return Array of Opus\Collection objects.
+     * @return array of Opus\Collection objects.
      */
     protected function _fetchChildren()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
 
         return self::createObjects($rows);
     }
@@ -1095,13 +1096,10 @@ class Collection extends AbstractDb
     /**
      * Overwrite _store: We cannot add children directly.  This has to be done
      * via "addLastChild" and "addFirstChild".
-     *
-     * @return void
      */
     protected function _storeChildren()
     {
     }
-
 
     /**
      * An unexpensive way to find out, if the current collection has children,
@@ -1110,11 +1108,11 @@ class Collection extends AbstractDb
     public function hasChildren()
     {
         if ($this->isNewRecord()) {
-            return;
+            return; // TODO true or false?
         }
 
-        return ! $this->_primaryTableRow->getTable()->isLeaf(
-            $this->_primaryTableRow->toArray()
+        return ! $this->primaryTableRow->getTable()->isLeaf(
+            $this->primaryTableRow->toArray()
         );
     }
 
@@ -1138,18 +1136,18 @@ class Collection extends AbstractDb
             return;
         }
 
-        return $this->_primaryTableRow->getTable()->isRoot(
-            $this->_primaryTableRow->toArray()
+        return $this->primaryTableRow->getTable()->isRoot(
+            $this->primaryTableRow->toArray()
         );
     }
 
     public function getVisibleChildren()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
         $select->where("visible = 1");
@@ -1160,11 +1158,11 @@ class Collection extends AbstractDb
 
     public function hasVisibleChildren()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table  = $this->primaryTableRow->getTable();
         $select = $table->selectChildrenById($this->getId());
         $select->where("visible = 1");
         $select->reset('columns');
@@ -1175,11 +1173,11 @@ class Collection extends AbstractDb
 
     public function getVisiblePublishChildren()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
         $select->where("visible_publish = 1");
@@ -1191,11 +1189,11 @@ class Collection extends AbstractDb
 
     public function hasVisiblePublishChildren()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table  = $this->primaryTableRow->getTable();
         $select = $table->selectChildrenById($this->getId());
         $select->where("visible_publish = 1");
         $select->where("visible = 1");
@@ -1210,7 +1208,7 @@ class Collection extends AbstractDb
      */
     public function sortChildrenByName($reverse = false)
     {
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
 
@@ -1220,20 +1218,20 @@ class Collection extends AbstractDb
             usort(
                 $children,
                 function ($nodeOne, $nodeTwo) {
-                    if ($nodeOne['name'] == $nodeTwo['name']) {
+                    if ($nodeOne['name'] === $nodeTwo['name']) {
                         return 0;
                     }
-                    return ($nodeOne['name'] < $nodeTwo['name']) ? -1 : 1;
+                    return $nodeOne['name'] < $nodeTwo['name'] ? -1 : 1;
                 }
             );
         } else {
             usort(
                 $children,
                 function ($nodeOne, $nodeTwo) {
-                    if ($nodeOne['name'] == $nodeTwo['name']) {
+                    if ($nodeOne['name'] === $nodeTwo['name']) {
                         return 0;
                     }
-                    return ($nodeOne['name'] > $nodeTwo['name']) ? -1 : 1;
+                    return $nodeOne['name'] > $nodeTwo['name'] ? -1 : 1;
                 }
             );
         }
@@ -1248,7 +1246,7 @@ class Collection extends AbstractDb
      */
     public function sortChildrenByNumber($reverse = false)
     {
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
 
@@ -1258,20 +1256,20 @@ class Collection extends AbstractDb
             usort(
                 $children,
                 function ($nodeOne, $nodeTwo) {
-                    if ($nodeOne['number'] == $nodeTwo['number']) {
+                    if ($nodeOne['number'] === $nodeTwo['number']) {
                         return 0;
                     }
-                    return ($nodeOne['number'] < $nodeTwo['number']) ? -1 : 1;
+                    return $nodeOne['number'] < $nodeTwo['number'] ? -1 : 1;
                 }
             );
         } else {
             usort(
                 $children,
                 function ($nodeOne, $nodeTwo) {
-                    if ($nodeOne['number'] == $nodeTwo['number']) {
+                    if ($nodeOne['number'] === $nodeTwo['number']) {
                         return 0;
                     }
-                    return ($nodeOne['number'] > $nodeTwo['number']) ? -1 : 1;
+                    return $nodeOne['number'] > $nodeTwo['number'] ? -1 : 1;
                 }
             );
         }
@@ -1284,12 +1282,12 @@ class Collection extends AbstractDb
     /**
      * Sorts children in the specified order.
      *
-     * @param $sortedIds Array with node IDs in desired order
-     * @throws \InvalidArgumentException if one of the IDs ist not a child node
+     * @param array $sortedIds Array with node IDs in desired order
+     * @throws InvalidArgumentException if one of the IDs ist not a child node
      */
     public function applySortOrderOfChildren($sortedIds)
     {
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
         $table->applySortOrderOfChildren($this->getId(), $sortedIds);
     }
 
@@ -1301,12 +1299,12 @@ class Collection extends AbstractDb
         $colId = $this->getId();
 
         // return value for collection that has not been stored yet
-        if (is_null($colId)) {
+        if ($colId === null) {
             $visible = $this->getVisible();
-            return is_null($visible) ? false : (bool) $visible;
+            return $visible === null ? false : (bool) $visible;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table = $this->primaryTableRow->getTable();
 
         return $table->isVisible($colId);
     }
@@ -1345,7 +1343,7 @@ class Collection extends AbstractDb
             }
         }
 
-        if (is_null($col)) {
+        if ($col === null) {
             $col = parent::fromArray($data);
         }
 

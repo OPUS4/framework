@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,21 +25,23 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Security
  * @author      Julian Heise <heise@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Security;
 
 /**
  * Interface for classes providing security implementation.
+ *
+ * phpcs:disable
  */
 interface IRealm
 {
-
     /**
      * Set the current username.
      *
@@ -60,24 +63,24 @@ interface IRealm
     /**
      * Checks, if the logged user is allowed to access (document_id).
      *
-     * @param string $document_id ID of the document to check
-     * @return boolean  Returns true only if access is granted.
+     * @param null|string $document_id ID of the document to check
+     * @return bool Returns true only if access is granted.
      */
     public function checkDocument($document_id = null);
 
     /**
      * Checks, if the logged user is allowed to access (file_id).
      *
-     * @param string $file_id ID of the file to check
-     * @return boolean  Returns true only if access is granted.
+     * @param null|string $file_id ID of the file to check
+     * @return bool Returns true only if access is granted.
      */
     public function checkFile($file_id = null);
 
     /**
      * Checks, if the logged user is allowed to access (module_name).
      *
-     * @param string $module_name Name of the module to check
-     * @return boolean  Returns true only if access is granted.
+     * @param null|string $module_name Name of the module to check
+     * @return bool Returns true only if access is granted.
      */
     public function checkModule($module_name = null);
 

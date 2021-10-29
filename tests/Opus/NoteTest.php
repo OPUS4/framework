@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -39,7 +41,6 @@ use OpusTest\TestAsset\TestCase;
 
 class NoteTest extends TestCase
 {
-
     public function testSetVisibility()
     {
         $doc = new Document();
@@ -50,7 +51,6 @@ class NoteTest extends TestCase
 
         $docId = $doc->store();
 
-
         $doc = new Document($docId);
 
         $notes = $doc->getNote();
@@ -60,7 +60,7 @@ class NoteTest extends TestCase
 
         $note = $notes[0];
 
-        $this->assertInstanceOf('Opus\Note', $note);
+        $this->assertInstanceOf(Note::class, $note);
 
         $this->assertEquals('public', $note->getVisibility());
     }
@@ -74,7 +74,6 @@ class NoteTest extends TestCase
 
         $docId = $doc->store();
 
-
         $doc = new Document($docId);
 
         $notes = $doc->getNote();
@@ -84,7 +83,7 @@ class NoteTest extends TestCase
 
         $note = $notes[0];
 
-        $this->assertInstanceOf('Opus\Note', $note);
+        $this->assertInstanceOf(Note::class, $note);
 
         $this->assertEquals('private', $note->getVisibility());
     }
@@ -98,8 +97,8 @@ class NoteTest extends TestCase
         $data = $note->toArray();
 
         $this->assertEquals([
-            'Message' => 'a public message',
-            'Visibility' => 'public'
+            'Message'    => 'a public message',
+            'Visibility' => 'public',
         ], $data);
     }
 
@@ -107,11 +106,11 @@ class NoteTest extends TestCase
     {
         $note = Note::fromArray([
             'Visibility' => 'private',
-            'Message' => 'a private message'
+            'Message'    => 'a private message',
         ]);
 
         $this->assertNotNull($note);
-        $this->assertInstanceOf('Opus\Note', $note);
+        $this->assertInstanceOf(Note::class, $note);
 
         $this->assertEquals('private', $note->getVisibility());
         $this->assertEquals('a private message', $note->getMessage());
@@ -123,11 +122,11 @@ class NoteTest extends TestCase
 
         $note->updateFromArray([
             'Visibility' => 'private',
-            'Message' => 'a private message'
+            'Message'    => 'a private message',
         ]);
 
         $this->assertNotNull($note);
-        $this->assertInstanceOf('Opus\Note', $note);
+        $this->assertInstanceOf(Note::class, $note);
 
         $this->assertEquals('private', $note->getVisibility());
         $this->assertEquals('a private message', $note->getMessage());

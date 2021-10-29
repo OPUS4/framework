@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -7,12 +8,11 @@
  *
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
- * Baden-Wuerttemberg, the North Rhine-Westphalian Library Service Center,
- * the Cooperative Library Network Berlin-Brandenburg, the Saarland University
- * and State Library, the Saxon State Library - Dresden State and University
- * Library, the Bielefeld University Library and the University Library of
- * Hamburg University of Technology with funding from the German Research
- * Foundation and the European Regional Development Fund.
+ * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
+ * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
  * OPUS is free software; you can redistribute it and/or modify it under the
@@ -25,23 +25,41 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Update
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-namespace Opus\Doi;
+namespace OpusTest\Update\Plugin;
 
-interface NotificationRecipientProvider
+use Opus\Update\Plugin\AbstractUpdatePlugin;
+use OpusTest\TestAsset\TestCase;
+
+class AbstractUpdatePluginTest extends TestCase
 {
+    private $stub;
 
-    /**
-     * Returns array with name (key) and email (value) of recipients for DOI notifications.
-     *
-     * TODO can this interface be made DOI independent (technically it is)? Does it make sense?
-     *
-     * @return mixed
-     */
-    public function getRecipients();
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->stub = $this->getMockForAbstractClass(AbstractUpdatePlugin::class);
+    }
+
+    public function testQuietModeOff()
+    {
+        $this->expectOutputString('Test output.' . PHP_EOL);
+        $this->stub->log('Test output.');
+    }
+
+    public function testQuietModeOn()
+    {
+        $this->stub->setQuietMode(true);
+
+        $this->expectOutputString('');
+        $this->stub->log('Test output.');
+    }
 }

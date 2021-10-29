@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Collection
  * @author      Edouard Simon (edouard.simon@zib.de)
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Collection\Plugin;
@@ -40,15 +42,13 @@ use Opus\Document;
 use Opus\Model\NotFoundException;
 use OpusTest\TestAsset\TestCase;
 
-/**
- *
- */
+use function count;
+use function sleep;
+
 class DeleteSubTreeTest extends TestCase
 {
-
     public function testPreDelete()
     {
-
         $collectionRole = new CollectionRole();
         $collectionRole->setName('testRole');
         $collectionRole->setOaiName('testRole');
@@ -57,28 +57,28 @@ class DeleteSubTreeTest extends TestCase
         $collectionRole->store();
         $collection = $collectionRole->addRootCollection();
 
-        $childCollection = $collection->addFirstChild();
+        $childCollection      = $collection->addFirstChild();
         $grandChildCollection = $childCollection->addFirstChild();
-        $child2Collection = $collection->addLastChild();
+        $child2Collection     = $collection->addLastChild();
 
-        $collectionId = $collection->store();
-        $childCollectionId = $childCollection->getId();
-        $child2CollectionId = $child2Collection->getId();
+        $collectionId           = $collection->store();
+        $childCollectionId      = $childCollection->getId();
+        $child2CollectionId     = $child2Collection->getId();
         $grandChildCollectionId = $grandChildCollection->getId();
 
         $doc1 = new Document();
         $doc1->addCollection($childCollection);
-        $docId1 = $doc1->store();
+        $docId1                 = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified();
 
         $doc2 = new Document();
         $doc2->addCollection($grandChildCollection);
-        $docId2 = $doc2->store();
+        $docId2                 = $doc2->store();
         $doc2ServerDateModified = $doc2->getServerDateModified();
 
         $doc3 = new Document();
         $doc3->addCollection($child2Collection);
-        $docId3 = $doc3->store();
+        $docId3                 = $doc3->store();
         $doc3ServerDateModified = $doc3->getServerDateModified();
 
         $collectionReloaded = new Collection($collectionId);

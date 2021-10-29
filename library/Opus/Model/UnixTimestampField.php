@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,18 +25,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model;
 
+/**
+ * phpcs:disable
+ */
 class UnixTimestampField extends DateField
 {
-
     /**
      * Returns UNIX timestamp for Opus\Date, but does not allow setting value.
      *
@@ -48,7 +52,7 @@ class UnixTimestampField extends DateField
     public function getValue($index = null)
     {
         $timestamp = $this->parent->getTimestamp();
-        if (! is_null($timestamp) and $timestamp > 0) {
+        if ($timestamp !== null && $timestamp > 0) {
             return $timestamp;
         } else {
             return null;

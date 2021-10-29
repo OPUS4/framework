@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ *
+ * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
+ */
 
 namespace Opus\Job;
 
+use Exception;
 use Opus\Job;
 use Opus\Job\Worker\WorkerInterface;
+use Zend_Log;
+
+use function array_key_exists;
+use function array_keys;
+use function count;
+use function get_class;
+use function is_int;
+use function json_encode;
+use function sleep;
 
 /**
  * Deliver jobs to worker objects.
@@ -42,98 +54,93 @@ use Opus\Job\Worker\WorkerInterface;
  */
 class Runner
 {
-
     /**
      * Associative array of registered workers. Maps messsage lable
      * to worker instance.
      *
      * @var array
      */
-    protected $_workers = [];
+    protected $workers = [];
 
     /**
      * Pause in seconds before the next worker is run.
      *
      * @var int
      */
-    protected $_delay = 1;
+    protected $delay = 1;
 
     /**
      * How many jobs should be done in a run.
      *
-     * @var integer
+     * @var int
      */
-    protected $_limit = null;
+    protected $limit;
 
     /**
      * Holds the instance of the current logger.
      *
-     * @var \Zend_Log
+     * @var Zend_Log
      */
-    protected $_logger = null;
+    protected $logger;
 
     /**
      * Register a new worker process.
      *
      * @param WorkerInterface $worker Worker instance to register.
-     * @return void
      */
     public function registerWorker(WorkerInterface $worker)
     {
-        $this->_workers[$worker->getActivationLabel()] = $worker;
+        $this->workers[$worker->getActivationLabel()] = $worker;
     }
 
     /**
      * Set the current logger instance.
      *
-     * @param \Zend_Log $log Logger.
-     * @return Runner Fluent interface.
+     * @param Zend_Log $logger Logger.
+     * @return $this Fluent interface.
      */
-    public function setLogger(\Zend_Log $logger)
+    public function setLogger($logger)
     {
-        $this->_logger = $logger;
+        $this->logger = $logger;
+        return $this;
     }
 
     /**
      * Set the worker delay time in seconds.
      *
      * @param int $seconds Pause in seconds before the next worker runs.
-     * @return void
      */
     public function setDelay($seconds)
     {
-        $this->_delay = (int) $seconds;
-        if (null !== $this->_logger) {
-            $this->_logger->info('Set worker delay to ' . $seconds . 's');
+        $this->delay = (int) $seconds;
+        if (null !== $this->logger) {
+            $this->logger->info('Set worker delay to ' . $seconds . 's');
         }
     }
 
     /**
      * Set a limit to number of executing jobs at a run.
      *
-     * @param int $limit Limit for jobs.
-     * @return void
+     * @param null|int $limit Limit for jobs.
      */
     public function setLimit($limit = null)
     {
-        if ((null !== $limit) and (true === is_int($limit))) {
-            $this->_logger->info('Set job limit to ' . $limit . ' jobs / run.');
-            $this->_limit = $limit;
+        if ((null !== $limit) && (true === is_int($limit))) {
+            $this->logger->info('Set job limit to ' . $limit . ' jobs / run.');
+            $this->limit = $limit;
         }
     }
 
     /**
      * Run scheduling of jobs. All jobs currently in the queue get
      * processed and any new jobs get created in the jobs table.
-     *
-     * @return void
      */
     public function run()
     {
-        $jobs = Job::getByLabels(array_keys($this->_workers), $this->_limit, Job::STATE_UNDEFINED);
+        $jobs = Job::getByLabels(array_keys($this->workers), $this->limit, Job::STATE_UNDEFINED);
 
-        if (null !== $this->_logger) {
-            $this->_logger->info('Found ' . count($jobs). ' job(s)');
+        if (null !== $this->logger) {
+            $this->logger->info('Found ' . count($jobs) . ' job(s)');
         }
 
         $runJobs = 0;
@@ -141,13 +148,13 @@ class Runner
             if (true === $this->consume($job)) {
                 $runJobs++;
             } else {
-                if (null !== $this->_logger) {
-                    $this->_logger->warn('Job with ID ' . $job->getId(). ' failed.');
+                if (null !== $this->logger) {
+                    $this->logger->warn('Job with ID ' . $job->getId() . ' failed.');
                 }
             }
         }
-        if (null !== $this->_logger) {
-            $this->_logger->info('Processed ' . $runJobs. ' job(s).');
+        if (null !== $this->logger) {
+            $this->logger->info('Processed ' . $runJobs . ' job(s).');
         }
     }
 
@@ -155,7 +162,7 @@ class Runner
      * Execute a job and remove it from the jobs table on success.
      *
      * @param Job $job Job description model.
-     * @return boolean Returns true if a job is consumend false if not
+     * @return bool Returns true if a job is consumend false if not
      */
     protected function consume(Job $job)
     {
@@ -165,30 +172,30 @@ class Runner
             return false;
         }
 
-        if (array_key_exists($label, $this->_workers)) {
-            $worker = $this->_workers[$label];
+        if (array_key_exists($label, $this->workers)) {
+            $worker = $this->workers[$label];
 
-            if (null !== $this->_logger) {
-                $this->_logger->info('Processing ' . $label);
+            if (null !== $this->logger) {
+                $this->logger->info('Processing ' . $label);
             }
 
             $job->setState(Job::STATE_PROCESSING);
             $job->store();
 
             try {
-                $worker->setLogger($this->_logger);
+                $worker->setLogger($this->logger);
                 $worker->work($job);
                 $job->delete();
-                sleep($this->_delay);
-            } catch (\Exception $ex) {
-                if (null !== $this->_logger) {
+                sleep($this->delay);
+            } catch (Exception $ex) {
+                if (null !== $this->logger) {
                     $msg = get_class($worker) . ': ' . $ex->getMessage();
-                    $this->_logger->err($msg);
+                    $this->logger->err($msg);
                 }
                 $job->setErrors(json_encode([
-                   'exception'  => get_class($ex),
-                   'message'  => $ex->getMessage(),
-                   'trace' => $ex->getTraceAsString()
+                    'exception' => get_class($ex),
+                    'message'   => $ex->getMessage(),
+                    'trace'     => $ex->getTraceAsString(),
                 ]));
                 $job->setState(Job::STATE_FAILED);
                 $job->store();

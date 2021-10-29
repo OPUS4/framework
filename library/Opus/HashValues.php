@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,41 +25,42 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for hashvalues in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
+ *
+ * phpcs:disable
  */
 class HashValues extends AbstractDependentModel
 {
-
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'file_id';
+    protected $parentColumn = 'file_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus\Db\FileHashvalues';
+    protected static $tableGatewayClass = Db\FileHashvalues::class;
 
     /** Plugins to load
      *
@@ -76,18 +78,16 @@ class HashValues extends AbstractDependentModel
      * Initialize model with the following fields:
      * - HashType
      * - HashValue
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $hashtype = new Field('Type');
         $hashtype->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $hashvalue = new Field('Value');
         $hashvalue->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($hashtype)
             ->addField($hashvalue);
@@ -95,17 +95,15 @@ class HashValues extends AbstractDependentModel
 
     /**
      * Perform security resoure registration.
-     *
-     * @return void
      */
     protected function _postStoreInternalFields()
     {
-        $isNewFlagBackup = $this->_isNewRecord;
-        $this->_isNewRecord = false;
+        $isNewFlagBackup   = $this->isNewRecord;
+        $this->isNewRecord = false;
 
         parent::_postStoreInternalFields();
 
-        $this->_isNewRecord = $isNewFlagBackup;
+        $this->isNewRecord = $isNewFlagBackup;
     }
 
     /**

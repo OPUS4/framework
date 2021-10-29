@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -40,6 +42,26 @@ use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
+use Zend_Db_Expr;
+use Zend_Db_Select;
+use Zend_Db_Table;
+use Zend_Validate_EmailAddress;
+use Zend_Validate_NotEmpty;
+
+use function array_fill_keys;
+use function array_key_exists;
+use function array_map;
+use function array_merge;
+use function array_push;
+use function array_search;
+use function array_unique;
+use function count;
+use function in_array;
+use function is_array;
+use function is_string;
+use function stristr;
+use function strlen;
+use function trim;
 
 /**
  * Domain model for persons in the Opus framework
@@ -74,49 +96,41 @@ use Opus\Model\ModelException;
  *
  * TODO use OPUS-ID for people without external identifier
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\Abstract
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setAcademicTitle(string $title)
  * @method string getAcademicTitle()
- *
  * @method void setFirstName(string $firstName)
  * @method string getFirstName()
- *
  * @method void setLastName(string $lastName)
  * @method string getLastName()
- *
  * @method void setDateOfBirth(Date $date)
  * @method Date getDateOfBirth()
- *
  * @method void setPlaceOfBirth(string $place)
  * @method string getPlaceOfBirth()
- *
  * @method void setIdentifierOrcid(string $orcid)
  * @method string getIdentifierOrcid()
- *
  * @method void setIdentifierGnd(string $gnd)
  * @method string getIdentifierGnd()
- *
  * @method void setIdentifierMisc(string $misc)
  * @method string getIdentifierMisc()
- *
  * @method void setEmail(string $email)
  * @method string getEmail()
- *
  * @method void setOpusId(string $internalId)
  * @method string getOpusId()
+ *
+ * phpcs:disable
  */
 class Person extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\Persons';
+    protected static $tableGatewayClass = Db\Persons::class;
 
     /**
      * Plugins to load
@@ -126,7 +140,7 @@ class Person extends AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
@@ -136,10 +150,8 @@ class Person extends AbstractDb
      * - Email
      * - FirstName
      * - LastName
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $title = new Field('AcademicTitle');
 
@@ -147,20 +159,20 @@ class Person extends AbstractDb
 
         $lastName = new Field('LastName');
         $lastName->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $dateOfBirth = new Field('DateOfBirth');
-        $dateOfBirth->setValueModelClass('Opus\Date');
+        $dateOfBirth->setValueModelClass(Date::class);
 
         $placeOfBirth = new Field('PlaceOfBirth');
 
         $email = new Field('Email');
-        $email->setValidator(new \Zend_Validate_EmailAddress());
+        $email->setValidator(new Zend_Validate_EmailAddress());
 
-        $opusId = new Field('OpusId');
+        $opusId          = new Field('OpusId');
         $identifierOrcid = new Field('IdentifierOrcid');
-        $identifierGnd = new Field('IdentifierGnd');
-        $identifierMisc = new Field('IdentifierMisc');
+        $identifierGnd   = new Field('IdentifierGnd');
+        $identifierMisc  = new Field('IdentifierMisc');
 
         $this->addField($title)
             ->addField($firstName)
@@ -210,17 +222,19 @@ class Person extends AbstractDb
     {
         // $documentsLinkTable = new Opus\Db\LinkPersonsDocuments();
         $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
-        $documentsTable = TableGateway::getInstance('Opus\Db\Documents');
-        $documents = [];
-        $select = $documentsLinkTable->select();
+        $documentsTable     = TableGateway::getInstance(Db\Documents::class);
+        $documents          = [];
+        $select             = $documentsLinkTable->select();
         $select->where('role=?', $role);
-        foreach ($this->_primaryTableRow->findManyToManyRowset(
-            $documentsTable,
-            $documentsLinkTable,
-            null,
-            null,
-            $select
-        ) as $document) {
+        foreach (
+            $this->primaryTableRow->findManyToManyRowset(
+                $documentsTable,
+                $documentsLinkTable,
+                null,
+                null,
+                $select
+            ) as $document
+        ) {
             $documents[] = Document::get($document->id);
         }
         return $documents;
@@ -238,7 +252,7 @@ class Person extends AbstractDb
             return;
         }
 
-        $database = \Zend_Db_Table::getDefaultAdapter();
+        $database = Zend_Db_Table::getDefaultAdapter();
 
         $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
 
@@ -246,13 +260,11 @@ class Person extends AbstractDb
             ->from('link_persons_documents', 'distinct(document_id)')
             ->where('person_id = ?', $this->getId());
 
-        if (! is_null($role)) {
+        if ($role !== null) {
             $select->where('role = ?', $role);
         }
 
-        $documentIds = $database->fetchCol($select);
-
-        return $documentIds;
+        return $database->fetchCol($select);
     }
 
     /**
@@ -266,13 +278,13 @@ class Person extends AbstractDb
     {
         // $documentsLinkTable = new Opus\Db\LinkPersonsDocuments();
         $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
-        $tablename = $documentsLinkTable->info(\Zend_Db_Table::NAME);
-        $db = $documentsLinkTable->getAdapter();
-        $select = $db->select()->from($tablename, ['person_id'])
+        $tablename          = $documentsLinkTable->info(Zend_Db_Table::NAME);
+        $db                 = $documentsLinkTable->getAdapter();
+        $select             = $db->select()->from($tablename, ['person_id'])
             ->where('role = ? ', $role);
-        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
+        $personIds          = $documentsLinkTable->getAdapter()->fetchCol($select);
 
-        if (is_null($personIds) === true) {
+        if ($personIds === null) {
             $personIds = [];
         }
 
@@ -286,7 +298,7 @@ class Person extends AbstractDb
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus\Person', 'Opus\Db\Persons');
+        return self::getAllFrom(self::class, Db\Persons::class);
     }
 
     /**
@@ -297,11 +309,10 @@ class Person extends AbstractDb
      * @return array
      *
      * TODO return objects ?
-     *
      */
     public static function getAllPersons($role = null, $start = 0, $limit = 0, $filter = null)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $select = self::getAllPersonsSelect($role, $filter);
 
@@ -318,18 +329,19 @@ class Person extends AbstractDb
 
     /**
      * Returns total count of persons for role and filter string.
+     *
      * @param null $role
      * @param null $filter
      * @return mixed
      */
     public static function getAllPersonsCount($role = null, $filter = null)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $select = self::getAllPersonsSelect($role, $filter);
 
         $countSelect = $table->select()
-            ->from(new \Zend_Db_Expr("($select)"), 'count(*) as num')
+            ->from(new Zend_Db_Expr("($select)"), 'count(*) as num')
             ->setIntegrityCheck(false);
 
         $result = $table->fetchRow($countSelect);
@@ -339,15 +351,16 @@ class Person extends AbstractDb
 
     /**
      * Constructs select statement for getting all persons matching criteria.
+     *
      * @param null $role
      * @param null $filter
-     * @return \Zend_Db_Select
+     * @return Zend_Db_Select
      */
     public static function getAllPersonsSelect($role = null, $filter = null)
     {
-        $database = \Zend_Db_Table::getDefaultAdapter();
+        $database = Zend_Db_Table::getDefaultAdapter();
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $result = null;
 
@@ -365,11 +378,11 @@ class Person extends AbstractDb
                 $identityColumns
             );
 
-        if (! is_null($role)) {
+        if ($role !== null) {
             $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
 
             $select->join(
-                ['link' => $documentsLinkTable->info(\Zend_Db_Table::NAME)],
+                ['link' => $documentsLinkTable->info(Zend_Db_Table::NAME)],
                 'p.id = link.person_id',
                 []
             );
@@ -377,17 +390,15 @@ class Person extends AbstractDb
             $select->where($database->quoteInto('link.role = ?', $role));
         }
 
-        if (! is_null($filter)) {
+        if ($filter !== null) {
             $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
         }
 
         // result still contains name duplicates because of leading spaces -> group trimmed result
-        $mergedSelect = $table->select()
-            ->from(new \Zend_Db_Expr("($select)"), $identityColumns)
+        return $table->select()
+            ->from(new Zend_Db_Expr("($select)"), $identityColumns)
             ->group($identityColumns)
             ->setIntegrityCheck(false);
-
-        return $mergedSelect;
     }
 
     /**
@@ -400,11 +411,11 @@ class Person extends AbstractDb
     {
         $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $select = $documentsLinkTable->select()
             ->from(
-                ['link' => $documentsLinkTable->info(\Zend_Db_Table::NAME)],
+                ['link' => $documentsLinkTable->info(Zend_Db_Table::NAME)],
                 ['link.role', 'documents' => 'count(link.document_id)']
             )->join(
                 ['p' => 'persons'],
@@ -437,11 +448,11 @@ class Person extends AbstractDb
      */
     public static function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
     {
-        $documentsTable = TableGateway::getInstance('Opus\Db\Documents');
+        $documentsTable = TableGateway::getInstance(Db\Documents::class);
 
         $select = $documentsTable->select()
             ->from(
-                ['d' => $documentsTable->info(\Zend_Db_Table::NAME)],
+                ['d' => $documentsTable->info(Zend_Db_Table::NAME)],
                 ['distinct(d.id)']
             )->join(
                 ['link' => 'link_persons_documents'],
@@ -455,21 +466,25 @@ class Person extends AbstractDb
 
         self::addWherePerson($select, $person);
 
-        if (! is_null($state) && in_array(
-            $state,
-            ['published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted']
-        )) {
+        if (
+            $state !== null && in_array(
+                $state,
+                ['published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted']
+            )
+        ) {
             $select->where('d.server_state = ?', $state);
         }
 
-        if (! is_null($role) && in_array(
-            $role,
-            ['author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter']
-        )) {
+        if (
+            $role !== null && in_array(
+                $role,
+                ['author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter']
+            )
+        ) {
             $select->where('link.role = ?', $role);
         }
 
-        if (! is_null($sort) and in_array($sort, ['id', 'title', 'publicationDate', 'docType', 'author'])) {
+        if ($sort !== null && in_array($sort, ['id', 'title', 'publicationDate', 'docType', 'author'])) {
             switch ($sort) {
                 case 'id':
                     $select->order('d.id' . ($order ? ' ASC' : ' DESC'));
@@ -483,15 +498,15 @@ class Person extends AbstractDb
                     );
 
                     $select->columns(['d.id', 't.value']);
-                    $select->order('t.value' . (($order) ? ' ASC' : ' DESC'));
+                    $select->order('t.value' . ($order ? ' ASC' : ' DESC'));
                     break;
                 case 'publicationDate':
                     $select->columns(['d.id', 'd.server_date_published']);
-                    $select->order('d.server_date_published' . (($order) ? ' ASC' : ' DESC'));
+                    $select->order('d.server_date_published' . ($order ? ' ASC' : ' DESC'));
                     break;
                 case 'docType':
                     $select->columns(['d.id', 'd.type']);
-                    $select->order('d.type' . (($order) ? ' ASC' : ' DESC'));
+                    $select->order('d.type' . ($order ? ' ASC' : ' DESC'));
                     break;
                 case 'author':
                     $select->setIntegrityCheck(false);
@@ -516,7 +531,7 @@ class Person extends AbstractDb
      */
     public static function getPersonValues($person)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $result = null;
 
@@ -564,12 +579,12 @@ class Person extends AbstractDb
      * TODO filter by role?
      *
      * @param $person Criteria for matching persons
-     * @param null $documents Array with ids of documents
+     * @param null                                 $documents Array with ids of documents
      * @return array Array with IDs of persons
      */
     public static function getPersons($person, $documents = null)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $database = $table->getAdapter();
 
@@ -579,7 +594,7 @@ class Person extends AbstractDb
         );
 
         // TODO handle single document id value
-        if (! is_null($documents) && is_array($documents) && count($documents) > 0) {
+        if ($documents !== null && is_array($documents) && count($documents) > 0) {
             $select->join(
                 ['link' => 'link_persons_documents'],
                 'link.person_id = p.id',
@@ -591,14 +606,12 @@ class Person extends AbstractDb
 
         self::addWherePerson($select, $person);
 
-        $persons = $database->fetchCol($select);
-
-        return $persons;
+        return $database->fetchCol($select);
     }
 
     public static function getPersonsAndDocuments($person, $documents = null)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $database = $table->getAdapter();
 
@@ -615,15 +628,13 @@ class Person extends AbstractDb
 
         $select->setIntegrityCheck(false);
 
-        if (! is_null($documents)) {
+        if ($documents !== null) {
             $select->where('link.document_id IN (?)', $documents);
         }
 
         self::addWherePerson($select, $person);
 
-        $persons = $database->fetchAll($select);
-
-        return $persons;
+        return $database->fetchAll($select);
     }
 
     /**
@@ -633,9 +644,9 @@ class Person extends AbstractDb
      *
      * @param $person Criteria for matching persons
      * @param $changes Map of column names and new values
-     * @param null $documents Array with document Ids
+     * @param null                                       $documents Array with document Ids
      *
-     * TODO update ServerDateModified for modified documents (How?)
+     *                                       TODO update ServerDateModified for modified documents (How?)
      */
     public static function updateAll($person, $changes, $documents = null)
     {
@@ -649,7 +660,7 @@ class Person extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $database = $table->getAdapter();
 
@@ -658,11 +669,11 @@ class Person extends AbstractDb
         $trimmed = [];
 
         foreach ($changes as $name => $value) {
-            if (is_null($model->getField($name))) {
+            if ($model->getField($name) === null) {
                 // TODO use
                 throw new ModelException("unknown field '$name' for update");
             } else {
-                if (! is_null($value)) {
+                if ($value !== null) {
                     $trimmed[$name] = trim($value);
                 } else {
                     $trimmed[$name] = null;
@@ -672,12 +683,12 @@ class Person extends AbstractDb
 
         $changes = self::convertChanges($trimmed);
 
-        $personIds = self::getPersons($person, $documents);
+        $personIds   = self::getPersons($person, $documents);
         $documentIds = self::getDocuments($personIds, $documents);
 
         if (! empty($personIds)) {
             $table->update($changes, [
-                $database->quoteInto('id IN (?)', $personIds)
+                $database->quoteInto('id IN (?)', $personIds),
             ]);
 
             if (! empty($documentIds)) {
@@ -691,7 +702,7 @@ class Person extends AbstractDb
 
     public static function getDocuments($personIds, $documents = null)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $database = $table->getAdapter();
 
@@ -708,13 +719,11 @@ class Person extends AbstractDb
 
         $select->setIntegrityCheck(false);
 
-        if (! is_null($documents) && count($documents) > 0) {
+        if ($documents !== null && count($documents) > 0) {
             $select->where('link.document_id IN (?)', $documents);
         }
 
-        $documentIds = $database->fetchCol($select);
-
-        return $documentIds;
+        return $database->fetchCol($select);
     }
 
     /**
@@ -738,6 +747,7 @@ class Person extends AbstractDb
 
     /**
      * Convert array with column names into array with field names.
+     *
      * @param $person
      * @return array
      */
@@ -767,12 +777,12 @@ class Person extends AbstractDb
         if ($criteria instanceof Person) {
             $person = $criteria;
 
-            $criteria = [];
-            $criteria['LastName'] = $person->getLastName();
-            $criteria['FirstName'] = $person->getFirstName();
+            $criteria                    = [];
+            $criteria['LastName']        = $person->getLastName();
+            $criteria['FirstName']       = $person->getFirstName();
             $criteria['IdentifierOrcid'] = $person->getIdentifierOrcid();
-            $criteria['IdentifierGnd'] = $person->getIdentifierGnd();
-            $criteria['IdentifierMisc'] = $person->getIdentifierMisc();
+            $criteria['IdentifierGnd']   = $person->getIdentifierGnd();
+            $criteria['IdentifierMisc']  = $person->getIdentifierMisc();
         }
 
         if (! is_array($criteria)) {
@@ -781,7 +791,11 @@ class Person extends AbstractDb
         }
 
         $defaults = array_fill_keys([
-            'LastName', 'FirstName', 'IdentifierOrcid', 'IdentifierGnd', 'IdentifierMisc'
+            'LastName',
+            'FirstName',
+            'IdentifierOrcid',
+            'IdentifierGnd',
+            'IdentifierMisc',
         ], null);
         $criteria = array_merge($defaults, $criteria);
 
@@ -818,9 +832,13 @@ class Person extends AbstractDb
     protected static function addWherePerson($select, $person)
     {
         $defaults = array_fill_keys([
-            'last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc'
+            'last_name',
+            'first_name',
+            'identifier_orcid',
+            'identifier_gnd',
+            'identifier_misc',
         ], null);
-        $person = array_merge($defaults, $person);
+        $person   = array_merge($defaults, $person);
 
         foreach ($person as $column => $value) {
             if (strlen(trim($value)) > 0) {

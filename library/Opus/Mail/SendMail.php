@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,34 +25,38 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Eva Kranz <s9evkran@stud.uni-saarland.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Mail;
 
 use Opus\Config;
 use Opus\Log;
+use Zend_Mail;
+use Zend_Mail_Transport_File;
+use Zend_Validate_EmailAddress;
+
+use function mt_rand;
+use function time;
+use function trim;
 
 /**
  * Methods to send e-mails via \Zend_Mail, but with mail server from config.ini.
  *
  * @category    Framework
  * @package     Opus\Mail
- *
  */
 class SendMail
 {
-
-    /**
-     * @var Transport
-     */
-    private $_transport = null;
+    /** @var Transport */
+    private $transport;
 
     /**
      * Create a new SendMail instance
@@ -60,36 +65,36 @@ class SendMail
     {
         $config = Config::get();
         if (isset($config, $config->mail->opus)) {
-            if (isset($config->mail->opus->transport) && $config->mail->opus->transport == 'file') {
+            if (isset($config->mail->opus->transport) && $config->mail->opus->transport === 'file') {
                 // erlaubt das Speichern von E-Mails in Dateien, die im Verzeichnis mail.opus.file abgelegt werden
                 $options = [];
                 if (isset($config->mail->opus->file)) {
                     $options['path'] = $config->mail->opus->file;
                 }
-                $callback = function () {
+                $callback            = function () {
                     return 'opus-mail_' . time() . '_' . mt_rand() . '.tmp';
                 };
                 $options['callback'] = $callback;
-                $this->_transport = new \Zend_Mail_Transport_File($options);
+                $this->transport     = new Zend_Mail_Transport_File($options);
                 return;
             }
 
-            $this->_transport = new Transport($config->mail->opus);
+            $this->transport = new Transport($config->mail->opus);
             return;
         }
-        $this->_transport = new Transport();
+        $this->transport = new Transport();
     }
 
     /**
      * Validates an e-mail address
      *
      * @param   string $address Address
-     * @throws  MailException Thrown if the e-mail address is not valid
+     * @throws  MailException Thrown if the e-mail address is not valid.
      * @return  string              Address
      */
     public static function validateAddress($address)
     {
-        $validator = new \Zend_Validate_EmailAddress();
+        $validator = new Zend_Validate_EmailAddress();
         if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
                 throw new MailException($message);
@@ -104,13 +109,15 @@ class SendMail
      * This method should be used carefully, particularly with regard to the possibility
      * of sending mails anonymously to user-defined recipients.
      *
-     * @param   string $from       Sender address
-     * @param   string $fromName   Sender name
-     * @param   string $subject    Subject
-     * @param   string $bodyText   Text
-     * @param   array  $recipients Recipients (array [#] => array ('name' => '...', 'address' => '...'))
-     *
-     * @return  boolean            True if mail was sent
+     * @param   string      $from       Sender address
+     * @param   string      $fromName   Sender name
+     * @param   string      $subject    Subject
+     * @param   string      $bodyText   Text
+     * @param   array       $recipients Recipients (array [#] => array ('name' => '...', 'address' => '...'))
+     * @param   null|string $replyTo
+     * @param   null|string $replyToName
+     * @param   null|string $returnPath
+     * @return  true True if mail was sent
      * @throws MailException Thrown if the mail could not be sent.
      * @throws MailException Thrown if the from address is invalid.
      */
@@ -124,7 +131,6 @@ class SendMail
         $replyToName = null,
         $returnPath = null
     ) {
-
         $logger = Log::get();
 
         if (trim($from) === '') {
@@ -136,16 +142,16 @@ class SendMail
             throw new MailException('No subject text given.');
         }
 
-        $mail = new \Zend_Mail('utf-8');
+        $mail = new Zend_Mail('utf-8');
         $mail->setFrom($from, $fromName);
         $mail->setSubject($subject);
         $mail->setBodyText($bodyText);
 
-        if (! is_null($replyTo)) {
+        if ($replyTo !== null) {
             $mail->setReplyTo($replyTo, $replyToName);
         }
 
-        if (! is_null($returnPath)) {
+        if ($returnPath !== null) {
             $mail->setReturnPath($returnPath);
         }
 
@@ -156,7 +162,7 @@ class SendMail
         }
 
         try {
-            $mail->send($this->_transport);
+            $mail->send($this->transport);
             $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
         } catch (MailException $e) {
             $logger->err('SendMail: Failed sending mail to ' . $recip['address'] . ', error: ' . $e);

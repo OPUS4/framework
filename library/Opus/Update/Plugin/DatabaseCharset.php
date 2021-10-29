@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,21 +25,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Update\Plugin;
 
 use Opus\Database;
 use Opus\Util\ConsoleColors;
+use PDO;
 
+use function explode;
+use function in_array;
+use function strtolower;
+
+/**
+ * phpcs:disable
+ */
 class DatabaseCharset extends AbstractUpdatePlugin
 {
-
     private $pdo;
 
     private $database;
@@ -97,12 +106,13 @@ class DatabaseCharset extends AbstractUpdatePlugin
 
     /**
      * Returns database object.
-     * @return \PDO
+     *
+     * @return PDO
      */
     public function getPdo()
     {
-        if (is_null($this->pdo)) {
-            $database = $this->getDatabase();
+        if ($this->pdo === null) {
+            $database  = $this->getDatabase();
             $this->pdo = $database->getPdo($database->getName());
         }
 
@@ -111,7 +121,7 @@ class DatabaseCharset extends AbstractUpdatePlugin
 
     public function getDatabase()
     {
-        if (is_null($this->database)) {
+        if ($this->database === null) {
             $this->database = new Database();
         }
 
@@ -120,8 +130,9 @@ class DatabaseCharset extends AbstractUpdatePlugin
 
     /**
      * Updates table to utf8mb4 if possible.
+     *
      * @param $table
-     * @return boolean true - if table was converted
+     * @return bool true - if table was converted
      */
     public function convertTable($table)
     {
@@ -136,7 +147,7 @@ class DatabaseCharset extends AbstractUpdatePlugin
 
         foreach ($result as $column) {
             if (isset($column['Collation'])) {
-                list($charset) = explode('_', $column['Collation']);
+                [$charset] = explode('_', $column['Collation']);
 
                 $charset = strtolower($charset);
 
@@ -154,7 +165,7 @@ class DatabaseCharset extends AbstractUpdatePlugin
             return false;
         }
 
-        list($tableCharset) = explode('_', $details['Collation']);
+        [$tableCharset] = explode('_', $details['Collation']);
 
         $tableCharset = strtolower($tableCharset);
 
@@ -172,14 +183,13 @@ class DatabaseCharset extends AbstractUpdatePlugin
 
     /**
      * Returns names of all tables.
+     *
      * @return array Names of tables
      */
     public function getAllTables()
     {
         $pdo = $this->getPdo();
 
-        $tables = $pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN);
-
-        return $tables;
+        return $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     }
 }

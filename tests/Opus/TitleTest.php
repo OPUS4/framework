@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Tests
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -38,7 +40,6 @@ use OpusTest\TestAsset\TestCase;
 
 class TitleTest extends TestCase
 {
-
     public function testToArray()
     {
         $title = new Title();
@@ -51,8 +52,8 @@ class TitleTest extends TestCase
 
         $this->assertEquals([
             'Language' => 'deu',
-            'Type' => 'main',
-            'Value' => 'Deutscher Haupttitel'
+            'Type'     => 'main',
+            'Value'    => 'Deutscher Haupttitel',
         ], $data);
     }
 
@@ -60,12 +61,12 @@ class TitleTest extends TestCase
     {
         $title = Title::fromArray([
             'Language' => 'deu',
-            'Type' => 'main',
-            'Value' => 'Deutscher Haupttitel'
+            'Type'     => 'main',
+            'Value'    => 'Deutscher Haupttitel',
         ]);
 
         $this->assertNotNull($title);
-        $this->assertInstanceOf('Opus\Title', $title);
+        $this->assertInstanceOf(Title::class, $title);
 
         $this->assertEquals('deu', $title->getLanguage());
         $this->assertEquals('main', $title->getType());
@@ -78,12 +79,12 @@ class TitleTest extends TestCase
 
         $title->updateFromArray([
             'Language' => 'deu',
-            'Type' => 'main',
-            'Value' => 'Deutscher Haupttitel'
+            'Type'     => 'main',
+            'Value'    => 'Deutscher Haupttitel',
         ]);
 
         $this->assertNotNull($title);
-        $this->assertInstanceOf('Opus\Title', $title);
+        $this->assertInstanceOf(Title::class, $title);
 
         $this->assertEquals('deu', $title->getLanguage());
         $this->assertEquals('main', $title->getType());

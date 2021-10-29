@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Document_Plugin
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Document\Plugin;
 
+use Exception;
 use Opus\Config;
 use Opus\Document;
 use Opus\Doi\DoiException;
@@ -45,13 +48,18 @@ use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\ServerStateChangeListener;
 
+use function filter_var;
+use function get_class;
+
+use const FILTER_VALIDATE_BOOLEAN;
+
 /**
  * Plugin for generating identifiers of type DOI.
  *
+ * phpcs:disable
  */
 class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
 {
-
     /**
      * was muss hier alles ausgewertet werden:
      * automatische Generierung einer DOI für das vorliegende Dokument, wenn
@@ -70,20 +78,20 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
     {
         $log = Log::get();
 
-        if (! ($model instanceof Document)) {
-            $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
+        if (! $model instanceof Document) {
+            $log->err(self::class . ' found unexpected model class ' . get_class($model));
             return;
         }
 
         $serverState = $model->getServerState();
-        $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
+        $log->debug(self::class . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
 
         if ($serverState === Document::STATE_PUBLISHED) {
             $this->handlePublishEvent($model, $log);
         } elseif ($serverState === Document::STATE_DELETED && $model->getServerStateChanged()) {
             $this->handleDeleteEvent($model);
         } else {
-            $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
+            $log->debug(self::class . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
             return;
         }
     }
@@ -125,18 +133,18 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
         $generateDoi = null;
-        $enrichment = $document->getEnrichment('opus.doi.autoCreate');
-        if (! is_null($enrichment)) {
+        $enrichment  = $document->getEnrichment('opus.doi.autoCreate');
+        if ($enrichment !== null) {
             $enrichmentValue = $enrichment->getValue();
-            $generateDoi = ($enrichmentValue == 'true');
+            $generateDoi     = $enrichmentValue === 'true';
             $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
         }
 
         $config = Config::get();
 
-        if (is_null($generateDoi)) {
+        if ($generateDoi === null) {
             // Enrichment opus.doi.autoCreate wurde nicht gefunden - verwende Standardwert für die DOI-Erzeugung aus Konfiguration
-            $generateDoi = (isset($config->doi->autoCreate) && filter_var($config->doi->autoCreate, FILTER_VALIDATE_BOOLEAN));
+            $generateDoi = isset($config->doi->autoCreate) && filter_var($config->doi->autoCreate, FILTER_VALIDATE_BOOLEAN);
         }
 
         // prüfe, ob bereits eine DOI mit dem Dokument verknüpft ist
@@ -147,7 +155,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
             if ($generateDoi) {
                 try {
                     $this->addDoi($document, $log);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $log->err('could not generate local DOI for document ' . $document->getId() . ' - abort DOI registration procedure');
                     return;
                 }
@@ -168,11 +176,11 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
     {
         try {
             $doiManager = $this->getDoiManager();
-            $doiValue = $doiManager->generateNewDoi($model);
+            $doiValue   = $doiManager->generateNewDoi($model);
         } catch (DoiException $e) {
             $message = 'could not generate DOI value for document ' . $model->getId() . ': ' . $e->getMessage();
             $log->err($message);
-            throw new \Exception($message);
+            throw new Exception($message);
         }
 
         $doi = new Identifier();
@@ -180,7 +188,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         $doi->setValue($doiValue);
 
         $identifiers = $model->getIdentifier();
-        if (is_null($identifiers)) {
+        if ($identifiers === null) {
             $identifiers = [];
         }
         $identifiers[] = $doi;
@@ -197,7 +205,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
     protected function registerDoi($model, $log, $config)
     {
         // prüfe ob Konfigurationseinstellung eine Registrierung vorgibt
-        if (! isset($config->doi->registerAtPublish) || ! (filter_var($config->doi->registerAtPublish, FILTER_VALIDATE_BOOLEAN))) {
+        if (! isset($config->doi->registerAtPublish) || ! filter_var($config->doi->registerAtPublish, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug('registration of DOIs at publish time is disabled in configuration');
             return;
         }
@@ -206,9 +214,9 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
         $log->info('start registration of DOI for document ' . $model->getId());
 
         try {
-            $doiManager = $this->getDoiManager();
+            $doiManager    = $this->getDoiManager();
             $registeredDoi = $doiManager->register($model);
-            if (is_null($registeredDoi)) {
+            if ($registeredDoi === null) {
                 $log->err('could not apply DOI registration on document ' . $model->getId());
             }
         } catch (RegistrationException $e) {

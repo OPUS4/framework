@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,18 +35,22 @@
 namespace Opus\Job\Worker;
 
 use Opus\Job;
+use Opus\Util\MetadataImport as MetadataImportHelper;
+use Zend_Log;
+
+use function is_object;
 
 /**
  * Worker for importing metadata
  */
 class MetadataImport extends AbstractWorker
 {
-
     const LABEL = 'opus-metadata-import';
 
     /**
      * Constructs worker.
-     * @param \Zend_Log $logger
+     *
+     * @param null|Zend_Log $logger
      */
     public function __construct($logger = null)
     {
@@ -62,31 +67,28 @@ class MetadataImport extends AbstractWorker
         return self::LABEL;
     }
 
-
     /**
      * Perfom work.
      *
      * @param Job $job Job description and attached data.
-     * @return array Array of Jobs to be newly created.
      */
     public function work(Job $job)
     {
-
-        if ($job->getLabel() != $this->getActivationLabel()) {
+        if ($job->getLabel() !== $this->getActivationLabel()) {
             throw new InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
         $data = $job->getData();
 
-        if (! (is_object($data) && isset($data->xml) && ! is_null($data->xml))) {
+        if (! (is_object($data) && isset($data->xml) && $data->xml !== null)) {
              throw new InvalidJobException("Incomplete or missing data.");
         }
 
-        if (null !== $this->_logger) {
-            $this->_logger->debug("Importing Metadata:\n" . $data->xml);
+        if (null !== $this->logger) {
+            $this->logger->debug("Importing Metadata:\n" . $data->xml);
         }
 
-        $importer = new \Opus\Util\MetadataImport($data->xml);
+        $importer = new MetadataImportHelper($data->xml);
         $importer->run();
     }
 }

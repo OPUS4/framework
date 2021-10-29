@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,41 +25,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest;
 
 use OpusTest\TestAsset\TestCase;
+
+use function rand;
 
 /**
  * Test cases for class Opus\CollectionNode.
  *
  * @category    Tests
  * @package     Opus\Collection
- *
  * @group       CollectionTests
- *
  */
 class CollectionNodeTest extends TestCase
 {
-
-    /**
-     * @var Opus\CollectionRole
-     */
+    /** @var Opus\CollectionRole */
     protected $role_fixture;
     protected $_role_name     = "";
     protected $_role_oai_name = "";
 
-    /**
-     * @var Opus\CollectionNode
-     */
+    /** @var Opus\CollectionNode */
     protected $fixture;
-
 
     public function setUp()
     {
@@ -83,16 +79,16 @@ class CollectionNodeTest extends TestCase
 
     public function testNodeConstructor()
     {
-        $this->assertFalse(is_null($this->fixture->getId()), 'CollectionNode storing failed: should have an Id.');
-        $this->assertFalse(is_null($this->fixture->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
+        $this->assertNotNull($this->fixture->getId(), 'CollectionNode storing failed: should have an Id.');
+        $this->assertNotNull($this->fixture->getRoleId(), 'CollectionNode storing failed: should have an RoleId.');
 
         // Check, if we can create the object for this Id.
         $node_id = $this->fixture->getId();
-        $node = new Opus_CollectionNode($node_id);
+        $node    = new Opus_CollectionNode($node_id);
 
-        $this->assertFalse(is_null($node), 'CollectionNode construction failed: collection is null.');
-        $this->assertFalse(is_null($node->getId()), 'CollectionNode storing failed: should have an Id.');
-        $this->assertFalse(is_null($node->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
+        $this->assertNotNull($node, 'CollectionNode construction failed: collection is null.');
+        $this->assertNotNull($node->getId(), 'CollectionNode storing failed: should have an Id.');
+        $this->assertNotNull($node->getRoleId(), 'CollectionNode storing failed: should have an RoleId.');
     }
 
     public function testNodeDelete()

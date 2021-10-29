@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Storage;
 
@@ -38,16 +40,18 @@ namespace Opus\Storage;
  */
 class FileNotFoundException extends StorageException
 {
-
     /**
      * Filename that was not found.
+     *
      * @var string Name of file
      */
     private $filename;
 
     /**
      * Constructs exception for file not found.
-     * @param string $filename Name of file not found
+     *
+     * @param null|string $filename Name of file not found
+     * @param null|string $message
      */
     public function __construct($filename = null, $message = null)
     {
@@ -61,6 +65,7 @@ class FileNotFoundException extends StorageException
 
     /**
      * Getter for filename property.
+     *
      * @return string Name of file that was not found
      */
     public function getFilename()

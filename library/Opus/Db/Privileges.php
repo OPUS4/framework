@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db;
@@ -37,9 +39,7 @@ namespace Opus\Db;
 /**
  * Table gateway class to table 'privileges'.
  *
- * @category    Framework
- * @package     Opus\Db
- *
+ * phpcs:disable
  */
 class Privileges extends TableGateway
 {
@@ -54,18 +54,18 @@ class Privileges extends TableGateway
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
-     * @var array $_referenceMap
+     * @var array
      */
     protected $_referenceMap = [
-        'Roles' => [
-            'columns' => 'role_id',
-            'refTableClass' => 'Opus\Db\UserRoles',
-            'refColumns' => 'id',
+        'Roles'         => [
+            'columns'       => 'role_id',
+            'refTableClass' => UserRoles::class,
+            'refColumns'    => 'id',
         ],
         'DocumentFiles' => [
-            'columns' => 'file_id',
-            'refTableClass' => 'Opus\Db\DocumentFiles',
-            'refColumns' => 'id'
-        ]
+            'columns'       => 'file_id',
+            'refTableClass' => DocumentFiles::class,
+            'refColumns'    => 'id',
+        ],
     ];
 }

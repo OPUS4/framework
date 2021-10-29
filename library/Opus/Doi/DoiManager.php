@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,44 +26,70 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Kaustabh Barman <barman@zib.de>
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
+use InvalidArgumentException;
 use Opus\Config;
-use Opus\Log;
-use Opus\Log\LogService;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DoiGeneratorException;
 use Opus\Doi\Generator\DoiGeneratorFactory;
 use Opus\Identifier;
+use Opus\Log;
+use Opus\Log\LogService;
 use Opus\Model\NotFoundException;
+use Zend_Config;
+use Zend_Exception;
+use Zend_Log;
 
+use function chmod;
+use function count;
+use function date_default_timezone_get;
+use function file_exists;
+use function file_put_contents;
+use function get_class;
+use function is_dir;
+use function is_numeric;
+use function is_string;
+use function ltrim;
+use function mkdir;
+use function rtrim;
+
+/**
+ * phpcs:disable
+ */
 class DoiManager
 {
-
     /**
      * Logger for DOI specific information kept separate for convenience, easy access.
+     *
      * @var Zend_Log
      */
     private $doiLog;
 
     /**
      * Logger for normal messages, debugging.
-     * @var \Zend_Log
+     *
+     * @var Zend_Log
      */
     private $defaultLog;
 
     /**
      * Configuration of the entire application.
-     * @var \Zend_Config
+     *
+     * @var Zend_Config
      */
     private $config;
 
@@ -70,27 +97,25 @@ class DoiManager
 
     /**
      * Enables/disables storing of DataCite registration XML in files.
+     *
      * @var bool
      */
     private $keepRegistrationXml = true;
 
-    /**
-     * @var DoiManager
-     */
+    /** @var DoiManager */
     private static $singleton;
 
     /**
-     * Opus\Doi\DoiManager constructor.
-     * @throws \Zend_Exception
+     * @throws Zend_Exception
      *
      * TODO create logger only if necessary
      * TODO use OPUS functions to get configuration and default log
      */
     public function __construct()
     {
-        $this->config = Config::get();
+        $this->config     = Config::get();
         $this->defaultLog = Log::get();
-        $this->doiLog = $this->getDoiLogger();
+        $this->doiLog     = $this->getDoiLogger();
     }
 
     public static function getInstance()
@@ -102,10 +127,13 @@ class DoiManager
         return self::$singleton;
     }
 
+    /**
+     * @param DoiManager $instance
+     */
     public static function setInstance($instance)
     {
         if ($instance !== null && ! $instance instanceof DoiManager) {
-            throw new \InvalidArgumentException('Argument must be instance of ' . __CLASS__ . ' or null');
+            throw new InvalidArgumentException('Argument must be instance of ' . self::class . ' or null');
         }
         self::$singleton = $instance;
     }
@@ -117,10 +145,10 @@ class DoiManager
      */
     public function getDoiLogger()
     {
-        if (is_null($this->doiLog)) {
-            $format = '%timestamp% %priorityName%: %message%';
-            $logService = LogService::getInstance();
-            $this->doiLog = $logService->createLog('opus-doi', \Zend_Log::DEBUG, $format);
+        if ($this->doiLog === null) {
+            $format       = '%timestamp% %priorityName%: %message%';
+            $logService   = LogService::getInstance();
+            $this->doiLog = $logService->createLog('opus-doi', Zend_Log::DEBUG, $format);
             $this->doiLog->setLevel(null);
         }
 
@@ -136,7 +164,6 @@ class DoiManager
      * @param $store wenn true, dann wird am Ende der Methode store() auf dem übergebenen $doc aufgerufen
      *               wenn die Methode im Kontext eines Store-Plugins aufgerufen wird, dann erfolgt der Aufruf
      *               von store() an anderer Stelle (sonst gibt es eine Endlosschleife)
-     *
      * @throws DoiException wenn das referenzierte Dokument nicht in der Datenbank existiert
      * @throws RegistrationException wenn bei dem Versuch der Registrierung bei DataCite ein Fehler auftritt
      */
@@ -153,9 +180,9 @@ class DoiManager
             }
         }
 
-        if (is_null($doc) || ! ($doc instanceof Document)) {
+        if ($doc === null || ! $doc instanceof Document) {
             $message = 'unexpected document class';
-            if (! is_null($doc)) {
+            if ($doc !== null) {
                 $message .= ' ' . get_class($doc);
             }
             $this->defaultLog->err($message);
@@ -164,18 +191,18 @@ class DoiManager
 
         // prüfe, ob es überhaupt eine lokale DOI gibt, die registriert werden kann
         $localDoi = $this->checkForLocalRegistrableDoi($doc);
-        if (is_null($localDoi)) {
-            $message = 'document ' . $doc->getId() .
-                ' does not provide a local DOI that can be registered: abort DOI registration process';
+        if ($localDoi === null) {
+            $message = 'document ' . $doc->getId()
+                . ' does not provide a local DOI that can be registered: abort DOI registration process';
             $this->doiLog->info($message);
             $this->defaultLog->info($message);
             return null;
         }
 
         // prüfe, dass die lokale DOI nicht bereits registriert wurde
-        if (! is_null($localDoi->getStatus())) {
-            $message = 'document ' . $doc->getId() .
-                ' does not provide a local unregistered DOI: abort DOI registration process';
+        if ($localDoi->getStatus() !== null) {
+            $message = 'document ' . $doc->getId()
+                . ' does not provide a local unregistered DOI: abort DOI registration process';
             $this->doiLog->info($message);
             $this->defaultLog->info($message);
             return null;
@@ -183,8 +210,8 @@ class DoiManager
 
         // nun müssen wir noch prüfen, ob die lokale DOI tatsächlich nur genau einmal in der Instanz vorkommt
         if (! $this->checkDoiUniqueness($localDoi)) {
-            $message = 'document ' . $doc->getId() .
-                ' does not provide a unique local DOI: abort DOI registration process';
+            $message = 'document ' . $doc->getId()
+                . ' does not provide a unique local DOI: abort DOI registration process';
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
             return null;
@@ -195,8 +222,8 @@ class DoiManager
         try {
             $xmlStr = $xmlGen->getXml($doc);
         } catch (DataCiteXmlGenerationException $e) {
-            $message = 'could not generate DataCite-XML for DOI registration of document ' . $doc->getId() . ': ' .
-                $e->getMessage();
+            $message = 'could not generate DataCite-XML for DOI registration of document ' . $doc->getId() . ': '
+                . $e->getMessage();
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
             $doiException = new RegistrationException($message);
@@ -209,11 +236,11 @@ class DoiManager
         }
 
         try {
-            $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
+            $client = new Client($this->config, $this->defaultLog);
             $client->registerDoi($localDoi->getValue(), $xmlStr, $this->getLandingPageUrlOfDoc($doc));
-        } catch (\Opus\Doi\ClientException $e) {
-            $message = 'an error occurred while registering DOI ' . $localDoi->getValue() . ' for document ' .
-                $doc->getId() . ': ' . $e->getMessage();
+        } catch (ClientException $e) {
+            $message = 'an error occurred while registering DOI ' . $localDoi->getValue() . ' for document '
+                . $doc->getId() . ': ' . $e->getMessage();
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
             $doiException = new RegistrationException($message);
@@ -224,8 +251,8 @@ class DoiManager
         // set status and timestamp after successful DOI registration
         $localDoi->setStatus('registered');
         // TODO timestamp should always be UTC
-        $dateTimeZone = new \DateTimeZone(date_default_timezone_get());
-        $dateTime = new \DateTime('now', $dateTimeZone);
+        $dateTimeZone = new DateTimeZone(date_default_timezone_get());
+        $dateTime     = new DateTime('now', $dateTimeZone);
         $localDoi->setRegistrationTs($dateTime->format('Y-m-d H:i:s'));
         if ($store) {
             $doc->store();
@@ -263,7 +290,7 @@ class DoiManager
     private function getDoi($doc)
     {
         $identifiers = $doc->getIdentifier();
-        if (is_null($identifiers) || empty($identifiers)) {
+        if ($identifiers === null || empty($identifiers)) {
             return null;
         }
 
@@ -275,7 +302,7 @@ class DoiManager
             // wenn das Dokument mehr als eine DOI hat, dann ist es ein Dokument, das bereits vor der Einführung des
             // DOI-Supports in OPUS4 erstellt wurde: in diesem Fall wird für die Überprüfung
             // nur die erste DOI betrachtet
-            if (is_null($identifier->getStatus())) {
+            if ($identifier->getStatus() === null) {
                 // lokale DOI kann nur registriert werden, wenn ihr status auf null gesetzt ist
                 return $identifier;
             }
@@ -291,12 +318,11 @@ class DoiManager
      *
      * Mit Jens vereinbart: eine lokale DOI wird anhand des "prefix" identifiziert. Der "localPrefix" wird bei der
      * Erkennung von lokalen DOIs nur berücksichtigt, wenn er gesetzt ist.
-     *
      */
     private function checkForLocalRegistrableDoi($doc)
     {
         $doiToBeChecked = $this->getDoi($doc);
-        if (is_null($doiToBeChecked)) {
+        if ($doiToBeChecked === null) {
             $this->defaultLog->debug(
                 'document ' . $doc->getId() . ' does not provide an identifier of type DOI that can be registered'
             );
@@ -334,7 +360,7 @@ class DoiManager
     }
 
     /**
-     * Registriert alle lokalen DOIs mit status == null (d.h. die noch nicht bei DataCite registrierten lokalen DOIs)
+     * Registriert alle lokalen DOIs mit status===null (d.h. die noch nicht bei DataCite registrierten lokalen DOIs)
      * und liefert als Ergebnis die Anzahl der erfolgreich registrierten lokalen DOIs zurück.
      *
      * Wenn nicht anders gesetzt, dann werden DOIs nur für Dokumente im ServerState published registriert. Sollen
@@ -344,9 +370,7 @@ class DoiManager
      * @param $filterServerState Filter für Attribut ServerState (es werden nur Dokumente mit dem angegeben ServerState
      *                           bei der Registrierung betrachtet); um alle Dokumente unabhängig vom ServerState zu
      *                           betrachten, muss der Wert null übergeben werden (Default: published)
-     *
      * @return DoiManagerStatus
-     *
      */
     public function registerPending($filterServerState = 'published')
     {
@@ -354,7 +378,7 @@ class DoiManager
 
         $docFinder = new DocumentFinder();
         $docFinder->setIdentifierTypeExists('doi');
-        if (! is_null($filterServerState)) {
+        if ($filterServerState !== null) {
             $docFinder->setServerState($filterServerState);
         }
 
@@ -369,7 +393,7 @@ class DoiManager
         );
 
         $numOfSuccessfulRegistrations = 0;
-        $notification = new DoiMailNotification();
+        $notification                 = new DoiMailNotification();
 
         foreach ($ids as $id) {
             try {
@@ -384,7 +408,7 @@ class DoiManager
             // Registrierung der DOI durchführen, sofern es eine lokale DOI gibt, die noch nicht registriert wurde
             try {
                 $registeredDoi = $this->register($doc, true);
-                if (! is_null($registeredDoi)) {
+                if ($registeredDoi !== null) {
                     $numOfSuccessfulRegistrations++;
                     $status->addDocWithDoiStatus($id, $registeredDoi->getValue());
 
@@ -393,8 +417,8 @@ class DoiManager
                     }
                 }
             } catch (RegistrationException $e) {
-                $message = 'an error occurred in registration of DOI ' . $e->getDoi()->getValue() .
-                    ' of document ' . $id . ': ' . $e->getMessage();
+                $message = 'an error occurred in registration of DOI ' . $e->getDoi()->getValue()
+                    . ' of document ' . $id . ': ' . $e->getMessage();
                 $this->defaultLog->err($message);
                 $this->doiLog->err($message);
                 $status->addDocWithDoiStatus($id, $message, true);
@@ -448,8 +472,7 @@ class DoiManager
      * @param $docId ID des zu überprüfenden OPUS-Dokuments
      * @param $allowReverification wenn true, dann werden DOIs, die bereits geprüft wurden, erneut geprüft
      * @param $beforeDate Nur DOIs prüfen, deren Registrierung vor dem übergebenen Zeitpunkt liegt
-     * @param DoiManagerStatus $managerStatus Objekt zum Ablegen von Statusinformationen der DOI-Prüfung
-     *
+     * @param null|DoiManagerStatus                                                                         $managerStatus Objekt zum Ablegen von Statusinformationen der DOI-Prüfung
      */
     public function verify($docId, $allowReverification = true, $beforeDate = null, $managerStatus = null)
     {
@@ -476,13 +499,13 @@ class DoiManager
             // hat ein Dokument mehr als eine DOI, so muss es sich um ein Altdokument handeln, das vor der Einführung
             // des DOI-Supports in OPUS4 angelegt wurde und bei dem noch mehrere DOIs angegeben werden durften
             $this->defaultLog->info(
-                'document ' . $docId . ' provides ' . count($dois) .
-                ' DOIs - consider only the first one for verification'
+                'document ' . $docId . ' provides ' . count($dois)
+                . ' DOIs - consider only the first one for verification'
             );
         }
 
         $doi = $dois[0];
-        if (is_null($doi->getStatus())) {
+        if ($doi->getStatus() === null) {
             // DOI wurde noch nicht registriert, so dass keine Prüfung möglich ist
             $message = 'document ' . $docId . ' does not provide a registered DOI for verification';
             $this->doiLog->debug($message);
@@ -490,19 +513,19 @@ class DoiManager
             return null;
         }
 
-        if (! $allowReverification && $doi->getStatus() == 'verified') {
+        if (! $allowReverification && $doi->getStatus() === 'verified') {
             // erneute Prüfung von bereits geprüften DOIs ist nicht gewünscht
-            $message = 'document ' . $docId . ' provides already verified DOI ' . $doi->getValue() .
-                ' but DOI reverification is disabled';
+            $message = 'document ' . $docId . ' provides already verified DOI ' . $doi->getValue()
+                . ' but DOI reverification is disabled';
             $this->doiLog->debug($message);
             $this->defaultLog->debug($message);
             return null;
         }
 
-        if (is_null($beforeDate) || (! is_null($beforeDate) && $doi->getRegistrationTs() <= $beforeDate)) {
+        if ($beforeDate === null || ($beforeDate !== null && $doi->getRegistrationTs() <= $beforeDate)) {
             // prüfe, ob DOI $doi bei DataCite erfolgreich registriert ist und setze dann DOI-Status auf "verified"
             try {
-                $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
+                $client = new Client($this->config, $this->defaultLog);
                 $result = $client->checkDoi($doi->getValue(), $this->getLandingPageUrlOfDoc($doc));
                 if ($result) {
                     $message = 'verification of DOI ' . $doi->getValue() . ' of document ' . $docId . ' was successful';
@@ -513,7 +536,7 @@ class DoiManager
                         $doi->setStatus('verified');
                         $doc->store();
                     }
-                    if (! is_null($managerStatus)) {
+                    if ($managerStatus !== null) {
                         $managerStatus->addDocWithDoiStatus($docId, $doi->getValue());
                     }
                 } else {
@@ -521,21 +544,21 @@ class DoiManager
                     $this->doiLog->err($message);
                     $this->defaultLog->err($message);
                     // Status-Downgrade durchführen
-                    if ($doi->getStatus() == 'verified') {
+                    if ($doi->getStatus() === 'verified') {
                         $doi->setStatus('registered');
                         $doc->store();
                     }
-                    if (! is_null($managerStatus)) {
+                    if ($managerStatus !== null) {
                         $managerStatus->addDocWithDoiStatus($docId, $doi->getValue(), true);
                     }
                 }
                 return $doi;
-            } catch (\Exception $e) {
-                $message = 'could not get registration status of DOI ' . $doi->getValue() . ' in document ' .
-                    $docId . ': ' . $e->getMessage();
+            } catch (Exception $e) {
+                $message = 'could not get registration status of DOI ' . $doi->getValue() . ' in document '
+                    . $docId . ': ' . $e->getMessage();
                 $this->doiLog->err($message);
                 $this->defaultLog->err($message);
-                if (! is_null($managerStatus)) {
+                if ($managerStatus !== null) {
                     $managerStatus->addDocWithDoiStatus($docId, $message, true);
                 }
                 return $doi;
@@ -551,9 +574,7 @@ class DoiManager
      *
      * @param $beforeDate Zeitstempel der für die Bestimmung der zu prüfenden DOIs verwendet wird: es werden nur DOIs
      *                    geprüft, die vor dem Zeitpunkt, der durch $beforeDate definiert ist, registriert wurden
-     *
      * @return DoiManagerStatus
-     *
      */
     public function verifyRegisteredBefore($beforeDate = null)
     {
@@ -572,7 +593,7 @@ class DoiManager
         foreach ($ids as $id) {
             $doi = $this->verify($id, false, $beforeDate, $status);
 
-            if (is_null($doi)) {
+            if ($doi === null) {
                 $this->defaultLog->info('could not check DOI registration status of document ' . $id);
                 continue;
             }
@@ -580,7 +601,7 @@ class DoiManager
             $landingPageUrl = $this->getLandingPageUrlOfDoc($id);
 
             if ($notification->isEnabled()) {
-                if ($doi->getStatus() == 'verified') {
+                if ($doi->getStatus() === 'verified') {
                     // erfolgreiche Prüfung der DOI durchgeführt: Erfolg per E-Mail melden
                     $notification->addNotification($id, $doi, $landingPageUrl);
                 } else {
@@ -616,8 +637,8 @@ class DoiManager
         $docFinder->setIdentifierTypeExists('doi');
 
         foreach ($docFinder->ids() as $id) {
-            $doc = new Document($id);
-            $dois = $doc->getIdentifierDoi();
+            $doc      = new Document($id);
+            $dois     = $doc->getIdentifierDoi();
             $firstDoi = $dois[0];
 
             // handelt es sich um eine lokale DOI?
@@ -627,9 +648,11 @@ class DoiManager
 
             // hat die lokale DOI den gesuchten Registrierungsstatus
             $status = $firstDoi->getStatus();
-            if (is_null($statusFilter) ||
-                ($statusFilter == 'unregistered' && is_null($status)) ||
-                ($statusFilter != 'unregistered' && $status == $statusFilter)) {
+            if (
+                $statusFilter === null ||
+                ($statusFilter === 'unregistered' && $status === null) ||
+                ($statusFilter !== 'unregistered' && $status === $statusFilter)
+            ) {
                 $result[] = $doc;
             }
         }
@@ -643,7 +666,6 @@ class DoiManager
      *
      * @param $doc Document, für das ein DOI-Wert generiert werden soll oder ID eines Dokuments
      *             für eine ID (string), wird versucht das zugehörige Opus\Document aus der Datenbank zu laden
-     *
      * @throws DoiException
      */
     public function generateNewDoi($doc)
@@ -668,7 +690,7 @@ class DoiManager
             }
         }
 
-        if (is_null($doc) || ! ($doc instanceof Document)) {
+        if ($doc === null || ! $doc instanceof Document) {
             $message = 'unexpected document class';
             $this->defaultLog->err($message);
             throw new DoiException($message);
@@ -713,22 +735,22 @@ class DoiManager
 
         $status = $doi->getStatus();
         if ($status != 'registered' && $status != 'verified') {
-            $this->defaultLog->debug('document ' . $doc->getId() .
-                ' does not provide a registered local DOI - deregistration of DOI is not required');
+            $this->defaultLog->debug('document ' . $doc->getId()
+                . ' does not provide a registered local DOI - deregistration of DOI is not required');
             return;
         }
 
         try {
-            $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
+            $client = new Client($this->config, $this->defaultLog);
             $client->deleteMetadataForDoi($doi->getValue());
             $message = 'metadata deletion of DOI ' . $doi->getValue() . ' of document ' . $doc->getId()
                 . ' was successful';
             $this->defaultLog->debug($message);
             $this->doiLog->info($message);
             // TODO sollte der Status der lokalen DOI auf "inactive" o.ä. gesetzt werden
-        } catch (\Opus\Doi\ClientException $e) {
-            $message = 'an error occurred while deregistering DOI ' . $doi->getValue() . ' of document ' .
-                $doc->getId() . ': ' . $e->getMessage();
+        } catch (ClientException $e) {
+            $message = 'an error occurred while deregistering DOI ' . $doi->getValue() . ' of document '
+                . $doc->getId() . ': ' . $e->getMessage();
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
             // Exception wird nicht nach oben durchgereicht, weil bislang nur Aufruf aus Plugin erfolgt
@@ -738,9 +760,9 @@ class DoiManager
     public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL)
     {
         try {
-            $client = new \Opus\Doi\Client($this->config);
+            $client = new Client($this->config);
             $client->updateUrlForDoi($doiValue, $landingPageURL);
-        } catch (\Opus\Doi\ClientException $e) {
+        } catch (ClientException $e) {
             $message = 'could not update landing page URL of DOI ' . $doiValue . ' to ' . $landingPageURL;
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
@@ -750,7 +772,7 @@ class DoiManager
 
     public function getLandingPageBaseUrl()
     {
-        if (is_null($this->landingPageBaseUrl)) {
+        if ($this->landingPageBaseUrl === null) {
             if (isset($this->config->url)) {
                 $baseUrl = rtrim($this->config->url, '/') . '/';
 
@@ -773,7 +795,7 @@ class DoiManager
     {
         $baseUrl = $this->getLandingPageBaseUrl();
 
-        if (is_null($baseUrl)) {
+        if ($baseUrl === null) {
             return null;
         }
 
@@ -798,6 +820,7 @@ class DoiManager
 
     /**
      * Store registration XML for error analyis and backup.
+     *
      * @param $doc Document
      * @param $xml string
      */
@@ -814,10 +837,10 @@ class DoiManager
             chmod($path, 0775);
         }
 
-        $timestamp = new \DateTime();
-        $basename = 'doc' . $doc->getId() . $timestamp->format('_Y-m-d\TH:i:s');
+        $timestamp = new DateTime();
+        $basename  = 'doc' . $doc->getId() . $timestamp->format('_Y-m-d\TH:i:s');
 
-        $index = 2;
+        $index    = 2;
         $filename = "$basename.xml";
 
         while (file_exists($path . $filename)) {

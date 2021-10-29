@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\TestAsset;
 
+use DOMDocument;
+use DOMXPath;
 use Opus\Db2\Database;
+
+use function array_diff;
+use function is_dir;
+use function rmdir;
+use function scandir;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
@@ -42,13 +54,35 @@ use Opus\Db2\Database;
  */
 class TestCase extends SimpleTestCase
 {
+    private $tables;
+
+    protected function resetDatabase()
+    {
+        $this->clearTables(true);
+    }
+
+    protected function getTables()
+    {
+        if ($this->tables === null) {
+            $conn = Database::getConnection();
+
+            $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+            $schema = $conn->getSchemaManager();
+
+            $this->tables = [];
+
+            foreach ($schema->listTables() as $table) {
+                $this->tables[] = $table->getName();
+            }
+        }
+
+        return $this->tables;
+    }
 
     /**
      * Empty all listed tables.
-     *
-     * @return void
      */
-    private function _clearTables()
+    protected function clearTables($always = false, $tables = null)
     {
         // This is needed to workaround the constraints on the parent_id column.
         $conn = Database::getConnection();
@@ -58,11 +92,12 @@ class TestCase extends SimpleTestCase
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
         $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
-        $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-        $schema = $conn->getSchemaManager();
+        if ($tables === null) {
+            $tables = $this->getTables();
+        }
 
-        foreach ($schema->listTables() as $table) {
-            self::clearTable($table->getName());
+        foreach ($tables as $name) {
+            self::clearTable($name, $always);
         }
 
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
@@ -73,37 +108,42 @@ class TestCase extends SimpleTestCase
      * a table.  Check, if the table is really empty.
      *
      * @param string $tablename Name of the table to be cleared.
-     * @return void
      */
-    protected function clearTable($tablename)
+    protected function clearTable($tablename, $always = false)
     {
         $conn = Database::getConnection();
 
         $this->assertNotNull($conn);
 
         $tablename = $conn->quoteIdentifier($tablename);
-        $conn->executeStatement('TRUNCATE ' . $tablename . ';');
 
         $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-        $this->assertEquals(0, $count, "Table $tablename is not empty!");
+
+        if ($count > 0 || $always) {
+            $conn->executeStatement('TRUNCATE ' . $tablename);
+
+            $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+            $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        }
     }
 
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
+     *
      * @param null $directory
      */
     protected function clearFiles($directory = null)
     {
-        if (is_null($directory)) {
+        if ($directory === null) {
             if (empty(APPLICATION_PATH)) {
                 return;
             }
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
+            $files    = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), ['.', '..']);
+            $files    = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -116,7 +156,7 @@ class TestCase extends SimpleTestCase
             }
         }
 
-        if (! is_null($directory)) {
+        if ($directory !== null) {
             rmdir($directory);
         }
 
@@ -125,26 +165,22 @@ class TestCase extends SimpleTestCase
 
     /**
      * Standard setUp method for clearing database.
-     *
-     * @return void
      */
     protected function setUp()
     {
         parent::setUp();
-
-        $this->_clearTables();
     }
 
     protected function prepareXpathFromResultString($resultString)
     {
-        $domDocument = new \DOMDocument();
+        $domDocument = new DOMDocument();
         $domDocument->loadXML($resultString);
 
-        $xpath = new \DOMXPath($domDocument);
+        $xpath = new DOMXPath($domDocument);
 
         $namespace = $domDocument->documentElement->namespaceURI;
 
-        if (! is_null($namespace)) {
+        if ($namespace !== null) {
             $xpath->registerNamespace('ns', $namespace);
         }
 

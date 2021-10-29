@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Tests
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Dependent\Link;
@@ -40,7 +42,6 @@ use OpusTest\TestAsset\TestCase;
 
 class DocumentPersonTest extends TestCase
 {
-
     public function testToArray()
     {
         $person = new Person();
@@ -68,42 +69,42 @@ class DocumentPersonTest extends TestCase
         $data = $personLink->toArray();
 
         $this->assertEquals([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => $dateOfBirthArray,
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => $dateOfBirthArray,
+            'PlaceOfBirth'      => 'München',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ], $data);
     }
 
     public function testFromArray()
     {
         $personLink = DocumentPerson::fromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => '1960-05-17',
+            'PlaceOfBirth'      => 'München',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ]);
 
         $this->assertNotNull($personLink);
-        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentPerson', $personLink);
+        $this->assertInstanceOf(DocumentPerson::class, $personLink);
 
         $this->assertEquals('Prof.', $personLink->getAcademicTitle());
         $this->assertEquals('Thomas', $personLink->getFirstName());
@@ -125,19 +126,19 @@ class DocumentPersonTest extends TestCase
         $personLink = new DocumentPerson();
 
         $personLink->updateFromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => '1960-05-17',
+            'PlaceOfBirth'      => 'München',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ]);
 
         $this->assertEquals('Prof.', $personLink->getAcademicTitle());
@@ -165,18 +166,18 @@ class DocumentPersonTest extends TestCase
         $personLink->setModel($person);
 
         $personLink->updateFromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => '1960-05-17',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ]);
 
         $this->assertSame($person, $personLink->getModel());

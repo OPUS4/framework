@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,30 +26,43 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi;
 
+use DOMDocument;
 use Opus\Config;
 use Opus\Document;
 use Opus\Log;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
+use XSLTProcessor;
+use Zend_Log;
+
+use function count;
+use function dirname;
+use function is_readable;
+use function libxml_clear_errors;
+use function libxml_get_errors;
+use function libxml_use_internal_errors;
+use function preg_match;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
- * Class Opus\Doi\DataCiteXmlGenerator
- *
  * TODO processing multiple documents requires getting logger and XSLT over and over again
  * TODO use LoggingTrait to get standard logger
+ *
+ * phpcs:disable
  */
 class DataCiteXmlGenerator
 {
-
     const STYLESHEET_FILENAME = 'datacite.xslt';
 
     const USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT = true;
@@ -60,18 +74,20 @@ class DataCiteXmlGenerator
     private $usePlaceholdersForEmptyValues;
 
     /**
-     * Opus\Doi\DataCiteXmlGenerator constructor.
-     * @param boolean $usePlaceholdersForEmptyValues
+     * @param bool $usePlaceholdersForEmptyValues
      */
     public function __construct($usePlaceholdersForEmptyValues = self::USE_PLACEHOLDERS_FOR_EMPTY_VALUES_DEFAULT)
     {
         $this->usePlaceholdersForEmptyValues = $usePlaceholdersForEmptyValues;
     }
 
-
+    /**
+     * @return Zend_Log
+     * @throws \Zend_Exception
+     */
     public function getDoiLog()
     {
-        if (is_null($this->doiLog)) {
+        if ($this->doiLog === null) {
             // use standard logger if nothing is set
             $this->doiLog = Log::get();
         }
@@ -79,7 +95,10 @@ class DataCiteXmlGenerator
         return $this->doiLog;
     }
 
-    public function setDoiLog(\Zend_Log $logger)
+    /**
+     * @param Zend_Log $logger
+     */
+    public function setDoiLog(Zend_Log $logger)
     {
         $this->doiLog = $logger;
     }
@@ -99,7 +118,7 @@ class DataCiteXmlGenerator
     public function getXml($doc, $allowInvalidXml = false, $skipTestOfRequiredFields = false)
     {
         // DataCite-XML wird mittels XSLT aus OPUS-XML erzeugt
-        $xslt = new \DOMDocument();
+        $xslt     = new DOMDocument();
         $xsltPath = $this->getStylesheetPath();
 
         $success = false;
@@ -115,7 +134,7 @@ class DataCiteXmlGenerator
             throw new DataCiteXmlGenerationException($message);
         }
 
-        $proc = new \XSLTProcessor();
+        $proc = new XSLTProcessor();
         $proc->registerPHPFunctions('Opus\Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
@@ -167,13 +186,13 @@ class DataCiteXmlGenerator
     }
 
     /**
-     * @param $doc Document
+     * @param Document $doc
      * @param $lazyChecking wenn true, dann wird die Prüfung beendet, sobald ein fehlendes Pflichtfeld
      *                      festgestellt wurde; in diesem Modus gibt die Methode entweder true (alle
      *                      Pflichtfelder vorhanden) oder false zurück
      *                      wenn $lazyChecking auf false gesetzt, so wird ein Status-Array zurückgegeben,
      *                      in dem für jedes Pflichtfeld die Existenz ausgewiesen ist
-     * @return boolean | array
+     * @return bool | array
      */
     public function checkRequiredFields($doc, $lazyChecking = true)
     {
@@ -218,7 +237,7 @@ class DataCiteXmlGenerator
         $this->setStatusEntry($status, 'publicationYear', $result);
 
         // Dokumenttyp darf nicht leer sein
-        if ($doc->getType() == '') {
+        if (empty($doc->getType())) { // TODO empty check reliable?
             if ($lazyChecking) {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element resourceType');
                 return false;
@@ -238,7 +257,8 @@ class DataCiteXmlGenerator
     /**
      * Hilfsmethode für die Initialisierung des Status-Arrays.
      *
-     * @param $key
+     * @param $status
+     * @param string $key
      * @param $result
      */
     private function setStatusEntry(&$status, $key, $result = null)
@@ -289,7 +309,6 @@ class DataCiteXmlGenerator
      * oder eine nicht leere CreatingCorporation existieren.
      *
      * @param Document $doc das zu prüfende Dokument
-     *
      * @return array gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
      *               Array der gefundene Fehler
      */
@@ -300,7 +319,7 @@ class DataCiteXmlGenerator
         }
 
         $authorOk = false;
-        $authors = $doc->getPersonAuthor();
+        $authors  = $doc->getPersonAuthor();
 
         foreach ($authors as $author) {
             if ($author->getLastName() != '' or $author->getFirstName() != '') {
@@ -310,7 +329,7 @@ class DataCiteXmlGenerator
         }
 
         if (! $authorOk) {
-            if ($doc->getCreatingCorporation() == '') {
+            if (empty($doc->getCreatingCorporation())) {
                 // Pflichtfeld creatorName kann nicht mit Inhalt belegt werden
                 return ['creator_missing'];
             }
@@ -323,7 +342,6 @@ class DataCiteXmlGenerator
      * In dem übergebenen Dokument muss mindestens ein nicht leerer Titel existieren.
      *
      * @param Document $doc das zu prüfende Dokument
-     *
      * @return array gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
      *               Array der gefundene Fehler
      */
@@ -335,7 +353,7 @@ class DataCiteXmlGenerator
 
         // mindestens ein nicht-leerer TitleMain oder TitleSub
         $titleOk = false;
-        $titles = $doc->getTitleMain();
+        $titles  = $doc->getTitleMain();
 
         foreach ($titles as $title) {
             if ($title->getValue() != '') {
@@ -412,14 +430,13 @@ class DataCiteXmlGenerator
      * gesetzt wird.
      *
      * @param Document $doc das zu prüfende Dokument
-     *
      * @return bool gibt ein leeres Array zurück, wenn ein Publikationsjahr gefunden wurde; andernfalls
      *              steht im Array der gefundene Fehler
      */
     private function checkExistenceOfPublicationYear($doc)
     {
         $publicationDate = $doc->getServerDatePublished();
-        if (is_null($publicationDate)) {
+        if ($publicationDate === null) {
             // dieser Fall kann eigentlich nur eintreten, wenn das Dokument noch nicht freigeschaltet wurde
             if ($doc->getServerState() !== 'published') {
                 return ['publication_date_missing_non_published'];
@@ -430,7 +447,7 @@ class DataCiteXmlGenerator
         }
 
         $publicationYear = $publicationDate->getYear();
-        if (is_null($publicationYear) || $publicationYear == 0 || preg_match('/^[\d]{4}$/', $publicationYear) !== 1) {
+        if ($publicationYear === null || $publicationYear === 0 || preg_match('/^[\d]{4}$/', $publicationYear) !== 1) {
             // dieser Fall kann nicht auftreten, wenn das Freischaltungsdatum automatisch vom System gesetzt wird
             return ['publication_year_missing'];
         }
@@ -466,6 +483,8 @@ class DataCiteXmlGenerator
      * Returns path to DataCite XSLT file.
      *
      * TODO refactor getting \Zend_Config and \Zend_Log
+     *
+     * @return string
      */
     public function getStylesheetPath()
     {
@@ -483,7 +502,7 @@ class DataCiteXmlGenerator
         }
 
         // use default path if non was given or found
-        if (is_null($stylesheetPath)) {
+        if ($stylesheetPath === null) {
             $stylesheetPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::STYLESHEET_FILENAME;
         }
 
@@ -494,7 +513,7 @@ class DataCiteXmlGenerator
      * Entfernt alle File-Elemente aus dem übergebenen XML von Dateien, für die das Flag VisibleInOai nicht gesetzt ist.
      * Die Metadaten solcher Dateien sollen im DataCite-XML nicht erscheinen.
      *
-     * @param $modelXml
+     * @param DOMDocument $modelXml
      */
     private function removeNodesOfInvisibleFiles($modelXml)
     {
@@ -508,8 +527,10 @@ class DataCiteXmlGenerator
 
         // Remove filenodes which are invisible in oai (should not be in DataCite)
         foreach ($filenodesList as $filenode) {
-            if ((false === $filenode->hasAttribute('VisibleInOai'))
-                or ('1' !== $filenode->getAttribute('VisibleInOai'))) {
+            if (
+                (false === $filenode->hasAttribute('VisibleInOai'))
+                or ('1' !== $filenode->getAttribute('VisibleInOai'))
+            ) {
                 $filenode->parentNode->removeChild($filenode);
             }
         }

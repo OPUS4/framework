@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -33,33 +34,35 @@
 
 namespace Opus\Job\Worker;
 
+use InvalidArgumentException;
+use Zend_Log;
+use Zend_Log_Writer_Null;
+
 /**
  * Abstract base class for Opus job worker classes.
  */
 abstract class AbstractWorker implements WorkerInterface
 {
-
     /**
      * Hold current logger instance.
      *
-     * @var \Zend_Log
+     * @var Zend_Log
      */
-    protected $_logger = null;
+    protected $logger;
 
     /**
      * Set logging facility.
      *
-     * @param \Zend_Log $logger Logger instance.
-     * @return void
+     * @param Zend_Log $logger Logger instance.
      */
     public function setLogger($logger)
     {
         if (null === $logger) {
-            $this->_logger = new \Zend_Log(new \Zend_Log_Writer_Null());
-        } elseif ($logger instanceof \Zend_Log) {
-            $this->_logger = $logger;
+            $this->logger = new Zend_Log(new Zend_Log_Writer_Null());
+        } elseif ($logger instanceof Zend_Log) {
+            $this->logger = $logger;
         } else {
-            throw new \InvalidArgumentException('Zend_Log instance expected.');
+            throw new InvalidArgumentException('Zend_Log instance expected.');
         }
     }
 }

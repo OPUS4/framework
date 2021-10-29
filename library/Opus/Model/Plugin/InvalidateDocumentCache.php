@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2013-2018
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model\Plugin
  * @author      Edouard Simon <edouard.simon@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2013-2018
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Plugin;
@@ -42,6 +44,13 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Filter;
 use Opus\Model\ModelInterface;
 use Opus\Model\Xml\Cache;
+use Zend_Config;
+use Zend_Config_Exception;
+use Zend_Config_Ini;
+
+use function dirname;
+use function get_class;
+use function in_array;
 
 /**
  * Plugin deleting xml cache entries and updating the modification date of documents related to the model.
@@ -52,10 +61,11 @@ use Opus\Model\Xml\Cache;
  * TODO filter configuration should only exclude from server_date_modified change (should check date) - OPUSVIER-3760
  * TODO models should define their own lists (decentralized, object-oriented) - OPUSVIER-3759
  * TODO cache should be transparent - important is updating ServerDateModified
+ *
+ * phpcs:disable
  */
 class InvalidateDocumentCache extends AbstractPlugin
 {
-
     /**
      * Run method invalidateDocumentCacheFor() in postStore if true.
      */
@@ -68,9 +78,9 @@ class InvalidateDocumentCache extends AbstractPlugin
      *
      * This configuration should be shared across all objects.
      *
-     * @var \Zend_Config
+     * @var Zend_Config
      */
-    private static $_filterConfig;
+    private static $filterConfig;
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::preStore}
@@ -111,9 +121,11 @@ class InvalidateDocumentCache extends AbstractPlugin
 
                 // check if cache should be deleted for blacklisted field
                 foreach ($blacklist as $fieldName) {
-                    if ($model->hasField($fieldName)
+                    if (
+                        $model->hasField($fieldName)
                         && $model->getField($fieldName)->isModified()
-                        && in_array($fieldName, $cacheList)) {
+                        && in_array($fieldName, $cacheList)
+                    ) {
                         $this->_postStoreUpdateDocuments = true;
                         $this->_updateServerDateModified = false;
                         return;
@@ -169,7 +181,7 @@ class InvalidateDocumentCache extends AbstractPlugin
 
         $documentFinder->setDependentModel($model);
         $select = $documentFinder->getSelectIds();
-        $ids = $documentFinder->Ids();
+        $ids    = $documentFinder->Ids();
 
         $xmlCache = new Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($select);
@@ -184,16 +196,16 @@ class InvalidateDocumentCache extends AbstractPlugin
     /**
      * Return configuration of ignored model fields.
      *
-     * @throws \Zend_Config_Exception
-     * @return \Zend_Config
+     * @throws Zend_Config_Exception
+     * @return Zend_Config
      */
     public static function getFilterConfig()
     {
-        if (is_null(self::$_filterConfig)) {
-            self::$_filterConfig = new \Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
+        if (self::$filterConfig === null) {
+            self::$filterConfig = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
         }
 
-        return self::$_filterConfig;
+        return self::$filterConfig;
     }
 
     /**
@@ -203,6 +215,6 @@ class InvalidateDocumentCache extends AbstractPlugin
      */
     public static function setFilterConfig($config)
     {
-        self::$_filterConfig = $config;
+        self::$filterConfig = $config;
     }
 }

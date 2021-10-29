@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,31 +25,44 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Storage;
 
 use Opus\Config;
 use Opus\Storage\File;
+use Opus\Storage\FileNotFoundException;
+use Opus\Storage\StorageException;
 use OpusTest\TestAsset\TestCase;
+
+use function fclose;
+use function fopen;
+use function fwrite;
+use function is_dir;
+use function is_file;
+use function mkdir;
+use function rand;
+use function touch;
+use function uniqid;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Test cases for class Opus\Storage\File.
  *
  * @package  Opus\File
  * @category Tests
- *
  * @group FileTest
  */
 class FileTest extends TestCase
 {
-
     private $__src_path = '';
 
     private $__dest_path = '';
@@ -62,7 +76,7 @@ class FileTest extends TestCase
         parent::setUp();
 
         $config = Config::get();
-        $path = $config->workspacePath . '/' . uniqid();
+        $path   = $config->workspacePath . '/' . uniqid();
 
         $this->__src_path = $path . '/src';
         mkdir($this->__src_path, 0777, true);
@@ -88,7 +102,7 @@ class FileTest extends TestCase
      */
     public function testConstructorFail()
     {
-        $this->setExpectedException('Opus\Storage\StorageException');
+        $this->setExpectedException(StorageException::class);
         $storage = new File();
     }
 
@@ -153,7 +167,7 @@ class FileTest extends TestCase
     {
         $storage = new File($this->__dest_path, 'subdir');
         $storage->createSubdirectory();
-        $this->setExpectedException('Opus\Storage\FileNotFoundException');
+        $this->setExpectedException(FileNotFoundException::class);
         $storage->renameFile('test', 'test2');
     }
 
@@ -166,7 +180,7 @@ class FileTest extends TestCase
         $storage->createSubdirectory();
         $path = $storage->getWorkingDirectory() . '/testdir';
         mkdir($path);
-        $this->setExpectedException('Opus\Storage\StorageException');
+        $this->setExpectedException(StorageException::class);
         $storage->renameFile('testdir', 'testdir2');
     }
 
@@ -198,7 +212,7 @@ class FileTest extends TestCase
 
         $fh = fopen($source, 'w');
 
-        if ($fh == false) {
+        if ($fh === false) {
             $this->fail("Unable to write file $source.");
         }
 
@@ -282,7 +296,7 @@ class FileTest extends TestCase
 
                 $fh = fopen($source, 'w');
 
-        if ($fh == false) {
+        if ($fh === false) {
             $this->fail("Unable to write file $source.");
         }
 

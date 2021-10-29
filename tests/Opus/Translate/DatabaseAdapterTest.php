@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,51 +28,57 @@
  * @category    Framework
  * @package     Opus\Translate
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Translate;
 
-use Opus\Translate\Dao;
+use Opus\Db2\Translations;
+use Opus\Translate\DatabaseAdapter;
 use OpusTest\TestAsset\TestCase;
+use Zend_Translate;
 
 class DatabaseAdapterTest extends TestCase
 {
-
     private $cache;
+
+    private $translations;
 
     public function setUp()
     {
         parent::setUp();
-        $this->cache = \Zend_Translate::getCache();
+        $this->cache        = Zend_Translate::getCache();
+        $this->translations = new Translations();
     }
 
     public function tearDown()
     {
-        \Zend_Translate::setCache($this->cache);
+        Zend_Translate::setCache($this->cache);
         parent::tearDown();
     }
 
     public function testUsingAdapter()
     {
-        \Zend_Translate::clearCache();
+        $this->resetDatabase();
 
-        $database = new Dao();
+        Zend_Translate::clearCache();
+
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Administration',
-            'de' => 'Verwaltung'
+                'en' => 'Administration',
+                'de' => 'Verwaltung',
             ]
         );
 
-        $translate = new \Zend_Translate(
+        $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus\Translate\DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -90,23 +97,23 @@ class DatabaseAdapterTest extends TestCase
      */
     public function testUpdatingTranslation()
     {
-        $database = new Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Administration',
-            'de' => 'Verwaltung'
+                'en' => 'Administration',
+                'de' => 'Verwaltung',
             ]
         );
 
-        \Zend_Translate::clearCache(); // clear cache between test runs
+        Zend_Translate::clearCache(); // clear cache between test runs
 
-        $translate = new \Zend_Translate(
+        $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus\Translate\DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -119,17 +126,17 @@ class DatabaseAdapterTest extends TestCase
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Edited',
-            'de' => 'Editiert'
+                'en' => 'Edited',
+                'de' => 'Editiert',
             ]
         );
 
         // create new translation object will not update cache
-        $translate = new \Zend_Translate(
+        $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus\Translate\DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -138,13 +145,13 @@ class DatabaseAdapterTest extends TestCase
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
         // it is necessary to clear the cache before updates
-        \Zend_Translate::clearCache();
+        Zend_Translate::clearCache();
 
-        $translate = new \Zend_Translate(
+        $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus\Translate\DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -155,23 +162,23 @@ class DatabaseAdapterTest extends TestCase
     // check behaviour with cache
     public function testUsingAdapterWithoutCache()
     {
-        \Zend_Translate::clearCache();
+        Zend_Translate::clearCache();
 
-        $database = new Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Administration',
-            'de' => 'Verwaltung'
+                'en' => 'Administration',
+                'de' => 'Verwaltung',
             ]
         );
 
-        $translate = new \Zend_Translate(
+        $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus\Translate\DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -188,8 +195,8 @@ class DatabaseAdapterTest extends TestCase
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Edited',
-            'de' => 'Editiert'
+                'en' => 'Edited',
+                'de' => 'Editiert',
             ]
         );
 
@@ -198,11 +205,11 @@ class DatabaseAdapterTest extends TestCase
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
         // create new \Zend_Translate object so translation will be read again
-        $translate = new \Zend_Translate(
+        $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus\Translate\DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 

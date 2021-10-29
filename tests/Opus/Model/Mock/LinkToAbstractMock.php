@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Mock;
 
@@ -43,19 +45,16 @@ use Opus\Model\Dependent\Link\AbstractLinkModel;
  */
 class LinkToAbstractMock extends AbstractLinkModel
 {
-
-
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = 'OpusTest\Model\Mock\ModelAbstractDbMock';
+    protected $modelClass = ModelAbstractDbMock::class;
 
     /**
      * This mockup is not connected to a datastore so fetching and initializing
      * of values has to be prevented.
-     *
      */
     public function __construct()
     {
@@ -64,10 +63,9 @@ class LinkToAbstractMock extends AbstractLinkModel
     /**
      * No fields to add for this link model so the method has an empty body.
      *
-     * @return void
      * @see Opus\Model\AbstractModel#_init()
      */
-    protected function _init()
+    protected function init()
     {
     }
 

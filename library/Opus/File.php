@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,17 +25,19 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use Exception;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
@@ -42,6 +45,16 @@ use Opus\Model\ModelException;
 use Opus\Storage\FileAccessException;
 use Opus\Storage\FileNotFoundException;
 use Opus\Storage\StorageException;
+use Zend_Validate_NotEmpty;
+
+use function array_key_exists;
+use function file_exists;
+use function filter_var;
+use function hash_file;
+use function is_readable;
+
+use const DIRECTORY_SEPARATOR;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Domain model for files in the Opus framework
@@ -51,17 +64,18 @@ use Opus\Storage\StorageException;
  * calculations. Therefore caching the hashes improves performance. The risk of a file being changed during the
  * existence of an Opus\File object is small.
  *
- * @category    Framework
- * @package     Opus\Model
  * @uses        \Opus\Model\AbstractModel
  *
+ * @category    Framework
+ * @package     Opus\Model
  * @method boolean getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
  * @method boolean getVisibleInOai()
  * @method string getMimeType() retrieves value of field MimeType
+ *
+ * phpcs:disable
  */
 class File extends AbstractDependentModel
 {
-
     /**
      * Plugins to load
      *
@@ -70,43 +84,44 @@ class File extends AbstractDependentModel
     public function getDefaultPlugins()
     {
         return [
-            'Opus\File\Plugin\DefaultAccess',
-            'Opus\Model\Plugin\InvalidateDocumentCache'
+            File\Plugin\DefaultAccess::class,
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
     /**
      * Holds storage object.
      *
-     * @var \Opus\Storage\File
+     * @var Storage\File
      */
-    private $_storage;
+    private $storage;
 
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DocumentFiles';
+    protected static $tableGatewayClass = Db\DocumentFiles::class;
 
     /**
      * The file models external fields, i.e. those not mapped directly to the
      * Opus\Db\DocumentFiles table gateway.
      *
-     * @var array
      * @see \Opus\Model\Abstract::$_externalFields
+     *
+     * @var array
      */
-    protected $_externalFields = [
-        'TempFile' => [],
+    protected $externalFields = [
+        'TempFile'  => [],
         'HashValue' => [
-            'model' => 'Opus\HashValues'
+            'model' => HashValues::class,
         ],
     ];
 
@@ -119,20 +134,18 @@ class File extends AbstractDependentModel
      * - FileType
      * - MimeType
      * - Language
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $filepathname = new Field('PathName');
         $filepathname->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
 
-        $filelabel = new Field('Label');
+        $filelabel   = new Field('Label');
         $filecomment = new Field('Comment');
-        $mimetype = new Field('MimeType');
+        $mimetype    = new Field('MimeType');
 
-        $filelanguage = new Field('Language');
+        $filelanguage       = new Field('Language');
         $availableLanguages = Config::getInstance()->getAvailableLanguages();
         if ($availableLanguages !== null) {
             $filelanguage->setDefault($availableLanguages);
@@ -142,7 +155,7 @@ class File extends AbstractDependentModel
         $tempfile = new Field('TempFile');
 
         $serverDateSubmitted = new Field('ServerDateSubmitted');
-        $serverDateSubmitted->setValueModelClass('Opus\Date');
+        $serverDateSubmitted->setValueModelClass(Date::class);
 
         $sortOrder = new Field('SortOrder');
 
@@ -150,7 +163,7 @@ class File extends AbstractDependentModel
         $filesize->setMandatory(true);
 
         $visibleInFrontdoor = new Field('VisibleInFrontdoor');
-        $visibleInOai = new Field('VisibleInOai');
+        $visibleInOai       = new Field('VisibleInOai');
 
         $hashvalue = new Field('HashValue');
         $hashvalue->setMandatory(true)
@@ -172,13 +185,13 @@ class File extends AbstractDependentModel
 
     public static function fetchByDocIdPathName($docId, $pathName)
     {
-        $files = TableGateway::getInstance(self::$_tableGatewayClass);
+        $files  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $files->select()
                 ->where('document_id = ?', $docId)
                 ->where('path_name = ?', $pathName);
-        $row = $files->fetchRow($select);
+        $row    = $files->fetchRow($select);
 
-        if (! is_null($row)) {
+        if ($row !== null) {
             return new File($row);
         }
         return null;
@@ -187,29 +200,29 @@ class File extends AbstractDependentModel
     /**
      * Prepare and return Opus\Storage\File object for filesystem manipulation.
      *
-     * @return \Opus\Storage\File Storage object.
+     * @return Storage\File Storage object.
      */
     private function getStorage()
     {
-        if (! is_null($this->_storage)) {
-            return $this->_storage;
+        if ($this->storage !== null) {
+            return $this->storage;
         }
 
-        if (is_null($this->getParentId())) {
+        if ($this->getParentId() === null) {
             throw new ModelException('ParentId is not set!');
         }
 
-        $config = Config::get();
-        $filesPath = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
-        $this->_storage = new \Opus\Storage\File($filesPath, $this->getParentId());
+        $config         = Config::get();
+        $filesPath      = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
+        $this->storage = new Storage\File($filesPath, $this->getParentId());
 
-        return $this->_storage;
+        return $this->storage;
     }
 
     /**
      * checks if the file exists physically
      *
-     * @return boolean false if the file does not exist, true if it exists
+     * @return bool false if the file does not exist, true if it exists
      */
     public function exists()
     {
@@ -219,7 +232,7 @@ class File extends AbstractDependentModel
     /**
      * checks if the file is readable (and exists)
      *
-     * @return boolean true if the file is readable, otherwise false
+     * @return bool true if the file is readable, otherwise false
      */
     public function isReadable()
     {
@@ -275,7 +288,7 @@ class File extends AbstractDependentModel
         // only already stored files.
         // TODO: Move rename logic to _storePathName() method.
         if (false === $this->isNewRecord() && $this->getField('PathName')->isModified()) {
-            $storedFileName = $this->_primaryTableRow->path_name;
+            $storedFileName = $this->primaryTableRow->path_name;
 
             if (! empty($storedFileName)) {
                 // $oldName = $this->getStorage()->getWorkingDirectory() . $storedFileName;
@@ -294,8 +307,6 @@ class File extends AbstractDependentModel
 
     /**
      * Copy the uploaded file to it's final destination.
-     *
-     * @return void
      */
     protected function _storeTempFile()
     {
@@ -316,10 +327,10 @@ class File extends AbstractDependentModel
      * Deletes a file from filespace and if directory are empty it will be deleted too.
      *
      * @see    library/Opus/Model/Opus\Model\AbstractDb#doDelete()
+     *
      * @throws StorageException if not a file, or empty directory could not be deleted
      * @throws FileNotFoundException  if file does not exist
      * @throws FileAccessException if file could not be deleted
-     * @return void
      */
     public function doDelete($token)
     {
@@ -334,7 +345,6 @@ class File extends AbstractDependentModel
      * Populate fields from array.
      *
      * @param  array $info An associative array containing file metadata.
-     * @return void
      */
     public function setFromPost(array $info)
     {
@@ -364,7 +374,7 @@ class File extends AbstractDependentModel
         $this->_hashValues[$type] = $hash;
 
         if (empty($hash)) {
-            throw new \Exception("Empty HASH for file '" . $this->getPath() . "'");
+            throw new Exception("Empty HASH for file '" . $this->getPath() . "'");
         }
 
         return $hash;
@@ -376,7 +386,7 @@ class File extends AbstractDependentModel
      * TODO throws Exception in case hash computation is not possible
      *      (e.g., if referenced file is missing in file system)
      *
-     * @return boolean true if the checksum is valid, false if not
+     * @return bool true if the checksum is valid, false if not
      */
     public function verify($type, $value = null)
     {
@@ -390,7 +400,7 @@ class File extends AbstractDependentModel
     /**
      * Perform a verification on all checksums
      *
-     * @return boolean true (all value) or false (at least one hash invalid)
+     * @return bool true (all value) or false (at least one hash invalid)
      */
     public function verifyAll()
     {
@@ -405,7 +415,7 @@ class File extends AbstractDependentModel
     /**
      * Check if this file should perform live checksum verification
      *
-     * @return boolean True if verification can get performed
+     * @return bool True if verification can get performed
      */
     public function canVerify()
     {
@@ -416,8 +426,10 @@ class File extends AbstractDependentModel
             $maxVerifyFilesize = 1024 * 1024 * (int) $config->checksum->maxVerificationSize;
         }
 
-        if (($maxVerifyFilesize < 0) or
-                ($this->getStorage()->getFileSize($this->getPathName()) < $maxVerifyFilesize)) {
+        if (
+            ($maxVerifyFilesize < 0) or
+                ($this->getStorage()->getFileSize($this->getPathName()) < $maxVerifyFilesize)
+        ) {
             return true;
         }
 
@@ -429,13 +441,11 @@ class File extends AbstractDependentModel
      *
      * TODO throws Exception in case hash computation is not possible
      *      (e.g., if referenced file is missing in file system)
-     *
-     * @return void
      */
     private function _createHashValues()
     {
         $hashtypes = ['md5', 'sha512'];
-        $hashs = [];
+        $hashs     = [];
 
         foreach ($hashtypes as $type) {
             $hash = new HashValues();

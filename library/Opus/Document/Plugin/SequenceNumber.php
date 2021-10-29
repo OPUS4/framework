@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,23 +25,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Document\Plugin;
 
 use Opus\Config;
+use Opus\Db\DocumentIdentifiers;
 use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\Document\DocumentException;
 use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\PluginInterface;
+use Zend_Db_Expr;
+
+use function count;
+use function implode;
+use function trim;
 
 /**
  * Plugin for generating sequence numbers on published documents.
@@ -57,18 +64,17 @@ use Opus\Model\Plugin\PluginInterface;
  * If the identifier is deleted in the administration and the document stored a new
  * one will be generated.
  *
- * @category    Framework
- * @package     Opus\Document\Plugin
  * @uses        AbstractPlugin
  *
  * TODO The operation isn't atomic. What happens if number already exists?
  *      Probably nothing the same number will be stored twice.
  * TODO use function to get logger
  * TODO use function to get config object
+ *
+ * phpcs:disable
  */
 class SequenceNumber extends AbstractPlugin
 {
-
     /**
      * @see PluginInterface::postStore
      */
@@ -77,7 +83,7 @@ class SequenceNumber extends AbstractPlugin
         $log = Log::get();
         $log->debug('Opus\Document\Plugin\SequenceNumber::postStore() with id ' . $model->getId());
 
-        if (! ($model instanceof Document)) {
+        if (! $model instanceof Document) {
             $message = 'Model is not an Opus\Document. Aborting...';
             $log->err($message);
             throw new DocumentException($message);
@@ -126,14 +132,14 @@ class SequenceNumber extends AbstractPlugin
      */
     protected function fetchNextSequenceNumber($sequence_type)
     {
-        $id_table = TableGateway::getInstance('Opus\Db\DocumentIdentifiers');
-        $select = $id_table->select()->from($id_table, '')
-                ->columns(new \Zend_Db_Expr('MAX(CAST(value AS SIGNED))'))
+        $id_table         = TableGateway::getInstance(DocumentIdentifiers::class);
+        $select           = $id_table->select()->from($id_table, '')
+                ->columns(new Zend_Db_Expr('MAX(CAST(value AS SIGNED))'))
                 ->where("type = ?", $sequence_type)
                 ->where("value REGEXP '^[[:digit:]]+$'");
         $last_sequence_id = (int) $id_table->getAdapter()->fetchOne($select);
 
-        if (is_null($last_sequence_id) or $last_sequence_id <= 0) {
+        if ($last_sequence_id === null || $last_sequence_id <= 0) {
             return 1;
         }
 

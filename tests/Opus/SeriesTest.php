@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -38,23 +40,39 @@ namespace OpusTest;
 use Opus\Config;
 use Opus\Document;
 use Opus\Model\ModelException;
+use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
 use Opus\Series;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function array_pop;
+use function array_push;
+use function count;
+use function sleep;
 
 class SeriesTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'document_series',
+            'link_documents_series',
+        ]);
+    }
 
     /**
      * Test if a document series can be retrieved by getAll().
-     *
      */
     public function testCreateRetrieveAndDeleteSeries()
     {
         $this->assertEquals(0, count(Series::getAll()), 'Wrong number of objects retrieved.');
 
         $numberOfSetsToCreate = 3;
-        $ids = [];
+        $ids                  = [];
         for ($i = 0; $i < $numberOfSetsToCreate; $i++) {
             $set = new Series();
             $set->setTitle('New document set ' . $i);
@@ -112,13 +130,13 @@ class SeriesTest extends TestCase
         $s->setTitle('foo');
         $s->store();
 
-        $d = new Document($d->getId());
+        $d  = new Document($d->getId());
         $ls = $d->addSeries($s);
 
         $this->assertTrue($s->isValid(), 'series should be valid');
         $this->assertFalse($ls->isValid());
 
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $d->store();
     }
 
@@ -149,16 +167,12 @@ class SeriesTest extends TestCase
         $series->delete();
     }
 
-    /*
-     *
-     * "CRUD-completness tests on Opus\Series"
-     *
-     */
+    // "CRUD-completness tests on Opus\Series"
 
     public function testCreateSeriesWithoutTitle()
     {
         $s = new Series();
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $s->store();
     }
 
@@ -193,20 +207,16 @@ class SeriesTest extends TestCase
         $s->store();
 
         $id = $s->getId();
-        $s = new Series($s->getId());
+        $s  = new Series($s->getId());
         $this->assertTrue($s->getTitle() === 'foo');
 
         $s->delete();
 
-        $this->setExpectedException('Opus\Model\NotFoundException');
+        $this->setExpectedException(NotFoundException::class);
         $s = new Series($id);
     }
 
-    /**
-     *
-     * tests in conjunction with class Opus\Model\Dependent\Link\DocumentSeries
-     *
-     */
+    // Tests in conjunction with class Opus\Model\Dependent\Link\DocumentSeries
 
     public function testAssignDocumentToSeriesTwice()
     {
@@ -218,7 +228,7 @@ class SeriesTest extends TestCase
         $d->addSeries($s)->setNumber('1');
         $d->addSeries($s)->setNumber('2');
 
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $d->store();
     }
 
@@ -237,7 +247,7 @@ class SeriesTest extends TestCase
         $d->addSeries($t)->setNumber('2');
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 2);
 
@@ -300,14 +310,14 @@ class SeriesTest extends TestCase
         $d->addSeries($t)->setNumber('2');
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 2);
         array_pop($series);
         $d->setSeries($series);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 1);
         $this->assertEquals('foo', $series[0]->getTitle());
@@ -351,8 +361,8 @@ class SeriesTest extends TestCase
 
     public function testGetAllSortedByTitle()
     {
-        Config::get()->merge(new \Zend_Config([
-            'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE]
+        Config::get()->merge(new Zend_Config([
+            'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE],
         ]));
 
         $series = new Series();
@@ -382,17 +392,17 @@ class SeriesTest extends TestCase
         $s->store();
 
         $s = new Series($s->getId());
-        $this->assertTrue($s->getVisible() == '1');
+        $this->assertTrue($s->getVisible() === '1');
 
         $s = new Series($s->getId());
         $s->setVisible('0');
         $s->store();
-        $this->assertTrue($s->getVisible() == '0');
+        $this->assertTrue($s->getVisible() === '0');
 
         $s = new Series($s->getId());
         $s->setVisible('1');
         $s->store();
-        $this->assertTrue($s->getVisible() == '1');
+        $this->assertTrue($s->getVisible() === '1');
 
         $s->delete();
     }
@@ -404,13 +414,13 @@ class SeriesTest extends TestCase
         $s->store();
 
         $s = new Series($s->getId());
-        $this->assertTrue($s->getSortOrder() == '0');
+        $this->assertTrue($s->getSortOrder() === '0');
 
         $s->setSortOrder('10');
         $s->store();
 
         $s = new Series($s->getId());
-        $this->assertTrue($s->getSortOrder() == '10');
+        $this->assertTrue($s->getSortOrder() === '10');
 
         $s->delete();
     }
@@ -436,8 +446,8 @@ class SeriesTest extends TestCase
 
     public function testGetAllSortedBySortKeyOverriddenToSortByTitle()
     {
-        Config::get()->merge(new \Zend_Config([
-            'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE]
+        Config::get()->merge(new Zend_Config([
+            'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE],
         ]));
 
         $testValues = [3, 1, 2, 5, 4, 0];
@@ -469,12 +479,12 @@ class SeriesTest extends TestCase
             $s->store();
         }
 
-        $this->assertTrue(Series::getMaxSortKey() == 10);
+        $this->assertEquals(10, Series::getMaxSortKey());
     }
 
     public function testGetMaxSortKeyInEmptyTable()
     {
-        $this->assertTrue(Series::getMaxSortKey() == 0);
+        $this->assertTrue(Series::getMaxSortKey() === 0);
     }
 
     /**
@@ -500,7 +510,7 @@ class SeriesTest extends TestCase
         $d->store();
 
         $d = new Document($d->getId());
-        $this->assertTrue(count($d->getSeries()) == 2);
+        $this->assertTrue(count($d->getSeries()) === 2);
     }
 
     /**
@@ -541,7 +551,7 @@ class SeriesTest extends TestCase
         $d->addSeries($s)->setNumber('1');
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertEquals(1, count($series));
         $this->assertEquals('1', $series[0]->getNumber());
@@ -551,7 +561,7 @@ class SeriesTest extends TestCase
         $d->addSeries($s)->setNumber('2')->setDocSortOrder(1);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertEquals(1, count($series));
         $this->assertEquals('2', $series[0]->getNumber());
@@ -572,7 +582,7 @@ class SeriesTest extends TestCase
         $d2->addSeries($s)->setNumber('II')->setDocSortOrder('2');
         $d2->store();
 
-        $s = new Series($s->getId());
+        $s   = new Series($s->getId());
         $ids = $s->getDocumentIds();
         $this->assertEquals(2, count($ids));
         $this->assertEquals($d1->getId(), $ids[0]);
@@ -603,7 +613,7 @@ class SeriesTest extends TestCase
         $d2->addSeries($s)->setNumber('II')->setDocSortOrder(2);
         $d2->store();
 
-        $s = new Series($s->getId());
+        $s   = new Series($s->getId());
         $ids = $s->getDocumentIdsSortedBySortKey();
         $this->assertEquals(2, count($ids));
         $this->assertEquals($d1->getId(), $ids[1]);
@@ -795,24 +805,24 @@ class SeriesTest extends TestCase
         $data = $series->toArray();
 
         $this->assertEquals([
-            'Title' => 'Schriftenreihe',
-            'Infobox' => 'Beschreibung',
-            'Visible' => 1,
-            'SortOrder' => 2
+            'Title'     => 'Schriftenreihe',
+            'Infobox'   => 'Beschreibung',
+            'Visible'   => 1,
+            'SortOrder' => 2,
         ], $data);
     }
 
     public function testFromArray()
     {
         $series = Series::fromArray([
-            'Title' => 'Schriftenreihe',
-            'Infobox' => 'Beschreibung',
-            'Visible' => 1,
-            'SortOrder' => 2
+            'Title'     => 'Schriftenreihe',
+            'Infobox'   => 'Beschreibung',
+            'Visible'   => 1,
+            'SortOrder' => 2,
         ]);
 
         $this->assertNotNull($series);
-        $this->assertInstanceOf('Opus\Series', $series);
+        $this->assertInstanceOf(Series::class, $series);
 
         $this->assertEquals('Schriftenreihe', $series->getTitle());
         $this->assertEquals('Beschreibung', $series->getInfobox());
@@ -825,14 +835,14 @@ class SeriesTest extends TestCase
         $series = new Series();
 
         $series->updateFromArray([
-            'Title' => 'Schriftenreihe',
-            'Infobox' => 'Beschreibung',
-            'Visible' => 1,
-            'SortOrder' => 2
+            'Title'     => 'Schriftenreihe',
+            'Infobox'   => 'Beschreibung',
+            'Visible'   => 1,
+            'SortOrder' => 2,
         ]);
 
         $this->assertNotNull($series);
-        $this->assertInstanceOf('Opus\Series', $series);
+        $this->assertInstanceOf(Series::class, $series);
 
         $this->assertEquals('Schriftenreihe', $series->getTitle());
         $this->assertEquals('Beschreibung', $series->getInfobox());

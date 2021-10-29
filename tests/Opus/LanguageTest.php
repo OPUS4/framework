@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,12 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -42,8 +44,24 @@ use Opus\Licence;
 use Opus\Model\DbException;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+
 class LanguageTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'languages',
+            'documents',
+            'document_subjects',
+            'document_files',
+            'document_title_abstracts',
+            'document_licences',
+            'link_documents_licences',
+        ]);
+    }
 
     public function testStoreLanguage()
     {
@@ -259,13 +277,13 @@ class LanguageTest extends TestCase
 
         $this->assertEquals([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ], $data);
     }
 
@@ -273,17 +291,17 @@ class LanguageTest extends TestCase
     {
         $lang = Language::fromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $this->assertNotNull($lang);
-        $this->assertInstanceOf('Opus\Language', $lang);
+        $this->assertInstanceOf(Language::class, $lang);
         $this->assertEquals('Deutsche Sprache', $lang->getComment());
         $this->assertEquals('ger', $lang->getPart2B());
         $this->assertEquals('deu', $lang->getPart2T());
@@ -300,17 +318,17 @@ class LanguageTest extends TestCase
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $this->assertNotNull($lang);
-        $this->assertInstanceOf('Opus\Language', $lang);
+        $this->assertInstanceOf(Language::class, $lang);
         $this->assertEquals('Deutsche Sprache', $lang->getComment());
         $this->assertEquals('ger', $lang->getPart2B());
         $this->assertEquals('deu', $lang->getPart2T());
@@ -327,13 +345,13 @@ class LanguageTest extends TestCase
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $lang->store();
@@ -348,13 +366,13 @@ class LanguageTest extends TestCase
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $lang->store();
@@ -433,7 +451,7 @@ class LanguageTest extends TestCase
         $this->assertEmpty($languages);
 
         $document = new Document();
-        $subject = $document->addSubject();
+        $subject  = $document->addSubject();
         $subject->setLanguage('rus');
         $subject->setValue('Keyword');
         $subject->setType('SWD');
@@ -498,13 +516,13 @@ class LanguageTest extends TestCase
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $lang->store();

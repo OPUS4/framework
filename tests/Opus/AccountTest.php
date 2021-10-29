@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,6 +35,7 @@
 namespace OpusTest;
 
 use Opus\Account;
+use Opus\Security\SecurityException;
 use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
 
@@ -42,10 +44,11 @@ use OpusTest\TestAsset\TestCase;
  */
 class AccountTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(true, ['accounts', 'user_roles']);
 
         $account = new Account();
         $account->setLogin('dummy');
@@ -81,7 +84,7 @@ class AccountTest extends TestCase
         $account = new Account();
         $account->setLogin('dummy3');
 
-        $this->setExpectedException('Opus\Security\SecurityException');
+        $this->setExpectedException(SecurityException::class);
         $account->store();
     }
 
@@ -91,11 +94,11 @@ class AccountTest extends TestCase
     public function testDeleteAccount()
     {
         $account = new Account(null, null, 'dummy');
-        $account_id = $account->store();
+        $account->store();
         $account->delete();
 
-        $this->setExpectedException('Opus\Security\SecurityException');
-        $account = new Account(null, null, 'dummy');
+        $this->setExpectedException(SecurityException::class);
+        new Account(null, null, 'dummy');
     }
 
     /**

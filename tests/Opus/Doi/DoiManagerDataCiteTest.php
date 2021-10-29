@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,28 +25,28 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Doi;
 
 use Opus\Config;
+use Opus\Doi\Generator\DefaultGenerator;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
 
 /**
- * Class Opus\Doi\DoiManagerDataCiteTest
- *
  * The tests in this class require access to the DataCite testing environment using a username and a passwort. This
  * needs to be setup in the 'config.ini' or 'tests.ini'.
  */
 class DoiManagerDataCiteTest extends TestCase
 {
-
     /**
      * TODO determine 'skipping' based on configuration (environment)
      */
@@ -53,39 +54,38 @@ class DoiManagerDataCiteTest extends TestCase
     {
         parent::setUp();
         $this->markTestSkipped(
-            'kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich' .
-            ' (Username und Password werden in config.ini gesetzt)'
+            'kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich'
+            . ' (Username und Password werden in config.ini gesetzt)'
         );
     }
-
 
     public function testRegisterAndVerifyDocSuccessfully()
     {
         // add url to config to allow creation of frontdoor URLs
-        Config::get()->merge(new \Zend_Config([
-            'url' => 'http://localhost/opus4/'
+        Config::get()->merge(new Zend_Config([
+            'url' => 'http://localhost/opus4/',
         ]));
 
         $this->adaptDoiConfiguration([
-            'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4',
+            'prefix'       => '10.5072/',
+            'localPrefix'  => 'OPUS4',
             'registration' => [
                 'datacite' => [
-                    'serviceUrl' => 'https://mds.test.datacite.org'
-                ]
-            ]
+                    'serviceUrl' => 'https://mds.test.datacite.org',
+                ],
+            ],
         ]);
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
 
         $this->addRequiredPropsToDoc(new Document($docId));
 
         $doiManager = new Opus\Doi\DoiManager();
-        $doi = $doiManager->register(new Document($docId), true);
+        $doi        = $doiManager->register(new Document($docId), true);
         $this->assertNotNull($doi);
 
-        $doc = new Document($docId);
+        $doc  = new Document($docId);
         $dois = $doc->getIdentifier();
-        $doi = $dois[0];
+        $doi  = $dois[0];
         $this->assertEquals('doi', $doi->getType());
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doi->getValue());
         $this->assertEquals('registered', $doi->getStatus());
@@ -102,32 +102,32 @@ class DoiManagerDataCiteTest extends TestCase
     {
         // add url to config to allow creation of frontdoor URLs
         Config::get()->merge(
-            new \Zend_Config(['url' => 'http://localhost/opus4/'])
+            new Zend_Config(['url' => 'http://localhost/opus4/'])
         );
 
         $this->adaptDoiConfiguration([
-            'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4',
+            'prefix'       => '10.5072/',
+            'localPrefix'  => 'OPUS4',
             'registration' => [
                 'datacite' => [
-                    'serviceUrl' => 'https://mds.test.datacite.org'
-                ]
-            ]
+                    'serviceUrl' => 'https://mds.test.datacite.org',
+                ],
+            ],
         ]);
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
 
         $this->addRequiredPropsToDoc(new Document($docId));
 
         $doiManager = new Opus\Doi\DoiManager();
-        $doi = $doiManager->register(new Document($docId), true);
+        $doi        = $doiManager->register(new Document($docId), true);
         $this->assertNotNull($doi);
 
         $doi = $doiManager->verify($docId);
         $this->assertNotNull($doi);
 
-        $doc = new Document($docId);
+        $doc  = new Document($docId);
         $dois = $doc->getIdentifier();
-        $doi = $dois[0];
+        $doi  = $dois[0];
         $this->assertEquals('doi', $doi->getType());
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doi->getValue());
         $this->assertEquals('verified', $doi->getStatus());
@@ -138,30 +138,30 @@ class DoiManagerDataCiteTest extends TestCase
     {
         // add url to config to allow creation of frontdoor URLs
         Config::get()->merge(
-            new \Zend_Config(['url' => 'http://localhost/opus4/'])
+            new Zend_Config(['url' => 'http://localhost/opus4/'])
         );
 
         $this->adaptDoiConfiguration([
-            'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4',
+            'prefix'       => '10.5072/',
+            'localPrefix'  => 'OPUS4',
             'registration' => [
                 'datacite' => [
-                    'serviceUrl' => 'https://mds.test.datacite.org'
-                ]
-            ]
+                    'serviceUrl' => 'https://mds.test.datacite.org',
+                ],
+            ],
         ]);
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'verified');
 
         $this->addRequiredPropsToDoc(new Document($docId));
 
         $doiManager = new Opus\Doi\DoiManager();
-        $doi = $doiManager->verify($docId);
+        $doi        = $doiManager->verify($docId);
 
         $this->assertNotNull($doi);
 
-        $doc = new Document($docId);
+        $doc  = new Document($docId);
         $dois = $doc->getIdentifier();
-        $doi = $dois[0];
+        $doi  = $dois[0];
         $this->assertEquals('doi', $doi->getType());
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doi->getValue());
         $this->assertEquals('verified', $doi->getStatus());
@@ -172,25 +172,25 @@ class DoiManagerDataCiteTest extends TestCase
         $config = Config::get();
 
         $config->merge(
-            new \Zend_Config(['url' => 'http://localhost/opus4'])
+            new Zend_Config(['url' => 'http://localhost/opus4'])
         );
 
         $this->adaptDoiConfiguration([
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4',
-            'registration' => [
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '10.5072/',
+            'localPrefix'    => 'OPUS4',
+            'registration'   => [
                 'datacite' => [
-                    'serviceUrl' => 'https://mds.test.datacite.org'
-                ]
-            ]
+                    'serviceUrl' => 'https://mds.test.datacite.org',
+                ],
+            ],
         ]);
 
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
         $this->addRequiredPropsToDoc(new Document($docId));
 
         $doiManager = new Opus\Doi\DoiManager();
-        $doi = $doiManager->register($docId, true);
+        $doi        = $doiManager->register($docId, true);
         $this->assertEquals('registered', $doi->getStatus());
 
         $doi = $doiManager->verify($docId);
@@ -205,22 +205,22 @@ class DoiManagerDataCiteTest extends TestCase
         $this->assertEquals('registered', $doi->getStatus());
 
         $config->merge(
-            new \Zend_Config(['url' => 'http://localhost/opus5'])
+            new Zend_Config(['url' => 'http://localhost/opus5'])
         );
 
         $this->adaptDoiConfiguration([
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4',
-            'registration' => [
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '10.5072/',
+            'localPrefix'    => 'OPUS4',
+            'registration'   => [
                 'datacite' => [
-                    'serviceUrl' => 'https://mds.test.datacite.org'
-                ]
-            ]
+                    'serviceUrl' => 'https://mds.test.datacite.org',
+                ],
+            ],
         ]);
 
         $doiManager = new Opus\Doi\DoiManager();
-        $doi = $doiManager->verify($docId);
+        $doi        = $doiManager->verify($docId);
         $this->assertEquals('verified', $doi->getStatus());
     }
 }

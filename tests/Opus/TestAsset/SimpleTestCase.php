@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ *
+ * @category    Tests
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ */
 
 namespace OpusTest\TestAsset;
 
 use Opus\Config;
+use PHPUnit_Framework_TestCase;
+use Zend_Config;
+
+use function call_user_func;
+use function is_callable;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
@@ -41,10 +48,9 @@ use Opus\Config;
  *
  * TODO needs refactoring
  */
-abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
+abstract class SimpleTestCase extends PHPUnit_Framework_TestCase
 {
-
-    private $config_backup;
+    private $configBackup;
 
     // TODO get rid of this two constants - filter_var() can handle it
     const CONFIG_VALUE_FALSE = ''; //\Zend_Config übersetzt false in den Wert ''
@@ -56,19 +62,18 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
      *
      * @note A test doesn't need to backup and recover replaced configuration as
      *       this is done in setup and tear-down phases.
-     *
-     * @param array $overlay properties to overwrite existing values in configuration
-     * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
-     * @return \Zend_Config reference on previously set configuration
+     * @param array         $overlay properties to overwrite existing values in configuration
+     * @param null|callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
+     * @return Zend_Config reference on previously set configuration
      */
     protected function adjustConfiguration($overlay, $callback = null)
     {
         $previous = Config::get();
-        $updated  = new \Zend_Config([], true);
+        $updated  = new Zend_Config([], true);
 
         $updated
             ->merge($previous)
-            ->merge(new \Zend_Config($overlay));
+            ->merge(new Zend_Config($overlay));
 
         if (is_callable($callback)) {
             $updated = call_user_func($callback, $updated);
@@ -85,7 +90,6 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
      * Drops configuration options available in deprecated format supported as
      * part of downward compatibility but breaking some tests regarding new
      * setup due to using that deprecated configuration in preference.
-     *
      */
     protected function dropDeprecatedConfiguration()
     {
@@ -108,7 +112,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
         $config = Config::get();
 
         if ($config !== null) {
-            $this->config_backup = clone $config;
+            $this->configBackup = clone $config;
         } else {
             $this->fail('no config');
         }
@@ -116,7 +120,7 @@ abstract class SimpleTestCase extends \PHPUnit_Framework_TestCase
 
     protected function tearDown()
     {
-        Config::set($this->config_backup);
+        Config::set($this->configBackup);
 
         parent::tearDown();
     }

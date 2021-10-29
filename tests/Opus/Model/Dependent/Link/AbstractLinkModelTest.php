@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,44 +25,49 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Dependent\Link;
 
 use Opus\Model\Field;
+use Opus_Model_Dependent_Link_Mock;
+use Opus_Model_Dependent_Link_MockTableGateway;
 use OpusTest\TestAsset\TestCase;
+
+use function class_exists;
+use function count;
+use function get_class;
+use function in_array;
 
 /**
  * Test cases for Opus\Model\Dependent\Link\AbstractLinkModel
  *
  * @category    Tests
  * @package     Opus\Model
- *
  * @group       DependentLinkAbstractTest
  */
 class AbstractLinkModelTest extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
 
     /**
      * Test querying the display name of a linked  model.
-     *
-     * @return void
      */
     public function testGetDisplayNameThroughLink()
     {
@@ -76,8 +82,6 @@ class AbstractLinkModelTest extends TestCase
 
     /**
      * Test if the model class name can be retrieved.
-     *
-     * @return void
      */
     public function testGetModelClass()
     {
@@ -91,15 +95,13 @@ class AbstractLinkModelTest extends TestCase
     /**
      * Test if a call to describe() on a Link Model not only tunnels the call to its
      * dependent but also delivers those fields owned by the link model itself.
-     *
-     * @return void
      */
     public function testDescribeShowsAdditionalFieldsOfLinkModel()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
 
         $link = new AbstractLinkModelMock();
-        $link->setModelClass('OpusTest\Model\Dependent\Link\AbstractModelMock');
+        $link->setModelClass(AbstractModelMock::class);
         $link->setModel($model);
         $link->addField(new Field('LinkField'));
 
@@ -109,16 +111,14 @@ class AbstractLinkModelTest extends TestCase
 
     /**
      * Test if a call to describe() also returns that fields of the linked Model.
-     *
-     * @return void
      */
     public function testDescribeCallReturnsFieldsOfLinkedModel()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->addField(new Field('AField'));
 
         $link = new AbstractLinkModelMock();
-        $link->setModelClass('OpusTest\Model\Dependent\Link\AbstractModelMock');
+        $link->setModelClass(AbstractModelMock::class);
         $link->setModel($model);
         $link->addField(new Field('LinkField'));
 
@@ -128,16 +128,14 @@ class AbstractLinkModelTest extends TestCase
 
     /**
      * Test if a call to describeAll() also returns that fields of the linked Model.
-     *
-     * @return void
      */
     public function testDescribeAllCallReturnsFieldsOfLinkedModel()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->addField(new Field('AField'));
 
         $link = new AbstractLinkModelMock();
-        $link->setModelClass('OpusTest\Model\Dependent\Link\AbstractModelMock');
+        $link->setModelClass(AbstractModelMock::class);
         $link->setModel($model);
         $link->addField(new Field('LinkField'));
 
@@ -145,12 +143,9 @@ class AbstractLinkModelTest extends TestCase
         $this->assertTrue(in_array('AField', $result), 'Linked models field missing.');
     }
 
-
     /**
      * Test if a Link Model not only tunnels its set/get calls but also
      * applies them to its very own fields.
-     *
-     * @return void
      */
     public function testLinkModelFieldsCanBeAccessedViaGetAndSet()
     {
@@ -162,8 +157,6 @@ class AbstractLinkModelTest extends TestCase
 
     /**
      * Test if the fields of an actual linked model can be accessed.
-     *
-     * @return void
      */
     public function testLinkedModelsFieldsCanBeAccessedViaGetAndSet()
     {
@@ -171,7 +164,7 @@ class AbstractLinkModelTest extends TestCase
         $model->addField(new Field('AField'));
 
         $link = new AbstractLinkModelMock();
-        $link->setModelClass('OpusTest\Model\Dependent\Link\AbstractModelMock');
+        $link->setModelClass(AbstractModelMock::class);
         $link->setModel($model);
 
         $link->setAField('FooBar');
@@ -181,12 +174,10 @@ class AbstractLinkModelTest extends TestCase
 
     /**
      * Test if the Link Model tunnels add() calls.
-     *
-     * @return void
      */
     public function testLinkedModelsFieldsCanBeAccessedViaAdd()
     {
-        $model = $this->getMock('OpusTest\Model\Dependent\Link\AbstractModelMock', ['__call']);
+        $model = $this->getMock(AbstractModelMock::class, ['__call']);
         $model->addField(new Field('Multi'));
 
         $link = new AbstractLinkModelMock();
@@ -202,15 +193,13 @@ class AbstractLinkModelTest extends TestCase
 
     /**
      * Test if describeUntunneled returns only link fields instead of all linked fields.
-     *
-     * @return void
      */
     public function testDescribeUntunneledReturnsOnlyLinkFields()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
 
         $link = new AbstractLinkModelMock();
-        $link->setModelClass('OpusTest\Model\Dependent\Link\AbstractModelMock');
+        $link->setModelClass(AbstractModelMock::class);
         $link->setModel($model);
         $link->addField(new Field('LinkField'));
 
@@ -223,21 +212,19 @@ class AbstractLinkModelTest extends TestCase
     /**
      * Test if the identifier of a newly created link model is null
      * if it has not been persisted yet.
-     *
-     * @return void
      */
     public function testPrimaryKeyOfTransientLinkModelIsNull()
     {
         if (false === class_exists('Opus_Model_Dependent_Link_Mock', false)) {
             eval('
                 class Opus_Model_Dependent_Link_Mock extends \Opus\Model\Dependent\Link\AbstractLinkModel {
-                    protected function _init() { }
+                    protected function init() { }
                 }
             ');
         }
         if (false === class_exists('Opus_Model_Dependent_Link_MockTableRow', false)) {
             eval('
-                class Opus_Model_Dependent_Link_MockTableRow extends\Zend_Db_Table_Row {
+                class Opus_Model_Dependent_Link_MockTableRow extends \Zend_Db_Table_Row {
                     public $id1 = 1000;
                     public $id2 = 2000;
                 }
@@ -246,7 +233,7 @@ class AbstractLinkModelTest extends TestCase
 
         if (false === class_exists('Opus_Model_Dependent_Link_MockTableGateway', false)) {
             eval('
-                class Opus_Model_Dependent_Link_MockTableGateway extends\Zend_Db_Table {
+                class Opus_Model_Dependent_Link_MockTableGateway extends \Zend_Db_Table {
                     protected function _setup() {}
                     protected function _init() {}
                     public function createRow(array $data = array(), $defaultSource = null) {
@@ -260,8 +247,8 @@ class AbstractLinkModelTest extends TestCase
             ');
         }
 
-        $mockTableGateway = new \Opus_Model_Dependent_Link_MockTableGateway;
-        $link = new \Opus_Model_Dependent_Link_Mock(null, $mockTableGateway);
+        $mockTableGateway = new Opus_Model_Dependent_Link_MockTableGateway();
+        $link             = new Opus_Model_Dependent_Link_Mock(null, $mockTableGateway);
 
         $this->assertTrue($link->isNewRecord(), 'Link Model should be based on a new record after creation.');
         $this->assertNull($link->getId(), 'Id of Link Model should be null if the Link Model is new,
@@ -269,10 +256,8 @@ class AbstractLinkModelTest extends TestCase
     }
 
     /**
-    * Test if setting a model changes the modifification status of the link model.
-    *
-    * @return void
-    */
+     * Test if setting a model changes the modifification status of the link model.
+     */
     public function testSettingAModelMarksLinkModelToBeModified()
     {
         $model = new AbstractModelMock();
@@ -287,13 +272,11 @@ class AbstractLinkModelTest extends TestCase
     /**
      * Test if toArray() on a Opus\Model\Dependent\Link\AbstractLinkModel instance
      * returns all fields of the linked Model and fields of the LinkModel as well.
-     *
-     * @return void
      */
     public function testToArrayShowsLinkModelFields()
     {
-        $model = new AbstractModelMock;
-        $link = new AbstractLinkModelMock;
+        $model = new AbstractModelMock();
+        $link  = new AbstractLinkModelMock();
         $link->setModelClass(get_class($model));
         $link->setModel($model);
 
@@ -314,7 +297,7 @@ class AbstractLinkModelTest extends TestCase
     public function testIsValidChecksLinkedModel()
     {
         $model = new AbstractModelMock();
-        $link = new AbstractLinkModelMock();
+        $link  = new AbstractLinkModelMock();
         $link->setModelClass(get_class($model));
         $link->setModel($model);
 

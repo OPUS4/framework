@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,13 +26,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -40,25 +42,28 @@ use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 
+use function count;
+
 /**
  * Domain model for licences in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
+ * @category    Framework
+ * @package     Opus
  * @method string getName()
  * @method void setName($name)
+ *
+ * phpcs:disable
  */
 class UserRole extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\UserRoles';
+    protected static $tableGatewayClass = Db\UserRoles::class;
 
     /**
      * List of pending accessResource actions.
@@ -74,16 +79,14 @@ class UserRole extends AbstractDb
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus\UserRole', 'Opus\Db\UserRoles');
+        return self::getAllFrom(self::class, Db\UserRoles::class);
     }
 
     /**
      * Initialize model with the following fields:
      * - Name
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $name = new Field('Name');
         $name->setMandatory(true);
@@ -94,7 +97,7 @@ class UserRole extends AbstractDb
      * ALTERNATE CONSTRUCTOR: Retrieve Opus\UserRole instance by name.  Returns
      * null if name is null *or* nothing found.
      *
-     * @param  string $name
+     * @param  null|string $name
      * @return UserRole
      */
     public static function fetchByName($name = null)
@@ -103,9 +106,9 @@ class UserRole extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
         if (isset($row)) {
             return new UserRole($row);
@@ -135,7 +138,7 @@ class UserRole extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance("Opus\Db\LinkAccountsRoles");
+        $table  = TableGateway::getInstance(Db\LinkAccountsRoles::class);
         $select = $table->select(true)->columns('account_id AS id')
                         ->where('role_id = ?', $this->getId())
                         ->distinct();
@@ -154,9 +157,9 @@ class UserRole extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance("Opus\Db\LinkAccountsRoles");
+        $table   = TableGateway::getInstance(Db\LinkAccountsRoles::class);
         $adapter = $table->getAdapter();
-        $select = $adapter->select()
+        $select  = $adapter->select()
                         ->from('link_accounts_roles AS lr', '')
                         ->join('accounts AS a', "a.id = lr.account_id", 'a.login')
                         ->where('lr.role_id = ?', $this->getId())
@@ -172,9 +175,9 @@ class UserRole extends AbstractDb
      */
     public function listAccessDocuments()
     {
-        $table = TableGateway::getInstance("Opus\Db\AccessDocuments");
+        $table   = TableGateway::getInstance(Db\AccessDocuments::class);
         $adapter = $table->getAdapter();
-        $select = $adapter->select()
+        $select  = $adapter->select()
                         ->from('access_documents', ['document_id'])
                         ->where('role_id = ?', $this->getId());
 
@@ -185,12 +188,14 @@ class UserRole extends AbstractDb
      * Append (document_id) to list of allowed ressources.
      *
      * @param string $documentId
-     * @return UserRole Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function appendAccessDocument($documentId)
     {
         $this->_pendingAccessResources[] = [
-            'append', 'document_id', $documentId,
+            'append',
+            'document_id',
+            $documentId,
         ];
         return $this;
     }
@@ -199,12 +204,14 @@ class UserRole extends AbstractDb
      * Remove (document_id) from list of allowed ressources.
      *
      * @param string $documentId
-     * @return UserRole Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function removeAccessDocument($documentId)
     {
         $this->_pendingAccessResources[] = [
-            'remove', 'document_id', $documentId,
+            'remove',
+            'document_id',
+            $documentId,
         ];
         return $this;
     }
@@ -216,9 +223,9 @@ class UserRole extends AbstractDb
      */
     public function listAccessFiles()
     {
-        $table = TableGateway::getInstance("Opus\Db\AccessFiles");
+        $table   = TableGateway::getInstance(Db\AccessFiles::class);
         $adapter = $table->getAdapter();
-        $select = $adapter->select()
+        $select  = $adapter->select()
                         ->from('access_files', ['file_id'])
                         ->where('role_id = ?', $this->getId());
 
@@ -229,12 +236,14 @@ class UserRole extends AbstractDb
      * Append (file_id) to list of allowed ressources.
      *
      * @param string $fileId
-     * @return UserRole Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function appendAccessFile($fileId)
     {
         $this->_pendingAccessResources[] = [
-            'append', 'file_id', $fileId,
+            'append',
+            'file_id',
+            $fileId,
         ];
         return $this;
     }
@@ -243,12 +252,14 @@ class UserRole extends AbstractDb
      * Remove (file_id) from list of allowed ressources.
      *
      * @param string $fileId
-     * @return UserRole Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function removeAccessFile($fileId)
     {
         $this->_pendingAccessResources[] = [
-            'remove', 'file_id', $fileId,
+            'remove',
+            'file_id',
+            $fileId,
         ];
         return $this;
     }
@@ -261,7 +272,7 @@ class UserRole extends AbstractDb
      */
     public function listAccessModules()
     {
-        $table = TableGateway::getInstance("Opus\Db\AccessModules");
+        $table = TableGateway::getInstance(Db\AccessModules::class);
         return $table->listByRoleId($this->getId());
     }
 
@@ -269,12 +280,14 @@ class UserRole extends AbstractDb
      * Append (module) to list of allowed ressources.
      *
      * @param string $moduleName
-     * @return UserRole Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function appendAccessModule($moduleName)
     {
         $this->_pendingAccessResources[] = [
-            'append', 'module_name', $moduleName,
+            'append',
+            'module_name',
+            $moduleName,
         ];
         return $this;
     }
@@ -283,12 +296,14 @@ class UserRole extends AbstractDb
      * Remove (module) from list of allowed ressources.
      *
      * @param string $moduleName
-     * @return UserRole Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function removeAccessModule($moduleName)
     {
         $this->_pendingAccessResources[] = [
-            'remove', 'module_name', $moduleName,
+            'remove',
+            'module_name',
+            $moduleName,
         ];
         return $this;
     }
@@ -299,26 +314,26 @@ class UserRole extends AbstractDb
     private function _flushAccessResourceQueue()
     {
         $resourceTables = [
-            'document_id' => TableGateway::getInstance("Opus\Db\AccessDocuments"),
-            'file_id'     => TableGateway::getInstance("Opus\Db\AccessFiles"),
-            'module_name' => TableGateway::getInstance("Opus\Db\AccessModules"),
+            'document_id' => TableGateway::getInstance(Db\AccessDocuments::class),
+            'file_id'     => TableGateway::getInstance(Db\AccessFiles::class),
+            'module_name' => TableGateway::getInstance(Db\AccessModules::class),
         ];
-        $roleId = $this->getId();
+        $roleId         = $this->getId();
 
         foreach ($this->_pendingAccessResources as $entry) {
-            $action        = $entry[0];
+            $action       = $entry[0];
             $resourceName = $entry[1];
             $resourceId   = $entry[2];
 
             $table = $resourceTables[$resourceName];
-            $data = [
-                'role_id' => $roleId,
+            $data  = [
+                'role_id'     => $roleId,
                 $resourceName => $resourceId,
             ];
 
-            if ($action == 'append') {
+            if ($action === 'append') {
                 $table->insertIgnoreDuplicate($data);
-            } elseif ($action == 'remove') {
+            } elseif ($action === 'remove') {
                 $table->deleteWhereArray($data);
             }
         }
@@ -340,7 +355,7 @@ class UserRole extends AbstractDb
      * Overriding isModified() method.  Returning TRUE if the pending queues
      * have been changed, otherwise call parent::isModified().
      *
-     * @return boolean
+     * @return bool
      */
     public function isModified()
     {

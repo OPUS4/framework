@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\CollectionRole
  * @author      Edouard Simon (edouard.simon@zib.de)
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\CollectionRole\Plugin;
 
@@ -40,11 +42,16 @@ use Opus\Document;
 use Opus\Model\Xml\Cache;
 use OpusTest\TestAsset\TestCase;
 
-/**
- *
- */
+use function sleep;
+
 class DeleteTreeTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['collections_roles', 'collections']);
+    }
 
     public function testPreDelete()
     {
@@ -55,10 +62,9 @@ class DeleteTreeTest extends TestCase
         $collectionRole->setVisibleBrowsingStart(1);
         $collectionRole->store();
 
-        $root = $collectionRole->addRootCollection();
+        $root       = $collectionRole->addRootCollection();
         $collection = $root->addLastChild();
         $collectionRole->store();
-
 
         $d = new Document();
         $d->setServerState('published');
@@ -78,7 +84,7 @@ class DeleteTreeTest extends TestCase
 
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
-        $d = new Document($docId);
+        $d                       = new Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue(
             $serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(),
@@ -96,7 +102,7 @@ class DeleteTreeTest extends TestCase
         $collectionRole->setOaiName('ColRole1OaiName');
         $colRole1Id = $collectionRole->store(); // ID = 1
 
-        $root = $collectionRole->addRootCollection();
+        $root       = $collectionRole->addRootCollection();
         $collection = $root->addLastChild();
         $collectionRole->store();
 

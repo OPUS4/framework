@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,46 +25,46 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
 use Opus\Document;
 use Opus\EnrichmentKey;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
+
+use function count;
 
 /**
  * Test cases for class Opus\EnrichmentKeyTest .
- *
  */
 class EnrichmentKeyTest extends TestCase
 {
+    /** @var Document */
+    private $doc;
 
-    /**
-     * @var Document
-    */
-    private $_doc;
-
-     /**
-     * @var EnrichmentKey
-     */
+     /** @var EnrichmentKey */
     private $unreferencedEnrichmentKey;
 
-
-    /**
-     * @var EnrichmentKey
-     */
+    /** @var EnrichmentKey */
     private $referencedEnrichmentKey;
 
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'enrichmentkeys',
+            'document_enrichments',
+        ]);
 
         $this->unreferencedEnrichmentKey = new EnrichmentKey();
         $this->unreferencedEnrichmentKey->setName('foo');
@@ -73,12 +74,14 @@ class EnrichmentKeyTest extends TestCase
         $this->referencedEnrichmentKey->setName('bar');
         $this->referencedEnrichmentKey->store();
 
-        $this->_doc = new Document();
-        $this->_doc->addEnrichment()->setKeyName('bar')->setValue('value');
-        $this->_doc->store();
+        $this->doc = new Document();
+        $this->doc->addEnrichment()->setKeyName('bar')->setValue('value');
+        $this->doc->store();
     }
 
-    /* CREATE */
+    /**
+     * CREATE
+     */
     public function testStoreEnrichmentKey()
     {
         $ek = new EnrichmentKey();
@@ -100,7 +103,7 @@ class EnrichmentKeyTest extends TestCase
     {
         $ek = new EnrichmentKey();
         $ek->setName('foo');
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $ek->store();
         $this->assertEquals(2, count(EnrichmentKey::getAll()));
         $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
@@ -110,7 +113,7 @@ class EnrichmentKeyTest extends TestCase
     {
         $ek = new EnrichmentKey();
         $ek->setName('');
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $ek->store();
         $this->assertEquals(2, count(EnrichmentKey::getAll()));
         $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
@@ -119,13 +122,15 @@ class EnrichmentKeyTest extends TestCase
     public function testStoryUnsetEnrichmentKey()
     {
         $ek = new EnrichmentKey();
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $ek->store();
         $this->assertEquals(2, count(EnrichmentKey::getAll()));
         $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
     }
 
-    /* DELETE */
+    /**
+     * DELETE
+     */
     public function testDeleteUnreferencedEnrichmentKey()
     {
         $this->assertCount(2, EnrichmentKey::getAll());
@@ -173,7 +178,9 @@ class EnrichmentKeyTest extends TestCase
         $this->assertEquals($this->referencedEnrichmentKey->getName(), $referencedEnrichmentKeys[0]);
     }
 
-    /* READ */
+    /**
+     * READ
+     */
     public function testReadEnrichmentKey()
     {
         foreach (['foo', 'bar'] as $name) {
@@ -187,7 +194,9 @@ class EnrichmentKeyTest extends TestCase
         }
     }
 
-    /* UPDATE */
+    /**
+     * UPDATE
+     */
     public function testUpdateUnreferencedEnrichmentKey()
     {
         $newName = 'baz';
@@ -209,14 +218,16 @@ class EnrichmentKeyTest extends TestCase
         $this->referencedEnrichmentKey->setName($newName);
         $this->referencedEnrichmentKey->store();
 
-        $doc = new Document($this->_doc->getId());
+        $doc        = new Document($this->doc->getId());
         $enrichment = $doc->getEnrichment()[0];
         $this->assertEquals($newName, $enrichment->getKeyName());
 
         $this->assertCount(1, EnrichmentKey::getAllReferenced());
     }
 
-    /* METHODS */
+    /**
+     * METHODS
+     */
     public function testFetchByName()
     {
         $enrichmentkey = EnrichmentKey::fetchByName('foo');
@@ -237,7 +248,7 @@ class EnrichmentKeyTest extends TestCase
 
     public function testGetDisplayName()
     {
-        $name = $this->unreferencedEnrichmentKey->getName();
+        $name        = $this->unreferencedEnrichmentKey->getName();
         $displayName = $this->unreferencedEnrichmentKey->getDisplayName();
         $this->assertEquals($name, $displayName);
     }
@@ -245,7 +256,7 @@ class EnrichmentKeyTest extends TestCase
     public function testGetAll()
     {
         foreach (EnrichmentKey::getAll() as $name) {
-             $this->assertNotContains('Opus\EnrichmentKey', (string) $name);
+             $this->assertNotContains(EnrichmentKey::class, (string) $name);
         }
     }
 
@@ -260,8 +271,8 @@ class EnrichmentKeyTest extends TestCase
         $data = $key->toArray();
 
         $this->assertEquals([
-            'Name' => 'mykey',
-            'Type' => 'mytype',
+            'Name'    => 'mykey',
+            'Type'    => 'mytype',
             'Options' => 'myoptions',
         ], $data);
     }
@@ -269,13 +280,13 @@ class EnrichmentKeyTest extends TestCase
     public function testFromArray()
     {
         $key = EnrichmentKey::fromArray([
-            'Name' => 'mykey',
-            'Type' => 'mytype',
-            'Options' => 'myoptions'
+            'Name'    => 'mykey',
+            'Type'    => 'mytype',
+            'Options' => 'myoptions',
         ]);
 
         $this->assertNotNull($key);
-        $this->assertInstanceOf('Opus\EnrichmentKey', $key);
+        $this->assertInstanceOf(EnrichmentKey::class, $key);
 
         $this->assertEquals('mykey', $key->getName());
         $this->assertEquals('mytype', $key->getType());
@@ -287,9 +298,9 @@ class EnrichmentKeyTest extends TestCase
         $key = new EnrichmentKey();
 
         $key->updateFromArray([
-            'Name' => 'mykey',
-            'Type' => 'mytype',
-            'Options' => 'myoptions'
+            'Name'    => 'mykey',
+            'Type'    => 'mytype',
+            'Options' => 'myoptions',
         ]);
 
         $this->assertEquals('mykey', $key->getName());
@@ -301,7 +312,7 @@ class EnrichmentKeyTest extends TestCase
     {
         $this->referencedEnrichmentKey->rename('baz');
 
-        $doc = new Document($this->_doc->getId());
+        $doc         = new Document($this->doc->getId());
         $enrichments = $doc->getEnrichment();
         $this->assertCount(1, $enrichments);
         $this->assertEquals('baz', $enrichments[0]->getKeyName());
@@ -314,7 +325,7 @@ class EnrichmentKeyTest extends TestCase
     {
         $this->referencedEnrichmentKey->deleteFromDocuments();
 
-        $doc = new Document($this->_doc->getId());
+        $doc = new Document($this->doc->getId());
         $this->assertEmpty($doc->getEnrichment());
 
         // prüfe, dass der EnrichmentKey selbst immer noch vorhanden ist

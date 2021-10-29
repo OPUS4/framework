@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,18 +25,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Mock;
 
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
+use Zend_Db_Table_Abstract;
 
 /**
  * This class extends AbstractDb to be able to test its code.
@@ -47,7 +50,6 @@ use Opus\Model\Field;
  */
 class AbstractDbMock extends AbstractDb
 {
-
     public $postStoreHasBeenCalled = false;
 
     /**
@@ -55,10 +57,9 @@ class AbstractDbMock extends AbstractDb
      *
      * @var string Classname of\Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'OpusTest\Model\Mock\AbstractTableProvider';
+    protected static $tableGatewayClass = AbstractTableProvider::class;
 
-
-    public function __construct($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = [])
+    public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = [])
     {
         foreach ($plugins as $plugin) {
             $this->registerPlugin($plugin);
@@ -68,13 +69,11 @@ class AbstractDbMock extends AbstractDb
 
     /**
      * Initialize model with the a single field "value".
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
-        $this->_filterPrefix[] = 'Opus_Model_FilterTest';
+        $this->_filterPrefix[]    = 'Opus_Model_FilterTest';
 
         $value = new Field('Value');
         $this->addField($value);

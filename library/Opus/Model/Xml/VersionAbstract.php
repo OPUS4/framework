@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model\Xml
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Xml;
 
+use DateTimeZone;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Opus\Model\AbstractDb;
 use Opus\Model\AbstractModel;
 use Opus\Model\Dependent\AbstractDependentModel;
@@ -40,9 +46,26 @@ use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 
-abstract class VersionAbstract implements Strategy
-{
+use function array_diff;
+use function array_key_exists;
+use function class_exists;
+use function count;
+use function floor;
+use function get_class;
+use function implode;
+use function is_array;
+use function is_string;
+use function libxml_clear_errors;
+use function libxml_get_errors;
+use function libxml_use_internal_errors;
+use function preg_replace;
+use function trim;
 
+/**
+ * phpcs:disable
+ */
+abstract class VersionAbstract implements StrategyInterface
+{
     /**
      * Holds current configuration.
      *
@@ -55,21 +78,22 @@ abstract class VersionAbstract implements Strategy
      *
      * @var string
      */
-    protected $_version = null;
+    protected $_version;
 
     /**
      * Initiate class with a valid config object.
      */
     public function __construct()
     {
-        $this->_config = new Conf;
+        $this->_config = new Conf();
     }
 
     /**
      * (non-PHPdoc)
-     * @see \Opus\Model\Xml\Strategy#setDomDocument()
+     *
+     * @see \Opus\Model\Xml\StrategyInterface#setDomDocument()
      */
-    public function setDomDocument(\DOMDocument $dom)
+    public function setDomDocument(DOMDocument $dom)
     {
         $this->_config->dom = $dom;
     }
@@ -81,12 +105,12 @@ abstract class VersionAbstract implements Strategy
      * If an Xlink Resolver is configured an occurance of xlink:href will be used to fetch
      * a Model instance from the specified URL.
      *
-     * @param \DOMElement $element   Element to use for model creation.
-     * @param string     $classname (Optional) Class name of class to be created. If not given, the node name is used.
+     * @param DOMElement  $element   Element to use for model creation.
+     * @param null|string $classname (Optional) Class name of class to be created. If not given, the node name is used.
      * @throws ModelException Thrown if the model reffered to by the elements name is unknown.
      * @return AbstractModel Created model
      */
-    protected function _createModelFromElement(\DOMElement $element, $classname = null)
+    protected function _createModelFromElement(DOMElement $element, $classname = null)
     {
         if (null === $classname) {
             $classname = preg_replace('/_/', '\\', $element->nodeName);
@@ -99,13 +123,11 @@ abstract class VersionAbstract implements Strategy
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
         if ((null !== $this->_config->xlinkResolver) and (null !== $ref)) {
-            $model = $this->_config->xlinkResolver->get($ref->value);
-            return $model;
+            return $this->_config->xlinkResolver->get($ref->value);
         }
 
         // Handle constructor attributes
-        $model = new $classname;
-        return $model;
+        return new $classname();
     }
 
     /**
@@ -138,7 +160,7 @@ abstract class VersionAbstract implements Strategy
 
                 if (null !== $modelId) {
                     $resourceName = $this->_config->resourceNameMap[$valueModelClassName];
-                    $uri = $this->_config->baseUri . '/' . $resourceName . '/' . $modelId;
+                    $uri          = $this->_config->baseUri . '/' . $resourceName . '/' . $modelId;
                 }
             }
         }
@@ -150,21 +172,19 @@ abstract class VersionAbstract implements Strategy
      * Maps attribute model informations to a DOMDocument.
      *
      * @param AbstractModel $model      Model informations for attribute mapping.
-     * @param \DOMDocument         $dom        General DOM document.
-     * @param \DOMNode             $rootNode   Node where to add created structure.
-     * @param boolean             $unTunneled Should only current (true) or all (false, default) fields shown.
-     * @return void
+     * @param DOMDocument   $dom        General DOM document.
+     * @param DOMNode       $rootNode   Node where to add created structure.
+     * @param bool          $unTunneled Should only current (true) or all (false, default) fields shown.
      */
     protected function _mapAttributes(
         AbstractModel $model,
-        \DOMDocument $dom,
-        \DOMNode $rootNode,
+        DOMDocument $dom,
+        DOMNode $rootNode,
         $unTunneled = false
     ) {
-
-        if ((true === $unTunneled) and ($model instanceof AbstractLinkModel)) {
+        if ((true === $unTunneled) and $model instanceof AbstractLinkModel) {
             $fields = $model->describeUntunneled();
-        } elseif ((true === $unTunneled) and ($model instanceof AbstractDependentModel)) {
+        } elseif ((true === $unTunneled) and $model instanceof AbstractDependentModel) {
             return; // short-circuit
         } else {
             $fields = $model->describe();
@@ -185,7 +205,8 @@ abstract class VersionAbstract implements Strategy
 
     /**
      * (non-PHPdoc)
-     * @see \Opus\Model\Xml\Strategy#getDomDocument()
+     *
+     * @see \Opus\Model\Xml\StrategyInterface#getDomDocument()
      */
     public function getDomDocument()
     {
@@ -193,8 +214,8 @@ abstract class VersionAbstract implements Strategy
             throw new ModelException('No Model given for serialization.');
         }
 
-        $this->_config->dom = new \DomDocument('1.0', 'UTF-8');
-        $root = $this->_config->dom->createElement('Opus');
+        $this->_config->dom = new DOMDocument('1.0', 'UTF-8');
+        $root               = $this->_config->dom->createElement('Opus');
         $root->setAttribute('version', $this->getVersion());
         $this->_config->dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
@@ -206,7 +227,8 @@ abstract class VersionAbstract implements Strategy
 
     /**
      * (non-PHPdoc)
-     * @see \Opus\Model\Xml\Strategy#getModel()
+     *
+     * @see \Opus\Model\Xml\StrategyInterface#getModel()
      */
     public function getModel()
     {
@@ -215,7 +237,7 @@ abstract class VersionAbstract implements Strategy
             if (null === $root) {
                 throw new ModelException('Root element "Opus" not found.');
             }
-            $model = $this->_createModelFromElement($root->firstChild);
+            $model                = $this->_createModelFromElement($root->firstChild);
             $this->_config->model = $this->_populateModelFromXml($model, $root->firstChild);
         }
 
@@ -225,7 +247,7 @@ abstract class VersionAbstract implements Strategy
     /**
      * Return version value of current xml representation.
      *
-     * @see \Opus\Model\Xml\Strategy#getVersion()
+     * @see \Opus\Model\Xml\StrategyInterface#getVersion()
      */
     public function getVersion()
     {
@@ -234,7 +256,8 @@ abstract class VersionAbstract implements Strategy
 
     /**
      * (non-PHPdoc)
-     * @see \Opus\Model\Xml\Strategy#setDomDocument()
+     *
+     * @see \Opus\Model\Xml\StrategyInterface#setDomDocument()
      */
     public function setup(Conf $conf)
     {
@@ -243,22 +266,23 @@ abstract class VersionAbstract implements Strategy
 
     /**
      * (non-PHPdoc)
-     * @see \Opus\Model\Xml\Strategy#setXml()
+     *
+     * @see \Opus\Model\Xml\StrategyInterface#setXml()
      */
     public function setXml($xml)
     {
-        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom                     = new DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = false;
         // Disable libxml error reporting because it generates warnings
         // wich will be ignored in production but turned into an exception
         // in PHPUnit environments
         $useInternalErrors = libxml_use_internal_errors(true);
-        $success = $dom->loadXml($xml);
+        $success           = $dom->loadXml($xml);
         if (false === $success) {
             $errmsg = '';
             $errors = libxml_get_errors();
             foreach ($errors as $error) {
-                $errmsg = $errmsg . $error->message . "\n";
+                $errmsg .= $error->message . "\n";
             }
             libxml_clear_errors();
             throw new ModelException($errmsg);
@@ -275,22 +299,24 @@ abstract class VersionAbstract implements Strategy
     /**
      * Map field information to a DOMDocument.
      *
-     * @param Field $field    Contains informations about mapping field.
-     * @param \DOMDocument      $dom      General DOM document.
-     * @param \DOMNode          $rootNode Node where to add created structure.
-     * @return void
+     * @param Field       $field    Contains informations about mapping field.
+     * @param DOMDocument $dom      General DOM document.
+     * @param DOMNode     $rootNode Node where to add created structure.
+     *
      *
      * FIXME: remove code duplication (duplicates Opus\Model\Xml\Version*)
      */
-    protected function _mapField(Field $field, \DOMDocument $dom, \DOMNode $rootNode)
+    protected function _mapField(Field $field, DOMDocument $dom, DOMNode $rootNode)
     {
-        $modelClass = $field->getValueModelClass();
+        $modelClass  = $field->getValueModelClass();
         $fieldValues = $field->getValue();
 
         if (true === $this->getConfig()->excludeEmpty) {
-            if (true === is_null($fieldValues)
-                or (is_string($fieldValues) && trim($fieldValues) == '')
-                or (is_array($fieldValues) && empty($fieldValues)) ) {
+            if (
+                $fieldValues === null
+                || (is_string($fieldValues) && trim($fieldValues) === '')
+                || (is_array($fieldValues) && empty($fieldValues))
+            ) {
                 return;
             }
         }
@@ -311,7 +337,7 @@ abstract class VersionAbstract implements Strategy
                 // if a field has no value then is nothing more to do
                 // TODO maybe must be there an other solution
                 // FIXME remove code duplication (duplicates Opus\Model\Xml\Version*)
-                if (is_null($value)) {
+                if ($value === null) {
                     continue;
                 }
 
@@ -328,7 +354,7 @@ abstract class VersionAbstract implements Strategy
         }
     }
 
-    abstract public function mapSimpleField(\DOMDocument $dom, \DOMNode $rootNode, Field $field);
+    abstract public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Field $field);
 
     public function getFieldValues($field)
     {
@@ -338,7 +364,7 @@ abstract class VersionAbstract implements Strategy
         if (true === $field->hasMultipleValues()) {
             $fieldValues = implode(',', $fieldValues);
         }
-        if ($fieldValues instanceof \DateTimeZone) {
+        if ($fieldValues instanceof DateTimeZone) {
             $fieldValues = $fieldValues->getName();
         }
 
@@ -349,13 +375,12 @@ abstract class VersionAbstract implements Strategy
      * Maps model information to a DOMDocument.
      *
      * @param AbstractModel $model    Contains model information of mapping.
-     * @param \DOMDocument         $dom      General DOM document.
-     * @param \DOMNode             $rootNode Node where to add created structure.
-     * @return void
+     * @param DOMDocument   $dom      General DOM document.
+     * @param DOMNode       $rootNode Node where to add created structure.
      */
-    protected function _mapModel(AbstractModel $model, \DOMDocument $dom, \DOMNode $rootNode)
+    protected function _mapModel(AbstractModel $model, DOMDocument $dom, DOMNode $rootNode)
     {
-        $fields = $model->describe();
+        $fields        = $model->describe();
         $excludeFields = $this->getConfig()->excludeFields;
         if (count($excludeFields) > 0) {
             $fieldsDiff = array_diff($fields, $excludeFields);
@@ -372,12 +397,12 @@ abstract class VersionAbstract implements Strategy
         }
     }
 
-    protected function createFieldElement(\DOMDocument $dom, $fieldName, $value)
+    protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
     {
         return $dom->createElement($fieldName);
     }
 
-    protected function createModelNode(\DOMDocument $dom, AbstractModel $model)
+    protected function createModelNode(DOMDocument $dom, AbstractModel $model)
     {
         return $dom->createElement(preg_replace('/\\\\/', '_', get_class($model)));
     }
