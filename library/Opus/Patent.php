@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,77 +25,72 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus;
 
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for patents in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\Abstract
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setCountries(string $countries)
  * @method string getCountries()
- *
  * @method void setDateGranted(Date $date)
  * @method Date getDateGranted()
- *
  * @method void setNumber(string $number)
  * @method string getNumber()
- *
  * @method void setYearApplied(integer $year)
  * @method integer getYearApplied()
- *
  * @method void setApplication(string $application)
  * @method string getApplication()
- *
  */
 class Patent extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus\Db\DocumentPatents';
+    protected static $tableGatewayClass = Db\DocumentPatents::class;
 
     /**
      * Initialize model with the following fields:
      * - Language
      * - Title
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $countries = new Field('Countries');
 
         $dateGranted = new Field('DateGranted');
-        $dateGranted->setValueModelClass('Opus\Date');
+        $dateGranted->setValueModelClass(Date::class);
 
         $number = new Field('Number');
         $number->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $yearApplied = new Field('YearApplied');
-        $yearApplied->setValidator(new \Opus\Validate\Year());
+        $yearApplied->setValidator(new Validate\Year());
 
         $application = new Field('Application');
 

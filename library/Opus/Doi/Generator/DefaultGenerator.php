@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,20 +25,28 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi\Generator;
 
 use Opus\Config;
 
+use function rtrim;
+use function strlen;
+use function substr;
+use function trim;
+
+/**
+ * phpcs:disable
+ */
 class DefaultGenerator implements DoiGeneratorInterface
 {
-
     private $config;
 
     public function __construct()
@@ -68,15 +77,13 @@ class DefaultGenerator implements DoiGeneratorInterface
     {
         $prefix = $this->getPrefix();
 
-        $generatedDOI = $prefix . $document->getId();
-        return $generatedDOI;
+        return $prefix . $document->getId();
     }
 
     /**
      * Liefert true zurück, wenn die übergebene DOI als lokale DOI zu betrachten ist.
      * Im Falle der vorliegenden Implementierungsklasse muss eine lokale DOI folgenden
      * Präfix haben: '{doi.prefix}/{doi.localPrefix}-'
-     *
      */
     public function isLocal($doiValue)
     {
@@ -87,13 +94,12 @@ class DefaultGenerator implements DoiGeneratorInterface
             return false;
         }
 
-        $result = substr($doiValue, 0, strlen($prefix)) == $prefix;
-
-        return $result;
+        return substr($doiValue, 0, strlen($prefix)) === $prefix;
     }
 
     /**
      * Returns compound prefix for DOIs.
+     *
      * @return string
      * @throws DoiGeneratorException
      */
@@ -108,7 +114,7 @@ class DefaultGenerator implements DoiGeneratorInterface
         // Schrägstrich als Trennzeichen, wenn Präfix nicht bereits einen Schrägstrich als Suffix besitzt
         $prefix = rtrim($this->config->doi->prefix, '/') . '/';
 
-        if (isset($this->config->doi->localPrefix) and $this->config->doi->localPrefix != '') {
+        if (isset($this->config->doi->localPrefix) && ! empty($this->config->doi->localPrefix)) {
             $prefix .= $this->config->doi->localPrefix;
 
             // DocID wird als Suffix mit Bindestrich an das Präfix angefügt (füge Bindestrich hinzu, wenn erforderlich)

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,6 +25,9 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
@@ -31,8 +35,6 @@
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -41,55 +43,52 @@ use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for enrichments in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\Abstract
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setKeyName(string $name)
  * @method string getKeyName()
- *
  * @method void setValue(string $value)
  * @method string getValue()
  */
 class Enrichment extends AbstractDependentModel
 {
-
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DocumentEnrichments';
+    protected static $tableGatewayClass = Db\DocumentEnrichments::class;
 
     /**
      * Initialize model with the following fields:
      * - KeyName
      * - Value
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $key = new Field('KeyName');
         $key->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty())
+                ->setValidator(new Zend_Validate_NotEmpty())
                 ->setSelection(true)
                 ->setDefault(EnrichmentKey::getAll());
 
         $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($key);
         $this->addField($value);
@@ -104,7 +103,7 @@ class Enrichment extends AbstractDependentModel
     public function getEnrichmentKey()
     {
         $keyName = $this->getField('KeyName')->getValue();
-        if (is_null($keyName) || $keyName === '') {
+        if ($keyName === null || $keyName === '') {
             return null;
         }
 
@@ -115,11 +114,13 @@ class Enrichment extends AbstractDependentModel
      * Returns the names of all enrichment keys that are currently used by enrichments.
      * This function does not distinguish between enrichment keys that are
      * registered and enrichment keys that are only referenced by name.
+     *
+     * @return string[]
      */
     public static function getAllUsedEnrichmentKeyNames()
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
-        $db = $table->getAdapter();
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
+        $db     = $table->getAdapter();
         $select = $db->select()->from('document_enrichments');
         $select->reset('columns');
         $select->columns('key_name');

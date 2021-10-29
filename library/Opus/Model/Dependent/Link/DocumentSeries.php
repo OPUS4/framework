@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,81 +25,83 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Dependent\Link;
 
+use Opus\Db\LinkDocumentsSeries;
 use Opus\Model\Field;
+use Opus\Series;
+use Zend_Db_Table;
+use Zend_Validate_NotEmpty;
+
+use function intval;
 
 /**
- * Class Opus\Model\Dependent\Link\DocumentSeries
+ * phpcs:disable
  *
  * @method void setNumber(string $number)
  * @method string getNumber()
- *
  * @method void setDocSortOrder(integer $pos)
  * @method integer getDocSortOrder()
  */
 class DocumentSeries extends AbstractLinkModel
 {
-
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * The linked model's foreign key.
      *
      * @var mixed
      */
-    protected $_modelKey = 'series_id';
+    protected $modelKey = 'series_id';
 
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = 'Opus\Series';
+    protected $modelClass = Series::class;
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\LinkDocumentsSeries';
+    protected static $tableGatewayClass = LinkDocumentsSeries::class;
 
     /**
      * Fields that should not be displayed on a form.
      *
      * @var array
      */
-    protected $_internalFields = [];
-
+    protected $internalFields = [];
 
     /**
      * Initialize model
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $modelClass = $this->_modelClass;
-        if (is_null($this->getId()) === false) {
-            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
+        $modelClass = $this->modelClass;
+        if ($this->getId() !== null) {
+            $this->setModel(new $modelClass($this->primaryTableRow->{$this->modelKey}));
         }
 
         $number = new Field('Number');
         $number->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($number);
 
         $docSortOrder = new Field('DocSortOrder');
@@ -107,32 +110,30 @@ class DocumentSeries extends AbstractLinkModel
 
     /**
      * Persist foreign model & link.
-     *
-     * @return void
      */
     public function store()
     {
-        $this->_primaryTableRow->series_id = $this->_model->store();
+        $this->primaryTableRow->series_id = $this->model->store();
         parent::store();
     }
 
     protected function _storeDocSortOrder()
     {
-        $docSortOrderValue = $this->_fields['DocSortOrder']->getValue();
-        if (is_null($docSortOrderValue)) {
-            $db = \Zend_Db_Table::getDefaultAdapter();
+        $docSortOrderValue = $this->fields['DocSortOrder']->getValue();
+        if ($docSortOrderValue === null) {
+            $db  = Zend_Db_Table::getDefaultAdapter();
             $max = $db->fetchCol(
-                'SELECT MAX(doc_sort_order)' .
-                ' FROM link_documents_series' .
-                ' WHERE series_id = ' . $this->_primaryTableRow->series_id .
-                ' AND document_id != ' . $this->_primaryTableRow->document_id
+                'SELECT MAX(doc_sort_order)'
+                . ' FROM link_documents_series'
+                . ' WHERE series_id = ' . $this->primaryTableRow->series_id
+                . ' AND document_id != ' . $this->primaryTableRow->document_id
             );
-            if (! is_null($max[0])) {
+            if ($max[0] !== null) {
                 $docSortOrderValue = intval($max[0]) + 1;
             } else {
                 $docSortOrderValue = 0;
             }
         }
-        $this->_primaryTableRow->doc_sort_order = $docSortOrderValue;
+        $this->primaryTableRow->doc_sort_order = $docSortOrderValue;
     }
 }

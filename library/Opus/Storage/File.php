@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,38 +25,63 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @copyright   Copyright (c) 2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Storage;
 
+use Exception;
+use finfo;
 use Opus\Util\File as FileUtil;
 
+use function class_exists;
+use function copy;
+use function count;
+use function file_exists;
+use function filesize;
+use function function_exists;
+use function getcwd;
+use function glob;
+use function is_dir;
+use function is_executable;
+use function is_file;
+use function is_readable;
+use function is_writable;
+use function mime_content_type;
+use function mkdir;
+use function preg_match;
+use function rename;
+use function rmdir;
+use function sprintf;
+use function unlink;
+
+use const FILEINFO_MIME_TYPE;
+
 /**
- *
+ * phpcs:disable
  */
 class File
 {
-
     /**
      * Working directory.  All files will be modified relative to this path.
      *
      * @var string
      */
-    private $filesDirectory = null;
-    private $subDirectory = null;
+    private $filesDirectory;
+    private $subDirectory;
 
     /**
      * Construct storage object.  The first parameter $directory states the
      * working directory, in which all file modifications will take place.
      *
-     * @param string $directory
+     * @param null|string $directory
      * @throws StorageException
      */
     public function __construct($directory = null, $subdirectory = null)
@@ -69,7 +95,7 @@ class File
         }
 
         $this->filesDirectory = FileUtil::addDirectorySeparator($directory);
-        $this->subDirectory = FileUtil::addDirectorySeparator($subdirectory);
+        $this->subDirectory   = FileUtil::addDirectorySeparator($subdirectory);
     }
 
     public function getWorkingDirectory()
@@ -82,7 +108,7 @@ class File
      *
      * @param string $subdirectory Subdirectory of working dir to create.
      * @throws StorageException
-     * @return boolean
+     * @return bool
      */
     public function createSubdirectory()
     {
@@ -115,11 +141,10 @@ class File
      * @param string $sourceFile Absolute path.
      * @param string $destintationFile Path relative to workingDirectory.
      * @throws StorageException
-     * @return boolean
+     * @return bool
      */
     public function copyExternalFile($sourceFile, $destinationFile)
     {
-
         $fullDestinationPath = $this->getWorkingDirectory() . $destinationFile;
 
         if (file_exists($fullDestinationPath)) {
@@ -141,11 +166,11 @@ class File
      * @throws StorageException
      * @throws FileNotFoundException if file does not exist
      * @throws FileAccessException if renaming of file failed
-     * @return boolean
+     * @return bool
      */
     public function renameFile($sourceFile, $destinationFile)
     {
-        $fullSourcePath = $this->getWorkingDirectory() . $sourceFile;
+        $fullSourcePath      = $this->getWorkingDirectory() . $sourceFile;
         $fullDestinationPath = $this->getWorkingDirectory() . $destinationFile;
 
         if (false === file_exists($fullSourcePath)) {
@@ -170,7 +195,6 @@ class File
      * @throws StorageException
      * @throws FileNotFoundException if file does not exist
      * @throws FileAccessException if deleting file failed
-     * @return void
      */
     public function deleteFile($file)
     {
@@ -194,7 +218,7 @@ class File
      * Deletes current working directory if empty.
      *
      * @throws StorageException If directory is empty but deleting failed.
-     * @return boolean true on success, false if not found or not empty
+     * @return bool true on success, false if not found or not empty
      */
     public function removeEmptyDirectory()
     {
@@ -204,7 +228,7 @@ class File
             return false;
         }
 
-        $is_empty = (count(glob($directory . "/*")) === 0);
+        $is_empty = count(glob($directory . "/*")) === 0;
         if (! $is_empty) {
             return false;
         }
@@ -231,7 +255,7 @@ class File
         // TODO basically this class should exist - why check? We don't for other classes.
         if (true === class_exists('finfo')) {
             // for PHP >= 5.3.0 or PECL fileinfo >= 0.1.0
-            $finfo = new \finfo(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+            $finfo = new finfo(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             if (false !== $finfo) {
                 return $finfo->file($fullFile);
             }
@@ -239,8 +263,8 @@ class File
             // use mime_content_type for PHP < 5.3.0
             return @mime_content_type($fullFile);
         } else {
-            $message = __CLASS__ . ": Neither PECL fileinfo, nor mime_content_type could be found.";
-            $logger = Log::get();
+            $message = self::class . ": Neither PECL fileinfo, nor mime_content_type could be found.";
+            $logger  = Log::get();
             $logger->err($message);
 
             return $this->getFileMimeTypeFromExtension($file);
@@ -280,7 +304,7 @@ class File
     {
         $fullFile = $this->getWorkingDirectory() . $file;
         if (false === file_exists($fullFile)) {
-            throw new \Exception("File does not exist.");
+            throw new Exception("File does not exist.");
         }
 
         // Common workaround for php limitation (2 / 4 GB file size)

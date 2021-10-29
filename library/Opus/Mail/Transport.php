@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,30 +25,33 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Mail;
 
 use Opus\Log;
+use Zend_Config;
+use Zend_Mail_Transport_Smtp;
 
 /**
  * Override
  *
  * @category    Framework
  * @package     Opus\Mail\Transport
- *
  */
-class Transport extends \Zend_Mail_Transport_Smtp
+class Transport extends Zend_Mail_Transport_Smtp
 {
-
     /**
      * Create a new \Zend_Mail_Transport instance.
+     *
+     * @param null|Zend_Config $config
      */
     public function __construct($config = null)
     {
@@ -57,7 +61,7 @@ class Transport extends \Zend_Mail_Transport_Smtp
             $smtp = $config->smtp;
         }
 
-        if (is_null($smtp) || $smtp === 'localhost') {
+        if ($smtp === null || $smtp === 'localhost') {
             $smtp = '127.0.0.1';
         }
 
@@ -67,7 +71,7 @@ class Transport extends \Zend_Mail_Transport_Smtp
             $port = $config->port;
         }
 
-        Log::get()->info(__CLASS__ . " Using mail server {$smtp}:{$port}");
+        Log::get()->info(self::class . " Using mail server {$smtp}:{$port}");
 
         parent::__construct($smtp, ['port' => $port]);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Identifier
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Frank Niebling <niebling@slub-dresden.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Identifier;
 
@@ -44,12 +46,10 @@ use OpusTest\TestAsset\TestCase;
  *
  * @category    Tests
  * @package     Opus\Identifier
- *
  * @group       UrnTest
  */
 class UrnTest extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
@@ -69,16 +69,16 @@ class UrnTest extends TestCase
     public function provider()
     {
         return [
-        ['8765' , 'urn:nbn:de:swb:14-opus-8765' , '0'],
-        ['1913' , 'urn:nbn:de:swb:14-opus-1913' , '1'],
-        ['6543' , 'urn:nbn:de:swb:14-opus-6543' , '2'],
-        ['1234' , 'urn:nbn:de:swb:14-opus-1234' , '3'],
-        ['7000' , 'urn:nbn:de:swb:14-opus-7000' , '4'],
-        ['4567' , 'urn:nbn:de:swb:14-opus-4567' , '5'],
-        ['4028' , 'urn:nbn:de:swb:14-opus-4028' , '6'],
-        ['3456' , 'urn:nbn:de:swb:14-opus-3456' , '7'],
-        ['4711' , 'urn:nbn:de:swb:14-opus-4711' , '8'],
-        ['2345' , 'urn:nbn:de:swb:14-opus-2345' , '9'],
+            ['8765', 'urn:nbn:de:swb:14-opus-8765', '0'],
+            ['1913', 'urn:nbn:de:swb:14-opus-1913', '1'],
+            ['6543', 'urn:nbn:de:swb:14-opus-6543', '2'],
+            ['1234', 'urn:nbn:de:swb:14-opus-1234', '3'],
+            ['7000', 'urn:nbn:de:swb:14-opus-7000', '4'],
+            ['4567', 'urn:nbn:de:swb:14-opus-4567', '5'],
+            ['4028', 'urn:nbn:de:swb:14-opus-4028', '6'],
+            ['3456', 'urn:nbn:de:swb:14-opus-3456', '7'],
+            ['4711', 'urn:nbn:de:swb:14-opus-4711', '8'],
+            ['2345', 'urn:nbn:de:swb:14-opus-2345', '9'],
         ];
     }
 
@@ -121,53 +121,46 @@ class UrnTest extends TestCase
     public function badIdProvider()
     {
         return [
-        ['!ERROR!', 'Used invalid arguments for document id.'],
+            ['!ERROR!', 'Used invalid arguments for document id.'],
         ];
     }
 
     /**
      * Test if a valid URN is generated.
      *
-     * @param string $document_id Identifier of the Document.
+     * @param string $documentId Identifier of the Document.
      * @param string $urn         A full qualified and valid URN.
      * @param string $checkdigit  Check digit valid for the given URN.
-     * @return void
-     *
      * @dataProvider provider
      */
-    public function testUrn($document_id, $urn, $checkdigit)
+    public function testUrn($documentId, $urn, $checkdigit)
     {
         $identifier = new Urn('nbn', 'de:swb:14-opus');
-        $generated = $identifier->getUrn($document_id);
+        $generated  = $identifier->getUrn($documentId);
         $this->assertEquals($urn . $checkdigit, $generated, 'Generated URN is not valid.');
     }
 
     /**
      * Test if a valid check digit is generated
      *
-     * @param string $document_id Identifier of the Document.
+     * @param string $documentId Identifier of the Document.
      * @param string $urn         A full qualified and valid URN.
      * @param string $checkdigit  Check digit valid for the given URN.
-     * @return void
-     *
      * @dataProvider provider
      */
-    public function testCheckDigit($document_id, $urn, $checkdigit)
+    public function testCheckDigit($documentId, $urn, $checkdigit)
     {
         $identifier = new Urn('nbn', 'de:swb:14-opus');
-        $generated = $identifier->getCheckDigit($document_id);
+        $generated  = $identifier->getCheckDigit($documentId);
         $this->assertEquals($checkdigit, $generated, 'Generated check digit is not valid.');
     }
 
     /**
      * Test if illegal identifier values raise exceptions.
      *
-     * @param string $snid1 First subnamespace identifier part of the URN.
-     * @param string $snid2 Second subnamespace identifier part of the URN.
-     * @param string $niss  Namespace specific string part of the URN.
-     * @param string $msg   Message on failing test.
-     * @return void
-     *
+     * @param string $nid First subnamespace identifier part of the URN.
+     * @param string $nss Namespace specific string part of the URN.
+     * @param string $msg Message on failing test.
      * @dataProvider badProvider
      */
     public function testInitializeWithInvalidValues($nid, $nss, $msg)
@@ -179,32 +172,28 @@ class UrnTest extends TestCase
     /**
      * Test if illegal document identifier value raises an exception on calling urn generator.
      *
-     * @param string $document_id Identifier of the Document.
+     * @param string $documentId Identifier of the Document.
      * @param string $msg         Message on failing test.
-     * @return void
-     *
      * @dataProvider badIdProvider
      */
-    public function testCallUrnGeneratorWithInvalidValue($document_id, $msg)
+    public function testCallUrnGeneratorWithInvalidValue($documentId, $msg)
     {
         $this->setExpectedException('InvalidArgumentException', $msg);
         $identifier = new Urn('nbn', 'de:swb:14-opus');
-        $generated = $identifier->getUrn($document_id);
+        $generated  = $identifier->getUrn($documentId);
     }
 
     /**
      * Test if illegal document identifier value raises an exception on calling check digit generator.
      *
-     * @param string $document_id Identifier of the Document.
+     * @param string $documentId Identifier of the Document.
      * @param string $msg         Message on failing test.
-     * @return void
-     *
      * @dataProvider badIdProvider
      */
-    public function testCallCheckDigitGeneratorWithInvalidValue($document_id, $msg)
+    public function testCallCheckDigitGeneratorWithInvalidValue($documentId, $msg)
     {
         $this->setExpectedException('InvalidArgumentException', $msg);
         $identifier = new Urn('nbn', 'de:swb:14-opus');
-        $generated = $identifier->getCheckDigit($document_id);
+        $generated  = $identifier->getCheckDigit($documentId);
     }
 }

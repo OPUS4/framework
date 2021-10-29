@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,19 +25,32 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Bootstrap
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db;
 
+use Exception;
 use Opus\Bootstrap\Base;
 use Opus\Config;
 use Opus\Version;
+use Zend_Config;
+use Zend_Db;
+use Zend_Db_Adapter_Exception;
+use Zend_Db_Statement_Exception;
+use Zend_Db_Table;
+
+use function array_key_exists;
+use function filter_var;
+use function is_array;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Provide basic workflow of setting up an application.
@@ -49,14 +63,15 @@ use Opus\Version;
  */
 class DatabaseBootstrap extends Base
 {
-
     /**
      * Setup a database connection and store the adapter in the registry.
      *
-     * @return void
+     *
      *
      * TODO put into configuration file (custom DB adapter) and move code out of Bootstrap
      * TODO this make configuration modifiable (as a side effect)
+     *
+     * phpcs:disable
      */
     protected function _initDatabase()
     {
@@ -66,13 +81,13 @@ class DatabaseBootstrap extends Base
         $logger->debug('Initializing database.');
 
         // use custom DB adapter
-        $config = new \Zend_Config([
+        $config = new Zend_Config([
             'db' => [
                 'adapter' => 'Mysqlutf8',
-                'params' => [
-                    'adapterNamespace' => 'OpusDb'
-                ]
-            ]
+                'params'  => [
+                    'adapterNamespace' => 'OpusDb',
+                ],
+            ],
         ], true);
         $config->merge(Config::get());
         Config::set($config); // TODO do not replace the original config object (find a better way)
@@ -82,38 +97,39 @@ class DatabaseBootstrap extends Base
         $db = null;
 
         try {
-            $db = \Zend_Db::factory($config->db);
-            \Zend_Db_Table::setDefaultAdapter($db);
-        } catch (\Zend_Db_Adapter_Exception $e) {
+            $db = Zend_Db::factory($config->db);
+            Zend_Db_Table::setDefaultAdapter($db);
+        } catch (Zend_Db_Adapter_Exception $e) {
             $logger->err($e);
-            throw new \Exception('OPUS Bootstrap Error: Could not connect to database.');
+            throw new Exception('OPUS Bootstrap Error: Could not connect to database.');
         }
 
         // Check database version
-        if (! isset($config->opus->disableDatabaseVersionCheck) ||
+        if (
+            ! isset($config->opus->disableDatabaseVersionCheck) ||
             ! filter_var($config->opus->disableDatabaseVersionCheck, FILTER_VALIDATE_BOOLEAN)
-            ) {
+        ) {
             try {
                 $query = $db->query('SELECT version FROM schema_version');
 
                 $result = $query->fetch();
 
                 if (is_array($result) && array_key_exists('version', $result)) {
-                    $version = $result['version'];
+                    $version         = $result['version'];
                     $expectedVersion = Version::getSchemaVersion();
 
                     if ($version !== $expectedVersion) {
-                        throw new \Exception(
+                        throw new Exception(
                             "Database version '$version' does not match required '$expectedVersion'."
                         );
                     }
                 } else {
-                    throw new \Exception(
+                    throw new Exception(
                         'No database schema version found. Database is probably too old. Please update.'
                     );
                 }
-            } catch (\Zend_Db_Statement_Exception $e) {
-                throw new \Exception('Database schema is too old. Please update database.');
+            } catch (Zend_Db_Statement_Exception $e) {
+                throw new Exception('Database schema is too old. Please update database.');
             }
         }
 

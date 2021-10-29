@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,32 +26,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Db
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Connection;
+
+use function implode;
+use function is_array;
+use function rtrim;
+
 /**
  * Implements the singleton pattern for table gateway classes.
  *
- * @category    Framework
- * @package     Opus\Db
- *
  * TODO nothing preventing creation of table classes directly
  *
+ * phpcs:disable
  */
 abstract class TableGateway
 {
-
     private $connection;
 
     /**
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public function getDatabaseAdapter()
     {
@@ -66,7 +71,7 @@ abstract class TableGateway
      */
     public function getDatabaseAdapterZend()
     {
-        $table = \Opus\Db\TableGateway::getInstance('Opus\Db\Translations');
+        $table = \Opus\Db\TableGateway::getInstance(\Opus\Db\Translations::class);
 
         return $table->getAdapter();
     }
@@ -79,35 +84,34 @@ abstract class TableGateway
      * modified row.
      *
      * @param array $data
-     * @return void
      */
     public function insertIgnoreDuplicate($table, $primary, $data)
     {
         $database = $this->getDatabaseAdapter();
 
-        $q_keys = [];
+        $q_keys   = [];
         $q_values = [];
-        $update = '';
+        $update   = '';
 
         foreach ($data as $key => $value) {
-            $quotedKey = $database->quoteIdentifier($key);
-            $q_keys[] = $quotedKey;
+            $quotedKey  = $database->quoteIdentifier($key);
+            $q_keys[]   = $quotedKey;
             $q_values[] = $database->quote($value);
-            $update .= " $quotedKey=VALUES($quotedKey),";
+            $update    .= " $quotedKey=VALUES($quotedKey),";
         }
 
         // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
         $primaryKey = $primary;
 
-        if (! is_null($primaryKey) and ! is_array($primaryKey)) {
+        if ($primaryKey !== null && ! is_array($primaryKey)) {
             // no support for composite keys
             $update .= " $primaryKey=LAST_INSERT_ID($primaryKey)";
         } else {
             $update = rtrim($update, ',');
         }
 
-        $insert = 'INSERT INTO ' . $table .                ' (' . implode(', ', $q_keys) . ') ' .
-                ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
+        $insert = 'INSERT INTO ' . $table . ' (' . implode(', ', $q_keys) . ') '
+                . ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
 
         $stmt = $database->prepare($insert);
 
@@ -119,7 +123,6 @@ abstract class TableGateway
      * deletes of non-existent entries.)
      *
      * @param array $data
-     * @return void
      */
     public function deleteWhereArray($table, $data)
     {
@@ -128,10 +131,10 @@ abstract class TableGateway
         $q_clauses = [];
 
         foreach ($data as $key => $value) {
-            $q_key = $database->quoteIdentifier($key);
+            $q_key   = $database->quoteIdentifier($key);
             $q_value = $database->quote($value);
             if (is_array($value)) {
-                $q_clauses[] = $q_key . ' IN (' . $q_value .')';
+                $q_clauses[] = $q_key . ' IN (' . $q_value . ')';
             } else {
                 $q_clauses[] = $q_key . " = " . $q_value;
             }

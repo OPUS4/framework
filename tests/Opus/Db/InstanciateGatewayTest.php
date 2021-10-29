@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,36 +25,67 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Db
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Db;
 
+use Exception;
+use Opus\Db\Accounts;
+use Opus\Db\Collections;
+use Opus\Db\CollectionsEnrichments;
+use Opus\Db\CollectionsRoles;
+use Opus\Db\DnbInstitutes;
+use Opus\Db\DocumentEnrichments;
+use Opus\Db\DocumentFiles;
+use Opus\Db\DocumentIdentifiers;
+use Opus\Db\DocumentLicences;
+use Opus\Db\DocumentNotes;
+use Opus\Db\DocumentPatents;
+use Opus\Db\DocumentReferences;
+use Opus\Db\Documents;
+use Opus\Db\DocumentStatistics;
+use Opus\Db\DocumentSubjects;
+use Opus\Db\DocumentTitleAbstracts;
+use Opus\Db\FileHashvalues;
+use Opus\Db\Ipranges;
+use Opus\Db\Languages;
+use Opus\Db\LinkAccountsRoles;
+use Opus\Db\LinkDocumentsCollections;
+use Opus\Db\LinkDocumentsDnbInstitutes;
+use Opus\Db\LinkDocumentsLicences;
+use Opus\Db\LinkIprangesRoles;
+use Opus\Db\LinkPersonsDocuments;
+use Opus\Db\Persons;
 use Opus\Db\TableGateway;
+use Opus\Db\UserRoles;
 use OpusTest\TestAsset\TestCase;
+
+use function get_class;
+use function is_array;
 
 /**
  * Test cases for instanciation of table gateway classes.
  *
  * @category    Tests
  * @package     Opus\Db
- *
  * @group       InstanciateGatewayTest
  */
 class InstanciateGatewayTest extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
@@ -66,33 +98,33 @@ class InstanciateGatewayTest extends TestCase
     public function tableGatewayDataProvider()
     {
         return [
-            ['Opus\Db\Accounts'],
-            ['Opus\Db\CollectionsRoles'],
-            ['Opus\Db\Collections'],
-            ['Opus\Db\CollectionsEnrichments'],
-            ['Opus\Db\DnbInstitutes'],
-            ['Opus\Db\DocumentEnrichments'],
-            ['Opus\Db\DocumentFiles'],
-            ['Opus\Db\DocumentIdentifiers'],
-            ['Opus\Db\DocumentLicences'],
-            ['Opus\Db\DocumentNotes'],
-            ['Opus\Db\DocumentPatents'],
-            ['Opus\Db\DocumentReferences'],
-            ['Opus\Db\Documents'],
-            ['Opus\Db\DocumentStatistics'],
-            ['Opus\Db\DocumentSubjects'],
-            ['Opus\Db\DocumentTitleAbstracts'],
-            ['Opus\Db\FileHashvalues'],
-            ['Opus\Db\Ipranges'],
-            ['Opus\Db\Languages'],
-            ['Opus\Db\LinkAccountsRoles'],
-            ['Opus\Db\LinkDocumentsCollections'],
-            ['Opus\Db\LinkDocumentsDnbInstitutes'],
-            ['Opus\Db\LinkDocumentsLicences'],
-            ['Opus\Db\LinkIprangesRoles'],
-            ['Opus\Db\LinkPersonsDocuments'],
-            ['Opus\Db\Persons'],
-            ['Opus\Db\UserRoles'],
+            [Accounts::class],
+            [CollectionsRoles::class],
+            [Collections::class],
+            [CollectionsEnrichments::class],
+            [DnbInstitutes::class],
+            [DocumentEnrichments::class],
+            [DocumentFiles::class],
+            [DocumentIdentifiers::class],
+            [DocumentLicences::class],
+            [DocumentNotes::class],
+            [DocumentPatents::class],
+            [DocumentReferences::class],
+            [Documents::class],
+            [DocumentStatistics::class],
+            [DocumentSubjects::class],
+            [DocumentTitleAbstracts::class],
+            [FileHashvalues::class],
+            [Ipranges::class],
+            [Languages::class],
+            [LinkAccountsRoles::class],
+            [LinkDocumentsCollections::class],
+            [LinkDocumentsDnbInstitutes::class],
+            [LinkDocumentsLicences::class],
+            [LinkIprangesRoles::class],
+            [LinkPersonsDocuments::class],
+            [Persons::class],
+            [UserRoles::class],
         ];
     }
 
@@ -101,8 +133,6 @@ class InstanciateGatewayTest extends TestCase
      *
      * @param string $tableGateway Class name of a table gateway.
      * @param mixed  $param        Special instanciation argument.
-     * @return void
-     *
      * @dataProvider tableGatewayDataProvider
      */
     public function testSpawnGateway($tableGateway)
@@ -136,7 +166,7 @@ class InstanciateGatewayTest extends TestCase
                 $table === $table_2,
                 'Singleton should return same object on second call'
             );
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->fail("Failed to instanciate $tableGateway: " . $ex->getMessage());
         }
     }

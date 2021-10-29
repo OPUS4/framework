@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,45 +25,46 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2011, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2009-2011, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Mail;
 
 use Opus\Config;
+use Opus\Mail\MailException;
 use Opus\Mail\SendMail;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
 
 /**
  * Test cases for class Opus\Mail.
  *
  * @category Tests
  * @package  Opus\Mail
- *
  * @group    MailSendMailTest
  */
 class SendMailTest extends TestCase
 {
-
-    protected $_config_dummy = null;
+    protected $configDummy;
 
     /**
      * Set up test fixtures.
-     *
-     * @return void
      */
     public function setUp()
     {
         parent::setUp();
-        $this->_config_dummy = new \Zend_Config([
-            'mail' => [ 'opus' => [
-                'smtp' => 'host.does.not.exists.hopefully',
-                'port' => 22,
-            ]],
+        $this->configDummy = new Zend_Config([
+            'mail' => [
+                'opus' => [
+                    'smtp' => 'host.does.not.exists.hopefully',
+                    'port' => 22,
+                ],
+            ],
         ]);
     }
 
@@ -71,7 +73,7 @@ class SendMailTest extends TestCase
      */
     public function testConstructor()
     {
-        Config::set($this->_config_dummy);
+        Config::set($this->configDummy);
         $mail = new SendMail();
     }
 
@@ -80,7 +82,7 @@ class SendMailTest extends TestCase
      */
     public function testConstructorWoConfig()
     {
-        Config::set(new \Zend_Config([]));
+        Config::set(new Zend_Config([]));
         $mail = new SendMail();
     }
 
@@ -89,9 +91,9 @@ class SendMailTest extends TestCase
      */
     public function testSendmailWoParameters()
     {
-        Config::set(new \Zend_Config([]));
+        Config::set(new Zend_Config([]));
         $mail = new SendMail();
-        $this->setExpectedException('Opus\Mail\MailException');
+        $this->setExpectedException(MailException::class);
         $mail->sendMail(null, null, null, null, null);
     }
 
@@ -101,16 +103,18 @@ class SendMailTest extends TestCase
     public function testSendmailRemoteHostDoesNotExist()
     {
         $mail = new SendMail();
-        $this->setExpectedException('Opus\Mail\MailException');
+        $this->setExpectedException(MailException::class);
         $mail->sendMail(
             'Sender',
             'sender@does.not.exists.hopefully.mil',
             'no subject',
             'no body',
-            [[
-                        'name' => 'Recipient',
-                        'address' => 'sender@does.not.exists.hopefully.mil',
-                ]]
+            [
+                [
+                    'name'    => 'Recipient',
+                    'address' => 'sender@does.not.exists.hopefully.mil',
+                ],
+            ]
         );
     }
 
@@ -119,10 +123,10 @@ class SendMailTest extends TestCase
      */
     public function testSendMailNoMailFrom()
     {
-        $mail = new SendMail();
+        $mail      = new SendMail();
         $recipient = ['recipients' => ['address' => 'recipient@testmail.de', 'name' => 'John R. Public']];
 
-        $this->setExpectedException('Opus\Mail\MailException');
+        $this->setExpectedException(MailException::class);
         $mail->sendMail('', 'John S. Public', 'My subject', 'My Text', $recipient);
     }
 
@@ -131,10 +135,10 @@ class SendMailTest extends TestCase
      */
     public function testSendMailNoMailBody()
     {
-        $mail = new SendMail();
+        $mail      = new SendMail();
         $recipient = ['recipients' => ['address' => 'recipient@testmail.de', 'name' => 'John R. Public']];
 
-        $this->setExpectedException('Opus\Mail\MailException');
+        $this->setExpectedException(MailException::class);
         $mail->sendMail('recipient@testmail.de', 'John S. Public', '', 'My Text', $recipient);
     }
 

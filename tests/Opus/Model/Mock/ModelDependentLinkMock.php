@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Mock;
 
@@ -44,21 +46,18 @@ use Opus\Model\Dependent\Link\AbstractLinkModel;
  */
 class ModelDependentLinkMock extends AbstractLinkModel
 {
-
     /**
      * Set the protected model class attribute for testing.
      *
      * @param string $modelClass
-     * @return void
      */
     public function setModelClass($modelClass)
     {
-        $this->_modelClass = $modelClass;
+        $this->modelClass = $modelClass;
     }
 
     /**
      * Intentionally empty to mask behaviour.
-     *
      */
     public function __construct()
     {
@@ -66,10 +65,8 @@ class ModelDependentLinkMock extends AbstractLinkModel
 
     /**
      * Intentionally empty to mask behaviour.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
     }
 }

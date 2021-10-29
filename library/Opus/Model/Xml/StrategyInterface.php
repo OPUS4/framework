@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,30 +25,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Model\Xml;
 
+use DOMDocument;
 use Opus\Model\AbstractModel;
 use Opus\Model\ModelException;
 
 /**
  * General interface for Opus XML representations.
  */
-interface Strategy
+interface StrategyInterface
 {
-
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
      *
      * @throws ModelException Thrown if no Model is given.
-     * @return \DOMDocument DOM representation of the current Model.
+     * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument();
 
@@ -55,7 +57,7 @@ interface Strategy
      * Return the current Model instance if there is any. If there is an XML representation set up,
      * a new model is created by unserialising it from the XML data.
      *
-     * @throws ModelException If an error occured during deserialisation
+     * @throws ModelException If an error occured during deserialisation.
      * @return AbstractModel Deserialised or previously set Model.
      */
     public function getModel();
@@ -63,23 +65,19 @@ interface Strategy
     /**
      * Returns version of current xml representation.
      *
-     * @return integer
+     * @return int
      */
     public function getVersion();
 
     /**
      * Set a DomDocument instance.
      *
-     * @param \DOMDocument $dom DomDocument representing a model.
-     * @return void
+     * @param DOMDocument $dom DomDocument representing a model.
      */
-    public function setDomDocument(\DOMDocument $dom);
+    public function setDomDocument(DOMDocument $dom);
 
     /**
      * Setup a representation with a configuration.
-     *
-     * @param Conf $conf
-     * @return void
      */
     public function setup(Conf $conf);
 
@@ -88,7 +86,6 @@ interface Strategy
      *
      * @param string $xml XML string representing a model.
      * @throws ModelException Thrown if XML loading failed.
-     * @return void
      */
     public function setXml($xml);
 
@@ -96,7 +93,6 @@ interface Strategy
      * Update a model from a given xml string.
      *
      * @param string $xml String of xml structure.
-     * @return void
      */
     public function updateFromXml($xml);
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,14 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010
+ *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Document
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2010
- *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Document\Plugin;
@@ -39,6 +41,7 @@ namespace OpusTest\Document\Plugin;
 use Opus\Db\DocumentXmlCache;
 use Opus\Db\TableGateway;
 use Opus\Document;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 
 /**
@@ -46,31 +49,23 @@ use OpusTest\TestAsset\TestCase;
  *
  * @category    Framework
  * @package     Opus\Document
- * @subpackage  Plugin
  */
 class XmlCacheTest extends TestCase
 {
-
     /**
      * Holds an instance of Opus\Db\DocumentXmlCache.
      *
      * @var DocumentXmlCache
      */
-    private $_cacheTable = null;
+    private $cacheTable;
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function setUp()
     {
-
         parent::setUp();
 
         $this->clearTables(false, ['document_xml_cache', 'documents']);
 
-        $this->_cacheTable = TableGateway::getInstance('Opus\Db\DocumentXmlCache');
+        $this->cacheTable = TableGateway::getInstance(DocumentXmlCache::class);
     }
 
     public function testDisabledCachePlugin()
@@ -78,28 +73,23 @@ class XmlCacheTest extends TestCase
         $this->markTestSkipped('Cache is re-enabled');
         $doc = new Document();
 
-        $this->setExpectedException('Opus\Model\ModelException');
-        $doc->unregisterPlugin('Opus\Document\Plugin\XmlCache');
+        $this->setExpectedException(ModelException::class);
+        $doc->unregisterPlugin(Document\Plugin\XmlCache::class);
         $this->fail('Plugin should stay disabled.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testCacheEntriesCreatedAfterDocumentIsStored()
     {
         $doc = new Document();
         $doc->setType('test');
         $doc->setServerState('unpublished');
 
-        $result = $this->_cacheTable->fetchAll();
+        $result      = $this->cacheTable->fetchAll();
         $beforeStore = $result->count();
 
         $docId = $doc->store();
 
-        $result = $this->_cacheTable->fetchAll();
+        $result     = $this->cacheTable->fetchAll();
         $afterStore = $result->count();
 //        $this->assertEquals(0, $afterStore - $beforeStore, 'Expecting same cache entry count.');
         $this->assertEquals(1, $afterStore - $beforeStore, 'Expecting 1 cache entries more.');
@@ -108,11 +98,6 @@ class XmlCacheTest extends TestCase
 //        $this->assertEquals($docId, $result[1]['document_id'], 'Expecting right document data for second entry.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testCacheEntriesAreDeletedAfterDocumentDelete()
     {
         $doc = new Document();
@@ -121,12 +106,12 @@ class XmlCacheTest extends TestCase
 
         $docId = $doc->store();
 
-        $result = $this->_cacheTable->fetchAll();
+        $result       = $this->cacheTable->fetchAll();
         $beforeDelete = $result->count();
 
         $doc->delete();
 
-        $result = $this->_cacheTable->fetchAll();
+        $result      = $this->cacheTable->fetchAll();
         $afterDelete = $result->count();
 
 //        $this->assertEquals(0, $afterDelete - $beforeDelete, 'Expecting same cache entry count.');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,25 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Identifier
  * @author      Frank Niebling (frank.niebling@slub-dresden.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Identifier;
+
+use InvalidArgumentException;
+
+use function floor;
+use function preg_match;
+use function preg_replace;
+use function preg_split;
+use function strlen;
+use function strtolower;
 
 /**
  * Generates a URN with check digit included.
@@ -44,7 +55,6 @@ namespace Opus\Identifier;
  */
 class Urn
 {
-
     /**
      * The URN prefix
      *
@@ -57,21 +67,21 @@ class Urn
      *
      * @var string
      */
-    protected $_nid;
+    protected $nid;
 
     /**
      * Namespace specific string part of the URN.
      *
      * @var string
      */
-    protected $_nss;
+    protected $nss;
 
     /**
      * Concatenation of URN-Namespace.
      *
      * @var string
      */
-    private $_namespace;
+    private $namespace;
 
     /**
      * Use standard URN parts given to build an URN generator applicable to document identifiers.
@@ -84,33 +94,33 @@ class Urn
      *
      * @param string $nid The namespace identifier.
      * @param string $nss  Namespace specific string.
-     * @throws \InvalidArgumentException Thrown if nid or nss does not follow RFS 2141.
+     * @throws InvalidArgumentException Thrown if nid or nss does not follow RFS 2141.
      */
     public function __construct($nid, $nss)
     {
         $nidRegex = '/^[a-zA-Z0-9][a-zA-z0-9\-]+$/';
         if (preg_match($nidRegex, $nid) !== 0) {
-            $this->_nid = $nid;
+            $this->nid = $nid;
         } else {
-            throw new \InvalidArgumentException('Used invalid namespace identifier. See RFC 2141.');
+            throw new InvalidArgumentException('Used invalid namespace identifier. See RFC 2141.');
         }
 
         $nssRegex = '/^[a-zA-z0-9\(\)\+,\-\.:=@;\$_!\*\'%\/\?#]+$/';
         if (preg_match($nssRegex, $nss) !== 0) {
-            $this->_nss = $nss;
+            $this->nss = $nss;
         } else {
-            throw new \InvalidArgumentException('Used invalid namespace specific string. See RFC 2141.');
+            throw new InvalidArgumentException('Used invalid namespace specific string. See RFC 2141.');
         }
 
         // compose namespace
-        $this->_namespace = self::URN_PREFIX . ':' . $this->_nid . ':' . $this->_nss . '-';
+        $this->namespace = self::URN_PREFIX . ':' . $this->nid . ':' . $this->nss . '-';
     }
 
     /**
      * Generates complete URNs given a document identifier.
      *
-     * @param integer $documentId Identifier of the Document
-     * @throws \InvalidArgumentException Thrown if the document identifier is not a number.
+     * @param int $documentId Identifier of the Document
+     * @throws InvalidArgumentException Thrown if the document identifier is not a number.
      * @return string The URN.
      */
     public function getUrn($documentId)
@@ -120,36 +130,34 @@ class Urn
 
         // Check if document identifier is valid.
         if (preg_match($idPattern, $documentId) === 0) {
-            throw new \InvalidArgumentException('Used invalid arguments for document id.');
+            throw new InvalidArgumentException('Used invalid arguments for document id.');
         } else {
             // calculate matching check digit
             $checkDigit = self::getCheckDigit($documentId);
 
             // compose and return urn and check digit
-            return $this->_namespace . $documentId . $checkDigit;
+            return $this->namespace . $documentId . $checkDigit;
         }
     }
 
     /**
      * Generates check digit for a given document identifer.
      *
-     * @param integer $documentId ID of the Document
-     * @throws \InvalidArgumentException Thrown if the document identifier is not a number.
-     * @return integer Check digit.
+     * @param int $documentId ID of the Document
+     * @throws InvalidArgumentException Thrown if the document identifier is not a number.
+     * @return int Check digit.
      */
-
     public function getCheckDigit($documentId)
     {
-
         // regexp pattern for valid document id
         $idPattern = '/^[1-9][0-9]*$/';
 
         // Check if document identifier is valid.
         if (preg_match($idPattern, $documentId) === 0) {
-            throw new \InvalidArgumentException('Used invalid arguments for document id.');
+            throw new InvalidArgumentException('Used invalid arguments for document id.');
         } else {
             // compose urn with document id
-            $nbn = $this->_namespace . $documentId;
+            $nbn = $this->namespace . $documentId;
 
             // Replace characters by numbers.
             $nbnNumbers = $this->replaceUrnChars($nbn);
@@ -168,7 +176,7 @@ class Urn
 
             // calculate product sum
             for ($ii = 1; $ii <= $nbnNumbersLength; $ii++) {
-                $sum = ($sum + ($nbnNumbersArray[$ii] * $ii));
+                $sum = $sum + ($nbnNumbersArray[$ii] * $ii);
             }
 
             // identify last digit
@@ -183,13 +191,9 @@ class Urn
             // identify last digit, which is the check digit
             // TODO: (Thoralf)  Not supported by every PHP
             // $check_digit = ($quotient{mb_strlen($quotient)-1});
-            $checkDigit = ($quotient{strlen($quotient) - 1});
-
-            // return check digit
-            return $checkDigit;
+            return $quotient{strlen($quotient) - 1};
         }
     }
-
 
     /**
      * Do a replacement of every character by a specific number according to DNB check digit allegation.
@@ -208,16 +212,87 @@ class Urn
 
         // array of characters to match
         $searchPattern = [
-            '/9/', '/8/', '/7/', '/6/', '/5/', '/4/', '/3/', '/2/', '/1/', '/0/', '/a/', '/b/',
-            '/c/', '/d/', '/e/', '/f/', '/g/', '/h/', '/i/', '/j/', '/k/', '/l/', '/m/', '/n/', '/o/', '/p/', '/q/',
-            '/r/', '/s/', '/t/', '/u/', '/v/', '/w/', '/x/', '/y/', '/z/', '/-/', '/:/'
+            '/9/',
+            '/8/',
+            '/7/',
+            '/6/',
+            '/5/',
+            '/4/',
+            '/3/',
+            '/2/',
+            '/1/',
+            '/0/',
+            '/a/',
+            '/b/',
+            '/c/',
+            '/d/',
+            '/e/',
+            '/f/',
+            '/g/',
+            '/h/',
+            '/i/',
+            '/j/',
+            '/k/',
+            '/l/',
+            '/m/',
+            '/n/',
+            '/o/',
+            '/p/',
+            '/q/',
+            '/r/',
+            '/s/',
+            '/t/',
+            '/u/',
+            '/v/',
+            '/w/',
+            '/x/',
+            '/y/',
+            '/z/',
+            '/-/',
+            '/:/',
         ];
 
         // array of corresponding replacements, '9' will be temporarily replaced with placeholder '_' to prevent
         // replacement of '41' with '52'
         $replacements = [
-            '_', 9, 8, 7, 6, 5, 4, 3, 2, 1, 18, 14, 19, 15, 16, 21, 22, 23, 24, 25, 42, 26, 27, 13, 28, 29, 31, 12, 32,
-            33, 11, 34, 35, 36, 37, 38, 39, 17
+            '_',
+            9,
+            8,
+            7,
+            6,
+            5,
+            4,
+            3,
+            2,
+            1,
+            18,
+            14,
+            19,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            25,
+            42,
+            26,
+            27,
+            13,
+            28,
+            29,
+            31,
+            12,
+            32,
+            33,
+            11,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            17,
         ];
 
         // replace matching pattern in given nbn with corresponding replacement

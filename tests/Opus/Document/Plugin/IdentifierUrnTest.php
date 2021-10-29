@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Document\Plugin
  * @author      Julian Heise (heise@zib.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Document\Plugin;
 
@@ -40,10 +42,14 @@ use Opus\Document\Plugin\IdentifierUrn;
 use Opus\File;
 use Opus\Identifier\Urn;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function count;
+use function strlen;
+use function substr;
 
 class IdentifierUrnTest extends TestCase
 {
-
     public function testAutoGenerateUrn()
     {
         $model = new Document();
@@ -69,10 +75,10 @@ class IdentifierUrnTest extends TestCase
         $this->assertEquals(1, count($urns));
         $this->assertEquals('urn', $urns[0]->getType());
 
-        $config = Config::get();
-        $urnItem = new Urn($config->urn->nid, $config->urn->nss);
+        $config     = Config::get();
+        $urnItem    = new Urn($config->urn->nid, $config->urn->nss);
         $checkDigit = $urnItem->getCheckDigit($model->getId());
-        $urnString = 'urn:' . $config->urn->nid . ':' . $config->urn->nss . '-' . $model->getId() . $checkDigit;
+        $urnString  = 'urn:' . $config->urn->nid . ':' . $config->urn->nss . '-' . $model->getId() . $checkDigit;
 
         $this->assertEquals($urnString, $urns[0]->getValue());
     }
@@ -308,9 +314,12 @@ class IdentifierUrnTest extends TestCase
         $this->assertEmpty($doc->getIdentifier());
     }
 
+    /**
+     * @param string $urnConfig
+     */
     private function adaptUrnConfiguration($urnConfig)
     {
-        Config::get()->merge(new \Zend_Config(['urn' => $urnConfig]));
+        Config::get()->merge(new Zend_Config(['urn' => $urnConfig]));
     }
 
     private function addFileToDoc(Document $doc)
@@ -329,8 +338,8 @@ class IdentifierUrnTest extends TestCase
     {
         $urnConfig = [
             'autoCreate' => self::CONFIG_VALUE_TRUE,
-            'nss' => 'nss',
-            'nid' => 'nid'
+            'nss'        => 'nss',
+            'nid'        => 'nid',
         ];
         $this->adaptUrnConfiguration($urnConfig);
     }

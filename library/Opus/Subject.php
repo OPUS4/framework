@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -37,29 +39,26 @@ namespace Opus;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for document subjects in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
- *
  * @method void setType(string $type)
  * @method string getType()
- *
  * @method void setValue(string $value)
  * @method string getValue()
- *
  * @method void setExternalKey(string $externalKey)
  * @method string getExternalKey()
  */
 class Subject extends AbstractDependentModel
 {
-
     const SWD = 'swd';
 
     const PSYNDEX = 'psyndex';
@@ -69,16 +68,16 @@ class Subject extends AbstractDependentModel
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DocumentSubjects';
+    protected static $tableGatewayClass = Db\DocumentSubjects::class;
 
     /**
      * Initialize model with the following fields:
@@ -86,12 +85,10 @@ class Subject extends AbstractDependentModel
      * - Type
      * - Value
      * - External key
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $language = new Field('Language');
+        $language           = new Field('Language');
         $availableLanguages = Config::getInstance()->getTempPath();
         if ($availableLanguages !== null) {
             $language->setDefault($availableLanguages);
@@ -103,14 +100,14 @@ class Subject extends AbstractDependentModel
         $type->setMandatory(true);
         $type->setSelection(true);
         $type->setDefault([
-            'swd' => 'swd',
-            'psyndex' => 'psyndex',
-            'uncontrolled' => 'uncontrolled'
+            'swd'          => 'swd',
+            'psyndex'      => 'psyndex',
+            'uncontrolled' => 'uncontrolled',
         ]);
 
         $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $externalKey = new Field('ExternalKey');
 
@@ -125,12 +122,12 @@ class Subject extends AbstractDependentModel
      *
      * @param string $term String that must be included in keyword
      * @param string $type Type of keywords
-     * @param integer $limit Maximum number of returned results
+     * @param int    $limit Maximum number of returned results
      * @return array
      */
     public static function getMatchingSubjects($term, $type = 'swd', $limit = 20)
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $select = $table->select()
             ->from($table, ['value', 'external_key'])
@@ -138,11 +135,11 @@ class Subject extends AbstractDependentModel
             ->order('value ASC')
             ->group(['value', 'external_key']);
 
-        if (! is_null($type)) {
+        if ($type !== null) {
             $select->where('type = ?', $type);
         }
 
-        if (! is_null($limit)) {
+        if ($limit !== null) {
             $select->limit($limit, 0);
         }
 
@@ -153,8 +150,8 @@ class Subject extends AbstractDependentModel
         foreach ($rows as $row) {
             $columns = $row->toArray();
 
-            $subject = [];
-            $subject['value'] = $columns['value'];
+            $subject           = [];
+            $subject['value']  = $columns['value'];
             $subject['extkey'] = $columns['external_key'];
 
             $values[] = $subject;

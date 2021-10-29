@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,40 +26,48 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use Exception;
 use Opus\Doi\DoiException;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Doi\Generator\DoiGeneratorFactory;
-use Opus\Model\Dependent\AbstractDependentModel;
-use Opus\Model\Field;
 use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
 use Opus\Model\ModelException;
+use Zend_Exception;
+use Zend_Validate_NotEmpty;
+
+use function array_combine;
+use function array_search;
+use function array_values;
+use function count;
+use function implode;
+use function in_array;
+use function preg_match;
+use function substr;
 
 /**
  * Domain model for document identifiers in the Opus framework
  *
- * @category    Framework
- * @package     Opus\Model
  * @uses        \Opus\Model\Dependent\AbstractDependentModel
  *
  * @method void setValue(string $value)
  * @method string getValue()
- *
  * @method void setType(string $type)
  * @method string getType()
- *
  * @method void setStatus(string $status)
  * @method string getStatus()
- *
  * @method void setRegistrationTs(string $timestamp)
  * @method string getRegistrationTs()
  *
@@ -71,58 +80,59 @@ use Opus\Model\ModelException;
  * would then have to be mapped to different table, however they could also still be mapped to the same table. At some
  * point this will have to be revisited. We need a consistent object model independent of how the data is stored in the
  * end.
+ *
+ * phpcs:disable
  */
 class Identifier extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DocumentIdentifiers';
+    protected static $tableGatewayClass = Db\DocumentIdentifiers::class;
 
     /**
      * Mapping between identifier type and field name.
+     *
      * @var array
      */
     private static $identifierMapping = [
-        'Old' => 'old',
-        'Serial' => 'serial',
-        'Uuid' => 'uuid',
-        'Isbn' => 'isbn',
-        'Urn' => 'urn',
-        'Doi' => 'doi',
-        'Handle' => 'handle',
-        'Url' => 'url',
-        'Issn' => 'issn',
-        'StdDoi' => 'std-doi',
-        'CrisLink' => 'cris-link',
+        'Old'       => 'old',
+        'Serial'    => 'serial',
+        'Uuid'      => 'uuid',
+        'Isbn'      => 'isbn',
+        'Urn'       => 'urn',
+        'Doi'       => 'doi',
+        'Handle'    => 'handle',
+        'Url'       => 'url',
+        'Issn'      => 'issn',
+        'StdDoi'    => 'std-doi',
+        'CrisLink'  => 'cris-link',
         'SplashUrl' => 'splash-url',
-        'Opus3' => 'opus3-id',
-        'Opac' => 'opac-id',
-        'Arxiv' => 'arxiv',
-        'Pubmed' => 'pmid'
+        'Opus3'     => 'opus3-id',
+        'Opac'      => 'opac-id',
+        'Arxiv'     => 'arxiv',
+        'Pubmed'    => 'pmid',
     ];
 
     /**
      * Initialize model with the following fields:
      * - Value
      * - Label
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $value = new Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($value);
 
         $typeDefaults = array_values(self::$identifierMapping);
@@ -131,7 +141,7 @@ class Identifier extends AbstractDependentModel
         $type = new Field('Type');
         $type->setMandatory(true)
                 ->setSelection(true)
-                ->setValidator(new \Zend_Validate_NotEmpty())
+                ->setValidator(new Zend_Validate_NotEmpty())
                 ->setDefault($typeDefaults);
         $this->addField($type);
 
@@ -140,7 +150,7 @@ class Identifier extends AbstractDependentModel
         $value->setMandatory(false)
             ->setDefault([
                 'registered' => 'registered',
-                'verified' => 'verified'
+                'verified'   => 'verified',
             ]);
         $this->addField($value);
 
@@ -153,7 +163,7 @@ class Identifier extends AbstractDependentModel
     {
         $type  = $this->getType();
         $value = $this->getValue();
-        if (isset($type) and isset($value)) {
+        if (isset($type) && isset($value)) {
             switch ($type) {
                 case 'urn':
                     $this->checkUrnCollision($value);
@@ -191,7 +201,7 @@ class Identifier extends AbstractDependentModel
         $docIds = $finder->ids();
         // remove $docId of current document from $docIds
 
-        if (! is_null($docId)) {
+        if ($docId !== null) {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
             }
@@ -226,7 +236,6 @@ class Identifier extends AbstractDependentModel
      *
      * Im Falle einer DOI-Kollision (d.h. der DOI-Wert existiert bereits in der Datenbank) liefert die Methode true
      * zurück; andernfalls false.
-     *
      */
     public function checkDoiCollision()
     {
@@ -254,7 +263,6 @@ class Identifier extends AbstractDependentModel
      *
      * Wird eine ID eines Opus-Dokuments übergeben, so wird das zugehörige Dokument bei der Eindeutigkeitsprüfung nicht
      * betrachtet.
-     *
      */
     public function isDoiUnique($docId = null)
     {
@@ -262,7 +270,7 @@ class Identifier extends AbstractDependentModel
         $finder->setIdentifierTypeValue('doi', $this->getValue());
         $docIds = $finder->ids();
         // remove $docId from $docIds
-        if (! is_null($docId)) {
+        if ($docId !== null) {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
             }
@@ -270,7 +278,7 @@ class Identifier extends AbstractDependentModel
 
         try {
             $this->checkIdCollision('doi', $docIds);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
         return true;
@@ -286,13 +294,12 @@ class Identifier extends AbstractDependentModel
      * Im Erfolgsfall gibt die Methode true zurück; sonst false.
      *
      * @return bool
-     * @throws \Zend_Exception
+     * @throws Zend_Exception
      *
      * TODO if generator class is missing use default class, if that is missing => fatal error
      */
     public function isLocalDoi()
     {
-
         $generator = null;
         try {
             $generator = DoiGeneratorFactory::create();
@@ -303,7 +310,7 @@ class Identifier extends AbstractDependentModel
         // wenn DOI-Generierungsklasse in Konfiguration angegeben wurde, dann nutze die von der Klasse
         // implementierte Methode isLocal für die Prüfung, ob eine lokale DOI vorliegt
 
-        if (is_null($generator)) {
+        if ($generator === null) {
             $generator = new DefaultGenerator();
         }
 
@@ -315,7 +322,7 @@ class Identifier extends AbstractDependentModel
      */
     public function isValidDoi()
     {
-        $value = $this->getValue();
+        $value               = $this->getValue();
         $containsInvalidChar = preg_match('/[^0-9a-zA-Z\-\.\_\+\:\/]/', $value);
         return $containsInvalidChar !== 1;
     }
@@ -336,7 +343,7 @@ class Identifier extends AbstractDependentModel
                 $exception = new ModelException($errorMsg);
         }
 
-        if ($this->isNewRecord() and ! empty($docIds)) {
+        if ($this->isNewRecord() && ! empty($docIds)) {
             throw $exception;
         }
 
@@ -344,7 +351,7 @@ class Identifier extends AbstractDependentModel
             throw $exception;
         }
 
-        if (count($docIds) == 1 and ! is_null($this->getParentId()) and ! in_array($this->getParentId(), $docIds)) {
+        if (count($docIds) === 1 && $this->getParentId() !== null && ! in_array($this->getParentId(), $docIds)) {
             throw $exception;
         }
     }

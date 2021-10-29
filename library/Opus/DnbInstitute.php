@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -37,47 +38,42 @@ namespace Opus;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for DnbInstitute in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\Abstract
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setDepartment(string $department)
  * @method string getDepartment()
- *
  * @method void setAddress(string $address)
  * @method string getAddress()
- *
  * @method void setCity(string $city)
  * @method string getCity()
- *
  * @method void setPhone(string $phone)
  * @method string getPhone()
- *
  * @method void setDnbContactId(string $contactId)
  * @method string getDnbContactId()
- *
  * @method void setIsGrantor(boolean $isGrantor)
  * @method boolean getIsGrantor()
- *
  * @method void setIsPublisher(boolean $isPublisher)
  * @method boolean getIsPublisher()
+ *
+ * phpcs:disable
  */
 class DnbInstitute extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DnbInstitutes';
+    protected static $tableGatewayClass = Db\DnbInstitutes::class;
 
     /**
      * Retrieve all Opus\DnbInstitute instances from the database.
@@ -86,7 +82,7 @@ class DnbInstitute extends AbstractDb
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus\DnbInstitute', 'Opus\Db\DnbInstitutes');
+        return self::getAllFrom(self::class, Db\DnbInstitutes::class);
     }
 
     /**
@@ -96,11 +92,11 @@ class DnbInstitute extends AbstractDb
      */
     public static function getGrantors()
     {
-        $table = TableGateway::getInstance('Opus\Db\DnbInstitutes');
+        $table  = TableGateway::getInstance(Db\DnbInstitutes::class);
         $select = $table->select()
                 ->where('is_grantor = ?', 1);
 
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
         $result = [];
         foreach ($rows as $row) {
             $result[] = new DnbInstitute($row);
@@ -115,11 +111,11 @@ class DnbInstitute extends AbstractDb
      */
     public static function getPublishers()
     {
-        $table = TableGateway::getInstance('Opus\Db\DnbInstitutes');
+        $table  = TableGateway::getInstance(Db\DnbInstitutes::class);
         $select = $table->select()
                 ->where('is_publisher = ?', 1);
 
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
         $result = [];
         foreach ($rows as $row) {
             $result[] = new DnbInstitute($row);
@@ -135,7 +131,7 @@ class DnbInstitute extends AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
@@ -147,14 +143,12 @@ class DnbInstitute extends AbstractDb
      * - phone
      * - dnbContactId
      * - is_grantor
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $name = new Field('Name');
         $name->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
 
         $department = new Field('Department');
 
@@ -162,7 +156,7 @@ class DnbInstitute extends AbstractDb
 
         $city = new Field('City');
         $city->setMandatory(true)
-                ->setValidator(new \Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
 
         $phone = new Field('Phone');
 
@@ -192,7 +186,7 @@ class DnbInstitute extends AbstractDb
     public function getDisplayName()
     {
         $departmentName = $this->getDepartment();
-        return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
+        return $this->getName() . (empty($departmentName) ? '' : ', ' . $departmentName);
     }
 
     /**
@@ -200,7 +194,7 @@ class DnbInstitute extends AbstractDb
      */
     public function isUsed()
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table    = TableGateway::getInstance(self::$tableGatewayClass);
         $database = $table->getAdapter();
 
         $select = $database->select()

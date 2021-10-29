@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,28 +26,34 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use Exception;
 use Opus\Config;
 use Opus\Document;
 use Opus\DocumentFinder;
+use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Identifier;
-use Opus\Identifier\UrnAlreadyExistsException;
 use Opus\Identifier\DoiAlreadyExistsException;
+use Opus\Identifier\UrnAlreadyExistsException;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function count;
+use function sleep;
 
 class IdentifierTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
@@ -54,6 +61,10 @@ class IdentifierTest extends TestCase
         $this->clearTables(false, ['documents', 'document_identifiers']);
     }
 
+    /**
+     * @param string $urn
+     * @return Document
+     */
     private function createDocumentWithIdentifierUrn($urn)
     {
         $document = new Document();
@@ -80,12 +91,12 @@ class IdentifierTest extends TestCase
 
     public function testCreateDocumentWithUrn()
     {
-        $testUrn = 'nbn:de:kobv:test123';
+        $testUrn  = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
-        $docId = $document->store();
+        $docId    = $document->store();
 
         // reload and test
-        $document = new Document($docId);
+        $document    = new Document($docId);
         $identifiers = $document->getIdentifier();
 
         $this->assertEquals(1, count($identifiers));
@@ -98,7 +109,7 @@ class IdentifierTest extends TestCase
      */
     public function testFailDoubleUrnForSameDocument()
     {
-        $testUrn = 'nbn:de:kobv:test123';
+        $testUrn  = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
         $document->addIdentifier()
                 ->setType('urn')
@@ -116,9 +127,9 @@ class IdentifierTest extends TestCase
      */
     public function testCreateUrnCollisionViaDocument()
     {
-        $testUrn = 'nbn:de:kobv:test123';
+        $testUrn  = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
-        $docId = $document->store();
+        $docId    = $document->store();
 
         $this->checkUniqueIdentifierOnDocument($docId, 'urn', $testUrn);
 
@@ -136,9 +147,9 @@ class IdentifierTest extends TestCase
      */
     public function testCreateUrnCollisionViaUsingIdentifier()
     {
-        $testUrn = 'nbn:de:kobv:test123';
+        $testUrn  = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
-        $docId = $document->store();
+        $docId    = $document->store();
 
         $this->checkUniqueIdentifierOnDocument($docId, 'urn', $testUrn);
 
@@ -162,9 +173,9 @@ class IdentifierTest extends TestCase
      */
     public function testCreateUrnCollisionUsingAddIdentifierUrn()
     {
-        $testUrn = 'nbn:de:kobv:test123';
+        $testUrn  = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
-        $docId = $document->store();
+        $docId    = $document->store();
 
         $this->checkUniqueIdentifierOnDocument($docId, 'urn', $testUrn);
 
@@ -196,7 +207,8 @@ class IdentifierTest extends TestCase
             '10.000/äöüß-987',
             '10.000/opus~987',
             '10.000/opus*987',
-            '10.000/opus#987'];
+            '10.000/opus#987',
+        ];
         foreach ($doiValuesToProbe as $value) {
             $doi = new Identifier();
             $doi->setType('doi');
@@ -209,9 +221,9 @@ class IdentifierTest extends TestCase
     {
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.3456/opustest-987');
@@ -223,9 +235,9 @@ class IdentifierTest extends TestCase
     {
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.3456/opustest-987');
@@ -238,8 +250,8 @@ class IdentifierTest extends TestCase
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.3456/opustest-987');
@@ -252,8 +264,8 @@ class IdentifierTest extends TestCase
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
-            'prefix' => '12.3456',
-            'localPrefix' => 'opustest',
+            'prefix'         => '12.3456',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.3456/opustest-987');
@@ -265,9 +277,9 @@ class IdentifierTest extends TestCase
     {
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.3456/anothersystem-987');
@@ -279,9 +291,9 @@ class IdentifierTest extends TestCase
     {
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.6543/opustest-987');
@@ -294,8 +306,8 @@ class IdentifierTest extends TestCase
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => 'Opus\Doi\Generator\MissingGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.6543/opustest-987');
@@ -308,8 +320,8 @@ class IdentifierTest extends TestCase
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('12.3456/anothersystem-987');
@@ -322,8 +334,8 @@ class IdentifierTest extends TestCase
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
-            'prefix' => '',
-            'localPrefix' => 'opustest',
+            'prefix'         => '',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('opustest-987');
@@ -335,9 +347,9 @@ class IdentifierTest extends TestCase
     {
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createTestDocumentWithDoi('opustest-987');
@@ -348,18 +360,18 @@ class IdentifierTest extends TestCase
     public function testIsDoiUniquePositive()
     {
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
-        $doc1 = $this->createTestDocumentWithDoi('12.3456/opustest-789', false);
+        $doc1   = $this->createTestDocumentWithDoi('12.3456/opustest-789', false);
         $doc1Id = $doc1->store();
 
         $doc2 = $this->createTestDocumentWithDoi('12.3456/opustest-890', false);
         $dois = $doc2->getIdentifier();
-        $doi = $dois[0];
+        $doi  = $dois[0];
         $this->assertEquals('doi', $doi->getType());
         $this->assertEquals('12.3456/opustest-890', $doi->getValue());
 
@@ -373,16 +385,16 @@ class IdentifierTest extends TestCase
     public function testIsDoiUniqueNegative()
     {
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
-        $doc1 = $this->createTestDocumentWithDoi('12.3456/opustest-789', false);
+        $doc1   = $this->createTestDocumentWithDoi('12.3456/opustest-789', false);
         $doc1Id = $doc1->store();
 
-        $doc2 = $this->createTestDocumentWithDoi('12.3456/opustest-890', false);
+        $doc2   = $this->createTestDocumentWithDoi('12.3456/opustest-890', false);
         $doc2Id = $doc2->store();
 
         $doc3 = $this->createTestDocumentWithDoi('12.3456/opustest-789', false);
@@ -400,7 +412,7 @@ class IdentifierTest extends TestCase
         $exceptionToCheck = null;
         try {
             $doc3->store();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $exceptionToCheck = $e;
         }
         $this->assertTrue($exceptionToCheck instanceof DoiAlreadyExistsException);
@@ -408,7 +420,7 @@ class IdentifierTest extends TestCase
 
     public function testIsUrnUniquePositive()
     {
-        $doc1 = $this->createDocumentWithIdentifierUrn('urn:987654321');
+        $doc1   = $this->createDocumentWithIdentifierUrn('urn:987654321');
         $doc1Id = $doc1->store();
 
         $doc2 = $this->createDocumentWithIdentifierUrn('urn:123456789');
@@ -428,10 +440,10 @@ class IdentifierTest extends TestCase
 
     public function testIsUrnUniqueNegative()
     {
-        $doc1 = $this->createDocumentWithIdentifierUrn('urn:987654321');
+        $doc1   = $this->createDocumentWithIdentifierUrn('urn:987654321');
         $doc1Id = $doc1->store();
 
-        $doc2 = $this->createDocumentWithIdentifierUrn('urn:123456789');
+        $doc2   = $this->createDocumentWithIdentifierUrn('urn:123456789');
         $doc2Id = $doc2->store();
 
         $doc3 = $this->createDocumentWithIdentifierUrn('urn:987654321');
@@ -448,15 +460,22 @@ class IdentifierTest extends TestCase
         $exceptionToCheck = null;
         try {
             $doc3->store();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $exceptionToCheck = $e;
         }
         $this->assertTrue($exceptionToCheck instanceof UrnAlreadyExistsException);
     }
 
+    /**
+     * @param int $docId
+     * @param string $value
+     * @param bool $isLocal
+     * @throws \Opus\Model\ModelException
+     * @throws \Zend_Exception
+     */
     private function assertDoi($docId, $value, $isLocal)
     {
-        $doc = new Document($docId);
+        $doc  = new Document($docId);
         $dois = $doc->getIdentifier();
         $this->assertCount(1, $dois);
 
@@ -466,6 +485,12 @@ class IdentifierTest extends TestCase
         $this->assertEquals($isLocal, $doi->isLocalDoi());
     }
 
+    /**
+     * @param string $value
+     * @param bool $store
+     * @return array|mixed|Document|string
+     * @throws \Opus\Model\ModelException
+     */
     private function createTestDocumentWithDoi($value, $store = true)
     {
         $doc = new Document();
@@ -479,21 +504,23 @@ class IdentifierTest extends TestCase
             return $doc;
         }
 
-        $docId = $doc->store();
-        return $docId;
+        return $doc->store();
     }
 
+    /**
+     * @param array $doiConfig
+     */
     private function adaptDoiConfiguration($doiConfig)
     {
-        Config::get()->merge(new \Zend_Config(['doi' => $doiConfig]));
+        Config::get()->merge(new Zend_Config(['doi' => $doiConfig]));
     }
 
     public function testCheckDoiCollisionFalse()
     {
         $doiConfig = [
-            'generatorClass' => 'Opus\Doi\Generator\DefaultGenerator',
-            'prefix' => '12.3456/',
-            'localPrefix' => 'opustest',
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
@@ -531,20 +558,20 @@ class IdentifierTest extends TestCase
         $data = $identifier->toArray();
 
         $this->assertEquals([
-            'Value' => '123-4563-123',
-            'Type' => 'isbn',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-11 15:45:21'
+            'Value'          => '123-4563-123',
+            'Type'           => 'isbn',
+            'Status'         => 'registered',
+            'RegistrationTs' => '2018-10-11 15:45:21',
         ], $data);
     }
 
     public function testFromArray()
     {
         $data = [
-            'Value' => '123-4563-123',
-            'Type' => 'isbn',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-11 15:45:21'
+            'Value'          => '123-4563-123',
+            'Type'           => 'isbn',
+            'Status'         => 'registered',
+            'RegistrationTs' => '2018-10-11 15:45:21',
         ];
 
         $identifier = new Identifier();
@@ -558,7 +585,7 @@ class IdentifierTest extends TestCase
 
     public function testModifyingStatusDoesNotChangeServerDateModified()
     {
-        $doc = new Document();
+        $doc        = new Document();
         $identifier = new Identifier();
         $identifier->setType('old');
         $identifier->setValue('123-45678-123');
@@ -587,7 +614,7 @@ class IdentifierTest extends TestCase
 
     public function testModifyingRegistrationTsDoesNotChangeServerDateModified()
     {
-        $doc = new Document();
+        $doc        = new Document();
         $identifier = new Identifier();
         $identifier->setType('old');
         $identifier->setValue('123-45678-123');

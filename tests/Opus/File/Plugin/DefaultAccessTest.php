@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\File\Plugin;
@@ -41,17 +43,18 @@ use OpusTest\TestAsset\FileMock;
 use OpusTest\TestAsset\LoggerMock;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+use function uniqid;
+
 /**
  * Test cases for class Opus\File\Plugin\DefaultAccessTest.
  *
  * @package Opus\File
  * @category Tests
- *
  * @group FileTest
  */
 class DefaultAccessTest extends TestCase
 {
-
     protected function setUp()
     {
         parent::setUp();
@@ -84,22 +87,22 @@ class DefaultAccessTest extends TestCase
 
     public function testPostStoreIgnoreOldModel()
     {
-        $guestRole = UserRole::fetchByName('guest');
-        $list_before = $guestRole->listAccessFiles();
+        $guestRole   = UserRole::fetchByName('guest');
+        $listBefore = $guestRole->listAccessFiles();
 
         $oldFile = new FileMock(false); // alte Datei
-        $object = new DefaultAccess();
+        $object  = new DefaultAccess();
         $object->postStore($oldFile);
 
-        $list_after = $guestRole->listAccessFiles();
+        $listAfter = $guestRole->listAccessFiles();
         $this->assertEquals(
-            count($list_before),
-            count($list_after),
+            count($listBefore),
+            count($listAfter),
             'File access list counts should not have changed.'
         );
         $this->assertEquals(
-            $list_before,
-            $list_after,
+            $listBefore,
+            $listAfter,
             'File access lists should not have changed.'
         );
     }
@@ -127,7 +130,7 @@ class DefaultAccessTest extends TestCase
      */
     public function testPostStoreAddNoRoleToNewModel()
     {
-        $config = Config::get();
+        $config                                           = Config::get();
         $config->securityPolicy->files->defaultAccessRole = '';
 
         $userRole = UserRole::fetchByName('user');
@@ -151,53 +154,53 @@ class DefaultAccessTest extends TestCase
     public function testPostStoreAddsGuestToNewModel()
     {
         $config = Config::get();
-        $path = $config->workspacePath . '/' . uniqid();
+        $path   = $config->workspacePath . '/' . uniqid();
 
         $guestRole = UserRole::fetchByName('guest');
-        $list = $guestRole->listAccessFiles();
+        $list      = $guestRole->listAccessFiles();
         $this->assertEquals(0, count($list));
 
-        $doc = new Document();
+        $doc  = new Document();
         $file = $doc->addFile();
         $file->setPathName($path);
         $doc->store(); // beim Speichern wird *guest* hinzugefügt
         $modelId = $doc->getId();
 
-        $doc = new Document($modelId);
+        $doc  = new Document($modelId);
         $file = $doc->getFile(0);
         $this->assertTrue(! empty($file));
 
         $fileId = $file->getId();
 
         $guestRole = UserRole::fetchByName('guest');
-        $list = $guestRole->listAccessFiles();
+        $list      = $guestRole->listAccessFiles();
         $this->assertContains($fileId, $list);
     }
 
     public function testPostStoreAddConfiguredRoleToNewModel()
     {
-        $config = Config::get();
-        $path = $config->workspacePath . '/' . uniqid();
+        $config                                           = Config::get();
+        $path                                             = $config->workspacePath . '/' . uniqid();
         $config->securityPolicy->files->defaultAccessRole = 'user';
 
         $userRole = UserRole::fetchByName('user');
-        $list = $userRole->listAccessFiles();
+        $list     = $userRole->listAccessFiles();
         $this->assertEquals(0, count($list));
 
-        $doc = new Document();
+        $doc  = new Document();
         $file = $doc->addFile();
         $file->setPathName($path);
         $doc->store(); // beim Speichern wird *guest* hinzugefügt
         $modelId = $doc->getId();
 
-        $doc = new Document($modelId);
+        $doc  = new Document($modelId);
         $file = $doc->getFile(0);
         $this->assertTrue(! empty($file));
 
         $fileId = $file->getId();
 
         $userRole = UserRole::fetchByName('user');
-        $list = $userRole->listAccessFiles();
+        $list     = $userRole->listAccessFiles();
         $this->assertContains($fileId, $list, 'File was not added to role \'user\'');
     }
 

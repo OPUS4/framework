@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,29 +25,44 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use DateTime;
+use DateTimeZone;
+use InvalidArgumentException;
 use Opus\Model\AbstractModel;
-use Opus\Model\Comparable;
+use Opus\Model\ComparableInterface;
 use Opus\Model\DateField;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 use Opus\Model\UnixTimestampField;
+use Zend_Date;
+use Zend_Validate_Int;
+
+use function checkdate;
+use function get_class;
+use function gmdate;
+use function htmlspecialchars;
+use function is_array;
+use function is_int;
+use function is_integer;
+use function is_string;
+use function preg_match;
+use function sprintf;
+use function substr;
 
 /**
  * Domain model for date and time storage.
- *
- * @category    Framework
- * @package     Opus
  *
  * UnixTimestamp and the other fields are different representations of the same value. If any of the element, like year,
  * month or date, is modified, the UnixTimestamp needs to be updated or vice versa.
@@ -60,40 +76,34 @@ use Opus\Model\UnixTimestampField;
  *
  * When a UNIX timestamp is set it always create
  *
- *
- * TODO remove Field objects
- * TODO extend Opus\Date with functions to provide string appropriate for Locale
+ * phpcs:disable
  *
  * @method void setYear(integer $year)
  * @method integer getYear()
- *
  * @method void setMonth(integer $month)
  * @method integer getMonth()
- *
  * @method void setDay(integer $day)
  * @method integer getDay()
- *
  * @method void setHour(integer $hour)
  * @method integer getHour()
- *
  * @method void setMinute(integer $minute)
  * @method integer getMinute()
- *
  * @method void setSecond(integer $second)
  * @method integer getSecond()
- *
  * @method void setTimezone(string $timezone)
  * @method string getTimezone()
+ *
+ * TODO remove Field objects
+ * TODO extend Opus\Date with functions to provide string appropriate for Locale
  */
-class Date extends AbstractModel implements Comparable
+class Date extends AbstractModel implements ComparableInterface
 {
-
-    const FIELD_YEAR = 'Year';
-    const FIELD_MONTH = 'Month';
-    const FIELD_DAY = 'Day';
-    const FIELD_HOUR = 'Hour';
-    const FIELD_MINUTE = 'Minute';
-    const FIELD_SECOND = 'Second';
+    const FIELD_YEAR     = 'Year';
+    const FIELD_MONTH    = 'Month';
+    const FIELD_DAY      = 'Day';
+    const FIELD_HOUR     = 'Hour';
+    const FIELD_MINUTE   = 'Minute';
+    const FIELD_SECOND   = 'Second';
     const FIELD_TIMEZONE = 'Timezone';
 
     /**
@@ -110,24 +120,21 @@ class Date extends AbstractModel implements Comparable
 
     const DATETIME_FORMAT_DATE_ONLY = ''; // TODO use
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $values = [];
 
     /**
      * Set up model with given value or with the current timestamp.
      *
-     * @param \Zend_Date|Date|string $value (Optional) Some sort of date representation.
-     * @return void
+     * @param null|Zend_Date|Date|string $value (Optional) Some sort of date representation.
      */
     public function __construct($value = null)
     {
         parent::__construct();
 
-        if ($value instanceof \Zend_Date) {
+        if ($value instanceof Zend_Date) {
             $this->setZendDate($value);
-        } elseif ($value instanceof \DateTime) {
+        } elseif ($value instanceof DateTime) {
             $this->setDateTime($value);
         } elseif (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
             $this->setFromString($value);
@@ -145,30 +152,28 @@ class Date extends AbstractModel implements Comparable
     protected function resetValues()
     {
         $this->values = [
-            self::FIELD_YEAR => null,
-            self::FIELD_MONTH => null,
-            self::FIELD_DAY => null,
-            self::FIELD_HOUR => null,
-            self::FIELD_MINUTE => null,
-            self::FIELD_SECOND => null,
-            self::FIELD_TIMEZONE => null
+            self::FIELD_YEAR     => null,
+            self::FIELD_MONTH    => null,
+            self::FIELD_DAY      => null,
+            self::FIELD_HOUR     => null,
+            self::FIELD_MINUTE   => null,
+            self::FIELD_SECOND   => null,
+            self::FIELD_TIMEZONE => null,
         ];
     }
 
     /**
      * Initialize model by adding the corresponding fields
      * Year, Month, Day, Hour, Minute, Second, Timezone, and UnixTimestamp.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $this->resetValues();
 
         foreach ($this->values as $fieldName => $value) {
             $field = new DateField($fieldName, $this);
             if ($fieldName !== 'Timezone') {
-                $field->setValidator(new \Zend_Validate_Int);
+                $field->setValidator(new Zend_Validate_Int());
             }
             $this->addField($field);
         }
@@ -181,34 +186,34 @@ class Date extends AbstractModel implements Comparable
      * Returns a \Zend_Date instance properly set up with
      * date values as described in the Models fields.
      *
-     * @return \Zend_Date
+     * @return Zend_Date
      */
     public function getZendDate()
     {
         $datearray = [
-            'year' => $this->values[self::FIELD_YEAR],
-            'month' => $this->values[self::FIELD_MONTH],
-            'day' => $this->values[self::FIELD_DAY],
-            'hour' => $this->values[self::FIELD_HOUR],
-            'minute' => $this->values[self::FIELD_MINUTE],
-            'second' => $this->values[self::FIELD_SECOND],
-            'timezone' => $this->values[self::FIELD_TIMEZONE]
+            'year'     => $this->values[self::FIELD_YEAR],
+            'month'    => $this->values[self::FIELD_MONTH],
+            'day'      => $this->values[self::FIELD_DAY],
+            'hour'     => $this->values[self::FIELD_HOUR],
+            'minute'   => $this->values[self::FIELD_MINUTE],
+            'second'   => $this->values[self::FIELD_SECOND],
+            'timezone' => $this->values[self::FIELD_TIMEZONE],
         ];
 
         foreach ($datearray as $key => $value) {
-            if (is_null($value)) {
+            if ($value === null) {
                 unset($datearray[$key]);
             }
         }
 
-        return new \Zend_Date($datearray);
+        return new Zend_Date($datearray);
     }
 
     /**
      * Returns a DateTime instance properly set up with
      * date values as described in the Models fields.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDateTime($timezone = null)
     {
@@ -218,21 +223,21 @@ class Date extends AbstractModel implements Comparable
 
         $date = $this->__toString();
         if ($this->isDateOnly()) {
-            if (! is_null($timezone)) {
+            if ($timezone !== null) {
                 $date = substr($date, 0, 10) . 'T00:00:00' . $timezone;
-                return \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+                return DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             } else {
                 $date = substr($date, 0, 10) . 'T00:00:00';
-                return \DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+                return DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
             }
         }
 
-        $dateTime = \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
-        if (! is_null($timezone)) {
+        $dateTime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+        if ($timezone !== null) {
             if ($timezone === 'Z') {
                 $timezone = 'UTC';
             }
-            $dateTime->setTimezone(new \DateTimeZone($timezone));
+            $dateTime->setTimezone(new DateTimeZone($timezone));
         }
         return $dateTime;
     }
@@ -240,24 +245,24 @@ class Date extends AbstractModel implements Comparable
     /**
      * Set date and time values from DateTime instance.
      *
-     * @param \DateTime $date DateTime instance to use.
-     * @return Date provide fluent interface.
+     * @param DateTime $date DateTime instance to use.
+     * @return $this provide fluent interface.
      */
     public function setDateTime($datetime)
     {
-        if (! $datetime instanceof \DateTime) {
-            throw new \InvalidArgumentException('Invalid DateTime object.');
+        if (! $datetime instanceof DateTime) {
+            throw new InvalidArgumentException('Invalid DateTime object.');
         }
 
-        $this->values[self::FIELD_YEAR] = $datetime->format("Y");
-        $this->values[self::FIELD_MONTH] = $datetime->format("m");
-        $this->values[self::FIELD_DAY] = $datetime->format("d");
-        $this->values[self::FIELD_HOUR] = $datetime->format("H");
+        $this->values[self::FIELD_YEAR]   = $datetime->format("Y");
+        $this->values[self::FIELD_MONTH]  = $datetime->format("m");
+        $this->values[self::FIELD_DAY]    = $datetime->format("d");
+        $this->values[self::FIELD_HOUR]   = $datetime->format("H");
         $this->values[self::FIELD_MINUTE] = $datetime->format("i");
         $this->values[self::FIELD_SECOND] = $datetime->format("s");
 
-        $timeZone = $datetime->format("P");
-        $this->values[self::FIELD_TIMEZONE] = ($timeZone === '+00:00' ? 'Z' : $timeZone);
+        $timeZone                           = $datetime->format("P");
+        $this->values[self::FIELD_TIMEZONE] = $timeZone === '+00:00' ? 'Z' : $timeZone;
 
         return $this;
     }
@@ -265,15 +270,15 @@ class Date extends AbstractModel implements Comparable
     /**
      * Set date values from DateTime instance; shortcut for date-setting only.
      *
-     * @param \DateTime $date DateTime instance to use.
-     * @return Date provide fluent interface.
+     * @param DateTime $date DateTime instance to use.
+     * @return $this provide fluent interface.
      */
     public function setDateOnly($datetime)
     {
         $this->setDateTime($datetime);
-        $this->values[self::FIELD_HOUR] = null;
-        $this->values[self::FIELD_MINUTE] = null;
-        $this->values[self::FIELD_SECOND] = null;
+        $this->values[self::FIELD_HOUR]     = null;
+        $this->values[self::FIELD_MINUTE]   = null;
+        $this->values[self::FIELD_SECOND]   = null;
         $this->values[self::FIELD_TIMEZONE] = null;
 
         return $this;
@@ -286,17 +291,17 @@ class Date extends AbstractModel implements Comparable
      */
     public function isDateOnly()
     {
-        return is_null($this->values[self::FIELD_HOUR])
-                || is_null($this->values[self::FIELD_MINUTE])
-                || is_null($this->values[self::FIELD_SECOND])
-                || is_null($this->values[self::FIELD_TIMEZONE]);
+        return $this->values[self::FIELD_HOUR] === null
+                || $this->values[self::FIELD_MINUTE] === null
+                || $this->values[self::FIELD_SECOND] === null
+                || $this->values[self::FIELD_TIMEZONE] === null;
     }
 
     /**
      * Set date values from \Zend_Date instance.
      *
-     * @param \Zend_Date $date \Zend_Date instance to use.
-     * @return void
+     * @param Zend_Date $date Zend_Date instance to use.
+     *
      *
      * TODO new Date(new \Zend_Date('2017/03/12') often works, but sometimes
      * the resulting date is '2017/12/03'. This happens in the OPUS 4 application
@@ -305,9 +310,9 @@ class Date extends AbstractModel implements Comparable
      *
      * @deprecated Sometimes date conversion does not work properly (OPUSVIER-3713).
      */
-    public function setZendDate(\Zend_Date $date)
+    public function setZendDate(Zend_Date $date)
     {
-        $this->setFromString($date->get(\Zend_Date::ISO_8601));
+        $this->setFromString($date->get(Zend_Date::ISO_8601));
     }
 
     /**
@@ -315,38 +320,36 @@ class Date extends AbstractModel implements Comparable
      * Date parsing depends on current set locale date format.
      *
      * @param  string $date Date string to set.
-     * @return void
      */
     public function setFromString($date)
     {
         if (true === empty($date)) {
-            throw new \InvalidArgumentException('Empty date string passed.');
+            throw new InvalidArgumentException('Empty date string passed.');
         }
 
         if (preg_match(self::TIMEDATE_REGEXP, $date)) {
-            $datetime = \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateTime($datetime);
         } elseif (preg_match(self::DATEONLY_REGEXP, $date)) {
-            $date = substr($date, 0, 10) . 'T00:00:00Z';
-            $datetime = \DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+            $date     = substr($date, 0, 10) . 'T00:00:00Z';
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateOnly($datetime);
         } else {
-            throw new \InvalidArgumentException('Invalid date-time string.');
+            throw new InvalidArgumentException('Invalid date-time string.');
         }
     }
 
     /**
      * Set the current date, time and timezone.
-     *
-     * @return void
      */
     public function setNow()
     {
-        $this->setDateTime(new \DateTime());
+        $this->setDateTime(new DateTime());
     }
 
     /**
      * Creates Opus\Date object set to the time of creation.
+     *
      * @return Date
      */
     public static function getNow()
@@ -420,9 +423,9 @@ class Date extends AbstractModel implements Comparable
     /**
      * Synchronize dependent fields.
      *
-     * @param Field $field
+     * @param Field      $field
      * @param array|null $values
-     * @return AbstractModel
+     * @return parent
      *
      * TODO If multiple values are set the unix timestamp is updated several times. It might make more sense to generate it on demand.
      */
@@ -456,40 +459,41 @@ class Date extends AbstractModel implements Comparable
 
     /**
      * Compares to another Opus\Date objekt.
+     *
      * @param $date2 Date object
      * @throws ModelException
      */
     public function compare($date)
     {
-        if (is_null($date)) {
+        if ($date === null) {
             // a date is always "larger than" null
             return 1;
         }
 
         if (! $date instanceof Date) {
-            $class = get_class();
+            $class     = self::class;
             $dateClass = get_class($date);
             throw new ModelException("Cannot compare $dateClass with $class object.");
         }
 
         $thisDateTime = $this->getDateTime('Z');
 
-        if (is_null($thisDateTime)) {
+        if ($thisDateTime === null) {
             $dateStr = htmlspecialchars($this->__toString());
             throw new ModelException("Date '$dateStr' is invalid.");
         }
 
         $dateTime = $date->getDateTime('Z');
 
-        if (is_null($dateTime)) {
+        if ($dateTime === null) {
             $dateStr = htmlspecialchars($date->__toString());
             throw new ModelException("Date '$dateStr' is invalid.");
         }
 
         $thisTimestamp = $thisDateTime->getTimestamp();
-        $timestamp = $dateTime->getTimestamp();
+        $timestamp     = $dateTime->getTimestamp();
 
-        if ($thisTimestamp == $timestamp) {
+        if ($thisTimestamp === $timestamp) {
             return 0; // equal
         } elseif ($thisTimestamp < $timestamp) {
             return -1; // less than
@@ -508,7 +512,7 @@ class Date extends AbstractModel implements Comparable
     public function getTimestamp()
     {
         $dateTime = $this->getDateTime('Z');
-        if (! is_null($dateTime)) {
+        if ($dateTime !== null) {
             return $dateTime->getTimestamp();
         } else {
             return null;
@@ -526,7 +530,7 @@ class Date extends AbstractModel implements Comparable
      */
     public function setTimestamp($value)
     {
-        if (is_null($value)) {
+        if ($value === null) {
             $this->clear();
         } else {
             $dateTime = gmdate('Y-m-d\TH:i:s\Z', $value);
@@ -539,10 +543,11 @@ class Date extends AbstractModel implements Comparable
      *
      * The UnixTimestamp is a read-only field and should not be set.
      *
+     * @deprecated
+     *
      * @param $value
      * @throws ModelException
      * @throws SecurityException
-     * @deprecated
      */
     public function setUnixTimestamp($value)
     {

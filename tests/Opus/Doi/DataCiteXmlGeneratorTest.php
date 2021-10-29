@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Doi;
@@ -38,6 +40,7 @@ use Opus\CollectionRole;
 use Opus\Config;
 use Opus\DnbInstitute;
 use Opus\Document;
+use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Doi\DataCiteXmlGenerator;
 use Opus\File;
 use Opus\Identifier;
@@ -45,13 +48,29 @@ use Opus\Language;
 use Opus\Person;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function fclose;
+use function fopen;
+use function fwrite;
+use function intval;
+use function is_array;
+use function is_bool;
+use function is_string;
+use function mkdir;
+use function rand;
+use function round;
+use function stream_get_meta_data;
+use function tmpfile;
+use function uniqid;
+
+use const DIRECTORY_SEPARATOR;
 
 class DataCiteXmlGeneratorTest extends TestCase
 {
-
-    protected $srcPath = '';
+    protected $srcPath  = '';
     protected $destPath = '';
-    protected $path = '';
+    protected $path     = '';
 
     public function setUp()
     {
@@ -60,30 +79,30 @@ class DataCiteXmlGeneratorTest extends TestCase
         $lang = new Language();
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
         $lang->store();
 
         $lang = new Language();
         $lang->updateFromArray([
             'Comment' => 'English language',
-            'Part2B' => 'eng',
-            'Part2T' => 'eng',
-            'Part1' => 'en',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'eng',
+            'Part2T'  => 'eng',
+            'Part1'   => 'en',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'English',
-            'Active' => 1
+            'Active'  => 1,
         ]);
         $lang->store();
 
-        $config = Config::get();
+        $config     = Config::get();
         $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
         $this->srcPath = $this->path . DIRECTORY_SEPARATOR . 'src';
@@ -93,15 +112,15 @@ class DataCiteXmlGeneratorTest extends TestCase
         mkdir($this->destPath, 0777, true);
         mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
-        Config::get()->merge(new \Zend_Config([
+        Config::get()->merge(new Zend_Config([
             'workspacePath' => $this->destPath,
-            'checksum' => [
+            'checksum'      => [
                 'maxVerificationSize' => 1,
             ],
-            'doi' => [
-                'prefix' => '10.2345',
-                'localPrefix' => 'opustest'
-            ]
+            'doi'           => [
+                'prefix'      => '10.2345',
+                'localPrefix' => 'opustest',
+            ],
         ]));
     }
 
@@ -118,14 +137,14 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $this->setExpectedException('Opus\Doi\DataCiteXmlGenerationException');
+        $this->setExpectedException(DataCiteXmlGenerationException::class);
         $generator->getXml($doc);
     }
 
     public function testGenerateWithNonLocalDoi()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         // lokale DOI verändern, so dass sie nicht mehr lokal ist
         $doi = $doc->getIdentifierDoi()[0];
@@ -133,7 +152,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doi->store();
 
         $generator = new DataCiteXmlGenerator();
-        $this->setExpectedException('Opus\Doi\DataCiteXmlGenerationException');
+        $this->setExpectedException(DataCiteXmlGenerationException::class);
         $generator->getXml($doc);
 
         // DOI wieder lokal machen
@@ -141,7 +160,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doi->store();
 
         $generator = new DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
+        $result    = $generator->getXml($doc);
         $this->assertTrue(is_string($result) && $result !== '');
 
         $result = $generator->getXml($doc, true, true);
@@ -151,13 +170,13 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testGenerateInvalidXml()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         // DOI löschen, so dass das erzeugte DataCite-XML nicht mehr valide ist
         $doc->setIdentifier([]);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $result = $generator->getXml($doc, true, true);
+        $result    = $generator->getXml($doc, true, true);
         $this->assertTrue(is_string($result) && $result !== '');
 
         $result = $generator->getXml($doc, true, false);
@@ -167,10 +186,10 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsLazyPositive()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, true);
+        $result    = $generator->checkRequiredFields($doc, true);
 
         $this->assertTrue(is_bool($result));
         $this->assertTrue($result);
@@ -179,40 +198,41 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testCheckRequiredFieldsLazyMissingCreator()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         // Autorfeld löschen
         $doc->setPerson([]);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, true);
+        $result    = $generator->checkRequiredFields($doc, true);
 
-        $this->assertTrue(is_bool($result));
+        $this->assertInternalType('bool', $result);
         $this->assertFalse($result);
     }
 
     public function testCheckRequiredFieldsNonLazyPositive()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsNonLazyMissingFields()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         // Autorfeld löschen
         $doc->setPerson([]);
         // DOI löschen
@@ -224,46 +244,48 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => 'local_DOI_missing',
-            'creators' => 'creator_missing',
-            'titles' => 'title_missing',
-            'publisher' => 'publisher_missing',
+            'identifier'      => 'local_DOI_missing',
+            'creators'        => 'creator_missing',
+            'titles'          => 'title_missing',
+            'publisher'       => 'publisher_missing',
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsNonLazyMissingCreator()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         // Autorfeld löschen
         $doc->setPerson([]);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => 'creator_missing',
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => 'creator_missing',
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsNonLazyTooManyLocalDOIs()
     {
         $docId = $this->createDocWithRequiredFields();
         // setze zwei lokale DOIs anstatt einer
-        $doc = new Document($docId);
+        $doc  = new Document($docId);
         $dois = $doc->getIdentifier();
-        $doi = new Identifier();
+        $doi  = new Identifier();
         $doi->setType('doi');
         $doi->setValue($dois[0]->getValue() . 'x');
         $dois[] = $doi;
@@ -271,22 +293,23 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => 'multiple_local_DOIs',
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => 'multiple_local_DOIs',
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsNonLazyTooManyPublishers()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         // entferne PublisherName und setze anschließend zwei ThesisPublisher
         $doc->setPublisherName(null);
@@ -295,16 +318,17 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => 'multiple_publishers',
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => 'multiple_publishers',
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
 
         // einen ThesisPublisher wieder entfernen -> sollte wieder gültig sein
         $doc->setThesisPublisher(null);
@@ -312,98 +336,103 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsUnpublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setServerState('unpublished');
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => true,
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsMissingServerDatePublishedUnpublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setServerState('unpublished');
         $doc->setServerDatePublished(null);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => 'publication_date_missing_non_published',
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsMissingServerDatePublishedInPublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setServerState('published');
         $doc->setServerDatePublished(null);
         // kein $doc->store() aufrufen, weil sonst serverDatePublished auf das aktuelle Datum gesetzt wird
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => 'publication_date_missing',
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     public function testCheckRequiredFieldsInvalidServerDatePublishedInPublishedDoc()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setServerState('published');
         $doc->setServerDatePublished('');
         $doc->store();
 
         $generator = new DataCiteXmlGenerator(false);
-        $result = $generator->checkRequiredFields($doc, false);
+        $result    = $generator->checkRequiredFields($doc, false);
 
         $this->assertTrue(is_array($result));
         $this->assertEquals([
-            'identifier' => true,
-            'creators' => true,
-            'titles' => true,
-            'publisher' => true,
+            'identifier'      => true,
+            'creators'        => true,
+            'titles'          => true,
+            'publisher'       => true,
             'publicationYear' => 'publication_year_missing',
-            'resourceType' => true], $result);
+            'resourceType'    => true,
+        ], $result);
     }
 
     /**
@@ -423,10 +452,10 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testGenerateRequiredFields()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $generator = new DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
+        $result    = $generator->getXml($doc);
 
         $this->assertTrue(is_string($result));
     }
@@ -434,14 +463,14 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testServerDatePublishedForPublishedYear()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $serverDatePublished = $doc->getServerDatePublished();
 
         $year = $serverDatePublished->getYear();
 
         $generator = new DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
+        $result    = $generator->getXml($doc);
 
         $this->assertNotContains("<publicationYear>2008</publicationYear>", $result);
         $this->assertContains("<publicationYear>$year</publicationYear>", $result);
@@ -449,7 +478,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     private function createDocWithRequiredFields()
     {
-        $doc = new Document();
+        $doc   = new Document();
         $docId = $doc->store();
 
         $doi = new Identifier();
@@ -492,8 +521,8 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     public function testGetStylesheetPathConfiguredWithBadPath()
     {
-        Config::get()->merge(new \Zend_Config([
-            'datacite' => ['stylesheetPath' => 'doesnotexist']
+        Config::get()->merge(new Zend_Config([
+            'datacite' => ['stylesheetPath' => 'doesnotexist'],
         ]));
 
         $generator = new DataCiteXmlGenerator();
@@ -512,8 +541,8 @@ class DataCiteXmlGeneratorTest extends TestCase
 
         $path = stream_get_meta_data($temp)['uri'];
 
-        Config::get()->merge(new \Zend_Config([
-            'datacite' => ['stylesheetPath' => $path]
+        Config::get()->merge(new Zend_Config([
+            'datacite' => ['stylesheetPath' => $path],
         ]));
 
         $generator = new DataCiteXmlGenerator();
@@ -525,7 +554,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     public function testXmlValidWithMultipleDDC()
     {
-        $docId = $this->createDocWithRequiredFields();
+        $docId    = $this->createDocWithRequiredFields();
         $document = new Document($docId);
 
         $role = new CollectionRole();
@@ -571,7 +600,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     public function testXmlValidWithMultipleIssn()
     {
-        $docId = $this->createDocWithRequiredFields();
+        $docId    = $this->createDocWithRequiredFields();
         $document = new Document($docId);
 
         $issn = new Identifier();
@@ -609,7 +638,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     public function testLanguageElement()
     {
-        $docId = $this->createDocWithRequiredFields();
+        $docId    = $this->createDocWithRequiredFields();
         $document = new Document($docId);
 
         $generator = new DataCiteXmlGenerator();
@@ -629,7 +658,7 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testFileInformationInvisible()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $file = new File();
         $file->setVisibleInOai(0);
@@ -638,10 +667,10 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->addFile($file);
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
-        $xpath = $this->prepareXpathFromResultString($xml);
-        $sizesXpath = $xpath->query('//ns:size');
+        $xpath        = $this->prepareXpathFromResultString($xml);
+        $sizesXpath   = $xpath->query('//ns:size');
         $formatsXpath = $xpath->query('//ns:format');
 
         $this->assertEquals(0, $sizesXpath->length);
@@ -651,15 +680,16 @@ class DataCiteXmlGeneratorTest extends TestCase
     /**
      * Creates a txt-file with random size.
      *
-     * @return string path of file
      * @throws\Zend_Exception
+     *
+     * @return string path of file
      */
     private function createTestFile()
     {
         $filename_nonzero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
-        $fh = fopen($filename_nonzero, 'w');
+        $fh               = fopen($filename_nonzero, 'w');
 
-        if ($fh == false) {
+        if ($fh===false) {
             $this->fail("Unable to write file $filename_nonzero.");
         }
 
@@ -680,7 +710,7 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testFileInformationVisible()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $filename = $this->createTestFile();
 
@@ -701,15 +731,15 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
 
-        $size = intval(round($file->getFileSize() / 1024));
+        $size  = intval(round($file->getFileSize() / 1024));
         $size2 = intval(round($file2->getFileSize() / 1024));
 
-        $sizesXpath1 = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
-        $sizesXpath2 = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
+        $sizesXpath1  = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
+        $sizesXpath2  = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
         $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
         $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
 
@@ -726,7 +756,7 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testMixedFileInformationVisibility()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $filename = $this->createTestFile();
 
@@ -747,15 +777,15 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
 
-        $size = intval(round($file->getFileSize() / 1024));
+        $size  = intval(round($file->getFileSize() / 1024));
         $size2 = intval(round($file2->getFileSize() / 1024));
 
-        $sizesXpath1 = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
-        $sizesXpath2 = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
+        $sizesXpath1  = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
+        $sizesXpath2  = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
         $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
         $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
 
@@ -772,7 +802,7 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testDifferentOrderFileInformationVisibility()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
 
         $filename = $this->createTestFile();
 
@@ -793,15 +823,15 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
 
-        $size = intval(round($file->getFileSize() / 1024));
+        $size  = intval(round($file->getFileSize() / 1024));
         $size2 = intval(round($file2->getFileSize() / 1024));
 
-        $sizesXpath1 = $xpath->query("//ns:size[2][text()=\"$size KB\"]");
-        $sizesXpath2 = $xpath->query("//ns:size[1][text()=\"$size2 KB\"]");
+        $sizesXpath1  = $xpath->query("//ns:size[2][text()=\"$size KB\"]");
+        $sizesXpath2  = $xpath->query("//ns:size[1][text()=\"$size2 KB\"]");
         $formatXpath1 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
         $formatXpath2 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
 
@@ -814,54 +844,54 @@ class DataCiteXmlGeneratorTest extends TestCase
     public function testXmlWithCreatorPlaceholder()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setPerson(null);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
-        $node = $xpath->query('/ns:resource/ns:creators/ns:creator/ns:creatorName');
+        $node  = $xpath->query('/ns:resource/ns:creators/ns:creator/ns:creatorName');
         $this->assertEquals('(:unav)', $node->item(0)->textContent);
     }
 
     public function testXmlWithTitlePlaceholder()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setTitleMain(null);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
-        $node = $xpath->query('/ns:resource/ns:titles/ns:title');
+        $node  = $xpath->query('/ns:resource/ns:titles/ns:title');
         $this->assertEquals('(:unas)', $node->item(0)->textContent);
     }
 
     public function testXmlWithPublisherPlaceholder()
     {
         $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $doc->setPublisherName(null);
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
-        $node = $xpath->query('/ns:resource/ns:publisher');
+        $node  = $xpath->query('/ns:resource/ns:publisher');
         $this->assertEquals('(:unav)', $node->item(0)->textContent);
     }
 
     public function testProperGenerationOfOrcidUrl()
     {
-        $docId = $this->createDocWithRequiredFields();
-        $doc = new Document($docId);
+        $docId   = $this->createDocWithRequiredFields();
+        $doc     = new Document($docId);
         $authors = $doc->getPersonAuthor();
-        $author = $authors[0];
+        $author  = $authors[0];
         $author->setIdentifierOrcid('0000-2222-4444-6666');
 
         $editor = new Person();
@@ -873,10 +903,10 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
-        $node = $xpath->query('/ns:resource/ns:creators/ns:creator/ns:nameIdentifier');
+        $node  = $xpath->query('/ns:resource/ns:creators/ns:creator/ns:nameIdentifier');
         $this->assertEquals('0000-2222-4444-6666', $node->item(0)->textContent);
 
         $node = $xpath->query('/ns:resource/ns:contributors/ns:contributor/ns:nameIdentifier');
@@ -887,10 +917,10 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $xml = $generator->getXml($doc);
+        $xml       = $generator->getXml($doc);
 
         $xpath = $this->prepareXpathFromResultString($xml);
-        $node = $xpath->query('/ns:resource/ns:creators/ns:creator/ns:nameIdentifier');
+        $node  = $xpath->query('/ns:resource/ns:creators/ns:creator/ns:nameIdentifier');
         $this->assertEquals('0000-1111-3333-5555', $node->item(0)->textContent);
     }
 }
