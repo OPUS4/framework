@@ -35,19 +35,23 @@
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Opus\Config;
+use Opus\Database as OpusDatabase;
 
 /**
  * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
  *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
- *
- * phpcs:disable
  */
 class Database
 {
     private static $conn;
 
+    /**
+     * @return array
+     */
     public static function getConnectionParams()
     {
         $config = Config::get(); // TODO use function (no direkt class dependency)
@@ -59,12 +63,16 @@ class Database
         return $dbConfig->toArray();
     }
 
+    /**
+     * @return Connection
+     * @throws Exception
+     */
     public static function getConnection()
     {
         if (self::$conn === null) {
             $params = self::getConnectionParams();
 
-            $db = new \Opus\Database();
+            $db = new OpusDatabase();
 
             $dbName = $db->getName();
 

@@ -38,6 +38,7 @@
 namespace Opus\Db2;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 use function implode;
 use function is_array;
@@ -47,16 +48,15 @@ use function rtrim;
  * Implements the singleton pattern for table gateway classes.
  *
  * TODO nothing preventing creation of table classes directly
- *
- * phpcs:disable
  */
-abstract class TableGateway
+abstract class AbstractTableGateway
 {
     private $connection;
 
     /**
      * Returns the database connection.
-     * @return \Doctrine\DBAL\Connection
+     *
+     * @return Connection
      */
     public function getConnection()
     {
@@ -69,7 +69,8 @@ abstract class TableGateway
 
     /**
      * Returns a new SQL query builder instance for the connection.
-     * @return \Doctrine\DBAL\Query\QueryBuilder
+     *
+     * @return QueryBuilder
      */
     public function getQueryBuilder()
     {
@@ -79,37 +80,29 @@ abstract class TableGateway
     }
 
     /**
-     * TODO remove once Zend-Db has been removed from the framework
-     */
-    public function getDatabaseAdapterZend()
-    {
-        $table = \Opus\Db\TableGateway::getInstance(\Opus\Db\Translations::class);
-
-        return $table->getAdapter();
-    }
-
-    /**
      * Insert given array into table and ignore duplicate entries.  (Silently
      * skipping insert, if unique constraint has been violated.)
      *
      * If an update occurs instead of an insert the lastInserId() function normally does not return the ID of the
      * modified row.
      *
-     * @param array $data
+     * @param string $table
+     * @param string $primary
+     * @param array  $data
      */
     public function insertIgnoreDuplicate($table, $primary, $data)
     {
         $conn = $this->getConnection();
 
-        $q_keys   = [];
-        $q_values = [];
-        $update   = '';
+        $quotedKeys   = [];
+        $quotedValues = [];
+        $update       = '';
 
         foreach ($data as $key => $value) {
-            $quotedKey  = $conn->quoteIdentifier($key);
-            $q_keys[]   = $quotedKey;
-            $q_values[] = $conn->quote($value);
-            $update    .= " $quotedKey=VALUES($quotedKey),";
+            $quotedKey      = $conn->quoteIdentifier($key);
+            $quotedKeys[]   = $quotedKey;
+            $quotedValues[] = $conn->quote($value);
+            $update        .= " $quotedKey=VALUES($quotedKey),";
         }
 
         // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
@@ -122,8 +115,8 @@ abstract class TableGateway
             $update = rtrim($update, ',');
         }
 
-        $insert = 'INSERT INTO ' . $table . ' (' . implode(', ', $q_keys) . ') '
-                . ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
+        $insert = 'INSERT INTO ' . $table . ' (' . implode(', ', $quotedKeys) . ') '
+                . ' VALUES (' . implode(', ', $quotedValues) . ") ON DUPLICATE KEY UPDATE $update";
 
         $stmt = $conn->prepare($insert);
 
@@ -134,25 +127,26 @@ abstract class TableGateway
      * Delete the table row that matches the given array.  (Silently ignoring
      * deletes of non-existent entries.)
      *
-     * @param array $data
+     * @param string $table
+     * @param array  $data
      */
     public function deleteWhereArray($table, $data)
     {
         $conn = $this->getConnection();
 
-        $q_clauses = [];
+        $queryClauses = [];
 
         foreach ($data as $key => $value) {
-            $q_key   = $conn->quoteIdentifier($key);
-            $q_value = $conn->quote($value);
+            $quotedKey   = $conn->quoteIdentifier($key);
+            $quotedValue = $conn->quote($value);
             if (is_array($value)) {
-                $q_clauses[] = $q_key . ' IN (' . $q_value . ')';
+                $queryClauses[] = $quotedKey . ' IN (' . $quotedValue . ')';
             } else {
-                $q_clauses[] = $q_key . " = " . $q_value;
+                $queryClauses[] = $quotedKey . " = " . $quotedValue;
             }
         }
 
-        $where = implode(" AND ", $q_clauses);
+        $where = implode(" AND ", $queryClauses);
         $conn->delete($table, $where);
     }
 }

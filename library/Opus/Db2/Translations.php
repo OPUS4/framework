@@ -35,6 +35,7 @@
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Opus\Translate\StorageInterface;
 use Opus\Translate\TranslateException;
@@ -61,19 +62,16 @@ use function is_array;
  * TODO rename StorageInterface into TranslationStorageInterface
  * TODO remove old Zend_Db Dao class
  * TODO remove dependency on TableGateway class or?
- *
- * phpcs:disable
  */
-class Translations extends TableGateway implements StorageInterface
+class Translations extends AbstractTableGateway implements StorageInterface
 {
     const TABLE_TRANSLATION_KEYS = 'translationkeys';
 
     const TABLE_TRANSLATIONS = 'translations';
 
     /**
-     * @param $key
-     * @param null $module
-     * @return mixed|void
+     * @param string      $key
+     * @param null|string $module
      *
      * TODO SQL injection?
      */
@@ -102,7 +100,7 @@ class Translations extends TableGateway implements StorageInterface
     /**
      * Deletes all translations for a module.
      *
-     * @param $module
+     * @param string $module
      *
      * TODO SQL injection?
      */
@@ -118,13 +116,15 @@ class Translations extends TableGateway implements StorageInterface
      *
      * Always adding key even if already present.
      *
-     * @param $key
-     * @param $translation
+     * @param string $key
+     * @param array  $translation
+     * @param string $module
      */
     public function setTranslation($key, $translation, $module = 'default')
     {
         if ($translation === null) {
-            return $this->remove($key, $module);
+            $this->remove($key, $module);
+            return;
         }
 
         $conn = $this->getConnection();
@@ -155,8 +155,10 @@ class Translations extends TableGateway implements StorageInterface
      * This function gets 0 or more rows from database depending on how many locales are
      * stored.
      *
-     * @param      $key
-     * @param null $locale
+     * @param string      $key
+     * @param null|string $locale
+     * @param null|string $module
+     * @return null|array
      */
     public function getTranslation($key, $locale = null, $module = null)
     {
@@ -205,7 +207,7 @@ class Translations extends TableGateway implements StorageInterface
     /**
      * Finds a translation containing the search string.
      *
-     * @param $needle
+     * @param string $needle
      */
     public function findTranslation($needle)
     {
@@ -214,7 +216,8 @@ class Translations extends TableGateway implements StorageInterface
     /**
      * Returns all translations, optionally just for a module.
      *
-     * @param null $module
+     * @param null|string $module
+     * @return array
      */
     public function getTranslations($module = null)
     {
@@ -245,6 +248,11 @@ class Translations extends TableGateway implements StorageInterface
         return $result;
     }
 
+    /**
+     * @param null|string $module
+     * @return array
+     * @throws Exception
+     */
     public function getTranslationsByLocale($module = null)
     {
         $conn = $this->getConnection();
@@ -277,7 +285,8 @@ class Translations extends TableGateway implements StorageInterface
     /**
      * Adds translations to the database.
      *
-     * @param $translations
+     * @param array  $translations
+     * @param string $module
      *
      * TODO TableGateway dependency
      */
@@ -309,6 +318,8 @@ class Translations extends TableGateway implements StorageInterface
 
     /**
      * Returns all translations.
+     *
+     * @return array
      */
     public function getAll()
     {
@@ -318,6 +329,9 @@ class Translations extends TableGateway implements StorageInterface
     /**
      * Renames translation key.
      *
+     * @param string $key
+     * @param string $newKey
+     * @param string $module
      * @throws TranslateException
      *
      * TODO remove dependency on TableGateway
@@ -345,6 +359,11 @@ class Translations extends TableGateway implements StorageInterface
         $conn->commit();
     }
 
+    /**
+     * @param null|string $modules
+     * @return array
+     * @throws Exception
+     */
     public function getTranslationsWithModules($modules = null)
     {
         $conn = $this->getConnection();
@@ -383,7 +402,7 @@ class Translations extends TableGateway implements StorageInterface
     }
 
     /**
-     * @inheritDoc
+     * @return string[]
      */
     public function getModules()
     {
