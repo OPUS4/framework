@@ -83,7 +83,7 @@ class NestedSetValidator
     {
         $select        = $this->table->select()->where('id = ?', $rootId);
         $node          = $this->table->fetchRow($select);
-        $this->counter = $node['left_id'];
+        $this->counter = (int) $node['left_id'];
         return $this->validateNode($rootId); // root node
     }
 

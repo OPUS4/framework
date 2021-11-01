@@ -387,7 +387,7 @@ class DocumentFinderTest extends TestCase
         $expectedOrder = [2, 5, 3, 6, 1, 4];
 
         foreach ($docs as $index => $docId) {
-            if ($docId !== $expectedOrder[$index]) {
+            if ((int) $docId !== $expectedOrder[$index]) {
                 $this->fail('documents are not in expected order');
             }
         }

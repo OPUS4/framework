@@ -54,9 +54,6 @@ use OpusTest\Model\Mock\ModelDefiningExternalField;
 use PHPUnit_Extensions_Database_DataSet_IDataSet;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 use PHPUnit_Extensions_Database_TestCase;
-use testFieldsModifiedStatusGetsClearedAfterStore;
-use testParentIdGetPropagatedToDependentModelsOnAdd;
-use testStoreClearsModifiedFlagOfInternalFieldsOnly;
 use Zend_Db_Table;
 use Zend_Validate_Date;
 
@@ -72,6 +69,7 @@ use function is_array;
  * @package Opus\Model
  * @category Tests
  * @group AbstractDbTest
+ * phpcs:disable
  */
 class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
 {
@@ -232,7 +230,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         
         ');
 
-        $mock        = new testGetLinkedModelWhenQueryModel();
+        $mock        = new \testGetLinkedModelWhenQueryModel();
         $linkedModel = new ModelAbstractDbMock();
         $mock->setLinkField($linkedModel);
 
@@ -272,7 +270,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
                 }
         ');
 
-        $mock        = new testGetMultipleLinkedModelWhenQueryModel();
+        $mock        = new \testGetMultipleLinkedModelWhenQueryModel();
         $linkedModel = new ModelAbstractDbMock();
         $mock->addLinkField($linkedModel);
 
@@ -377,7 +375,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             }
         ');
 
-        $mock = new testFieldsModifiedStatusGetsClearedAfterStore();
+        $mock = new \testFieldsModifiedStatusGetsClearedAfterStore();
         $mock->setValue('foobar');
         $mock->setExternalField1('foo');
         $mock->setExternalField2('bar');
@@ -668,7 +666,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         ');
 
         // instanciate mockup
-        $model = new testStoreClearsModifiedFlagOfInternalFieldsOnly();
+        $model = new \testStoreClearsModifiedFlagOfInternalFieldsOnly();
 
         // mock external field
         $mockFieldExternalModel = $this->getMock(
@@ -746,7 +744,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             }
         ');
 
-        $model = new testParentIdGetPropagatedToDependentModelsOnLoading(1);
+        $model = new \testParentIdGetPropagatedToDependentModelsOnLoading(1);
 
         $this->assertTrue($model->getExternalField1()->setParentIdHasBeenCalled, 'No parent id was set on fetching dependent model.');
     }
@@ -774,7 +772,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             }
         ');
 
-        $model = new testParentIdGetPropagatedToDependentModelsOnAdd(1);
+        $model = new \testParentIdGetPropagatedToDependentModelsOnAdd(1);
 
         $this->assertNotNull($model->getId());
 
