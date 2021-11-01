@@ -14,7 +14,6 @@ vendor
 tests/build
 tests/config.ini
 tests/config.ini.backup
-tests/workspace
 
 # IntelliJ IDEA files
 .idea
