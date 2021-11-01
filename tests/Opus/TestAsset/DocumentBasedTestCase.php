@@ -40,6 +40,7 @@ use InvalidArgumentException;
 use Opus\Document;
 use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
 use Opus\Person;
 use ReflectionClass;
@@ -163,7 +164,7 @@ class DocumentBasedTestCase extends TestCase
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @return mixed
      */
     public static function getDocumentDescriptionByName($name)
@@ -233,6 +234,8 @@ class DocumentBasedTestCase extends TestCase
                 // add another dependent model for every given description
                 foreach ($value as $set) {
                     /** @var AbstractDependentModel $related */
+                    $related = null;
+
                     if ($pre) {
                         $related = $pre->newInstance();
                     } else {
@@ -261,16 +264,31 @@ class DocumentBasedTestCase extends TestCase
         return $document;
     }
 
+    /**
+     * @param string $filename
+     * @return string
+     */
     public function qualifyTestFilename($filename)
     {
         return APPLICATION_PATH . '/tests/fulltexts/' . basename($filename);
     }
 
+    /**
+     * @param string $filename
+     * @return false|string
+     */
     public function getTestFile($filename)
     {
         return file_get_contents($this->qualifyTestFilename($filename));
     }
 
+    /**
+     * @param string $filename
+     * @param string $label
+     * @param bool   $visibleInFrontdoor
+     * @return Document
+     * @throws ModelException
+     */
     public function addFileToDocument(Document $document, $filename, $label, $visibleInFrontdoor)
     {
         $file = $document->addFile();

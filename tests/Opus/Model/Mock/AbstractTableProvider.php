@@ -43,6 +43,7 @@ use Opus\Db\TableGateway;
  * @category Tests
  * @package Opus\Model
  * @group AbstractTest
+ * phpcs:disable
  */
 class AbstractTableProvider extends TableGateway
 {

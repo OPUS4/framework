@@ -194,6 +194,7 @@ class FieldTest extends TestCase
      * Test if only valid integer values greater zero or "*" can be set
      * as multiplicity.
      *
+     * @param string $value
      * @dataProvider invalidSetMultiplicityValuesDataProvider
      */
     public function testInputValuesForMultiplicityAreIntegerOrStar($value)
@@ -335,17 +336,20 @@ class FieldTest extends TestCase
     /**
      * Test that only real boolean values can be passed to flag functions.
      *
+     * @param string $func
+     * @param mixed  $input
+     * @param mixed  $output
      * @dataProvider setterGetterCallDataProvider
      */
     public function testSetterGetterTypeCastingInputValues($func, $input, $output)
     {
         $field = new Field('MyField');
 
-        $set_callname = 'set' . $func;
-        $get_callname = 'is' . $func;
+        $setCallname = 'set' . $func;
+        $getCallname = 'is' . $func;
 
-        $field->$set_callname($input);
-        $result = $field->$get_callname();
+        $field->$setCallname($input);
+        $result = $field->$getCallname();
 
         $this->assertEquals($output, $result, 'Retrieved value considered wrong.');
     }
@@ -431,8 +435,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if values can be added to an uninitialized field.
-     *
-     * @return void.
      */
     public function testAddingValuesToEmptyField()
     {
@@ -444,8 +446,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if values can be added to an uninitialized non-multiple field.
-     *
-     * @return void.
      */
     public function testAddingValuesToNonMultipleField()
     {
@@ -457,8 +457,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if single value can be added to an uninitialized non-multiple field.
-     *
-     * @return void.
      */
     public function testAddingSingleValueToNonMultipleField()
     {

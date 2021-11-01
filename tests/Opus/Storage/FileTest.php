@@ -40,6 +40,7 @@ use Opus\Config;
 use Opus\Storage\File;
 use Opus\Storage\FileNotFoundException;
 use Opus\Storage\StorageException;
+use Opus\Util\File as FileUtil;
 use OpusTest\TestAsset\TestCase;
 
 use function fclose;
@@ -63,9 +64,9 @@ use const DIRECTORY_SEPARATOR;
  */
 class FileTest extends TestCase
 {
-    private $__src_path = '';
+    private $srcPath = '';
 
-    private $__dest_path = '';
+    private $destPath = '';
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -78,11 +79,11 @@ class FileTest extends TestCase
         $config = Config::get();
         $path   = $config->workspacePath . '/' . uniqid();
 
-        $this->__src_path = $path . '/src';
-        mkdir($this->__src_path, 0777, true);
+        $this->srcPath = $path . '/src';
+        mkdir($this->srcPath, 0777, true);
 
-        $this->__dest_path = $path . '/dest';
-        mkdir($this->__dest_path, 0777, true);
+        $this->destPath = $path . '/dest';
+        mkdir($this->destPath, 0777, true);
     }
 
     /**
@@ -91,8 +92,8 @@ class FileTest extends TestCase
      */
     protected function tearDown()
     {
-        \Opus\Util\File::deleteDirectory($this->__src_path);
-        \Opus\Util\File::deleteDirectory($this->__dest_path);
+        FileUtil::deleteDirectory($this->srcPath);
+        FileUtil::deleteDirectory($this->destPath);
 
         parent::tearDown();
     }
@@ -111,8 +112,8 @@ class FileTest extends TestCase
      */
     public function testGetWorkingDirectory()
     {
-        $storage = new File($this->__dest_path, 'subdir1');
-        $this->assertEquals($this->__dest_path . DIRECTORY_SEPARATOR . 'subdir1'
+        $storage = new File($this->destPath, 'subdir1');
+        $this->assertEquals($this->destPath . DIRECTORY_SEPARATOR . 'subdir1'
                 . DIRECTORY_SEPARATOR, $storage->getWorkingDirectory());
     }
 
@@ -121,7 +122,7 @@ class FileTest extends TestCase
      */
     public function testCreateSubdirectory()
     {
-        $storage = new File($this->__dest_path, 'subdir2');
+        $storage = new File($this->destPath, 'subdir2');
         $storage->createSubdirectory();
         $this->assertTrue(is_dir($storage->getWorkingDirectory()));
         $storage->removeEmptyDirectory();
@@ -132,9 +133,9 @@ class FileTest extends TestCase
      */
     public function testCopyExternalFile()
     {
-        $storage = new File($this->__dest_path, 'subdir3');
+        $storage = new File($this->destPath, 'subdir3');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
         $destination = 'copiedtest.txt';
         $storage->copyExternalFile($source, $destination);
@@ -147,9 +148,9 @@ class FileTest extends TestCase
      */
     public function testRenameFile()
     {
-        $storage = new File($this->__dest_path, 'subdir4');
+        $storage = new File($this->destPath, 'subdir4');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
         $destination = 'test.txt';
         $storage->copyExternalFile($source, $destination);
@@ -165,7 +166,7 @@ class FileTest extends TestCase
      */
     public function testRenameNonExistingFile()
     {
-        $storage = new File($this->__dest_path, 'subdir');
+        $storage = new File($this->destPath, 'subdir');
         $storage->createSubdirectory();
         $this->setExpectedException(FileNotFoundException::class);
         $storage->renameFile('test', 'test2');
@@ -176,7 +177,7 @@ class FileTest extends TestCase
      */
     public function testRenameFileAttemptOnDirectory()
     {
-        $storage = new File($this->__dest_path, 'subdir');
+        $storage = new File($this->destPath, 'subdir');
         $storage->createSubdirectory();
         $path = $storage->getWorkingDirectory() . '/testdir';
         mkdir($path);
@@ -189,9 +190,9 @@ class FileTest extends TestCase
      */
     public function testDeleteFile()
     {
-        $storage = new File($this->__dest_path, 'subdir5');
+        $storage = new File($this->destPath, 'subdir5');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
         $destination = 'test.txt';
         $storage->copyExternalFile($source, $destination);
@@ -205,9 +206,9 @@ class FileTest extends TestCase
      */
     public function testGetFileMimeEncoding()
     {
-        $storage = new File($this->__dest_path, 'subdir5');
+        $storage = new File($this->destPath, 'subdir5');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
 
         $fh = fopen($source, 'w');
@@ -233,9 +234,9 @@ class FileTest extends TestCase
      */
     public function testGetFileMimeTypeFromExtension()
     {
-        $storage = new File($this->__dest_path, 'subdir6');
+        $storage = new File($this->destPath, 'subdir6');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
         $destination = 'test.txt';
         $storage->copyExternalFile($source, $destination);
@@ -247,9 +248,9 @@ class FileTest extends TestCase
      */
     public function testGetFileMimeTypeFromExtensionForPdf()
     {
-        $storage = new File($this->__dest_path, 'subdir6');
+        $storage = new File($this->destPath, 'subdir6');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.pdf";
+        $source = $this->srcPath . '/' . "test.pdf";
         touch($source);
         $destination = 'test.pdf';
         $storage->copyExternalFile($source, $destination);
@@ -261,9 +262,9 @@ class FileTest extends TestCase
      */
     public function testGetFileMimeTypeFromExtensionForPostscript()
     {
-        $storage = new File($this->__dest_path, 'subdir6');
+        $storage = new File($this->destPath, 'subdir6');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.ps";
+        $source = $this->srcPath . '/' . "test.ps";
         touch($source);
         $destination = 'test.ps';
         $storage->copyExternalFile($source, $destination);
@@ -275,9 +276,9 @@ class FileTest extends TestCase
      */
     public function testGetFileSize()
     {
-        $storage = new File($this->__dest_path, 'subdir7');
+        $storage = new File($this->destPath, 'subdir7');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
         $destination = 'test.txt';
         $storage->copyExternalFile($source, $destination);
@@ -289,9 +290,9 @@ class FileTest extends TestCase
      */
     public function testGetFileSizeForNonEmptyFile()
     {
-        $storage = new File($this->__dest_path, 'subdir7');
+        $storage = new File($this->destPath, 'subdir7');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
 
                 $fh = fopen($source, 'w');
@@ -314,7 +315,7 @@ class FileTest extends TestCase
      */
     public function testRemoveEmptyDirectory()
     {
-        $storage = new File($this->__dest_path, 'subdir8');
+        $storage = new File($this->destPath, 'subdir8');
         $storage->createSubdirectory();
         $this->assertTrue(is_dir($storage->getWorkingDirectory()));
         $this->assertTrue($storage->removeEmptyDirectory());
@@ -326,9 +327,9 @@ class FileTest extends TestCase
      */
     public function testFailedRemoveEmptyDirectory()
     {
-        $storage = new File($this->__dest_path, 'subdir8');
+        $storage = new File($this->destPath, 'subdir8');
         $storage->createSubdirectory();
-        $source = $this->__src_path . '/' . "test.txt";
+        $source = $this->srcPath . '/' . "test.txt";
         touch($source);
         $destination = 'test.txt';
         $storage->copyExternalFile($source, $destination);

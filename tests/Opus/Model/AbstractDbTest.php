@@ -55,10 +55,7 @@ use PHPUnit_Extensions_Database_DataSet_IDataSet;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 use PHPUnit_Extensions_Database_TestCase;
 use testFieldsModifiedStatusGetsClearedAfterStore;
-use testGetLinkedModelWhenQueryModel;
-use testGetMultipleLinkedModelWhenQueryModel;
 use testParentIdGetPropagatedToDependentModelsOnAdd;
-use testParentIdGetPropagatedToDependentModelsOnLoading;
 use testStoreClearsModifiedFlagOfInternalFieldsOnly;
 use Zend_Db_Table;
 use Zend_Validate_Date;
@@ -235,7 +232,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         
         ');
 
-        $mock        = new \testGetLinkedModelWhenQueryModel();
+        $mock        = new testGetLinkedModelWhenQueryModel();
         $linkedModel = new ModelAbstractDbMock();
         $mock->setLinkField($linkedModel);
 
@@ -275,7 +272,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
                 }
         ');
 
-        $mock        = new \testGetMultipleLinkedModelWhenQueryModel();
+        $mock        = new testGetMultipleLinkedModelWhenQueryModel();
         $linkedModel = new ModelAbstractDbMock();
         $mock->addLinkField($linkedModel);
 
@@ -286,13 +283,13 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     /**
      * Test if loading a model instance from the database devlivers the expected value.
      *
-     * @param int   $testtable_id Id of dataset to load.
+     * @param int   $testtableId Id of dataset to load.
      * @param mixed $value        Expected Value.
      * @dataProvider abstractDataSetDataProvider
      */
-    public function testValueAfterLoadById($testtable_id, $value)
+    public function testValueAfterLoadById($testtableId, $value)
     {
-        $obj    = new AbstractDbMock($testtable_id);
+        $obj    = new AbstractDbMock($testtableId);
         $result = $obj->getValue();
         $this->assertEquals($value, $result, "Expected Value to be $value, got '" . $result . "'");
     }
@@ -749,7 +746,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             }
         ');
 
-        $model = new \testParentIdGetPropagatedToDependentModelsOnLoading(1);
+        $model = new testParentIdGetPropagatedToDependentModelsOnLoading(1);
 
         $this->assertTrue($model->getExternalField1()->setParentIdHasBeenCalled, 'No parent id was set on fetching dependent model.');
     }
@@ -808,6 +805,8 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     /**
      * Test if an registered Plugin gets called.
      *
+     * @param string $call
+     * @param mixed  $expect
      * @dataProvider pluginCallnameProvider
      */
     public function testRegisteredPluginGetsCalled($call, $expect)

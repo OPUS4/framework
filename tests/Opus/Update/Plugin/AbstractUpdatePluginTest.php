@@ -38,6 +38,8 @@ namespace OpusTest\Update\Plugin;
 use Opus\Update\Plugin\AbstractUpdatePlugin;
 use OpusTest\TestAsset\TestCase;
 
+use const PHP_EOL;
+
 class AbstractUpdatePluginTest extends TestCase
 {
     private $stub;

@@ -42,11 +42,14 @@ namespace OpusTest\Model\Mock;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 
+/**
+ * phpcs:disable
+ */
 class CheckFieldOrderDummyClass extends AbstractDb
 {
     protected static $tableGatewayClass = AbstractTableProvider::class;
 
-    private $_targetFetched = false;
+    private $targetFetched = false;
 
     protected function init()
     {
@@ -57,7 +60,7 @@ class CheckFieldOrderDummyClass extends AbstractDb
 
     protected function _fetchBefore()
     {
-        if ($this->_targetFetched === true) {
+        if ($this->targetFetched === true) {
             return $this->getTarget();
         }
         return "bar"; // target has not been fetched yet
@@ -65,13 +68,13 @@ class CheckFieldOrderDummyClass extends AbstractDb
 
     protected function _fetchTarget()
     {
-        $this->_targetFetched = true;
+        $this->targetFetched = true;
         return "foo";
     }
 
     protected function _fetchAfter()
     {
-        if ($this->_targetFetched === false) {
+        if ($this->targetFetched === false) {
             return $this->getTarget();
         }
         return "baz"; // target has been fetched

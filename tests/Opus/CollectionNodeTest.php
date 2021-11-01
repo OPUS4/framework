@@ -49,9 +49,9 @@ use function rand;
 class CollectionNodeTest extends TestCase
 {
     /** @var Opus\CollectionRole */
-    protected $role_fixture;
-    protected $_role_name     = "";
-    protected $_role_oai_name = "";
+    protected $roleFixture;
+    protected $roleName    = "";
+    protected $roleOaiName = "";
 
     /** @var Opus\CollectionNode */
     protected $fixture;
@@ -62,19 +62,19 @@ class CollectionNodeTest extends TestCase
 
         $this->markTestSkipped("deprecated");
 
-        $this->_role_name     = "role-name-" . rand();
-        $this->_role_oai_name = "role-oainame-" . rand();
+        $this->roleName    = "role-name-" . rand();
+        $this->roleOaiName = "role-oainame-" . rand();
 
-        $this->role_fixture = new CollectionRole();
-        $this->role_fixture->setName($this->_role_name);
-        $this->role_fixture->setOaiName($this->_role_oai_name);
-        $this->role_fixture->setVisible(1);
-        $this->role_fixture->setVisibleBrowsingStart(1);
+        $this->roleFixture = new CollectionRole();
+        $this->roleFixture->setName($this->roleName);
+        $this->roleFixture->setOaiName($this->roleOaiName);
+        $this->roleFixture->setVisible(1);
+        $this->roleFixture->setVisibleBrowsingStart(1);
 
-        $this->fixture = $this->role_fixture->addRootNode();
+        $this->fixture = $this->roleFixture->addRootNode();
 
-        $this->role_fixture->store();
-        $role_id = $this->role_fixture->getId();
+        $this->roleFixture->store();
+        $this->roleFixture->getId();
     }
 
     public function testNodeConstructor()
@@ -83,8 +83,8 @@ class CollectionNodeTest extends TestCase
         $this->assertNotNull($this->fixture->getRoleId(), 'CollectionNode storing failed: should have an RoleId.');
 
         // Check, if we can create the object for this Id.
-        $node_id = $this->fixture->getId();
-        $node    = new Opus_CollectionNode($node_id);
+        $nodeId = $this->fixture->getId();
+        $node   = new Opus_CollectionNode($nodeId);
 
         $this->assertNotNull($node, 'CollectionNode construction failed: collection is null.');
         $this->assertNotNull($node->getId(), 'CollectionNode storing failed: should have an Id.');

@@ -45,9 +45,11 @@ use Opus\Model\Field;
 use Opus\Model\UnixTimestampField;
 use Opus\Security\Realm;
 use Opus\Statistic\LocalCounter;
+use Opus\Storage\File as OpusStorageFile;
 use Opus\Translate\DatabaseAdapter;
 use Opus\Util\MetadataImport;
 use Opus\Validate\MateDecorator;
+use OpusDb_Mysqlutf8;
 use OpusTest\TestAsset\TestCase;
 
 use function exec;
@@ -108,32 +110,18 @@ class RequireTest extends TestCase
 
         $blacklist = [
             MateDecorator::class,
-            'Opus\Db\Adapter\Pdo\Mysqlutf8',
+            OpusDb_Mysqlutf8::class,
             Base::class,
             LocalCounter::class,
             Urn::class,
-            'Opus\GPG',
             Realm::class,
             Field::class,
             UnixTimestampField::class,
             DateField::class,
-            \Opus\Storage\File::class,
-            'Opus\Reviewer',
-            'Opus\Privilege',
-            'Opus\SolrSearch\Exception',
+            OpusStorageFile::class,
             MetadataImport::class,
-            'Opus\Search\Solr\Solarium\Document',
-            'Opus\Search\Solr\Solarium\Adapter',
-            'Opus\Search\Solr\Solarium\Filter\Complex',
-            'Opus\Search\Solr\Document\Xslt',
-            'Opus\Search\Solr\Filter\Raw',
-            'Opus\Search\Facet\Set',
-            'Opus\Search\Facet\Field',
-            'Opus\Search\Result\Facet',
-            'Opus\Search\Result\Match',
-            'Opus\Search\Filter\Simple',
             DatabaseAdapter::class,
-            'Opus\Translate\DefaultAdapter',
+            DatabaseAdapter::class,
             DataCiteXmlGenerationException::class,
         ];
 
@@ -156,6 +144,7 @@ class RequireTest extends TestCase
      *
      * Class files must be loaded (required_once) before the classes can be used.
      *
+     * @param string $class
      * @depends testRequire
      * @dataProvider instantiateTestProvider
      */

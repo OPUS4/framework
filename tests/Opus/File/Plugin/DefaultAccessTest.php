@@ -87,7 +87,7 @@ class DefaultAccessTest extends TestCase
 
     public function testPostStoreIgnoreOldModel()
     {
-        $guestRole   = UserRole::fetchByName('guest');
+        $guestRole  = UserRole::fetchByName('guest');
         $listBefore = $guestRole->listAccessFiles();
 
         $oldFile = new FileMock(false); // alte Datei

@@ -4,9 +4,9 @@ namespace OpusTest\Util;
 
 use Exception;
 use Opus\Util\ConsoleColors;
-use OpusTest\TestAsset\SimpleTestCase;
+use OpusTest\TestAsset\AbstractSimpleTestCase;
 
-class ConsoleColorsTest extends SimpleTestCase
+class ConsoleColorsTest extends AbstractSimpleTestCase
 {
     protected $colors;
 

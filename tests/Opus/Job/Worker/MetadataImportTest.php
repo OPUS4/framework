@@ -46,8 +46,6 @@ use function get_class;
 
 class MetadataImportTest extends TestCase
 {
-    private $documentImported;
-
     private $filename;
 
     private $job;
@@ -61,11 +59,10 @@ class MetadataImportTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->documentImported = false;
-        $this->job              = new Job();
-        $this->worker           = new MetadataImport();
-        $this->xml              = null;
-        $this->xmlDir           = dirname(dirname(dirname(dirname(__FILE__)))) . '/import/';
+        $this->job    = new Job();
+        $this->worker = new MetadataImport();
+        $this->xml    = null;
+        $this->xmlDir = dirname(dirname(dirname(dirname(__FILE__)))) . '/import/';
     }
 
     public function testActivationLabel()
@@ -130,8 +127,6 @@ class MetadataImportTest extends TestCase
             $e = $ex;
         }
         $this->assertNull($e, 'unexpected exception was thrown: ' . get_class($e));
-
-        $this->documentImported = true;
     }
 
     private function loadInputFile()

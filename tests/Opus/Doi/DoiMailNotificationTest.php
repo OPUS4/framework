@@ -41,6 +41,7 @@ use Opus\Document;
 use Opus\Doi\ConfigRecipientProvider;
 use Opus\Doi\DoiMailNotification;
 use Opus\Identifier;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -178,11 +179,19 @@ class DoiMailNotificationTest extends TestCase
         $notification->sendRegistrationEmail();
     }
 
+    /**
+     * @param Zend_Config $doiConfig
+     */
     private function adaptDoiConfiguration($doiConfig)
     {
         Config::get()->merge(new Zend_Config(['doi' => $doiConfig]));
     }
 
+    /**
+     * @param string $doiValue
+     * @return int
+     * @throws ModelException
+     */
     private function createTestDocWithDoi($doiValue)
     {
         $doc = new Document();
@@ -195,6 +204,11 @@ class DoiMailNotificationTest extends TestCase
         return $doc->store();
     }
 
+    /**
+     * @param int $docId
+     * @return Identifier
+     * @throws ModelException
+     */
     private function getDoi($docId)
     {
         $doc  = new Document($docId);

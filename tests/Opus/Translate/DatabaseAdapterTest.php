@@ -159,7 +159,6 @@ class DatabaseAdapterTest extends TestCase
         $this->assertEquals('Editiert', $translate->translate('admin', 'de'));
     }
 
-    // check behaviour with cache
     public function testUsingAdapterWithoutCache()
     {
         Zend_Translate::clearCache();
