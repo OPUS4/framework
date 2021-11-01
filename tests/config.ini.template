@@ -51,7 +51,7 @@ opusdb.params.admin.password = @db.admin.password@
 db.debug = 1
 
 ;OPUS SETTINGS
-workspacePath = APPLICATION_PATH "/tests/workspace"
+workspacePath = APPLICATION_PATH "/build/workspace"
 resources.locale.default = 'de'
 
 ;PHP SETTINGS

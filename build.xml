@@ -9,6 +9,7 @@
     <property name="bindir" value="${basedir}/vendor/bin" />
     <property name="solrVersion" value="7.6.0" />
     <property name="downloadDir" value="${basedir}/downloads" />
+    <property name="workspaceDir" value="${basedir}/build/workspace" />
 
     <!-- Properties for configuration files (tests/config.ini) used for testing. -->
     <property name="dbName" value="opusdb" />
@@ -38,22 +39,22 @@
         <delete dir="${basedir}/build/coverage" />
         <delete dir="${basedir}/build/pdepend" />
         <delete dir="${basedir}/build/code-browser" />
-        <delete includeEmptyDirs="true">
-            <fileset dir="${basedir}/tests/workspace/cache" includes="**/*" />
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${workspaceDir}/cache" includes="**/*" />
         </delete>
-        <delete includeEmptyDirs="true">
-            <fileset dir="${basedir}/tests/workspace/tmp" includes="**/*" />
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${workspaceDir}/tmp" includes="**/*" />
         </delete>
-        <delete includeEmptyDirs="true">
-            <fileset dir="${basedir}/tests/workspace" />
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${workspaceDir}" />
         </delete>
     </target>
 
     <target name="prepare-workspace">
-        <mkdir dir="${basedir}/tests/workspace/cache" />
-        <mkdir dir="${basedir}/tests/workspace/tmp" />
-        <mkdir dir="${basedir}/tests/workspace/log" />
-        <mkdir dir="${basedir}/tests/workspace/files" />
+        <mkdir dir="${workspaceDir}/cache" />
+        <mkdir dir="${workspaceDir}/tmp" />
+        <mkdir dir="${workspaceDir}/log" />
+        <mkdir dir="${workspaceDir}/files" />
     </target>
 
     <target name="setup" depends="prepare-dependencies,prepare-workspace,prepare-config"

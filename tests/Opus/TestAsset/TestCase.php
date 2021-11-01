@@ -37,6 +37,7 @@ namespace OpusTest\TestAsset;
 
 use DOMDocument;
 use DOMXPath;
+use Opus\Config;
 use Opus\Db2\Database;
 
 use function array_diff;
@@ -138,8 +139,8 @@ class TestCase extends SimpleTestCase
             if (empty(APPLICATION_PATH)) {
                 return;
             }
-            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
-                . DIRECTORY_SEPARATOR . 'files';
+            $config   = Config::get();
+            $filesDir = $config->workspacePath . '/files';
             $files    = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
