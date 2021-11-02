@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENCE
  * This code is free software: you can redistribute it and/or modify
@@ -11,14 +12,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * @category    Framework
- * @package     Qucosa_Search
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
+ * @category    Framework
+ * @package     Qucosa_Search
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  */
 
@@ -27,9 +28,7 @@ namespace Opus\Db;
 /**
  * Table gateway class to table 'document_title_abstracts'.
  *
- * @category    Framework
- * @package     Opus\Db
- *
+ * phpcs:disable
  */
 class DocumentXmlCache extends TableGateway
 {

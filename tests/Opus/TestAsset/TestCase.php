@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,28 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\TestAsset;
 
+use DOMDocument;
+use DOMXPath;
+use Opus\Config;
 use Opus\Db2\Database;
+
+use function array_diff;
+use function is_dir;
+use function rmdir;
+use function scandir;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
@@ -42,7 +55,6 @@ use Opus\Db2\Database;
  */
 class TestCase extends SimpleTestCase
 {
-
     private $tables;
 
     protected function resetDatabase()
@@ -70,8 +82,6 @@ class TestCase extends SimpleTestCase
 
     /**
      * Empty all listed tables.
-     *
-     * @return void
      */
     protected function clearTables($always = false, $tables = null)
     {
@@ -99,7 +109,6 @@ class TestCase extends SimpleTestCase
      * a table.  Check, if the table is really empty.
      *
      * @param string $tablename Name of the table to be cleared.
-     * @return void
      */
     protected function clearTable($tablename, $always = false)
     {
@@ -121,20 +130,21 @@ class TestCase extends SimpleTestCase
 
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
+     *
      * @param null $directory
      */
     protected function clearFiles($directory = null)
     {
-        if (is_null($directory)) {
+        if ($directory === null) {
             if (empty(APPLICATION_PATH)) {
                 return;
             }
-            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
-                . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
+            $config   = Config::get();
+            $filesDir = $config->workspacePath . '/files';
+            $files    = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), ['.', '..']);
+            $files    = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -147,7 +157,7 @@ class TestCase extends SimpleTestCase
             }
         }
 
-        if (! is_null($directory)) {
+        if ($directory !== null) {
             rmdir($directory);
         }
 
@@ -156,8 +166,6 @@ class TestCase extends SimpleTestCase
 
     /**
      * Standard setUp method for clearing database.
-     *
-     * @return void
      */
     protected function setUp()
     {
@@ -166,14 +174,14 @@ class TestCase extends SimpleTestCase
 
     protected function prepareXpathFromResultString($resultString)
     {
-        $domDocument = new \DOMDocument();
+        $domDocument = new DOMDocument();
         $domDocument->loadXML($resultString);
 
-        $xpath = new \DOMXPath($domDocument);
+        $xpath = new DOMXPath($domDocument);
 
         $namespace = $domDocument->documentElement->namespaceURI;
 
-        if (! is_null($namespace)) {
+        if ($namespace !== null) {
             $xpath->registerNamespace('ns', $namespace);
         }
 

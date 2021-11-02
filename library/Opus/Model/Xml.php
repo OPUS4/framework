@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,47 +25,49 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008 - 2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2008 - 2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model;
 
+use DOMDocument;
 use Opus\Log;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Conf;
-use Opus\Model\Xml\Strategy;
+use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
-use Opus\Uri\Resolver;
+use Opus\Uri\ResolverInterface;
+
+use function get_class;
 
 /**
  * Provides creation XML from models and creation of models by valid XML respectivly.
  *
- * @category    Framework
- * @package     Opus\Model
- *
  * TODO NAMESPACE rename class?
+ *
+ * phpcs:disable
  */
 class Xml
 {
-
     /**
      * Holds current configuration.
      *
      * @var Conf
      */
-    private $_config = null;
+    private $config;
 
     /**
      * Holds current xml strategy object.
      *
-     * @var Strategy
+     * @var StrategyInterface
      */
-    private $_strategy = null;
+    private $strategy;
 
     /**
      * TODO
@@ -72,7 +75,7 @@ class Xml
      *
      * @var Cache
      */
-    private $_cache = null;
+    private $cache;
 
     /**
      * Do some initial stuff like setting of a XML version and an empty
@@ -80,21 +83,21 @@ class Xml
      */
     public function __construct()
     {
-        $this->_strategy = new Version1();
-        $this->_config = new Conf();
-        $this->_strategy->setup($this->_config);
+        $this->strategy = new Version1();
+        $this->config   = new Conf();
+        $this->strategy->setup($this->config);
     }
 
     /**
      * Set a new XML version with current configuration up.
      *
-     * @param Strategy $strategy Version of Xml to process
-     * @return Xml fluent interface.
+     * @param StrategyInterface $strategy Version of Xml to process
+     * @return $this fluent interface.
      */
-    public function setStrategy(Strategy $strategy)
+    public function setStrategy(StrategyInterface $strategy)
     {
-        $this->_strategy = $strategy;
-        $this->_strategy->setup($this->_config);
+        $this->strategy = $strategy;
+        $this->strategy->setup($this->config);
         return $this;
     }
 
@@ -102,23 +105,22 @@ class Xml
      * TODO
      * ...
      *
-     * @param Cache $cache
-     * @return Xml fluent interface.
+     * @return $this fluent interface.
      */
     public function setXmlCache(Cache $cache)
     {
-        $this->_cache = $cache;
+        $this->cache = $cache;
         return $this;
     }
 
     /**
      * ...
      *
-     * @return Xml fluent interface.
+     * @return $this fluent interface.
      */
     public function removeCache()
     {
-        $this->_cache = null;
+        $this->cache = null;
         return $this;
     }
 
@@ -130,32 +132,32 @@ class Xml
      */
     public function getXmlCache()
     {
-        return $this->_cache;
+        return $this->cache;
     }
 
     /**
      * Set up base URI for xlink URI generation.
      *
      * @param string $uri Base URI.
-     * @return Xml Fluent interface
+     * @return $this Fluent interface
      */
     public function setXlinkBaseUri($uri)
     {
-        $this->_config->baseUri = $uri;
+        $this->config->baseUri = $uri;
         return $this;
     }
 
     /**
      * Set up Xlink-Resolver called to obtain contents of Xlink referenced resources.
      *
-     * @param Resolver $resolver Resolver implementation that gets called for xlink:ref content.
-     * @return Xml Fluent interface
+     * @param ResolverInterface $resolver Resolver implementation that gets called for xlink:ref content.
+     * @return $this Fluent interface
      *
      * TODO seems unused in OPUS
      */
-    public function setXlinkResolver(Resolver $resolver)
+    public function setXlinkResolver(ResolverInterface $resolver)
     {
-        $this->_config->xlinkResolver = $resolver;
+        $this->config->xlinkResolver = $resolver;
         return $this;
     }
 
@@ -169,11 +171,11 @@ class Xml
      * "http://pub.service.org/licence/4711"
      *
      * @param array $map Map of class names to resource names.
-     * @return Xml Fluent interface
+     * @return $this Fluent interface
      */
     public function setResourceNameMap(array $map)
     {
-        $this->_config->resourceNameMap = $map;
+        $this->config->resourceNameMap = $map;
         return $this;
     }
 
@@ -181,22 +183,22 @@ class Xml
      * Set up list of fields to exclude from serialization.
      *
      * @param array Field list
-     * @return Xml Fluent interface
+     * @return $this Fluent interface
      */
     public function exclude(array $fields)
     {
-        $this->_config->excludeFields = $fields;
+        $this->config->excludeFields = $fields;
         return $this;
     }
 
     /**
      * Define that empty fields (value===null) shall be excluded.
      *
-     * @return Xml Fluent interface
+     * @return $this Fluent interface
      */
     public function excludeEmptyFields()
     {
-        $this->_config->excludeEmpty = true;
+        $this->config->excludeEmpty = true;
         return $this;
     }
 
@@ -204,23 +206,23 @@ class Xml
      * Set XML model representation.
      *
      * @param string $xml XML string representing a model.
-     * @return Xml Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setXml($xml)
     {
-        $this->_strategy->setXml($xml);
+        $this->strategy->setXml($xml);
         return $this;
     }
 
     /**
      * Set a DomDocument instance.
      *
-     * @param \DOMDocument $dom DomDocument representing a model.
-     * @return Xml Fluent interface.
+     * @param DOMDocument $dom DomDocument representing a model.
+     * @return $this Fluent interface.
      */
-    public function setDomDocument(\DOMDocument $dom)
+    public function setDomDocument(DOMDocument $dom)
     {
-        $this->_strategy->setDomDocument($dom);
+        $this->strategy->setDomDocument($dom);
         return $this;
     }
 
@@ -228,11 +230,11 @@ class Xml
      * Set the Model for XML generation.
      *
      * @param AbstractModel $model Model to serialize.
-     * @return Xml Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setModel($model)
     {
-        $this->_config->model = $model;
+        $this->config->model = $model;
         return $this;
     }
 
@@ -244,32 +246,33 @@ class Xml
      */
     public function getModel()
     {
-        return $this->_strategy->getModel();
+        return $this->strategy->getModel();
     }
 
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
-     * @return \DOMDocument DOM representation of the current Model.
+     *
+     * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument()
     {
-        $model = $this->_config->model;
+        $model  = $this->config->model;
         $logger = Log::get();
 
         $result = $this->getDomDocumentFromXmlCache();
-        if (! is_null($result)) {
+        if ($result !== null) {
             return $result;
         }
 
-        $result = $this->_strategy->getDomDocument();
-        if (is_null($this->_cache)) {
+        $result = $this->strategy->getDomDocument();
+        if ($this->cache === null) {
             return $result;
         }
 
-        $this->_cache->put(
+        $this->cache->put(
             $model->getId(),
-            (int) $this->_strategy->getVersion(),
+            (int) $this->strategy->getVersion(),
             $model->getServerDateModified()->__toString(),
             $result
         );
@@ -282,21 +285,21 @@ class Xml
      * null in case of an error/cache miss/cache disabled.  Returns DOMDocument
      * otherwise.
      *
-     * @return \DOMDocument DOM representation of the current Model.
+     * @return DOMDocument DOM representation of the current Model.
      */
     private function getDomDocumentFromXmlCache()
     {
-        $model = $this->_config->model;
+        $model  = $this->config->model;
         $logger = Log::get();
 
-        if (null === $this->_cache) {
+        if (null === $this->cache) {
             $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
             return null;
         }
 
-        $cached = $this->_cache->hasValidEntry(
+        $cached = $this->cache->hasValidEntry(
             $model->getId(),
-            (int) $this->_strategy->getVersion(),
+            (int) $this->strategy->getVersion(),
             $model->getServerDateModified()->__toString()
         );
 
@@ -307,7 +310,7 @@ class Xml
 
         $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
         try {
-            return $this->_cache->get($model->getId(), (int) $this->_strategy->getVersion());
+            return $this->cache->get($model->getId(), (int) $this->strategy->getVersion());
         } catch (ModelException $e) {
             $logger->warn(
                 __METHOD__ . " Access to XML cache failed on " . get_class($model) . '#' . $model->getId()
@@ -322,20 +325,19 @@ class Xml
      * Update a model from a given xml string.
      *
      * @param string $xml String of xml structure.
-     * @return void
      */
     public function updateFromXml($xml)
     {
-        $this->_strategy->updateFromXml($xml);
+        $this->strategy->updateFromXml($xml);
     }
 
     /**
      * Returns used strategy main version aka XML Opus version.
      *
-     * @return integer
+     * @return int
      */
     public function getStrategyVersion()
     {
-        return $this->_strategy->getVersion();
+        return $this->strategy->getVersion();
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -37,9 +38,11 @@ use Opus\Account;
 use Opus\Job\Worker\MailNotification;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+use function rand;
+
 class MailNotificationTest extends TestCase
 {
-
     protected function setUp()
     {
         parent::setUp();
@@ -48,12 +51,12 @@ class MailNotificationTest extends TestCase
 
         $account = new Account();
         $account->setLogin('admin')
-            ->setPassword('foobar-'.rand())
+            ->setPassword('foobar-' . rand())
             ->store();
 
         $account = new Account();
         $account->setLogin('hasmail')
-            ->setPassword('foobar-'.rand())
+            ->setPassword('foobar-' . rand())
             ->setEmail('has@mail.de')
             ->store();
     }
@@ -63,7 +66,7 @@ class MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForEmptyList()
     {
-        $mail = new MailNotification();
+        $mail       = new MailNotification();
         $recipients = $mail->getRecipients();
         $this->assertNotNull($recipients);
         $this->assertEquals(0, count($recipients));
@@ -74,8 +77,8 @@ class MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForInvalidUser()
     {
-        $mail = new MailNotification();
-        $users = ['doesnotexist'];
+        $mail       = new MailNotification();
+        $users      = ['doesnotexist'];
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
         $this->assertEquals(0, count($recipients));
@@ -86,8 +89,8 @@ class MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForUserWithoutMail()
     {
-        $mail = new MailNotification();
-        $users = ['admin'];
+        $mail       = new MailNotification();
+        $users      = ['admin'];
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
         $this->assertEquals(0, count($recipients));
@@ -98,8 +101,8 @@ class MailNotificationTest extends TestCase
      */
     public function testGetRecipientsForUserWithMail()
     {
-        $mail = new MailNotification();
-        $users = ['hasmail'];
+        $mail       = new MailNotification();
+        $users      = ['hasmail'];
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
         $this->assertEquals(1, count($recipients));

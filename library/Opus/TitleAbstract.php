@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
+
+use Zend_Db_Table_Abstract;
+
+use function array_key_exists;
 
 /**
  * Domain model for document abstracts in the Opus framework
@@ -40,19 +46,17 @@ namespace Opus;
  * This is not an 'abstract' class like the name would suggest, but objects of this class
  * represent abstracts for documents.
  *
- * @category    Framework
- * @package     Opus
- *
  * TODO Is this class necessary?
  * TODO Should modifying Type be suppressed in this class?
  * TODO Opus\Title can be used instead of Opus\TitleAbstract for addTitleAbstract, but then Type does not get set properly.
+ *
+ * phpcs:disable
  */
 class TitleAbstract extends Title
 {
-
     const TYPE_ABSTRACT = 'abstract';
 
-    public function __construct($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null)
+    public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
         parent::__construct($id, $tableGatewayModel);
 
@@ -61,12 +65,10 @@ class TitleAbstract extends Title
 
     /**
      * Set textarea flag for Value field.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        parent::_init();
+        parent::init();
 
         $this->getField('Value')->setTextarea(true);
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,44 +25,49 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model;
 
+use Exception;
 use Opus\Model\AbstractModel;
 use Opus\Model\Filter;
+use Opus\Model\ModelException;
+use opusFilterTestMock;
 use OpusTest\TestAsset\TestCase;
+
+use function array_values;
+use function class_exists;
 
 /**
  * Test cases for class Opus\Model\Filter.
  *
  * @package Opus\Model
  * @category Tests
- *
  * @group FilterTest
  */
 class FilterTest extends TestCase
 {
-
     /**
      * Holds model that gets filtered.
      *
      * @var AbstractModel
      */
-    protected $model = null;
+    protected $model;
 
     /**
      * Holds filter instance wrapping the model in $model.
      *
      * @var Filter
      */
-    protected $filter = null;
+    protected $filter;
 
     public function setUp()
     {
@@ -71,9 +77,9 @@ class FilterTest extends TestCase
             eval('
                 class opusFilterTestMock extends \Opus\Model\AbstractModel 
                 {
-                    protected $_internalFields = array(\'InternalField\');
+                    protected $internalFields = array(\'InternalField\');
     
-                    protected function _init() {
+                    protected function init() {
                         $this->addField(new \Opus\Model\Field(\'InternalField\'));
                         $this->addField(new \Opus\Model\Field(\'Field1\'));
                         $this->addField(new \Opus\Model\Field(\'Field2\'));
@@ -84,7 +90,7 @@ class FilterTest extends TestCase
                 }
             ');
         }
-        $this->model = new \opusFilterTestMock();
+        $this->model  = new opusFilterTestMock();
         $this->filter = new Filter();
         $this->filter->setModel($this->model);
     }
@@ -98,8 +104,6 @@ class FilterTest extends TestCase
 
     /**
      * Test if filter without blacklist returnes all fields.
-     *
-     * @return void
      */
     public function testFilterWithoutBlacklistReturnsAllFields()
     {
@@ -112,8 +116,6 @@ class FilterTest extends TestCase
 
     /**
      * Test if filter with blacklist returnes all visible fields.
-     *
-     * @return void
      */
     public function testFilterWithBlacklistReturnsAllAllowedFields()
     {
@@ -128,8 +130,6 @@ class FilterTest extends TestCase
 
     /**
      * Test if a not-blacklistet field can be retrieved via getField().
-     *
-     * @return void
      */
     public function testRetrieveNotBlacklistedField()
     {
@@ -137,11 +137,8 @@ class FilterTest extends TestCase
         $this->assertNotNull($field, 'Field should be retrievable.');
     }
 
-
     /**
      * Test if a defined sorting order is ensured when retrieving field names.
-     *
-     * @return void
      */
     public function testRetrieveAllFieldsInDefinedSortOrder()
     {
@@ -157,8 +154,6 @@ class FilterTest extends TestCase
     /**
      * Test if defining a partial sort order may contain
      * an fieldname that is not actual declared for the model.
-     *
-     * @return void
      */
     public function testSortOrderDefinitionCanContainUnknownField()
     {
@@ -177,107 +172,90 @@ class FilterTest extends TestCase
 
     /**
      * Test if a not-blacklistet field cannot be retrieved via getField().
-     *
-     * @return void
      */
     public function testRetrieveBlacklistedFieldThrowsException()
     {
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $field = $this->filter->getField('Field2');
     }
 
     /**
      * Test if calling add<Fieldname>() on a non-blacklisted field is allowed.
-     *
-     * @return void
      */
     public function testAddCallToNotBlacklistedFieldNotThrowsAnException()
     {
         try {
             $this->filter->addField3('fsdfd');
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->fail('Add call on visible field should be permitted.');
         }
     }
 
     /**
      * Test if a not-blacklistet field cannot be modified via add<Fieldname>().
-     *
-     * @return void
      */
     public function testAddToBlacklistedFieldThrowsException()
     {
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $field = $this->filter->addField2();
     }
 
-
     /**
      * Test if calling get<Fieldname>() on a non-blacklisted field is allowed.
-     *
-     * @return void
      */
     public function testGetCallToNotBlacklistedFieldNotThrowsAnException()
     {
         try {
             $this->filter->getField1();
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->fail('Get call on visible field should be permitted.');
         }
     }
 
     /**
      * Test if a not-blacklistet field cannot be modified via get<Fieldname>().
-     *
-     * @return void
      */
     public function testGetToBlacklistedFieldThrowsException()
     {
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $field = $this->filter->getField2();
     }
 
     /**
      * Test if calling set<Fieldname>() on a non-blacklisted field is allowed.
-     *
-     * @return void
      */
     public function testSetCallToNotBlacklistedFieldNotThrowsAnException()
     {
         try {
             $this->filter->setField1('value');
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->fail('Set call on visible field should be permitted.');
         }
     }
 
     /**
      * Test if a not-blacklistet field cannot be modified via set<Fieldname>().
-     *
-     * @return void
      */
     public function testSetToBlacklistedFieldThrowsException()
     {
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $field = $this->filter->setField2('value');
     }
 
     /**
      * Test if toArray() call returnes properly filtered result.
-     *
-     * @return void
      */
     public function testToArrayReturnesFilteredResult()
     {

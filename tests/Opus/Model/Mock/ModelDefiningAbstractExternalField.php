@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Thoralf Klein
- * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Mock;
 
@@ -41,31 +43,29 @@ use Opus\Model\Field;
  */
 class ModelDefiningAbstractExternalField extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of\Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'OpusTest\Model\Mock\AbstractTableProvider';
+    protected static $tableGatewayClass = AbstractTableProvider::class;
 
     /**
      * Provide a mockup external fields declaration.
      *
      * @var array
      */
-    protected $_externalFields = [
+    protected $externalFields = [
         'LazyAbstractModel' => [
-            'model' => 'OpusTest\Model\Mock\AbstractModelMock',
-            'fetch' => 'lazy']
+            'model' => AbstractModelMock::class,
+            'fetch' => 'lazy',
+        ],
     ];
 
     /**
      * Initialize model with the a single field "ExternalModel".
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $this->addField(new Field('LazyAbstractModel'));
     }

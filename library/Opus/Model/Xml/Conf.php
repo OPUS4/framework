@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,38 +25,39 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Model\Xml;
 
+use DOMDocument;
 use Opus\Model\AbstractModel;
-use Opus\Uri\Resolver;
+use Opus\Uri\ResolverInterface;
 
 /**
  * Simple configuration object.
  */
 class Conf
 {
-
     /**
      * Holds the current model either directly set or deserialized from XML.
      *
      * @var AbstractModel
      */
-    public $model = null;
+    public $model;
 
     /**
      * Holds the current DOM representation.
      *
-     * @var \DOMDocument
+     * @var DOMDocument
      */
-    public $dom = null;
+    public $dom;
 
     /**
      * List of fields to skip on serialization.
@@ -81,9 +83,9 @@ class Conf
     /**
      * Holds Resolver instance to get contents of xlink referenced resources.
      *
-     * @var Resolver
+     * @var ResolverInterface
      */
-    public $xlinkResolver = null;
+    public $xlinkResolver;
 
     /**
      * Map of model class names to resource names for URI generation.

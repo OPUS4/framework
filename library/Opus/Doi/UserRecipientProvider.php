@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,19 +26,22 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Application
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Doi;
 
 use Opus\Permission;
 
-class UserRecipientProvider implements NotificationRecipientProvider
-{
+use function strlen;
+use function trim;
 
+class UserRecipientProvider implements NotificationRecipientProviderInterface
+{
     const PERMISSION = 'resource_doi_notification';
 
     /**
@@ -46,7 +50,7 @@ class UserRecipientProvider implements NotificationRecipientProvider
      * Each recipient is returned as an array with 'name' and 'address' of the recipient. The 'name' should be the
      * full name and the address the email of the recipient.
      *
-     * @return array|mixed
+     * @return array
      */
     public function getRecipients()
     {
@@ -57,19 +61,19 @@ class UserRecipientProvider implements NotificationRecipientProvider
         foreach ($accounts as $account) {
             $email = $account->getEmail();
 
-            if (strlen(trim($email)) == 0) {
+            if (strlen(trim($email)) === 0) {
                 continue; // do not add to recipient list
             }
 
             $name = $account->getFullName();
 
-            if (strlen(trim($name)) == 0) {
+            if (strlen(trim($name)) === 0) {
                 $name = $account->getLogin();
             }
 
             $recipients[] = [
-                'name' => $name,
-                'address' => $email
+                'name'    => $name,
+                'address' => $email,
             ];
         }
 

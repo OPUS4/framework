@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use DateTime;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Date;
@@ -47,18 +50,22 @@ use Opus\Security\SecurityException;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+use function date;
+use function in_array;
+use function rand;
+use function strtotime;
+use function time;
+
 /**
  * Test cases for class Opus\DocumentFinder.
  *
  * @package Opus
  * @category Tests
- *
  * @group DocumentTest
- *
  */
 class DocumentFinderTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
@@ -67,7 +74,7 @@ class DocumentFinderTest extends TestCase
             'documents',
             'persons',
             'link_persons_documents',
-            'document_title_abstracts'
+            'document_title_abstracts',
         ]);
     }
 
@@ -146,8 +153,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Basic functionality
-     *
-     * @return void
      */
     public function testCountOnEmptyDb()
     {
@@ -157,8 +162,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Basic functionality
-     *
-     * @return void
      */
     public function testIdsOnEmptyDb()
     {
@@ -168,8 +171,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Basic functionality
-     *
-     * @return void
      */
     public function testAllEntriesNoConstraints()
     {
@@ -183,8 +184,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Basic functionality
-     *
-     * @return void
      */
     public function testAllConstraints()
     {
@@ -215,8 +214,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Basic functionality
-     *
-     * @return void
      */
     public function testIdsByState()
     {
@@ -252,8 +249,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Extended functionality: Grouping
-     *
-     * @return void
      */
     public function testGroupedDocumentTypes()
     {
@@ -261,7 +256,7 @@ class DocumentFinderTest extends TestCase
 
         // all
         $finder = new DocumentFinder();
-        $types = $finder->groupedTypes();
+        $types  = $finder->groupedTypes();
         $this->assertEquals(3, count($types));
 
         // published
@@ -285,8 +280,6 @@ class DocumentFinderTest extends TestCase
 
     /**
      * Extended functionality: Sorting
-     *
-     * @return void
      */
     public function testSortByAuthorLastName()
     {
@@ -347,11 +340,11 @@ class DocumentFinderTest extends TestCase
 
         foreach ($docs as $docId) {
             $doc = new Document($docId);
-            if (is_null($lastDate)) {
+            if ($lastDate === null) {
                 $lastDate = $doc->getServerDatePublished();
             }
 
-            if (! is_null($lastDate) and $lastDate->compare($doc->getServerDatePublished()) == 1) {
+            if ($lastDate !== null && $lastDate->compare($doc->getServerDatePublished()) === 1) {
                 $this->fail('documents are not sorted properly');
             }
         }
@@ -423,22 +416,21 @@ class DocumentFinderTest extends TestCase
 
     public function testSetDependentModel()
     {
-        $docIds = [];
-        $doc1 = new Document();
+        $docIds   = [];
+        $doc1     = new Document();
         $docIds[] = $doc1->setType("article")
                 ->setServerState('published')
                 ->store();
 
-        $doc2 = new Document();
+        $doc2     = new Document();
         $docIds[] = $doc2->setType("article")
                 ->setServerState('unpublished')
                 ->store();
 
-        $doc3 = new Document();
+        $doc3     = new Document();
         $docIds[] = $doc3->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
-
 
         // test dependent model
         $title = $doc3->addTitleMain();
@@ -446,14 +438,13 @@ class DocumentFinderTest extends TestCase
         $title->setLanguage('deu');
         $titleId = $title->store();
 
-        $title = new Title($titleId);
-        $docfinder = new DocumentFinder();
+        $title        = new Title($titleId);
+        $docfinder    = new DocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($title)->ids();
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
         $this->assertTrue(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID in result set');
         $this->assertFalse(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID not in result set');
         $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
-
 
         // test linked model
         //person
@@ -466,7 +457,7 @@ class DocumentFinderTest extends TestCase
         $doc2->addPersonAuthor($author);
         $doc2->store();
 
-        $docfinder = new DocumentFinder();
+        $docfinder    = new DocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($author)->ids();
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
         $this->assertTrue(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID in result set');
@@ -481,8 +472,8 @@ class DocumentFinderTest extends TestCase
         $doc1->addLicence($licence);
         $doc1->store();
 
-        $licence = new Licence($licenceId);
-        $docfinder = new DocumentFinder();
+        $licence      = new Licence($licenceId);
+        $docfinder    = new DocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($licence)->ids();
 
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
@@ -517,8 +508,8 @@ class DocumentFinderTest extends TestCase
         $doc3->addCollection($collection);
         $doc3->store();
 
-        $collection = new Collection($collectionId);
-        $docfinder = new DocumentFinder();
+        $collection   = new Collection($collectionId);
+        $docfinder    = new DocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($collection)->ids();
 
         $this->assertEquals(2, count($resultDocIds), 'Excpected 2 IDs in result');
@@ -529,9 +520,8 @@ class DocumentFinderTest extends TestCase
 
     public function testSetFilesVisibleInOai()
     {
-
         $visibleFileDoc = new Document();
-        $visibleFile = new File();
+        $visibleFile    = new File();
 
         $visibleFile->setPathName('visible_file.txt');
         $visibleFile->setVisibleInOai(true);
@@ -539,19 +529,18 @@ class DocumentFinderTest extends TestCase
         $visibleFileDoc->addFile($visibleFile);
 
         $invisibleFileDoc = new Document();
-        $invisibleFile = new File();
+        $invisibleFile    = new File();
 
         $invisibleFile->setPathName('invisible_file.txt');
         $invisibleFile->setVisibleInOai(false);
 
         $invisibleFileDoc->addFile($invisibleFile);
 
-
-        $visibleFileDocId = $visibleFileDoc->store();
+        $visibleFileDocId   = $visibleFileDoc->store();
         $invisibleFileDocId = $invisibleFileDoc->store();
 
         $mixedFileDoc = new Document();
-        $visibleFile = new File();
+        $visibleFile  = new File();
 
         $visibleFile->setPathName('another_visible_file.txt');
         $visibleFile->setVisibleInOai(true);
@@ -647,10 +636,10 @@ class DocumentFinderTest extends TestCase
      */
     public function testFindDocumentsWithExpiredEmbargoDateForUpdatingServerDateModified()
     {
-        $tomorrow = date('Y-m-d', time() + (60 * 60 * 24));
+        $tomorrow         = date('Y-m-d', time() + (60 * 60 * 24));
         $dayaftertomorrow = date('Y-m-d', time() + (2 * 60 * 60 * 24));
-        $today = date('Y-m-d', time());
-        $yesterday = date('Y-m-d', time() - (60 * 60 * 24));
+        $today            = date('Y-m-d', time());
+        $yesterday        = date('Y-m-d', time() - (60 * 60 * 24));
 
         $doc = new Document();
         $doc->setEmbargoDate($dayaftertomorrow);
@@ -679,10 +668,10 @@ class DocumentFinderTest extends TestCase
         $now->setNow();
 
         $past = new Date();
-        $past->setDateTime(new \DateTime(date('Y-m-d H:i:s', strtotime('-1 hour'))));
+        $past->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('-1 hour'))));
 
         $future = new Date();
-        $future->setDateTime(new \DateTime(date('Y-m-d H:i:s', strtotime('+1 hour'))));
+        $future->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('+1 hour'))));
 
         $doc = new Document();
         $doc->setEmbargoDate($past);

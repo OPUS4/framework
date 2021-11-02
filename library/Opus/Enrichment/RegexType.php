@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,20 +25,32 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Application
  * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
- * @copyright   Copyright (c) 2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Enrichment;
 
 use Opus\Log;
+use Zend_Validate_Regex;
 
+use function array_key_exists;
+use function error_get_last;
+use function error_reporting;
+use function is_array;
+use function is_bool;
+use function preg_match;
+
+/**
+ * phpcs:disable
+ */
 class RegexType extends AbstractType
 {
-    private $regex = null;
+    private $regex;
 
     private $validation = 'none';
 
@@ -56,7 +69,7 @@ class RegexType extends AbstractType
      */
     public function getValidation()
     {
-        if (is_null($this->regex)) {
+        if ($this->regex === null) {
             return null; // wenn kein Regex gesetzt, dann braucht auch keine Validierung spezifiziert werden
         }
 
@@ -79,10 +92,10 @@ class RegexType extends AbstractType
     {
         $element = parent::getFormElement();
 
-        $validator = new \Zend_Validate_Regex(['pattern' => '/' . $this->regex . '/']);
+        $validator = new Zend_Validate_Regex(['pattern' => '/' . $this->regex . '/']);
         $element->addValidator($validator);
 
-        if (! is_null($value)) {
+        if ($value !== null) {
             $element->setValue($value);
         }
 
@@ -96,7 +109,7 @@ class RegexType extends AbstractType
 
     public function setOptionsFromString($string)
     {
-        if (is_null($string)) {
+        if ($string === null) {
             return; // nothing to check
         }
 
@@ -115,7 +128,7 @@ class RegexType extends AbstractType
 
         if (preg_match($stringToCheck, null) === false) {
             $error = error_get_last();
-            $log = Log::get();
+            $log   = Log::get();
             $log->warn('given type option regex ' . $string . ' is not valid: ' . $error);
         } else {
             $this->regex = $string;

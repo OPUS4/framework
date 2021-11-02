@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @copyright   Copyright (c) 2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2010-2020 OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2020 OPUS 4 development team
  */
 
 namespace Opus\Document\Plugin;
@@ -43,16 +44,18 @@ use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
 
+use function floor;
+
 /**
  * Plugin creating and deleting xml cache entries.
  *
+ * @uses        \Opus\Model\Plugin\AbstractPlugin
+ *
  * @category    Framework
  * @package     Opus\Document\Plugin
- * @uses        \Opus\Model\Plugin\AbstractPlugin
  */
 class XmlCache extends AbstractPlugin
 {
-
     use LoggingTrait;
 
     /**
@@ -90,7 +93,7 @@ class XmlCache extends AbstractPlugin
     public function postDelete($modelId)
     {
         $cache = new Cache(false);
-        $omx = new Xml();
+        $omx   = new Xml();
 
         // xml version 1
         $omx->setStrategy(new Version1());

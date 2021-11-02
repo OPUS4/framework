@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,13 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Xml;
@@ -43,23 +45,24 @@ use Opus\Title;
 use Opus\TitleAbstract;
 use OpusTest\TestAsset\TestCase;
 
+use function date;
+
 /**
  * Test creation XML (version 2) from models and creation of models by valid XML respectivly.
  *
  * @category    Tests
  * @package     Opus\Model
- *
  * @group XmlVersion2Test
  */
 class Version2Test extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
@@ -72,8 +75,6 @@ class Version2Test extends TestCase
 
     /**
      * First test of xml version 2.
-     *
-     * @return void
      */
     public function testInitialXmlVersion2()
     {
@@ -131,8 +132,6 @@ class Version2Test extends TestCase
 
     /**
      * Test if a given model and its serialized version generate same xml output.
-     *
-     * @return void
      */
     public function testSettingOfXmlShouldBeEqualToSetModel()
     {
@@ -165,14 +164,14 @@ class Version2Test extends TestCase
 
         // set up serialize
         $strategy = new Version2();
-        $omx = new Xml();
+        $omx      = new Xml();
         $omx->setModel($document);
         $omx->setStrategy($strategy);
         $dom = $omx->getDomDocument();
 
         // serialize
         $xmlData = $dom->saveXML();
-        $omx = new Xml();
+        $omx     = new Xml();
         // take first serialize data as source
         $omx->setXml($xmlData);
 
@@ -180,7 +179,7 @@ class Version2Test extends TestCase
         // build a model from xml
         $model = $omx->getModel();
 
-        $this->assertInstanceOf('Opus\Document', $model, 'Builded model is not of the expected type.');
+        $this->assertInstanceOf(Document::class, $model, 'Builded model is not of the expected type.');
 
         $omx = new Xml();
         $omx->setModel($model);
@@ -198,8 +197,6 @@ class Version2Test extends TestCase
 
     /**
      * Test if correct Type element gets found to determine the document type.
-     *
-     * @return void
      */
     public function testConstructionFromCorrectTypeElement()
     {
@@ -234,8 +231,6 @@ class Version2Test extends TestCase
 
     /**
      * Regression test deserializer.
-     *
-     * @return void
      */
     public function testDeserializingComplexModel()
     {

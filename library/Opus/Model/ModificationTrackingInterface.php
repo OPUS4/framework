@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace Opus\Model;
 
@@ -39,21 +41,19 @@ namespace Opus\Model;
  * @category Framework
  * @package  Opus\Model
  */
-interface ModificationTracking
+interface ModificationTrackingInterface
 {
-
     /**
      * Returns true if modification status is set.
      *
-     * @return boolean True, if modified. False if not.
+     * @return bool True, if modified. False if not.
      */
     public function isModified();
 
     /**
      * Sets modified status.
      *
-     * @param $modified
-     *
+     * @param bool $modified
      * @return mixed
      */
     public function setModified($modified);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,55 +25,63 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use DateTime;
 use Opus\Date;
+use Opus\Db\Persons;
 use Opus\Db\TableGateway;
 use Opus\Document;
+use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
 use Opus\Person;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
+
+use function array_column;
+use function array_push;
+use function array_unique;
+use function count;
+use function in_array;
+use function is_array;
+use function sleep;
+use function trim;
 
 /**
  * Test cases for class Opus\Person.
  *
  * @package Opus
  * @category Tests
- *
  * @group PersonTest
- *
  */
 class PersonTest extends TestCase
 {
-
     /**
      * List of Opus\Person identifiers having the role Author.
      *
      * @var array
      */
-    private $_authors = [];
+    private $authors = [];
 
     /**
      * List of test documents.
      *
      * @var array
      */
-    private $_documents = [];
+    private $documents = [];
 
     /**
      * Set up test data documents and persons.
-     *
-     * @return void
      */
     public function setUp()
     {
@@ -84,7 +93,7 @@ class PersonTest extends TestCase
         for ($i = 0; $i < 10; $i++) {
             $doc = new Document();
             $doc->store();
-            $this->_documents[] = $doc;
+            $this->documents[] = $doc;
         }
 
         for ($i = 0; $i < 10; $i++) {
@@ -96,13 +105,13 @@ class PersonTest extends TestCase
 
         // add a person as author to every document
         // and add the person to the list of authors
-        foreach ($this->_documents as $document) {
+        foreach ($this->documents as $document) {
             $p = new Person();
             $p->setFirstName('Rainer')
                 ->setLastName('Zufall')
                 ->setAcademicTitle('Prof. Dr.')
                 ->store();
-            $this->_authors[] = $p;
+            $this->authors[] = $p;
             $document->addPersonAuthor($p);
             $document->store();
         }
@@ -110,8 +119,6 @@ class PersonTest extends TestCase
 
     /**
      * Get all documents for a given role.
-     *
-     * @return void
      */
     public function testGetDocumentsByRole()
     {
@@ -121,7 +128,7 @@ class PersonTest extends TestCase
         //
         // TODO: Die ID der Person erhält man mit getLinkedModelId()
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $docs = $author->getDocumentsByRole('author');
             foreach ($docs as $doc) {
                 $this->assertEquals(
@@ -136,8 +143,6 @@ class PersonTest extends TestCase
     /**
      * Test if all Person identifer for persons of a given role
      * can be obtained.
-     *
-     * @return void
      */
     public function testGetAllPersonIdsByRole()
     {
@@ -145,7 +150,7 @@ class PersonTest extends TestCase
 
         $this->assertTrue(is_array($ids), 'No array returned.');
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $this->assertTrue(
                 in_array($author->getId(), $ids),
                 'Author id not found.'
@@ -155,10 +160,10 @@ class PersonTest extends TestCase
 
     public function testDeletePerson()
     {
-        $docId = $this->_documents[0]->getId();
-        $d = new Document($docId);
+        $docId   = $this->documents[0]->getId();
+        $d       = new Document($docId);
         $persons = $d->getPerson();
-        $this->assertTrue(1 == count($persons));
+        $this->assertTrue(1 === count($persons));
 
         $person = $persons[0];
         $this->assertTrue($person->getFirstName() === 'Rainer');
@@ -168,7 +173,7 @@ class PersonTest extends TestCase
         $d->store();
 
         $d = new Document($docId);
-        $this->assertTrue(0 == count($d->getPerson()));
+        $this->assertTrue(0 === count($d->getPerson()));
     }
 
     public function testOnlyLastNameMandatory()
@@ -311,9 +316,9 @@ class PersonTest extends TestCase
 
         $this->assertCount(0, $persons);
 
-        $docId = $this->_documents[0]->getId();
+        $docId = $this->documents[0]->getId();
 
-        $doc = new Document($docId);
+        $doc   = new Document($docId);
         $other = new Person();
         $other->setLastName('Musterfrau');
         $other->setFirstName('Erika');
@@ -348,7 +353,7 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsSorting()
     {
-        $doc = new Document($this->_documents[0]->getId());
+        $doc = new Document($this->documents[0]->getId());
 
         $person = new Person();
         $person->setLastName('Blau');
@@ -379,7 +384,7 @@ class PersonTest extends TestCase
      */
     public function testGetAllPersonsSortingWithLeadingSpaces()
     {
-        $doc = new Document($this->_documents[0]->getId());
+        $doc = new Document($this->documents[0]->getId());
 
         $person = new Person();
         $person->setLastName('A');
@@ -396,7 +401,7 @@ class PersonTest extends TestCase
         $doc->store();
 
         // add leading space to Person 'C' (framework trims leadings spaces - OPUSVIER-3832)
-        $table = TableGateway::getInstance('Opus\Db\Persons');
+        $table    = TableGateway::getInstance(Persons::class);
         $database = $table->getAdapter();
         $table->update(['last_name' => ' B'], [$database->quoteInto('last_name = ?', 'B')]);
 
@@ -415,7 +420,7 @@ class PersonTest extends TestCase
      */
     public function testGetAllPersonsHandlingOfIdentifier()
     {
-        $doc = new Document($this->_documents[0]->getId());
+        $doc = new Document($this->documents[0]->getId());
 
         $person1 = new Person();
         $person1->setLastName('Person');
@@ -454,11 +459,11 @@ class PersonTest extends TestCase
     public function testGetAllPersonsLeadingSpacesMerged()
     {
         $personsSetup = [
-            'Mueller' => [],
-            ' Mueller' => []
+            'Mueller'  => [],
+            ' Mueller' => [],
         ];
 
-        $this->_createPersons($personsSetup);
+        $this->createPersons($personsSetup);
 
         $persons = Person::getAllPersons(null, 0, 0, 'Mueller');
 
@@ -487,7 +492,7 @@ class PersonTest extends TestCase
         $this->assertArrayHasKey('documents', $role);
         $this->assertEquals(10, $role['documents']);
 
-        $doc = new Document($this->_documents[0]->getId());
+        $doc    = new Document($this->documents[0]->getId());
         $person = new Person();
         $person->setLastName('Zufall');
         $person->setFirstName('Rainer');
@@ -507,7 +512,7 @@ class PersonTest extends TestCase
         $this->assertInternalType('array', $documents);
         $this->assertCount(10, $documents);
 
-        $doc = new Document($this->_documents[0]->getId());
+        $doc    = new Document($this->documents[0]->getId());
         $person = new Person();
         $person->setLastName('Zufall');
         $doc->addPersonOther($person);
@@ -517,7 +522,7 @@ class PersonTest extends TestCase
 
         $this->assertInternalType('array', $documents);
         $this->assertCount(1, $documents);
-        $this->assertEquals($this->_documents[0]->getId(), $documents[0]);
+        $this->assertEquals($this->documents[0]->getId(), $documents[0]);
     }
 
     public function testGetPersonDocumentsByState()
@@ -533,7 +538,7 @@ class PersonTest extends TestCase
         $this->assertCount(10, $documents);
 
         for ($i = 0; $i < 5; $i++) {
-            $doc = $this->_documents[$i];
+            $doc = $this->documents[$i];
             $doc->setServerState('audited');
             $doc->store();
         }
@@ -557,8 +562,8 @@ class PersonTest extends TestCase
 
         $person2 = new Person();
         $person2->setLastName('Zufall');
-        $this->_documents[0]->addPersonAuthor($person2);
-        $this->_documents[0]->store();
+        $this->documents[0]->addPersonAuthor($person2);
+        $this->documents[0]->store();
 
         $documents = Person::getPersonDocuments($person);
 
@@ -568,13 +573,13 @@ class PersonTest extends TestCase
 
     public function testGetPersonDocumentsSortedById()
     {
-        $doc1 = new Document();
+        $doc1   = new Document();
         $person = new Person();
         $person->setLastName('Testy');
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Document();
+        $doc2   = new Document();
         $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
@@ -600,7 +605,6 @@ class PersonTest extends TestCase
         $this->assertEquals($docId2, $documents[0]);
         $this->assertEquals($docId1, $documents[1]);
     }
-
 
     public function testGetPersonDocumentsSortedByType()
     {
@@ -642,7 +646,7 @@ class PersonTest extends TestCase
     public function testGetPersonDocumentsSortedByPublicationDate()
     {
         $doc1 = new Document();
-        $date = new Date(new \DateTime());
+        $date = new Date(new DateTime());
         $doc1->setServerDatePublished($date);
         $person = new Person();
         $person->setLastName('Testy');
@@ -652,7 +656,7 @@ class PersonTest extends TestCase
         sleep(2);
 
         $doc2 = new Document();
-        $date = new Date(new \DateTime());
+        $date = new Date(new DateTime());
         $doc2->setServerDatePublished($date);
         $person = new Person();
         $person->setLastName('Testy');
@@ -682,7 +686,7 @@ class PersonTest extends TestCase
 
     public function testGetPersonDocumentsSortedByTitle()
     {
-        $doc1 = new Document();
+        $doc1  = new Document();
         $title = $doc1->addTitleMain();
         $title->setValue('A Title');
         $title->setLanguage('eng');
@@ -691,7 +695,7 @@ class PersonTest extends TestCase
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Document();
+        $doc2  = new Document();
         $title = $doc2->addTitleMain();
         $title->setValue('B Title');
         $title->setLanguage('eng');
@@ -724,7 +728,7 @@ class PersonTest extends TestCase
     public function testGetPersonDocumentsSortedByAuthor()
     {
         $this->markTestSkipped('TODO - sorting by author not properly working yet OPUSVIER-3810');
-        $doc1 = new Document();
+        $doc1   = new Document();
         $person = new Person();
         $person->setLastName('A Person');
         $personLink = $doc1->addPersonAuthor($person);
@@ -735,7 +739,7 @@ class PersonTest extends TestCase
         $personLink->setSortOrder(1);
         $docId1 = $doc1->store();
 
-        $doc2 = new Document();
+        $doc2   = new Document();
         $person = new Person();
         $person->setLastName('Testy');
         $doc2->addPersonAuthor($person);
@@ -764,7 +768,7 @@ class PersonTest extends TestCase
 
     public function testGetPersonDocumentsByStateSorted()
     {
-        $doc1 = new Document();
+        $doc1  = new Document();
         $title = $doc1->addTitleMain();
         $title->setValue('A Title');
         $title->setLanguage('eng');
@@ -773,7 +777,7 @@ class PersonTest extends TestCase
         $doc1->addPersonAuthor($person);
         $docId1 = $doc1->store();
 
-        $doc2 = new Document();
+        $doc2  = new Document();
         $title = $doc2->addTitleMain();
         $title->setValue('B Title');
         $title->setLanguage('eng');
@@ -815,7 +819,7 @@ class PersonTest extends TestCase
 
         $this->assertCount(0, $documents);
 
-        $doc = $this->_documents[0];
+        $doc = $this->documents[0];
 
         $editor = new Person();
         $editor->setLastName('Zufall');
@@ -841,7 +845,7 @@ class PersonTest extends TestCase
         $documents = Person::getPersonDocuments($person, 'unpublished', 'editor');
         $this->assertCount(0, $documents);
 
-        $doc = $this->_documents[0];
+        $doc = $this->documents[0];
 
         $doc->setServerState('published');
         $editor = new Person();
@@ -872,7 +876,7 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsWithFilterFirstName()
     {
-        $doc = new Document($this->_documents[0]->getId());
+        $doc    = new Document($this->documents[0]->getId());
         $person = new Person();
         $person->setLastName('Mustermann');
         $person->setFirstName('Bafala');
@@ -898,25 +902,25 @@ class PersonTest extends TestCase
     public function testGetAllPersonsCount()
     {
         $persons = Person::getAllPersons();
-        $count = Person::getAllPersonsCount();
+        $count   = Person::getAllPersonsCount();
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(11, $count);
 
         $persons = Person::getAllPersons('author');
-        $count = Person::getAllPersonsCount('author');
+        $count   = Person::getAllPersonsCount('author');
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(1, $count);
 
         $persons = Person::getAllPersons('author', 0, 0, 'fal');
-        $count = Person::getAllPersonsCount('author', 'fal');
+        $count   = Person::getAllPersonsCount('author', 'fal');
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(1, $count);
 
         $persons = Person::getAllPersons(null, 0, 0, 'emp');
-        $count = Person::getAllPersonsCount(null, 'emp');
+        $count   = Person::getAllPersonsCount(null, 'emp');
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(10, $count);
@@ -974,24 +978,24 @@ class PersonTest extends TestCase
     public function testGetPersonValuesWithExtraSpaces()
     {
         $names = [
-            'Spacey' => [
-                'Email' => 'test@example.org'
+            'Spacey'     => [
+                'Email' => 'test@example.org',
             ],
-            '  Spacey' => [
-                'Email' => 'spacey@example.org'
+            '  Spacey'   => [
+                'Email' => 'spacey@example.org',
             ],
-            'Spacey  ' => [],
+            'Spacey  '   => [],
             '  Spacey  ' => [],
-            ' Spacey ' => [],
+            ' Spacey '   => [],
             '  spacey  ' => [
-                'AcademicTitle' => 'Prof.'
-            ]
+                'AcademicTitle' => 'Prof.',
+            ],
         ];
 
-        $personIds = $this->_createPersons($names);
+        $personIds = $this->createPersons($names);
 
         $personCrit = [
-            'last_name' => 'Spacey'
+            'last_name' => 'Spacey',
         ];
 
         $values = Person::getPersonValues($personCrit);
@@ -1038,10 +1042,10 @@ class PersonTest extends TestCase
     public function testCreatePersonTestFunction()
     {
         $personValues = [
-            ' Spacey ' => []
+            ' Spacey ' => [],
         ];
 
-        $personIds = $this->_createPersons($personValues);
+        $personIds = $this->createPersons($personValues);
 
         $this->assertNotNull($personIds);
         $this->assertInternalType('array', $personIds);
@@ -1057,12 +1061,12 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
         $changes = [
-            'Email' => 'bulktest@example.org'
+            'Email' => 'bulktest@example.org',
         ];
 
         Person::updateAll($personCrit, $changes);
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $person = new Person($author->getId());
 
             $this->assertEquals('bulktest@example.org', $person->getEmail());
@@ -1074,14 +1078,14 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
         $changes = [
-            'Email' => 'bulktest@example.org'
+            'Email' => 'bulktest@example.org',
         ];
 
         $documents = [2, 4, 7];
 
         Person::updateAll($personCrit, $changes, $documents);
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $person = new Person($author->getId());
 
             $personDocs = $person->getDocumentsByRole('author');
@@ -1103,10 +1107,10 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
         $changes = [
-            'Email' => 'bulktest@example.org'
+            'Email' => 'bulktest@example.org',
         ];
 
-        $doc = new Document();
+        $doc   = new Document();
         $title = new Title();
         $title->setLanguage('deu');
         $title->setValue('Document with no author');
@@ -1133,7 +1137,7 @@ class PersonTest extends TestCase
         $this->assertEquals($lastModified, $doc->getServerDateModified());
 
         //filtered documents were not modified
-        foreach ($this->_documents as $doc) {
+        foreach ($this->documents as $doc) {
             $document = new Document($doc->getId()); // don't use old objects - they are not updated
 
             $dateModified = $document->getServerDateModified();
@@ -1152,32 +1156,30 @@ class PersonTest extends TestCase
 
         $changes = [];
 
-        $lastModified = $this->_documents[0]->getServerDateModified();
+        $lastModified = $this->documents[0]->getServerDateModified();
 
         sleep(2);
 
         Person::updateAll($personCrit, $changes);
 
-        $this->assertEquals($lastModified, $this->_documents[0]->getServerDateModified());
+        $this->assertEquals($lastModified, $this->documents[0]->getServerDateModified());
     }
 
-    /**
-     * @expectedException \Opus\Model\ModelException
-     * @expectedExceptionMessage unknown field 'IdentifierIntern' for update
-     */
     public function testUpdateAllBadChanges()
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
         $changes = ['IdentifierIntern' => 'id1234']; // only Identifier(Orcid|Gnd|Misc) exist
 
-        $lastModified = $this->_documents[0]->getServerDateModified();
+        $lastModified = $this->documents[0]->getServerDateModified();
 
         sleep(2);
 
+        $this->setExpectedException(ModelException::class, 'unknown field \'IdentifierIntern\' for update');
+
         Person::updateAll($personCrit, $changes);
 
-        $this->assertEquals($lastModified, $this->_documents[0]->getServerDateModified());
+        $this->assertEquals($lastModified, $this->documents[0]->getServerDateModified());
     }
 
     public function testUpdateAllWithSpaces()
@@ -1185,8 +1187,8 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Tester', 'first_name' => 'Usual'];
 
         $persons = [
-            'Tester' => [
-                'FirstName' => 'Usual'
+            'Tester'   => [
+                'FirstName' => 'Usual',
             ],
             '  Tester' => [
                 'FirstName' => 'Usual  ',
@@ -1195,15 +1197,15 @@ class PersonTest extends TestCase
                 'FirstName' => '  Usual',
             ],
             ' Tester ' => [
-                'FirstName' => ' Usual '
+                'FirstName' => ' Usual ',
             ],
-            'Tester ' => []
+            'Tester '  => [],
         ];
 
-        $personIds = $this->_createPersons($persons);
+        $personIds = $this->createPersons($persons);
 
         $changes = [
-            'Email' => 'bulktest@example.org'
+            'Email' => 'bulktest@example.org',
         ];
 
         Person::updateAll($personCrit, $changes);
@@ -1223,10 +1225,10 @@ class PersonTest extends TestCase
 
         $persons = ['Tester' => []];
 
-        $personIds = $this->_createPersons($persons);
+        $personIds = $this->createPersons($persons);
 
         $changes = [
-            'FirstName' => ' John '
+            'FirstName' => ' John ',
         ];
 
         Person::updateAll($personCrit, $changes);
@@ -1241,14 +1243,14 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
         $changes = [
-            'Email' => 'bulktest@example.org'
+            'Email' => 'bulktest@example.org',
         ];
 
         $documents = null;
 
         Person::updateAll($personCrit, $changes, $documents);
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $person = new Person($author->getId());
 
             $personDocs = $person->getDocumentsByRole('author');
@@ -1263,14 +1265,14 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
         $changes = [
-            'Email' => 'bulktest@example.org'
+            'Email' => 'bulktest@example.org',
         ];
 
         $documents = [];
 
         Person::updateAll($personCrit, $changes, $documents);
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $person = new Person($author->getId());
 
             $personDocs = $person->getDocumentsByRole('author');
@@ -1285,8 +1287,8 @@ class PersonTest extends TestCase
         $personCrit = ['last_name' => 'Tester', 'first_name' => 'Usual'];
 
         $persons = [
-            'Tester' => [
-                'FirstName' => 'Usual'
+            'Tester'   => [
+                'FirstName' => 'Usual',
             ],
             '  Tester' => [
                 'FirstName' => 'Usual  ',
@@ -1295,12 +1297,12 @@ class PersonTest extends TestCase
                 'FirstName' => '  Usual',
             ],
             ' Tester ' => [
-                'FirstName' => ' Usual '
+                'FirstName' => ' Usual ',
             ],
-            'Tester ' => []
+            'Tester '  => [],
         ];
 
-        $personIds = $this->_createPersons($persons);
+        $personIds = $this->createPersons($persons);
 
         $personDocs = Person::getPersonsAndDocuments($personCrit);
 
@@ -1379,7 +1381,7 @@ class PersonTest extends TestCase
 
         Person::updateAll($personCrit, $changes);
 
-        foreach ($this->_authors as $author) {
+        foreach ($this->authors as $author) {
             $person = new Person($author->getId());
 
             $this->assertEquals('Plannt', $person->getLastName());
@@ -1390,34 +1392,34 @@ class PersonTest extends TestCase
     public function testConvertChanges()
     {
         $changes = [
-            'LastName' => 'Zufall',
+            'LastName'  => 'Zufall',
             'FirstName' => 'Rainer',
-            'Email' => 'example@example.org'
+            'Email'     => 'example@example.org',
         ];
 
         $result = Person::convertChanges($changes);
 
         $this->assertEquals([
-            'last_name' => 'Zufall',
+            'last_name'  => 'Zufall',
             'first_name' => 'Rainer',
-            'email' => 'example@example.org'
+            'email'      => 'example@example.org',
         ], $result);
     }
 
     public function testConvertToFieldNames()
     {
         $values = [
-            'last_name' => 'Zufall',
+            'last_name'  => 'Zufall',
             'first_name' => 'Rainer',
-            'email' => 'example@example.org'
+            'email'      => 'example@example.org',
         ];
 
         $result = Person::convertToFieldNames($values);
 
         $this->assertEquals([
-            'LastName' => 'Zufall',
+            'LastName'  => 'Zufall',
             'FirstName' => 'Rainer',
-            'Email' => 'example@example.org'
+            'Email'     => 'example@example.org',
         ], $result);
     }
 
@@ -1425,7 +1427,7 @@ class PersonTest extends TestCase
     {
         $criteria = ['LastName' => 'Zufall'];
 
-        $person = $this->_authors[0];
+        $person = $this->authors[0];
 
         $this->assertFalse($person->matches($criteria));
 
@@ -1434,11 +1436,16 @@ class PersonTest extends TestCase
         $this->assertTrue($person->matches($criteria));
     }
 
-    protected function _createPersons($persons)
+    /**
+     * @param array $persons
+     * @return array
+     * @throws ModelException
+     */
+    protected function createPersons($persons)
     {
         $personIds = [];
 
-        $table = TableGateway::getInstance('Opus\Db\Persons');
+        $table    = TableGateway::getInstance(Persons::class);
         $database = $table->getAdapter();
 
         foreach ($persons as $name => $values) {
@@ -1480,14 +1487,14 @@ class PersonTest extends TestCase
             $this->assertCount(2, $match);
             $this->assertArrayHasKey('person_id', $match);
             $this->assertArrayHasKey('document_id', $match);
-            $personId = $match['person_id'];
-            $docId = $match['document_id'];
-            $person = new Person($personId);
+            $personId  = $match['person_id'];
+            $docId     = $match['document_id'];
+            $person    = new Person($personId);
             $assocDocs = $person->getDocumentIds();
             $this->assertContains($docId, $assocDocs);
         }
 
-        $personIds = array_column($personDocs, 'person_id');
+        $personIds   = array_column($personDocs, 'person_id');
         $documentIds = array_column($personDocs, 'document_id');
 
         $this->assertCount(10, $personIds);
@@ -1513,7 +1520,7 @@ class PersonTest extends TestCase
         $this->assertContains(6, $documentIds);
         $this->assertContains(10, $documentIds);
 
-        $doc = new Document($this->_documents[1]->getId());
+        $doc = new Document($this->documents[1]->getId());
 
         $this->assertEquals(2, $doc->getId());
 
@@ -1533,7 +1540,7 @@ class PersonTest extends TestCase
     {
         $personCrit = ['last_name' => 'Zufall', 'first_name' => 'Rainer'];
 
-        $doc = new Document($this->_documents[0]->getId());
+        $doc = new Document($this->documents[0]->getId());
 
         $person = new Person();
         $person->setLastName('Zufall');
@@ -1548,7 +1555,7 @@ class PersonTest extends TestCase
         $this->assertInternalType('array', $personDocs);
         $this->assertCount(11, $personDocs);
 
-        $personIds = array_column($personDocs, 'person_id');
+        $personIds   = array_column($personDocs, 'person_id');
         $documentIds = array_column($personDocs, 'document_id');
 
         $this->assertCount(11, $personIds);
@@ -1565,7 +1572,7 @@ class PersonTest extends TestCase
         $title->setLanguage('eng');
         $title->setValue('Test document');
         $doc->addTitleMain($title);
-        $doc->addPersonOther($this->_authors[0]);
+        $doc->addPersonOther($this->authors[0]);
         $doc->store();
 
         $personDocs = Person::getPersonsAndDocuments($personCrit);
@@ -1574,7 +1581,7 @@ class PersonTest extends TestCase
         $this->assertInternalType('array', $personDocs);
         $this->assertCount(11, $personDocs);
 
-        $personIds = array_column($personDocs, 'person_id');
+        $personIds   = array_column($personDocs, 'person_id');
         $documentIds = array_column($personDocs, 'document_id');
 
         $this->assertCount(10, array_unique($personIds));
@@ -1583,7 +1590,7 @@ class PersonTest extends TestCase
 
     public function testGetDocumentIds()
     {
-        $person = new Person($this->_authors[0]->getId());
+        $person = new Person($this->authors[0]->getId());
 
         $docIds = $person->getDocumentIds();
 
@@ -1595,8 +1602,8 @@ class PersonTest extends TestCase
 
     public function testGetDocumentIdsUniqueValues()
     {
-        $person = new Person($this->_authors[0]->getId());
-        $doc = new Document($this->_documents[0]->getId());
+        $person = new Person($this->authors[0]->getId());
+        $doc    = new Document($this->documents[0]->getId());
 
         $doc->addPersonAdvisor($person);
         $doc->store();
@@ -1611,14 +1618,14 @@ class PersonTest extends TestCase
 
     public function testGetDocumentIdsForRole()
     {
-        $person = new Person($this->_authors[0]->getId());
+        $person = new Person($this->authors[0]->getId());
 
         $docIds = $person->getDocumentIds('author');
 
         $this->assertNotNull($docIds);
         $this->assertInternalType('array', $docIds);
         $this->assertCount(1, $docIds);
-        $this->assertContains($this->_documents[0]->getId(), $docIds);
+        $this->assertContains($this->documents[0]->getId(), $docIds);
 
         $docIds = $person->getDocumentIds('advisor');
 
@@ -1626,22 +1633,22 @@ class PersonTest extends TestCase
         $this->assertInternalType('array', $docIds);
         $this->assertCount(0, $docIds);
 
-        $this->_documents[0]->addPersonAdvisor($person);
-        $this->_documents[0]->store();
+        $this->documents[0]->addPersonAdvisor($person);
+        $this->documents[0]->store();
 
         $docIds = $person->getDocumentIds('advisor');
 
         $this->assertNotNull($docIds);
         $this->assertInternalType('array', $docIds);
         $this->assertCount(1, $docIds);
-        $this->assertContains($this->_documents[0]->getId(), $docIds);
+        $this->assertContains($this->documents[0]->getId(), $docIds);
     }
 
     public function testGetDocuments()
     {
         $personIds = [
-            $this->_authors[0]->getId(),
-            $this->_authors[4]->getId(),
+            $this->authors[0]->getId(),
+            $this->authors[4]->getId(),
         ];
 
         $documentIds = Person::getDocuments($personIds);
@@ -1649,17 +1656,17 @@ class PersonTest extends TestCase
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
         $this->assertCount(2, $documentIds);
-        $this->assertContains($this->_documents[0]->getId(), $documentIds);
-        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+        $this->assertContains($this->documents[0]->getId(), $documentIds);
+        $this->assertContains($this->documents[4]->getId(), $documentIds);
     }
 
     public function testGetDocumentsBadArgument()
     {
         $personIds = [
-            $this->_authors[0]->getId(),
-            $this->_authors[0]->getId(), // same person id twice
-            $this->_authors[4]->getId(),
-            999 // unknown person
+            $this->authors[0]->getId(),
+            $this->authors[0]->getId(), // same person id twice
+            $this->authors[4]->getId(),
+            999, // unknown person
         ];
 
         $documentIds = Person::getDocuments($personIds);
@@ -1667,19 +1674,19 @@ class PersonTest extends TestCase
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
         $this->assertCount(2, $documentIds);
-        $this->assertContains($this->_documents[0]->getId(), $documentIds);
-        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+        $this->assertContains($this->documents[0]->getId(), $documentIds);
+        $this->assertContains($this->documents[4]->getId(), $documentIds);
     }
 
     public function testGetDocumentsOnePersonTwoDocuments()
     {
-        $doc = new Document($this->_documents[1]->getId());
-        $doc->addPersonSubmitter($this->_authors[0]);
+        $doc = new Document($this->documents[1]->getId());
+        $doc->addPersonSubmitter($this->authors[0]);
         $docId = $doc->store();
 
         $personIds = [
-            $this->_authors[0]->getId(),
-            $this->_authors[4]->getId(),
+            $this->authors[0]->getId(),
+            $this->authors[4]->getId(),
         ];
 
         $documentIds = Person::getDocuments($personIds);
@@ -1687,23 +1694,23 @@ class PersonTest extends TestCase
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
         $this->assertCount(3, $documentIds);
-        $this->assertContains($this->_documents[0]->getId(), $documentIds);
-        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+        $this->assertContains($this->documents[0]->getId(), $documentIds);
+        $this->assertContains($this->documents[4]->getId(), $documentIds);
         $this->assertContains($docId, $documentIds);
     }
 
     public function testGetDocumentsTwoPersonsOneDocument()
     {
-        $doc = new Document($this->_documents[0]->getId());
+        $doc    = new Document($this->documents[0]->getId());
         $person = new Person();
         $person->setLastName('Tester');
         $plink = $doc->addPersonSubmitter($person);
         $doc->store();
 
         $personIds = [
-            $this->_authors[0]->getId(), // document 0
-            $this->_authors[4]->getId(),
-            $plink->getModel()->getId()  // document 0
+            $this->authors[0]->getId(), // document 0
+            $this->authors[4]->getId(),
+            $plink->getModel()->getId(), // document 0
         ];
 
         $documentIds = Person::getDocuments($personIds);
@@ -1711,19 +1718,19 @@ class PersonTest extends TestCase
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
         $this->assertCount(2, $documentIds);
-        $this->assertContains($this->_documents[0]->getId(), $documentIds);
-        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+        $this->assertContains($this->documents[0]->getId(), $documentIds);
+        $this->assertContains($this->documents[4]->getId(), $documentIds);
     }
 
     public function testGetDocumentsFilterIds()
     {
         $personIds = [
-            $this->_authors[0]->getId(),
-            $this->_authors[4]->getId(),
+            $this->authors[0]->getId(),
+            $this->authors[4]->getId(),
         ];
 
         $allowedDocuments = [
-            $this->_documents[4]->getId()
+            $this->documents[4]->getId(),
         ];
 
         $documentIds = Person::getDocuments($personIds, $allowedDocuments);
@@ -1731,15 +1738,15 @@ class PersonTest extends TestCase
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
         $this->assertCount(1, $documentIds);
-        $this->assertNotContains($this->_documents[0]->getId(), $documentIds);
-        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+        $this->assertNotContains($this->documents[0]->getId(), $documentIds);
+        $this->assertContains($this->documents[4]->getId(), $documentIds);
     }
 
     public function testGetDocumentsEmptyDocumentsParam()
     {
         $personIds = [
-            $this->_authors[0]->getId(),
-            $this->_authors[4]->getId(),
+            $this->authors[0]->getId(),
+            $this->authors[4]->getId(),
         ];
 
         $allowedDocuments = []; // should be handled like null
@@ -1749,15 +1756,15 @@ class PersonTest extends TestCase
         $this->assertNotNull($documentIds);
         $this->assertInternalType('array', $documentIds);
         $this->assertCount(2, $documentIds);
-        $this->assertContains($this->_documents[0]->getId(), $documentIds);
-        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+        $this->assertContains($this->documents[0]->getId(), $documentIds);
+        $this->assertContains($this->documents[4]->getId(), $documentIds);
     }
 
     public function testPersonRolesWithSpacesAroundParameterValues()
     {
         $personCrit = [
-            'last_name' => ' Zufall ',
-            'first_name' => ' Rainer '
+            'last_name'  => ' Zufall ',
+            'first_name' => ' Rainer ',
         ];
 
         $persons = Person::getPersons($personCrit);
@@ -1934,36 +1941,36 @@ class PersonTest extends TestCase
         $data = $person->toArray();
 
         $this->assertEquals([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => $dateOfBirthArray,
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
+            'AcademicTitle'   => 'Prof.',
+            'DateOfBirth'     => $dateOfBirthArray,
+            'PlaceOfBirth'    => 'München',
+            'FirstName'       => 'Thomas',
+            'LastName'        => 'Mueller',
+            'Email'           => 'mueller@example.org',
             'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2'
+            'IdentifierGnd'   => '123456789',
+            'IdentifierMisc'  => 'B',
+            'OpusId'          => '2',
         ], $data);
     }
 
     public function testFromArray()
     {
         $person = Person::fromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
+            'AcademicTitle'   => 'Prof.',
+            'DateOfBirth'     => '1960-05-17',
+            'PlaceOfBirth'    => 'München',
+            'FirstName'       => 'Thomas',
+            'LastName'        => 'Mueller',
+            'Email'           => 'mueller@example.org',
             'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2'
+            'IdentifierGnd'   => '123456789',
+            'IdentifierMisc'  => 'B',
+            'OpusId'          => '2',
         ]);
 
         $this->assertNotNull($person);
-        $this->assertInstanceOf('Opus\Person', $person);
+        $this->assertInstanceOf(Person::class, $person);
 
         $this->assertEquals('Prof.', $person->getAcademicTitle());
         $this->assertEquals('Thomas', $person->getFirstName());
@@ -1982,16 +1989,16 @@ class PersonTest extends TestCase
         $person = new Person();
 
         $person->updateFromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
+            'AcademicTitle'   => 'Prof.',
+            'DateOfBirth'     => '1960-05-17',
+            'PlaceOfBirth'    => 'München',
+            'FirstName'       => 'Thomas',
+            'LastName'        => 'Mueller',
+            'Email'           => 'mueller@example.org',
             'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2'
+            'IdentifierGnd'   => '123456789',
+            'IdentifierMisc'  => 'B',
+            'OpusId'          => '2',
         ]);
 
         $this->assertEquals('Prof.', $person->getAcademicTitle());

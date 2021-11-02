@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,45 +25,47 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model\Dependent
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Dependent;
 
 use Opus\Model\AbstractDb;
 use Opus\Model\ModelException;
+use Opus\Model\Plugin\InvalidateDocumentCache;
+use Zend_Db_Table_Abstract;
+use Zend_Db_Table_Row;
+
+use function uniqid;
 
 /**
  * Abstract class for all dependent models in the Opus framework.
  *
- * @category    Framework
- * @package     Opus\Model\Dependent
- *
+ * phpcs:disable
  */
 abstract class AbstractDependentModel extends AbstractDb
 {
-
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId Defaults to null.
+     * @var mixed Defaults to null.
      */
-    protected $_parentId = null;
+    protected $parentId;
 
     /**
      * Name of the column in the dependent model's primary table row that
      * contains the parent model's primary key.
      *
-     * @var mixed $_parentColumn Defaults to null.
+     * @var mixed Defaults to null.
      */
-    protected $_parentColumn = null;
-
+    protected $parentColumn;
 
     /**
      * Holds the current valid deletion token.
@@ -72,16 +75,16 @@ abstract class AbstractDependentModel extends AbstractDb
      *
      * @var string
      */
-    private $_deletionToken = null;
+    private $deletionToken;
 
      /** Plugins to load
-     *
-     * @var array
-     */
+      *
+      * @var array
+      */
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache'
+            InvalidateDocumentCache::class,
         ];
     }
 
@@ -91,17 +94,18 @@ abstract class AbstractDependentModel extends AbstractDb
      * a new persistent intance gets created wich got its id set as soon as it is stored
      * via a call to _store().
      *
-     * @param integer|\Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
-     * @param \Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
-     * @throws ModelException     Thrown if passed id is invalid.
      * @see AbstractDb#__construct()
+     *
+     * @param null|int|Zend_Db_Table_Row  $id (Optional) (Id of) Existing database row.
+     * @param null|Zend_Db_Table_Abstract $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
+     * @throws ModelException     Thrown if passed id is invalid.
      */
-    public function __construct($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null)
+    public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
         parent::__construct($id, $tableGatewayModel);
-        if (false === is_null($this->_parentColumn) && $this->_parentColumn != '') {
-            $parentId = $this->_primaryTableRow->{$this->_parentColumn};
-            if (false === is_null($parentId)) {
+        if ($this->parentColumn !== null && $this->parentColumn != '') {
+            $parentId = $this->primaryTableRow->{$this->parentColumn};
+            if ($parentId !== null) {
                 $this->setParentId($parentId);
             }
         }
@@ -110,12 +114,11 @@ abstract class AbstractDependentModel extends AbstractDb
     /**
      * Setter for $_parentId.
      *
-     * @param integer $parentId The id of the parent Opus\Model
-     * @return void
+     * @param int $parentId The id of the parent Opus\Model
      */
     public function setParentId($parentId)
     {
-        $this->_parentId = $parentId;
+        $this->parentId = $parentId;
     }
 
     /**
@@ -125,7 +128,7 @@ abstract class AbstractDependentModel extends AbstractDb
      */
     public function getParentId()
     {
-        return $this->_parentId;
+        return $this->parentId;
     }
 
     /**
@@ -133,11 +136,10 @@ abstract class AbstractDependentModel extends AbstractDb
      * of the linked model.
      *
      * @param string $column Name of the parent id column.
-     * @return void
      */
     public function setParentIdColumn($column)
     {
-        $this->_parentColumn = $column;
+        $this->parentColumn = $column;
     }
 
     /**
@@ -148,7 +150,7 @@ abstract class AbstractDependentModel extends AbstractDb
      */
     public function getParentIdColumn()
     {
-        return $this->_parentColumn;
+        return $this->parentColumn;
     }
 
     /**
@@ -159,17 +161,17 @@ abstract class AbstractDependentModel extends AbstractDb
      */
     public function store()
     {
-        if (null === $this->_parentId) {
+        if (null === $this->parentId) {
             throw new ModelException(
-                'Dependent Model ' . get_class($this) . ' without parent cannot be persisted.'
+                'Dependent Model ' . static::class . ' without parent cannot be persisted.'
             );
         }
-        if (null === $this->_parentColumn) {
+        if (null === $this->parentColumn) {
             throw new ModelException(
-                'Dependent Model ' . get_class($this) . ' needs to know name of the parent-id column.'
+                'Dependent Model ' . static::class . ' needs to know name of the parent-id column.'
             );
         }
-        $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
+        $this->primaryTableRow->{$this->parentColumn} = $this->parentId;
         return parent::store();
     }
 
@@ -184,23 +186,22 @@ abstract class AbstractDependentModel extends AbstractDb
      */
     public function delete()
     {
-        $this->_deletionToken = uniqid();
-        return $this->_deletionToken;
+        $this->deletionToken = uniqid();
+        return $this->deletionToken;
     }
 
     /**
      * Perform actual delete operation if the correct token has been provided.
      *
      * @param string $token Delete token as returned by previous call to delete()
-     * @return void
      * @throws ModelException
      */
     public function doDelete($token)
     {
-        if ($this->_deletionToken === null) {
+        if ($this->deletionToken === null) {
             throw new ModelException('No deletion token set. Call delete() prior to doDelete().');
         }
-        if ($this->_deletionToken !== $token) {
+        if ($this->deletionToken !== $token) {
             throw new ModelException('Invalid deletion token passed.');
         }
         parent::delete();

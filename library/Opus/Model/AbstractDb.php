@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,36 +25,56 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model;
 
+use Exception;
+use InvalidArgumentException;
 use Opus\Db\TableGateway;
 use Opus\Log;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
+use PDOException;
+use Zend_Db_Exception;
+use Zend_Db_Statement_Exception;
+use Zend_Db_Table_Abstract;
+use Zend_Db_Table_Row;
+
+use function array_search;
+use function class_exists;
+use function count;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_subclass_of;
+use function method_exists;
+use function preg_replace;
+use function preg_replace_callback;
+use function strtolower;
+use function strtoupper;
+use function trim;
 
 /**
  * Abstract class for all domain models in the Opus framework that are connected
  * to a database table.
  *
- * @category    Framework
- * @package     Opus\Model
+ * phpcs:disable
  */
-abstract class AbstractDb extends AbstractModel implements ModificationTracking, ModelInterface
+abstract class AbstractDb extends AbstractModel implements ModificationTrackingInterface, ModelInterface
 {
-
-    use PluginsTrait;
-
     use DatabaseTrait;
+    use PluginsTrait;
 
     /**
      * TODO: Change name of this array to somewhat more general.
@@ -70,7 +91,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      *
      * @var array
      */
-    protected $_externalFields = [];
+    protected $externalFields = [];
 
     /**
      * Construct a new model instance and connect it a database table's row.
@@ -78,11 +99,11 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * a new persistent intance gets created wich got its id set as soon as it is stored
      * via a call to _store().
      *
-     * @param integer|\Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
-     * @param \Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
+     * @param null|int|Zend_Db_Table_Row  $id (Optional) (Id of) Existing database row.
+     * @param null|Zend_Db_Table_Abstract $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
      * @throws ModelException     Thrown if passed id is invalid.
      */
-    public function __construct($id = null, \Zend_Db_Table_Abstract $tableGatewayModel = null)
+    public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
         $this->initDatabase($id, $tableGatewayModel);
 
@@ -97,12 +118,10 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
 
     /**
      * Clear the modified flag on all fields.
-     *
-     * @return void
      */
     protected function _clearFieldsModifiedFlag()
     {
-        foreach ($this->_fields as $field) {
+        foreach ($this->fields as $field) {
             $field->clearModified();
         }
     }
@@ -110,11 +129,11 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     /**
      * Tell whether there is a modified field.
      *
-     * @return boolean
+     * @return bool
      */
     public function isModified()
     {
-        foreach ($this->_fields as $field) {
+        foreach ($this->fields as $field) {
             if (true === $field->isModified()) {
                 return true;
             }
@@ -129,7 +148,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * all fields to modified and this class does not have a separate isModified status.
      *
      * @param bool $modified
-     *
      * @return mixed|void
      *
      * TODO throw exception or log warning if setModified is used with 'true'?
@@ -146,13 +164,13 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * it will be replaced by the given field.
      *
      * @param Field $field Field instance that gets appended to the models field collection.
-     * @return AbstractModel Provide fluent interface.
+     * @return parent Provide fluent interface.
      */
     public function addField(Field $field)
     {
         $fieldname = $field->getName();
-        if (isset($fieldname, $this->_externalFields[$fieldname])) {
-            $options = $this->_externalFields[$fieldname];
+        if (isset($fieldname, $this->externalFields[$fieldname])) {
+            $options = $this->externalFields[$fieldname];
 
             // set ValueModelClass if a through option is given
             if (isset($options['model'])) {
@@ -176,7 +194,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     /**
      * Trigger preFetch plugins.
      *
-     * @return void
      * @throw Opus\Model\ModelException Throws whenever a plugin failes.
      */
     protected function _preFetch()
@@ -206,7 +223,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             $msg = 'Attempt to store model with invalid data.';
             foreach ($this->getValidationErrors() as $fieldname => $err) {
                 if (false === empty($err)) {
-                    $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
+                    $msg .= "\n" . "$fieldname\t" . implode("\n", $err);
                 }
             }
             // $this->$fieldname = 'null';
@@ -223,19 +240,17 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * Sets _isNewRecord to false.
      *
      * @throws ModelException
-     * @return void
      */
     protected function _postStore()
     {
         $this->callPluginMethod('postStore');
-        $this->_isNewRecord = false;
+        $this->isNewRecord = false;
     }
 
     /**
      * Perform any actions needed after storing internal fields.
      *
      * @throws ModelException
-     * @return void
      */
     protected function _postStoreInternalFields()
     {
@@ -245,7 +260,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     /**
      * Perform any actions needed after storing internal fields.
      *
-     * @return void
      * @throws ModelException Throws whenever an error occurs
      */
     protected function _postStoreExternalFields()
@@ -260,7 +274,8 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * to enable custom implementations.
      *
      * @see    ModelInterface::store()
-     * @throws \Exception
+     *
+     * @throws Exception
      * @throws ModelException     Thrown if the store operation could not be performed.
      * @return mixed $id    Primary key of the models primary table row.
      */
@@ -281,7 +296,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             $this->_postStoreInternalFields();
             $this->_storeExternalFields();
             $this->_postStoreExternalFields();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $dbadapter->rollBack();
             throw $e;
         }
@@ -302,16 +317,16 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     {
         try {
             // Store basic simple fields to complete the table row
-            foreach ($this->_fields as $fieldname => $field) {
+            foreach ($this->fields as $fieldname => $field) {
                 // Skip external fields.
-                if (isset($this->_externalFields[$fieldname])) {
+                if (isset($this->externalFields[$fieldname])) {
                     continue;
                 }
 
                 // map field values: Cannot process array-valued fields
                 $fieldValue = $field->getValue();
 
-                if (! is_null($fieldValue)) {
+                if ($fieldValue !== null) {
                     $fieldValue = trim($fieldValue);
                 }
 
@@ -324,8 +339,8 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
                     // Skip non-modified field.
                     continue;
                 } else {
-                    $colname = self::convertFieldnameToColumn($fieldname);
-                    $this->_primaryTableRow->{$colname} = $fieldValue;
+                    $colname                           = self::convertFieldnameToColumn($fieldname);
+                    $this->primaryTableRow->{$colname} = $fieldValue;
                 }
                 // Clear modification status of successfully stored field.
                 $field->clearModified();
@@ -333,9 +348,9 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
 
             // Save the row.
             // This returnes the id needed to store external fields.
-            $id = $this->_primaryTableRow->save();
-        } catch (\Zend_Db_Statement_Exception $ze) {
-            if ($ze->getChainedException() instanceof \PDOException and $ze->getCode() === 23000) {
+            $id = $this->primaryTableRow->save();
+        } catch (Zend_Db_Statement_Exception $ze) {
+            if ($ze->getChainedException() instanceof PDOException and $ze->getCode() === 23000) {
                 throw new DbConstrainViolationException($ze->getMessage(), $ze->getCode(), $ze);
             }
             throw new DbException($ze->getMessage(), $ze->getCode(), $ze);
@@ -343,8 +358,8 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             // Needed to let instances of Opus\Model\ModelException pass without
             // modifying their type.
             throw $ome;
-        } catch (\Exception $e) {
-            $msg = $e->getMessage() . ' Model: ' . get_class($this);
+        } catch (Exception $e) {
+            $msg = $e->getMessage() . ' Model: ' . static::class;
             // this works with php >= 5.3.0: throw new Opus\Model\ModelException($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
@@ -355,20 +370,18 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
 
     /**
      * Calls the methods to store the external Fields.
-     *
-     * @return void
      */
     protected function _storeExternalFields()
     {
         try {
             // Store external fields.
-            foreach ($this->_externalFields as $fieldname => $fieldInfo) {
+            foreach ($this->externalFields as $fieldname => $fieldInfo) {
                 // Skip external fields, that have not been added to the model.
-                if (! isset($this->_fields[$fieldname])) {
+                if (! isset($this->fields[$fieldname])) {
                     continue;
                 }
 
-                $fieldValue = $this->_fields[$fieldname]->getValue();
+                $fieldValue = $this->fields[$fieldname]->getValue();
 
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
@@ -386,17 +399,17 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
                     $this->_storeExternal($fieldValue, $options);
                 }
                 // trigger any pending delete operations
-                $this->_fields[$fieldname]->doPendingDeleteOperations();
+                $this->fields[$fieldname]->doPendingDeleteOperations();
                 // Clear modification status of successfully stored field.
-                $this->_fields[$fieldname]->clearModified();
+                $this->fields[$fieldname]->clearModified();
             }
-        } catch (\Zend_Db_Exception $zdbe) {
+        } catch (Zend_Db_Exception $zdbe) {
             // workaround: throw database adapter exceptions
             throw $zdbe;
         } catch (ModelException $ome) {
             throw $ome;
-        } catch (\Exception $e) {
-            $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
+        } catch (Exception $e) {
+            $msg = $e->getMessage() . ' Model: ' . static::class . ' Field: ' . $fieldname . '.';
             // this works with php >= 5.3.0: throw new Opus\Model\ModelException($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
@@ -408,23 +421,22 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * Save the values of external fields.
      *
      * @param array|AbstractDependentModel $values One or mor dependent opus models.
-     * @param array                              $conditions (Optional) fixed conditions for certain attributes.
+     * @param null|array                   $conditions (Optional) fixed conditions for certain attributes.
      * @throws ModelException Thrown when trying to save non Opus\Model\Dependent objects.
-     * @return void
      */
-    protected function _storeExternal($values, array $conditions = null)
+    protected function _storeExternal($values, ?array $conditions = null)
     {
         if (is_array($values) === true) {
             foreach ($values as $value) {
                 $this->_storeExternal($value, $conditions);
             }
-        } elseif (is_null($values) === false) {
+        } elseif ($values !== null) {
             if ($values instanceof AbstractDependentModel === false) {
                 throw new ModelException('External fields must be Opus\Model\Dependent.');
             }
-            if (is_null($conditions) === false) {
+            if ($conditions !== null) {
                 foreach ($conditions as $column => $value) {
-                    $values->_primaryTableRow->$column = $value;
+                    $values->primaryTableRow->$column = $value;
 
                     // HACK!  See OPUSVIER-2289, OPUSVIER-2292
                     // Make sure, that model field will be initialized, too!
@@ -442,7 +454,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     }
 
     /**
-     *
      * @param string $column Column name as string
      * @return string Field name in camel case
      */
@@ -458,7 +469,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     }
 
     /**
-     *
      * @param string $fieldname Field name in camel case
      * @return string Column name with case-change replaced by underscores "_"
      */
@@ -473,11 +483,10 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      *
      * @param  string $fieldname Name of the external field.
      * @throws ModelException If no _fetch-method is defined for an external field.
-     * @return void
      */
     protected function _loadExternal($fieldname)
     {
-        $field = $this->_fields[$fieldname];
+        $field = $this->fields[$fieldname];
 
         // Check if the fetch mechanism for the field is overwritten in model.
         $callname = '_fetch' . $fieldname;
@@ -493,7 +502,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             }
 
             // Make sure that a field's value model is inherited from Opus\Model\AbstractDb
-            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus\Model\AbstractDb') === false) {
+            if (empty($modelclass) or is_subclass_of($modelclass, self::class) === false) {
                 $message = "Field $fieldname must extend Opus\Model\AbstractDb.";
                 throw new ModelException($message);
             }
@@ -504,7 +513,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
                 return;
             }
 
-            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus\Model\Dependent\AbstractDependentModel') === false) {
+            if (empty($modelclass) or is_subclass_of($modelclass, AbstractDependentModel::class) === false) {
                 throw new ModelException(
                     'Class of ' . $fieldname . ' does not extend Opus\Model\Dependent\AbstractDependentModel.  Please check class '
                     . $modelclass . '.'
@@ -512,20 +521,20 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
             }
 
             $tableclass = $modelclass::getTableGatewayClass();
-            $table = TableGateway::getInstance($tableclass);
-            $select = $table->select();
+            $table      = TableGateway::getInstance($tableclass);
+            $select     = $table->select();
 
             // If any declared constraints, add them to query
-            if (isset($this->_externalFields[$fieldname]['options'])) {
-                $options = $this->_externalFields[$fieldname]['options'];
+            if (isset($this->externalFields[$fieldname]['options'])) {
+                $options = $this->externalFields[$fieldname]['options'];
                 foreach ($options as $column => $value) {
                     $select = $select->where("$column = ?", $value);
                 }
             }
 
             // If sort_order is defined, add to query
-            if (isset($this->_externalFields[$fieldname]['sort_order'])) {
-                $sortOrder = $this->_externalFields[$fieldname]['sort_order'];
+            if (isset($this->externalFields[$fieldname]['sort_order'])) {
+                $sortOrder = $this->externalFields[$fieldname]['sort_order'];
                 foreach ($sortOrder as $column => $order) {
                     $select = $select->order("$column $order");
                 }
@@ -533,13 +542,13 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
 
             // Get dependent rows
             $result = [];
-            $rows = $this->_primaryTableRow->findDependentRowset($table, null, $select);
+            $rows   = $this->primaryTableRow->findDependentRowset($table, null, $select);
 
             // Create new model for each row
             foreach ($rows as $row) {
                 $newModel = new $modelclass($row);
 
-                if (is_null($newModel->getParentId())) {
+                if ($newModel->getParentId() === null) {
                     throw new ModelException(
                         'Object in ' . $fieldname . ' contains empty ParentId.  Please check class '
                         . get_class($newModel) . '.'
@@ -575,7 +584,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      * NOTE: This method should not be overriden, use plugins instead where needed.
      *
      * @throws ModelException If a delete operation could not be performed on this model.
-     * @return void
      */
     public function delete()
     {
@@ -594,12 +602,12 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
         $dbadapter = $this->getTableRow()->getTable()->getAdapter();
         $dbadapter->beginTransaction();
         try {
-            $this->_primaryTableRow->delete();
-            $this->_primaryTableRow = null;
+            $this->primaryTableRow->delete();
+            $this->primaryTableRow = null;
             $dbadapter->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $dbadapter->rollback();
-            $msg = $e->getMessage() . ' Model: ' . get_class($this);
+            $msg = $e->getMessage() . ' Model: ' . static::class;
             throw new ModelException($msg);
         }
 
@@ -622,13 +630,13 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      */
     public function getId()
     {
-        if (null === $this->_primaryTableRow) {
+        if (null === $this->primaryTableRow) {
             return null;
         }
-        $tableInfo = $this->_primaryTableRow->getTable()->info();
-        $result = [];
+        $tableInfo = $this->primaryTableRow->getTable()->info();
+        $result    = [];
         foreach ($tableInfo['primary'] as $primaryKey) {
-            $result[] = $this->_primaryTableRow->$primaryKey;
+            $result[] = $this->primaryTableRow->$primaryKey;
         }
         if (count($result) > 1) {
             return $result;
@@ -647,7 +655,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      */
     public function getDisplayName()
     {
-        return get_class($this) . '#' . $this->getId();
+        return static::class . '#' . $this->getId();
     }
 
     /**
@@ -662,21 +670,21 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      */
     protected function _getField($name, $ignorePending = false)
     {
-        if (isset($this->_fields[$name]) !== true) {
+        if (isset($this->fields[$name]) !== true) {
             return null;
         }
 
         // Check if the field is in suspended fetch state
-        if (in_array($name, $this->_pending) === true and $ignorePending === false) {
+        if (in_array($name, $this->pending) === true and $ignorePending === false) {
             // Ensure that _loadExternal is called only on external fields
-            if (isset($this->_externalFields[$name])) {
+            if (isset($this->externalFields[$name])) {
                 $this->_loadExternal($name);
-                if (($key = array_search($name, $this->_pending)) !== false) {
-                    unset($this->_pending[$key]);
+                if (($key = array_search($name, $this->pending)) !== false) {
+                    unset($this->pending[$key]);
                 }
             }
         }
-        return $this->_fields[$name];
+        return $this->fields[$name];
     }
 
     /**
@@ -686,28 +694,28 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
      */
     protected function _setFieldValue(Field $field, $values)
     {
-        $fieldname = $field->getName();
+        $fieldname      = $field->getName();
         $linkmodelclass = $field->getLinkModelClass();
-        if (! is_null($values) and ! is_null($linkmodelclass)) {
+        if ($values !== null && $linkmodelclass !== null) {
             // Workaround for link_-tables with ternary relations.  It's not
             // beautyful, but it works for now.  There won't be an easier
             // solution without major changes on the framework/schema, since
             // we cannot know the type of ternary relations at this point.
             $ternaryRelationName = null;
-            if (isset($this->_externalFields[$fieldname]['addprimarykey'][0])) {
-                $ternaryRelationName = $this->_externalFields[$fieldname]['addprimarykey'][0];
+            if (isset($this->externalFields[$fieldname]['addprimarykey'][0])) {
+                $ternaryRelationName = $this->externalFields[$fieldname]['addprimarykey'][0];
             }
 
             $valuesAsArray = is_array($values);
-            $values = is_array($values) ? $values : [$values];
+            $values        = is_array($values) ? $values : [$values];
 
             foreach ($values as $i => $value) {
                 $linkmodel = null;
-                if (($value instanceof AbstractLinkModel) === true) {
+                if ($value instanceof AbstractLinkModel === true) {
                     $linkmodel = $value;
-                } elseif (is_null($this->getId()) or is_null($value->getId())) {
+                } elseif ($this->getId() === null || $value->getId() === null) {
                     // If any of the linked models hasn't been stored yet.
-                    $linkmodel = new $linkmodelclass;
+                    $linkmodel = new $linkmodelclass();
                     $linkmodel->setModel($value);
                 } else {
                     $linkId = [$this->getId(), $value->getId()];
@@ -718,7 +726,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
                     try {
                         $linkmodel = new $linkmodelclass($linkId);
                     } catch (NotFoundException $e) {
-                        $linkmodel = new $linkmodelclass;
+                        $linkmodel = new $linkmodelclass();
                     }
                     $linkmodel->setModel($value);
                 }
@@ -742,18 +750,18 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
     {
         // get Modelclass if model is linked
         $linkmodelclass = $field->getLinkModelClass();
-        if (! is_null($linkmodelclass)) {
+        if ($linkmodelclass !== null) {
             // Check if $linkmodelclass is a known class name
             if (class_exists($linkmodelclass) === false) {
                 throw new ModelException("Link model class '$linkmodelclass' does not exist.");
             }
 
-            if (is_null($value)) {
-                throw new \InvalidArgumentException('Argument required when adding to a link field.');
+            if ($value === null) {
+                throw new InvalidArgumentException('Argument required when adding to a link field.');
             }
 
             if (! $value instanceof AbstractLinkModel) {
-                $linkmodel = new $linkmodelclass;
+                $linkmodel = new $linkmodelclass();
                 $linkmodel->setModel($value);
                 $value = $linkmodel;
             }
@@ -769,6 +777,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
 
     /**
      * Returns maximal length for field.
+     *
      * @param $name
      */
     public static function getFieldMaxLength($name)
@@ -782,7 +791,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTracking,
         if (isset($metadata['metadata'][$column]['LENGTH'])) {
             return $metadata['metadata'][$column]['LENGTH'];
         } else {
-            $class = get_called_class();
+            $class = static::class;
             Log::get()->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
             return null;
         }

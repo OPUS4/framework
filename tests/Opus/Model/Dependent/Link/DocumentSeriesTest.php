@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Tests
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Dependent\Link;
@@ -41,7 +43,6 @@ use OpusTest\TestAsset\TestCase;
 
 class DocumentSeriesTest extends TestCase
 {
-
     public function testAssignDocSortOrder()
     {
         $s = new Series();
@@ -52,7 +53,7 @@ class DocumentSeriesTest extends TestCase
         $d->addSeries($s)->setNumber('I.');
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '0');
 
@@ -60,7 +61,7 @@ class DocumentSeriesTest extends TestCase
         $d->addSeries($s)->setNumber('II.');
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '1');
 
@@ -68,7 +69,7 @@ class DocumentSeriesTest extends TestCase
         $d->addSeries($s)->setNumber('IV.')->setDocSortOrder(4);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '4');
 
@@ -76,7 +77,7 @@ class DocumentSeriesTest extends TestCase
         $d->addSeries($s)->setNumber('V.');
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '5');
 
@@ -84,21 +85,21 @@ class DocumentSeriesTest extends TestCase
         $d->addSeries($s)->setNumber('III.')->setDocSortOrder(3);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '3');
 
         $series[0]->setDocSortOrder(10);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue($series[0]->getDocSortOrder() === '10');
 
         $series[0]->setDocSortOrder(null);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d      = new Document($d->getId());
         $series = $d->getSeries();
         $this->assertFalse($series[0]->getDocSortOrder() === '11');
         $this->assertTrue($series[0]->getDocSortOrder() === '6');
@@ -119,28 +120,28 @@ class DocumentSeriesTest extends TestCase
         $data = $seriesLink->toArray();
 
         $this->assertEquals([
-            'Title' => 'Schriftenreihe',
-            'Infobox' => 'Beschreibung',
-            'Visible' => 1,
-            'SortOrder' => 2,
-            'Number' => 'VI',
-            'DocSortOrder' => 4
+            'Title'        => 'Schriftenreihe',
+            'Infobox'      => 'Beschreibung',
+            'Visible'      => 1,
+            'SortOrder'    => 2,
+            'Number'       => 'VI',
+            'DocSortOrder' => 4,
         ], $data);
     }
 
     public function testFromArray()
     {
         $seriesLink = DocumentSeries::fromArray([
-            'Title' => 'Schriftenreihe',
-            'Infobox' => 'Beschreibung',
-            'Visible' => 1,
-            'SortOrder' => 2,
-            'Number' => 'VI',
-            'DocSortOrder' => 4
+            'Title'        => 'Schriftenreihe',
+            'Infobox'      => 'Beschreibung',
+            'Visible'      => 1,
+            'SortOrder'    => 2,
+            'Number'       => 'VI',
+            'DocSortOrder' => 4,
         ]);
 
         $this->assertNotNull($seriesLink);
-        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentSeries', $seriesLink);
+        $this->assertInstanceOf(DocumentSeries::class, $seriesLink);
 
         $this->assertEquals('Schriftenreihe', $seriesLink->getTitle());
         $this->assertEquals('Beschreibung', $seriesLink->getInfobox());
@@ -155,16 +156,16 @@ class DocumentSeriesTest extends TestCase
         $seriesLink = new DocumentSeries();
 
         $seriesLink->updateFromArray([
-            'Title' => 'Schriftenreihe',
-            'Infobox' => 'Beschreibung',
-            'Visible' => 1,
-            'SortOrder' => 2,
-            'Number' => 'VI',
-            'DocSortOrder' => 4
+            'Title'        => 'Schriftenreihe',
+            'Infobox'      => 'Beschreibung',
+            'Visible'      => 1,
+            'SortOrder'    => 2,
+            'Number'       => 'VI',
+            'DocSortOrder' => 4,
         ]);
 
         $this->assertNotNull($seriesLink);
-        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentSeries', $seriesLink);
+        $this->assertInstanceOf(DocumentSeries::class, $seriesLink);
 
         $this->assertEquals('Schriftenreihe', $seriesLink->getTitle());
         $this->assertEquals('Beschreibung', $seriesLink->getInfobox());

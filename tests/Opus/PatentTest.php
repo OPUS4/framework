@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -39,7 +41,6 @@ use OpusTest\TestAsset\TestCase;
 
 class PatentTest extends TestCase
 {
-
     public function testToArray()
     {
         $patent = new Patent();
@@ -53,19 +54,19 @@ class PatentTest extends TestCase
 
         $this->assertEquals([
             'YearApplied' => 2017,
-            'Countries' => 'Germany, France',
+            'Countries'   => 'Germany, France',
             'Application' => 'A wonderful new invention.',
-            'Number' => 'A23',
+            'Number'      => 'A23',
             'DateGranted' => [
-                'Year' => 2018,
-                'Month' => 2,
-                'Day' => 21,
-                'Hour' => null,
-                'Minute' => null,
-                'Second' => null,
-                'Timezone' => null,
+                'Year'          => 2018,
+                'Month'         => 2,
+                'Day'           => 21,
+                'Hour'          => null,
+                'Minute'        => null,
+                'Second'        => null,
+                'Timezone'      => null,
                 'UnixTimestamp' => 1519171200,
-            ]
+            ],
         ], $data);
     }
 
@@ -73,14 +74,14 @@ class PatentTest extends TestCase
     {
         $patent = Patent::fromArray([
             'YearApplied' => 2015,
-            'Countries' => 'Spain',
+            'Countries'   => 'Spain',
             'Application' => 'New gadget.',
-            'Number' => '487',
-            'DateGranted' => '2017-08-27'
+            'Number'      => '487',
+            'DateGranted' => '2017-08-27',
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf('Opus\Patent', $patent);
+        $this->assertInstanceOf(Patent::class, $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
@@ -95,14 +96,14 @@ class PatentTest extends TestCase
 
         $patent->updateFromArray([
             'YearApplied' => 2015,
-            'Countries' => 'Spain',
+            'Countries'   => 'Spain',
             'Application' => 'New gadget.',
-            'Number' => '487',
-            'DateGranted' => '2017-08-27'
+            'Number'      => '487',
+            'DateGranted' => '2017-08-27',
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf('Opus\Patent', $patent);
+        $this->assertInstanceOf(Patent::class, $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());

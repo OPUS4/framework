@@ -2,13 +2,12 @@
 
 namespace OpusTest\Util;
 
+use Exception;
 use Opus\Util\ConsoleColors;
-use Opus\Util\Exception;
 use OpusTest\TestAsset\SimpleTestCase;
 
 class ConsoleColorsTest extends SimpleTestCase
 {
-
     protected $colors;
 
     public function setUp()
@@ -66,7 +65,7 @@ class ConsoleColorsTest extends SimpleTestCase
     {
         $colors = $this->colors;
 
-        $this->setExpectedException(\Exception::class, 'Unknown function \'pink\'');
+        $this->setExpectedException(Exception::class, 'Unknown function \'pink\'');
 
         $colors->pink('Hello, world!');
     }

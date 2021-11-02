@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Enrichment
  * @author      Sascha Szott <opus-development@saschaszott.de>
- * @copyright   Copyright (c) 2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Enrichment;
@@ -36,9 +38,10 @@ namespace OpusTest\Enrichment;
 use Opus\Enrichment\SelectType;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+
 class SelectTypeTest extends TestCase
 {
-
     public function testSetOptionsFromStringWithUnixLinebreaks()
     {
         $selectType = new SelectType();
@@ -169,7 +172,7 @@ class SelectTypeTest extends TestCase
     public function testGetOptionProperties()
     {
         $selectType = new SelectType();
-        $props = $selectType->getOptionProperties();
+        $props      = $selectType->getOptionProperties();
         $this->assertEquals(['values', 'validation'], $props);
     }
 

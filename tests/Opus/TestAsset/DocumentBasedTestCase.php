@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,118 +26,134 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Application
+ * @author      Thomas Urban <thomas.urban@cepharum.de>
  */
 
 namespace OpusTest\TestAsset;
 
+use Exception;
+use InvalidArgumentException;
+use Opus\Config;
 use Opus\Document;
 use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Xml\Cache;
+use Opus\Person;
+use ReflectionClass;
+
+use function array_key_exists;
+use function array_values;
+use function basename;
+use function file_get_contents;
+use function glob;
+use function is_array;
+use function is_dir;
+use function is_readable;
+use function is_string;
+use function unlink;
 
 class DocumentBasedTestCase extends TestCase
 {
-
     private $created = [];
 
     protected static $documentPropertySets = [
-        'article' => [
-            'Type' => 'article',
-            'Language' => 'deu',
+        'article'   => [
+            'Type'                    => 'article',
+            'Language'                => 'deu',
             'ContributingCorporation' => 'Contributing, Inc.',
-            'CreatingCorporation' => 'Creating, Inc.',
-            'ThesisDateAccepted' => '1901-01-01',
-            'Edition' => 2,
-            'Issue' => 3,
-            'Volume' => 1,
-            'PageFirst' => 1,
-            'PageLast' => 297,
-            'PageNumber' => 297,
-            'CompletedYear' => 1960,
-            'CompletedDate' => '1901-01-01',
-            'BelongsToBibliography' => 0,
-            'TitleMain' => [
-                'Value' => 'Test Main Article',
-                'Type' => 'main',
-                'Language' => 'deu'
-            ]
+            'CreatingCorporation'     => 'Creating, Inc.',
+            'ThesisDateAccepted'      => '1901-01-01',
+            'Edition'                 => 2,
+            'Issue'                   => 3,
+            'Volume'                  => 1,
+            'PageFirst'               => 1,
+            'PageLast'                => 297,
+            'PageNumber'              => 297,
+            'CompletedYear'           => 1960,
+            'CompletedDate'           => '1901-01-01',
+            'BelongsToBibliography'   => 0,
+            'TitleMain'               => [
+                'Value'    => 'Test Main Article',
+                'Type'     => 'main',
+                'Language' => 'deu',
+            ],
         ],
-        'book' => [
-            'Type' => 'book',
-            'Language' => 'de',
+        'book'      => [
+            'Type'                    => 'book',
+            'Language'                => 'de',
             'ContributingCorporation' => 'Contributing, Inc.',
-            'CreatingCorporation' => 'Creating, Inc.',
-            'ThesisDateAccepted' => '1999-12-31',
-            'Edition' => 2,
-            'Issue' => 3,
-            'Volume' => 1,
-            'PageFirst' => 1,
-            'PageLast' => 465,
-            'PageNumber' => 465,
-            'CompletedYear' => 1996,
-            'CompletedDate' => '1996-10-02',
-            'BelongsToBibliography' => 1,
-            'EmbargoDate' => '2010-01-04',
-            'PersonAuthor' => [
-                'Opus\Person', [
+            'CreatingCorporation'     => 'Creating, Inc.',
+            'ThesisDateAccepted'      => '1999-12-31',
+            'Edition'                 => 2,
+            'Issue'                   => 3,
+            'Volume'                  => 1,
+            'PageFirst'               => 1,
+            'PageLast'                => 465,
+            'PageNumber'              => 465,
+            'CompletedYear'           => 1996,
+            'CompletedDate'           => '1996-10-02',
+            'BelongsToBibliography'   => 1,
+            'EmbargoDate'             => '2010-01-04',
+            'PersonAuthor'            => [
+                Person::class,
+                [
                     'AcademicTitle' => 'Prof.',
-                    'FirstName' => 'Jane',
-                    'LastName' => 'Doe',
-                ]
-            ]
+                    'FirstName'     => 'Jane',
+                    'LastName'      => 'Doe',
+                ],
+            ],
         ],
         'monograph' => [
-            'Type' => 'monograph',
-            'Language' => 'eng',
+            'Type'                    => 'monograph',
+            'Language'                => 'eng',
             'ContributingCorporation' => 'Contributing, Inc.',
-            'CreatingCorporation' => 'Creating, Inc.',
-            'ThesisDateAccepted' => '1999-12-31',
-            'Edition' => 2,
-            'Issue' => 1,
-            'Volume' => 2,
-            'PageFirst' => 1,
-            'PageLast' => 465,
-            'PageNumber' => 465,
-            'CompletedYear' => 1996,
-            'CompletedDate' => '1996-10-02',
-            'BelongsToBibliography' => 1,
-            'EmbargoDate' => '2010-01-04',
-            'PersonAuthor' => [
-                'Opus\Person', [
+            'CreatingCorporation'     => 'Creating, Inc.',
+            'ThesisDateAccepted'      => '1999-12-31',
+            'Edition'                 => 2,
+            'Issue'                   => 1,
+            'Volume'                  => 2,
+            'PageFirst'               => 1,
+            'PageLast'                => 465,
+            'PageNumber'              => 465,
+            'CompletedYear'           => 1996,
+            'CompletedDate'           => '1996-10-02',
+            'BelongsToBibliography'   => 1,
+            'EmbargoDate'             => '2010-01-04',
+            'PersonAuthor'            => [
+                Person::class,
+                [
                     'FirstName' => 'John',
-                    'LastName' => 'Doe',
-                ]
+                    'LastName'  => 'Doe',
+                ],
             ],
-            'TitleMain' => [
-                'Value' => 'A Monograph On Indexing',
-                'Type' => 'main',
-                'Language' => 'eng'
-            ]
+            'TitleMain'               => [
+                'Value'    => 'A Monograph On Indexing',
+                'Type'     => 'main',
+                'Language' => 'eng',
+            ],
         ],
-        'report' => [
-            'Type' => 'report',
-            'Language' => 'fra',
+        'report'    => [
+            'Type'                    => 'report',
+            'Language'                => 'fra',
             'ContributingCorporation' => 'Contributing, Inc.',
-            'CreatingCorporation' => 'Creating, Inc.',
-            'ThesisDateAccepted' => '1999-12-31',
-            'Edition' => 2,
-            'Issue' => 1,
-            'Volume' => 2,
-            'PageFirst' => 1,
-            'PageLast' => 465,
-            'PageNumber' => 465,
-            'CompletedYear' => 1996,
-            'CompletedDate' => '1996-10-02',
-            'BelongsToBibliography' => 1,
-            'EmbargoDate' => '2010-01-04'
-        ]
+            'CreatingCorporation'     => 'Creating, Inc.',
+            'ThesisDateAccepted'      => '1999-12-31',
+            'Edition'                 => 2,
+            'Issue'                   => 1,
+            'Volume'                  => 2,
+            'PageFirst'               => 1,
+            'PageLast'                => 465,
+            'PageNumber'              => 465,
+            'CompletedYear'           => 1996,
+            'CompletedDate'           => '1996-10-02',
+            'BelongsToBibliography'   => 1,
+            'EmbargoDate'             => '2010-01-04',
+        ],
     ];
-
-
 
     /**
      * @return array
@@ -153,7 +170,7 @@ class DocumentBasedTestCase extends TestCase
     public static function getDocumentDescriptionByName($name)
     {
         if (! array_key_exists($name, self::$documentPropertySets)) {
-            throw new \InvalidArgumentException("unknown document description");
+            throw new InvalidArgumentException("unknown document description");
         }
 
         return self::$documentPropertySets[$name];
@@ -163,13 +180,13 @@ class DocumentBasedTestCase extends TestCase
      * Creates document in local storage (SQL DB) according to provided
      * description.
      *
-     * @param array $documentProperties map of a document's properties into values
+     * @param null|array $documentProperties map of a document's properties into values
      * @return Document created document
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createDocument($documentProperties = null)
     {
-        if (is_null($documentProperties)) {
+        if ($documentProperties === null) {
             $documentProperties = self::$documentPropertySets['article'];
         } if (is_string($documentProperties)) {
             $documentProperties = self::$documentPropertySets[$documentProperties];
@@ -177,16 +194,15 @@ class DocumentBasedTestCase extends TestCase
 
         $document = new Document();
 
-
         /*
-		 * set all defined internal properties of document
-		 */
+         * set all defined internal properties of document
+         */
 
         foreach ($documentProperties as $property => $value) {
             if (! is_array($value)) {
                 // got value of some document-internal field
                 $method = 'set' . $property;
-                $document->$method( $value );
+                $document->$method($value);
             }
         }
 
@@ -194,16 +210,15 @@ class DocumentBasedTestCase extends TestCase
 
         $this->created[] = $document;
 
-
         /*
-		 * add all defined dependent models of document
-		 */
+         * add all defined dependent models of document
+         */
 
         foreach ($documentProperties as $property => $value) {
             if (is_array($value)) {
                 // got some document-external/dependent field
                 if (array_key_exists(0, $value) && is_string($value[0]) && is_array($value[1])) {
-                    $pre   = new \ReflectionClass($value[0]);
+                    $pre   = new ReflectionClass($value[0]);
                     $value = $value[1];
                 } else {
                     $pre = false;
@@ -211,7 +226,7 @@ class DocumentBasedTestCase extends TestCase
 
                 $copy = array_values($value);
                 if (! is_array($copy[0])) {
-                    $value = [ $value ];
+                    $value = [$value];
                 }
 
                 $adder = 'add' . $property;
@@ -227,7 +242,7 @@ class DocumentBasedTestCase extends TestCase
 
                     foreach ($set as $name => $value) {
                         $setter = 'set' . $name;
-                        $related->$setter( $value );
+                        $related->$setter($value);
                     }
 
                     $related->store();
@@ -235,7 +250,7 @@ class DocumentBasedTestCase extends TestCase
                     $this->created[] = $related;
 
                     if ($pre) {
-                        $document->$adder( $related );
+                        $document->$adder($related);
                     }
                 }
             }
@@ -277,8 +292,9 @@ class DocumentBasedTestCase extends TestCase
     {
         parent::tearDown();
 
-        $cache = new Cache(false);
-        $files = APPLICATION_PATH . '/tests/workspace/files/';
+        $cache  = new Cache(false);
+        $config = Config::get();
+        $files  = $config->workspacePath . '/files/';
 
         foreach ($this->created as $model) {
             /** @var AbstractDb $model */

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -36,12 +38,13 @@ namespace OpusTest;
 use Opus\Reference;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+
 /**
  * TODO What would be meaningful and useful tests for this class?
  */
 class ReferenceTest extends TestCase
 {
-
     public function testConstructor()
     {
         $ref = new Reference();
@@ -80,24 +83,24 @@ class ReferenceTest extends TestCase
         $data = $ref->toArray();
 
         $this->assertEquals([
-            'Value' => '146',
-            'Label' => 'Previous version',
+            'Value'    => '146',
+            'Label'    => 'Previous version',
             'Relation' => 'updates',
-            'Type' => 'opus4id'
+            'Type'     => 'opus4id',
         ], $data);
     }
 
     public function testFromArray()
     {
         $ref = Reference::fromArray([
-            'Value' => '146',
-            'Label' => 'Previous version',
+            'Value'    => '146',
+            'Label'    => 'Previous version',
             'Relation' => 'updates',
-            'Type' => 'opus4id'
+            'Type'     => 'opus4id',
         ]);
 
         $this->assertNotNull($ref);
-        $this->assertInstanceOf('Opus\Reference', $ref);
+        $this->assertInstanceOf(Reference::class, $ref);
         $this->assertEquals('146', $ref->getValue());
         $this->assertEquals('Previous version', $ref->getLabel());
         $this->assertEquals('updates', $ref->getRelation());
@@ -109,14 +112,14 @@ class ReferenceTest extends TestCase
         $ref = new Reference();
 
         $ref->updateFromArray([
-            'Value' => '146',
-            'Label' => 'Previous version',
+            'Value'    => '146',
+            'Label'    => 'Previous version',
             'Relation' => 'updates',
-            'Type' => 'opus4id'
+            'Type'     => 'opus4id',
         ]);
 
         $this->assertNotNull($ref);
-        $this->assertInstanceOf('Opus\Reference', $ref);
+        $this->assertInstanceOf(Reference::class, $ref);
         $this->assertEquals('146', $ref->getValue());
         $this->assertEquals('Previous version', $ref->getLabel());
         $this->assertEquals('updates', $ref->getRelation());

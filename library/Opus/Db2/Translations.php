@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,19 +25,22 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db2;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Opus\Translate\StorageInterface;
-use Opus\Db2\TableGateway;
 use Opus\Translate\TranslateException;
+
+use function count;
+use function is_array;
 
 /**
  * Class for managing custom translations in database.
@@ -57,14 +61,14 @@ use Opus\Translate\TranslateException;
  * TODO rename StorageInterface into TranslationStorageInterface
  * TODO remove old Zend_Db Dao class
  * TODO remove dependency on TableGateway class or?
+ *
+ * phpcs:disable
  */
 class Translations extends TableGateway implements StorageInterface
 {
-
     const TABLE_TRANSLATION_KEYS = 'translationkeys';
 
     const TABLE_TRANSLATIONS = 'translations';
-
 
     /**
      * @param $key
@@ -97,6 +101,7 @@ class Translations extends TableGateway implements StorageInterface
 
     /**
      * Deletes all translations for a module.
+     *
      * @param $module
      *
      * TODO SQL injection?
@@ -118,7 +123,7 @@ class Translations extends TableGateway implements StorageInterface
      */
     public function setTranslation($key, $translation, $module = 'default')
     {
-        if (is_null($translation)) {
+        if ($translation === null) {
             return $this->remove($key, $module);
         }
 
@@ -127,8 +132,8 @@ class Translations extends TableGateway implements StorageInterface
         $database->beginTransaction();
 
         $this->insertIgnoreDuplicate(self::TABLE_TRANSLATION_KEYS, 'id', [
-            'key' => $key,
-            'module' => $module
+            'key'    => $key,
+            'module' => $module,
         ]);
 
         $keyId = $database->lastInsertId();
@@ -137,7 +142,7 @@ class Translations extends TableGateway implements StorageInterface
             $this->insertIgnoreDuplicate(self::TABLE_TRANSLATIONS, null, [
                 'key_id' => $keyId,
                 'locale' => $language,
-                'value' => $value
+                'value'  => $value,
             ]);
         }
 
@@ -164,11 +169,11 @@ class Translations extends TableGateway implements StorageInterface
             ->join('t', 'translationkeys', 'k', 't.key_id = k.id')
             ->where("k.key = ?"); // TODO SQL injection
 
-        if (! is_null($locale)) {
+        if ($locale !== null) {
             $select->andWhere("t.locale = '$locale'"); // TODO SQL injection
         }
 
-        if (! is_null($module)) {
+        if ($module !== null) {
             $select->andWhere("k.module = '$module'"); // TODO SQL injection
         }
 
@@ -177,7 +182,7 @@ class Translations extends TableGateway implements StorageInterface
         if (count($rows) > 0) {
             $result = [];
 
-            if (is_null($locale)) {
+            if ($locale === null) {
                 foreach ($rows as $row) {
                     $result[$row['locale']] = $row['value'];
                 }
@@ -199,6 +204,7 @@ class Translations extends TableGateway implements StorageInterface
 
     /**
      * Finds a translation containing the search string.
+     *
      * @param $needle
      */
     public function findTranslation($needle)
@@ -207,6 +213,7 @@ class Translations extends TableGateway implements StorageInterface
 
     /**
      * Returns all translations, optionally just for a module.
+     *
      * @param null $module
      */
     public function getTranslations($module = null)
@@ -219,7 +226,7 @@ class Translations extends TableGateway implements StorageInterface
             ->from('translations', 't')
             ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
-        if (! is_null($module)) {
+        if ($module !== null) {
             $select->where('k.module = ?');
         }
 
@@ -228,9 +235,9 @@ class Translations extends TableGateway implements StorageInterface
         $result = [];
 
         foreach ($rows as $row) {
-            $key = $row['key'];
+            $key    = $row['key'];
             $locale = $row['locale'];
-            $value = $row['value'];
+            $value  = $row['value'];
 
             $result[$key][$locale] = $value;
         }
@@ -248,7 +255,7 @@ class Translations extends TableGateway implements StorageInterface
             ->from('translations', 't')
             ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
-        if (! is_null($module)) {
+        if ($module !== null) {
             $select->where('k.module = ?');
         }
 
@@ -257,9 +264,9 @@ class Translations extends TableGateway implements StorageInterface
         $result = [];
 
         foreach ($rows as $row) {
-            $key = $row['key'];
+            $key    = $row['key'];
             $locale = $row['locale'];
-            $value = $row['value'];
+            $value  = $row['value'];
 
             $result[$locale][$key] = $value;
         }
@@ -269,6 +276,7 @@ class Translations extends TableGateway implements StorageInterface
 
     /**
      * Adds translations to the database.
+     *
      * @param $translations
      *
      * TODO TableGateway dependency
@@ -281,8 +289,8 @@ class Translations extends TableGateway implements StorageInterface
 
         foreach ($translations as $key => $locales) {
             $this->insertIgnoreDuplicate(self::TABLE_TRANSLATION_KEYS, 'id', [
-                'key' => $key,
-                'module' => $module
+                'key'    => $key,
+                'module' => $module,
             ]);
 
             $keyId = $conn->lastInsertId();
@@ -291,7 +299,7 @@ class Translations extends TableGateway implements StorageInterface
                 $this->insertIgnoreDuplicate(self::TABLE_TRANSLATIONS, null, [
                     'key_id' => $keyId,
                     'locale' => $language,
-                    'value'  => $value
+                    'value'  => $value,
                 ]);
             }
         }
@@ -318,12 +326,12 @@ class Translations extends TableGateway implements StorageInterface
     {
         $conn = $this->getDatabaseAdapter();
 
-        $where = [];
-        $where['`key`'] = $key;
+        $where             = [];
+        $where['`key`']    = $key;
         $where['`module`'] = $module;
 
         $data = [
-            '`key`' => $newKey
+            '`key`' => $newKey,
         ];
 
         $conn->beginTransaction();
@@ -347,7 +355,7 @@ class Translations extends TableGateway implements StorageInterface
             ->from('translations', 't')
             ->join('t', 'translationkeys', 'k', 't.key_id = k.id');
 
-        if (! is_null($modules)) {
+        if ($modules !== null) {
             if (is_array($modules)) {
                 $select->where('k.module IN (?)');
                 $rows = $conn->fetchAllAssociative($select, [$modules], [$conn::PARAM_STR_ARRAY]);
@@ -359,16 +367,15 @@ class Translations extends TableGateway implements StorageInterface
             $rows = $conn->fetchAllAssociative($select);
         }
 
-
         $result = [];
 
         foreach ($rows as $row) {
-            $key = $row['key'];
+            $key    = $row['key'];
             $locale = $row['locale'];
-            $value = $row['value'];
+            $value  = $row['value'];
             $module = $row['module'];
 
-            $result[$key]['module'] = $module;
+            $result[$key]['module']          = $module;
             $result[$key]['values'][$locale] = $value;
         }
 
@@ -389,8 +396,6 @@ class Translations extends TableGateway implements StorageInterface
             ->from(self::TABLE_TRANSLATION_KEYS)
             ->distinct();
 
-        $rows = $conn->fetchFirstColumn($select);
-
-        return $rows;
+        return $conn->fetchFirstColumn($select);
     }
 }

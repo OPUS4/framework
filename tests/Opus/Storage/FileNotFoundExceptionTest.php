@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Storage
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Storage;
@@ -41,7 +43,6 @@ use OpusTest\TestAsset\TestCase;
  */
 class FileNotFoundExceptionTest extends TestCase
 {
-
     /**
      * Test constructing exception with a file name.
      */
@@ -57,7 +58,7 @@ class FileNotFoundExceptionTest extends TestCase
      */
     public function testConstructFileNotFoundExceptionWithMessage()
     {
-        $message = 'Custom file not found message.';
+        $message   = 'Custom file not found message.';
         $exception = new FileNotFoundException('test.txt', $message);
         $this->assertEquals('test.txt', $exception->getFilename());
         $this->assertEquals($message, $exception->getMessage());

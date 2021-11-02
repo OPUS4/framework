@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,45 +25,67 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Util;
 
+use DOMDocument;
+use DOMElement;
+use DOMNamedNodeMap;
+use DOMNode;
+use DOMNodeList;
+use Exception;
 use Opus\Collection;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\EnrichmentKey;
 use Opus\Licence;
+use Opus\LoggingTrait;
 use Opus\Model\NotFoundException;
 use Opus\Person;
 use Opus\Series;
 use Opus\Subject;
 
+use function array_diff;
+use function libxml_clear_errors;
+use function libxml_use_internal_errors;
+use function substr;
+use function trim;
+use function ucfirst;
+
+/**
+ * phpcs:disable
+ */
 class MetadataImport
 {
+    use LoggingTrait;
 
-    use \Opus\LoggingTrait;
-
+    /** @var mixed|null */
     private $logfile;
 
+    /** @var DOMDocument */
     private $xml;
 
+    /** @var string */
     private $xmlFile;
 
+    /** @var string */
     private $xmlString;
 
+    /** @var array */
     private $fieldsToKeepOnUpdate = [];
 
     public function __construct($xml, $isFile = false, $logger = null, $logfile = null)
     {
-        if (! is_null($logger)) {
+        if ($logger !== null) {
             $this->setLogger($logger);
         }
 
@@ -82,7 +105,7 @@ class MetadataImport
         $this->__validateXML();
 
         $numOfDocsImported = 0;
-        $numOfSkippedDocs = 0;
+        $numOfSkippedDocs  = 0;
 
         foreach ($this->xml->getElementsByTagName('opusDocument') as $opusDocumentElement) {
             // save oldId for later referencing of the record under consideration
@@ -117,7 +140,7 @@ class MetadataImport
             try {
                 $this->processAttributes($opusDocumentElement->attributes, $doc);
                 $this->processElements($opusDocumentElement->childNodes, $doc);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->log('Error while processing document #' . $oldId . ': ' . $e->getMessage());
                 $this->appendDocIdToRejectList($oldId);
                 $numOfSkippedDocs++;
@@ -126,7 +149,7 @@ class MetadataImport
 
             try {
                 $doc->store();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->log('Error while saving imported document #' . $oldId . ' to database: ' . $e->getMessage());
                 $this->appendDocIdToRejectList($oldId);
                 $numOfSkippedDocs++;
@@ -137,7 +160,7 @@ class MetadataImport
             $this->log('... OK');
         }
 
-        if ($numOfSkippedDocs == 0) {
+        if ($numOfSkippedDocs === 0) {
             $this->log("Import finished successfully. $numOfDocsImported documents were imported.");
         } else {
             $this->log("Import finished. $numOfDocsImported documents were imported. $numOfSkippedDocs documents were skipped.");
@@ -147,7 +170,7 @@ class MetadataImport
 
     private function log($string)
     {
-        if (is_null($this->logger)) {
+        if ($this->logger === null) {
             return;
         }
         $this->logger->log($string);
@@ -160,9 +183,9 @@ class MetadataImport
         $useInternalErrors = libxml_use_internal_errors(true);
 
         $this->log("Load XML ...");
-        $xml = new\DOMDocument();
+        $xml = new DOMDocument();
 
-        if (! is_null($this->xmlFile)) {
+        if ($this->xmlFile !== null) {
             if (! $xml->load($this->xmlFile)) {
                 $errMsg = MetadataImportXmlValidation::getErrorMessage();
                 $this->log(
@@ -199,10 +222,13 @@ class MetadataImport
         $this->log('... OK');
     }
 
+    /**
+     * @param int $docId
+     */
     private function appendDocIdToRejectList($docId)
     {
         $this->log('... SKIPPED');
-        if (is_null($this->logfile)) {
+        if ($this->logfile === null) {
             return;
         }
         $this->logfile->log($docId);
@@ -210,6 +236,7 @@ class MetadataImport
 
     /**
      * Allows certain fields to be kept on update.
+     *
      * @param array $fields DescriptionArray of fields to keep on update
      */
     public function keepFieldsOnUpdate($fields)
@@ -218,7 +245,6 @@ class MetadataImport
     }
 
     /**
-     *
      * @param Document $doc
      */
     private function resetDocument($doc)
@@ -239,14 +265,12 @@ class MetadataImport
             'Subject',
             'ThesisPublisher',
             'ThesisGrantor',
-
             'PublishedDate',
             'PublishedYear',
             'CompletedDate',
             'CompletedYear',
             'ThesisDateAccepted',
             'ThesisYearAccepted',
-
             'ContributingCorporation',
             'CreatingCorporation',
             'Edition',
@@ -266,26 +290,26 @@ class MetadataImport
             // 'ServerDateCreated', TODO do not delete ServerDateCreated when updating document (no default in db)
             'ServerDateModified',
             'ServerDatePublished',
-            'ServerDateDeleted'
+            'ServerDateDeleted',
         ], $this->fieldsToKeepOnUpdate);
 
         $doc->deleteFields($fieldsToDelete);
     }
 
     /**
-     *
-     * @param \DOMNamedNodeMap $attributes
-     * @param Document $doc
+     * @param DOMNamedNodeMap $attributes
+     * @param Document        $doc
      */
     private function processAttributes($attributes, $doc)
     {
         foreach ($attributes as $attribute) {
             $method = 'set' . ucfirst($attribute->name);
-            $value = trim($attribute->value);
-            if ($attribute->name == 'belongsToBibliography') {
-                if ($value == 'true') {
+            $value  = trim($attribute->value);
+            // TODO use filtervar for BOOLEAN here
+            if ($attribute->name === 'belongsToBibliography') {
+                if ($value === 'true') {
                     $value = '1';
-                } elseif ($value == 'false') {
+                } elseif ($value === 'false') {
                     $value = '0';
                 }
             }
@@ -294,14 +318,13 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNodeList $elements
-     * @param Document $doc
+     * @param  DOMNodeList $elements
+     * @param Document    $doc
      */
     private function processElements($elements, $doc)
     {
         foreach ($elements as $node) {
-            if ($node instanceof \DOMElement) {
+            if ($node instanceof DOMElement) {
                 switch ($node->tagName) {
                     case 'titlesMain':
                         $this->handleTitleMain($node, $doc);
@@ -350,14 +373,13 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleTitleMain($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $t = $doc->addTitleMain();
                 $t->setValue(trim($childNode->textContent));
                 $t->setLanguage(trim($childNode->getAttribute('language')));
@@ -366,16 +388,15 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleTitles($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $method = 'addTitle' . ucfirst($childNode->getAttribute('type'));
-                $t = $doc->$method();
+                $t      = $doc->$method();
                 $t->setValue(trim($childNode->textContent));
                 $t->setLanguage(trim($childNode->getAttribute('language')));
             }
@@ -383,14 +404,13 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleAbstracts($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $t = $doc->addTitleAbstract();
                 $t->setValue(trim($childNode->textContent));
                 $t->setLanguage(trim($childNode->getAttribute('language')));
@@ -399,14 +419,13 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handlePersons($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $p = new Person();
 
                 // mandatory fields
@@ -423,7 +442,7 @@ class MetadataImport
                 }
 
                 $method = 'addPerson' . ucfirst($childNode->getAttribute('role'));
-                $link = $doc->$method($p);
+                $link   = $doc->$method($p);
 
                 if ($childNode->hasAttribute('allowEmailContact') && ($childNode->getAttribute('allowEmailContact') === 'true' || $childNode->getAttribute('allowEmailContact') === '1')) {
                     $link->setAllowEmailContact(true);
@@ -433,14 +452,13 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleKeywords($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $s = new Subject();
                 $s->setLanguage(trim($childNode->getAttribute('language')));
                 $s->setType($childNode->getAttribute('type'));
@@ -451,15 +469,14 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleDnbInstitutions($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
-                $instId = trim($childNode->getAttribute('id'));
+            if ($childNode instanceof DOMElement) {
+                $instId   = trim($childNode->getAttribute('id'));
                 $instRole = $childNode->getAttribute('role');
                 // check if dnbInstitute with given id and role exists
                 try {
@@ -471,24 +488,23 @@ class MetadataImport
                         $method = 'addThesis' . ucfirst($instRole);
                         $doc->$method($inst);
                     } else {
-                        throw new \Exception('given role ' . $instRole . ' is not allowed for dnbInstitution id ' . $instId);
+                        throw new Exception('given role ' . $instRole . ' is not allowed for dnbInstitution id ' . $instId);
                     }
                 } catch (NotFoundException $e) {
-                    throw new \Exception('dnbInstitution id ' . $instId . ' does not exist: ' . $e->getMessage());
+                    throw new Exception('dnbInstitution id ' . $instId . ' does not exist: ' . $e->getMessage());
                 }
             }
         }
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleIdentifiers($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $i = $doc->addIdentifier();
                 $i->setValue(trim($childNode->textContent));
                 $i->setType($childNode->getAttribute('type'));
@@ -497,14 +513,13 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleNotes($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $n = $doc->addNote();
                 $n->setMessage(trim($childNode->textContent));
                 $n->setVisibility($childNode->getAttribute('visibility'));
@@ -513,63 +528,60 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleCollections($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $collectionId = trim($childNode->getAttribute('id'));
                 // check if collection with given id exists
                 try {
                     $c = new Collection($collectionId);
                     $doc->addCollection($c);
                 } catch (NotFoundException $e) {
-                    throw new \Exception('collection id ' . $collectionId . ' does not exist: ' . $e->getMessage());
+                    throw new Exception('collection id ' . $collectionId . ' does not exist: ' . $e->getMessage());
                 }
             }
         }
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleSeries($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $seriesId = trim($childNode->getAttribute('id'));
                 // check if document set with given id exists
                 try {
-                    $s = new Series($seriesId);
+                    $s    = new Series($seriesId);
                     $link = $doc->addSeries($s);
                     $link->setNumber(trim($childNode->getAttribute('number')));
                 } catch (NotFoundException $e) {
-                    throw new \Exception('series id ' . $seriesId . ' does not exist: ' . $e->getMessage());
+                    throw new Exception('series id ' . $seriesId . ' does not exist: ' . $e->getMessage());
                 }
             }
         }
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleEnrichments($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $key = trim($childNode->getAttribute('key'));
                 // check if enrichment key exists
                 try {
                     new EnrichmentKey($key);
                 } catch (NotFoundException $e) {
-                    throw new \Exception('enrichment key ' . $key . ' does not exist: ' . $e->getMessage());
+                    throw new Exception('enrichment key ' . $key . ' does not exist: ' . $e->getMessage());
                 }
 
                 $e = $doc->addEnrichment();
@@ -580,34 +592,32 @@ class MetadataImport
     }
 
     /**
-     *
-     * @param  \DOMNode $node
+     * @param  DOMNode  $node
      * @param Document $doc
      */
     private function handleLicences($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $licenceId = trim($childNode->getAttribute('id'));
                 try {
                     $l = new Licence($licenceId);
                     $doc->addLicence($l);
                 } catch (NotFoundException $e) {
-                    throw new \Exception('licence id ' . $licenceId . ' does not exist: ' . $e->getMessage());
+                    throw new Exception('licence id ' . $licenceId . ' does not exist: ' . $e->getMessage());
                 }
             }
         }
     }
 
     /**
-     *
-     * @param \DOMNode $node
+     * @param DOMNode  $node
      * @param Document $doc
      */
     private function handleDates($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
-            if ($childNode instanceof \DOMElement) {
+            if ($childNode instanceof DOMElement) {
                 $method = '';
                 if ($childNode->hasAttribute('monthDay')) {
                     $method = 'Date';

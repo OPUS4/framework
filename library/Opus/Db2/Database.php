@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Db2
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db2;
@@ -40,9 +42,10 @@ use Doctrine\ORM\EntityManager;
 use Opus\Config;
 
 /**
- *
  * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
  *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
+ *
+ * phpcs:disable
  */
 class Database
 {
@@ -57,9 +60,7 @@ class Database
             $dbConfig = $config->db->params;
         }
 
-        $params = $dbConfig->toArray();
-
-        return $params;
+        return $dbConfig->toArray();
     }
 
     public static function getConnection()

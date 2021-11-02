@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model2;
 
+use Exception;
+use InvalidArgumentException;
 use Opus\Db2\Database;
 use Opus\Db2\TableGateway;
 use Opus\Model\DbException;
@@ -40,6 +44,17 @@ use Opus\Model\PropertiesException;
 use Opus\Model\PropertySupportInterface;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Model\UnknownPropertyKeyException;
+use Zend_Db_Adapter_Abstract;
+use Zend_Db_Adapter_Exception;
+
+use function ctype_digit;
+use function filter_var;
+use function in_array;
+use function is_int;
+use function preg_match;
+
+use const FILTER_NULL_ON_FAILURE;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Class for accessing/storing properties for model objects in database.
@@ -63,10 +78,11 @@ use Opus\Model\UnknownPropertyKeyException;
  * TODO cache type ids?
  * TODO cache key ids?
  * TODO see getTable function (the model class/interface should be database independent)
+ *
+ * phpcs:disable
  */
 class Properties extends TableGateway
 {
-
     /**
      * Table storing properties.
      */
@@ -87,21 +103,17 @@ class Properties extends TableGateway
      */
     const KEY_PATTERN = '/^[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z0-9]+)*$/';
 
-    /**
-     * @var bool Enables automatic registration of model types
-     */
+    /** @var bool Enables automatic registration of model types */
     private $autoRegisterType = false;
 
-    /**
-     * @var bool Enables automatic registration of keys
-     */
+    /** @var bool Enables automatic registration of keys */
     private $autoRegisterKey = false;
 
     /**
      * Registers a model type.
      *
      * @param string $type Identifier for model type
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Adapter_Exception
      */
     public function registerType($type)
     {
@@ -112,7 +124,7 @@ class Properties extends TableGateway
                 $adapter->beginTransaction();
                 $adapter->insert(self::TABLE_TYPES, ['type' => $type]);
                 $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
+            } catch (Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack();
                 throw new DbException($e);
             }
@@ -137,7 +149,7 @@ class Properties extends TableGateway
                 $adapter->beginTransaction();
                 $adapter->delete(self::TABLE_TYPES, ['type = ?' => $type]);
                 $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
+            } catch (Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack(); // finish transaction without doing anything
                 throw new DbException($e);
             }
@@ -148,6 +160,7 @@ class Properties extends TableGateway
 
     /**
      * Returns all registered model types.
+     *
      * @return string[] Model types
      */
     public function getTypes()
@@ -167,7 +180,7 @@ class Properties extends TableGateway
      * would have to be updated if the key is already present in the table.
      *
      * @param string $key Name of property
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Adapter_Exception
      */
     public function registerKey($key)
     {
@@ -180,7 +193,7 @@ class Properties extends TableGateway
                 $adapter->beginTransaction();
                 $adapter->insert(self::TABLE_KEYS, ['name' => $key]);
                 $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
+            } catch (Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack();
                 throw new DbException($e);
             }
@@ -203,7 +216,7 @@ class Properties extends TableGateway
                 $adapter->beginTransaction();
                 $adapter->delete(self::TABLE_KEYS, ['name = ?' => $key]);
                 $adapter->commit();
-            } catch (\Zend_Db_Adapter_Exception $e) {
+            } catch (Zend_Db_Adapter_Exception $e) {
                 $adapter->rollBack(); // finish transaction without doing anything
                 throw new DbException($e);
             }
@@ -214,6 +227,7 @@ class Properties extends TableGateway
 
     /**
      * Returns all registered keys.
+     *
      * @return string[] Names of properties
      */
     public function getKeys()
@@ -223,15 +237,13 @@ class Properties extends TableGateway
         $select = $adapter->select()
             ->from(self::TABLE_KEYS, ['name']);
 
-        $result = $adapter->fetchCol($select);
-
-        return $result;
+        return $adapter->fetchCol($select);
     }
 
     /**
      * Stores a property for a model.
      *
-     * @param mixed $model Model object implementing Opus\Model\PropertySupportInterface
+     * @param mixed  $model Model object implementing Opus\Model\PropertySupportInterface
      * @param string $key Name of property
      * @param string $value Value of property
      * @throws UnknownModelTypeException
@@ -246,24 +258,24 @@ class Properties extends TableGateway
             return;
         }
 
-        $modelType = $this->getModelType($model);
+        $modelType   = $this->getModelType($model);
         $modelTypeId = $this->getModelTypeId($modelType);
-        $modelId = $this->getModelId($model);
-        $keyId = $this->getKeyId($key);
+        $modelId     = $this->getModelId($model);
+        $keyId       = $this->getKeyId($key);
 
         $this->insertIgnoreDuplicate([
             'model_type_id' => $modelTypeId,
-            'model_id' => $modelId,
-            'key_id' => $keyId,
-            'value' => $value
+            'model_id'      => $modelId,
+            'key_id'        => $keyId,
+            'value'         => $value,
         ]);
     }
 
     /**
      * Returns all the properties of a model.
      *
-     * @param mixed $model Model object
-     * @param string $type Model type
+     * @param mixed       $model Model object
+     * @param null|string $type Model type
      * @return array Associative array with property keys and values
      * @throws PropertiesException
      * @throws UnknownModelTypeException
@@ -274,11 +286,11 @@ class Properties extends TableGateway
 
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
-            $modelId = $model;
+            $modelId     = $model;
         } else {
-            $modelType = $this->getModelType($model);
+            $modelType   = $this->getModelType($model);
             $modelTypeId = $this->getModelTypeId($modelType);
-            $modelId = $this->getModelId($model);
+            $modelId     = $this->getModelId($model);
         }
 
         $select = $adapter->select()
@@ -287,14 +299,13 @@ class Properties extends TableGateway
             ->where('p.model_type_id = ?', $modelTypeId)
             ->where('p.model_id = ?', $modelId);
 
-        $result = $adapter->fetchPairs($select);
-
-        return $result;
+        return $adapter->fetchPairs($select);
     }
 
     /**
      * Returns value of a property for a model.
-     * @param mixed $model Model object
+     *
+     * @param mixed  $model Model object
      * @param string $key Name of property
      * @return string|null Value of property or null
      * @throws PropertiesException
@@ -305,10 +316,10 @@ class Properties extends TableGateway
     {
         $adapter = $this->getAdapter();
 
-        $modelType = $this->getModelType($model);
-        $keyId = $this->getKeyId($key);
+        $modelType   = $this->getModelType($model);
+        $keyId       = $this->getKeyId($key);
         $modelTypeId = $this->getModelTypeId($modelType);
-        $modelId = $this->getModelId($model);
+        $modelId     = $this->getModelId($model);
 
         $select = $adapter->select()
             ->from(self::TABLE_PROPERTIES, ['value'])
@@ -327,6 +338,7 @@ class Properties extends TableGateway
 
     /**
      * Removes all properties of a model.
+     *
      * @param mixed $model Model object
      * @throws DbException
      * @throws PropertiesException
@@ -338,21 +350,21 @@ class Properties extends TableGateway
 
         if ($type !== null && (is_int($model) || ctype_digit($model))) {
             $modelTypeId = $this->getModelTypeId($type);
-            $modelId = $model;
+            $modelId     = $model;
         } else {
-            $modelType = $this->getModelType($model);
+            $modelType   = $this->getModelType($model);
             $modelTypeId = $this->getModelTypeId($modelType);
-            $modelId = $this->getModelId($model);
+            $modelId     = $this->getModelId($model);
         }
 
         try {
             $adapter->beginTransaction();
             $adapter->delete(self::TABLE_PROPERTIES, [
                 'model_type_id = ?' => $modelTypeId,
-                'model_id = ?' => $modelId
+                'model_id = ?'      => $modelId,
             ]);
             $adapter->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $adapter->rollBack();
             throw new DbException($e);
         }
@@ -360,7 +372,8 @@ class Properties extends TableGateway
 
     /**
      * Removes a property from a model.
-     * @param mixed $model Model object
+     *
+     * @param mixed  $model Model object
      * @param string $key Name of property
      * @throws DbException
      * @throws PropertiesException
@@ -371,20 +384,20 @@ class Properties extends TableGateway
     {
         $adapter = $this->getAdapter();
 
-        $keyId = $this->getKeyId($key);
-        $modelType = $this->getModelType($model);
+        $keyId       = $this->getKeyId($key);
+        $modelType   = $this->getModelType($model);
         $modelTypeId = $this->getModelTypeId($modelType);
-        $modelId = $this->getModelId($model);
+        $modelId     = $this->getModelId($model);
 
         try {
             $adapter->beginTransaction();
             $adapter->delete(self::TABLE_PROPERTIES, [
                 'model_type_id = ?' => $modelTypeId,
-                'model_id = ?' => $modelId,
-                'key_id = ?' => $keyId
+                'model_id = ?'      => $modelId,
+                'key_id = ?'        => $keyId,
             ]);
             $adapter->commit();
-        } catch (\Zend_Db_Adapter_Exception $e) {
+        } catch (Zend_Db_Adapter_Exception $e) {
             $adapter->rollBack();
             throw new DbException($e);
         }
@@ -416,6 +429,7 @@ class Properties extends TableGateway
 
     /**
      * Renames a key without removing the stored values.
+     *
      * @param string $oldKey Name of existing key
      * @param string $newKey New name of key
      * @throws DbException
@@ -432,12 +446,12 @@ class Properties extends TableGateway
         try {
             $adapter->beginTransaction();
             $adapter->update(self::TABLE_KEYS, [
-                'name' => $newKey
+                'name' => $newKey,
             ], [
-                "id = $keyId"
+                "id = $keyId",
             ]);
             $adapter->commit();
-        } catch (\Zend_Db_Adapter_Exception $e) {
+        } catch (Zend_Db_Adapter_Exception $e) {
             $adapter->rollback();
             throw new DbException($e);
         }
@@ -445,6 +459,7 @@ class Properties extends TableGateway
 
     /**
      * Returns true if auto registration of model types is enabled.
+     *
      * @return bool true if automatic registration is enabled
      */
     public function isAutoRegisterTypeEnabled()
@@ -454,18 +469,19 @@ class Properties extends TableGateway
 
     /**
      * Enabled/disables automatic registration of model types.
-     * @param boolean $enabled Enables/disables auto registration
+     *
+     * @param bool $enabled Enables/disables auto registration
      */
     public function setAutoRegisterTypeEnabled($enabled)
     {
         if ($enabled === null) {
-            throw new \InvalidArgumentException('Argument must not be null');
+            throw new InvalidArgumentException('Argument must not be null');
         }
 
         $bool = filter_var($enabled, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         if ($bool === null) {
-            throw new \InvalidArgumentException('Argument must be boolean');
+            throw new InvalidArgumentException('Argument must be boolean');
         }
 
         $this->autoRegisterType = $bool;
@@ -473,6 +489,7 @@ class Properties extends TableGateway
 
     /**
      * Returns if automatic registration for keys is enabled.
+     *
      * @return bool true if automatic registration is enabled
      */
     public function isAutoRegisterKeyEnabled()
@@ -482,18 +499,19 @@ class Properties extends TableGateway
 
     /**
      * Enables/disables automatic registration of keys.
+     *
      * @param $enabled bool Enable/disable auto registration
      */
     public function setAutoRegisterKeyEnabled($enabled)
     {
         if ($enabled === null) {
-            throw new \InvalidArgumentException('Argument must not be null');
+            throw new InvalidArgumentException('Argument must not be null');
         }
 
         $bool = filter_var($enabled, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         if ($bool === null) {
-            throw new \InvalidArgumentException('Argument must be boolean');
+            throw new InvalidArgumentException('Argument must be boolean');
         }
 
         $this->autoRegisterKey = $bool;
@@ -519,6 +537,7 @@ class Properties extends TableGateway
 
     /**
      * Returns ID for a key.
+     *
      * @param string $key Name of property
      * @return int
      * @throws UnknownPropertyKeyException
@@ -526,7 +545,7 @@ class Properties extends TableGateway
     protected function getKeyId($key)
     {
         if ($key === null) {
-            throw new \InvalidArgumentException('Key argument must not be null');
+            throw new InvalidArgumentException('Key argument must not be null');
         }
 
         $adapter = $this->getAdapter();
@@ -549,17 +568,18 @@ class Properties extends TableGateway
 
     /**
      * Returns type for model.
+     *
      * @param mixed $model Model object
      * @return string Type of model
      */
     protected function getModelType($model)
     {
         if ($model === null) {
-            throw new \InvalidArgumentException('Model argument must not be null');
+            throw new InvalidArgumentException('Model argument must not be null');
         }
 
         if (! $model instanceof PropertySupportInterface) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Model argument must be of type Opus\Model\PropertySupportInterface'
             );
         }
@@ -569,10 +589,11 @@ class Properties extends TableGateway
 
     /**
      * Returns ID for model type.
+     *
      * @param string $type Model type
      * @return int
      * @throws UnknownModelTypeException
-     * @throws \Zend_Db_Adapter_Exception
+     * @throws Zend_Db_Adapter_Exception
      */
     protected function getModelTypeId($type)
     {
@@ -596,18 +617,20 @@ class Properties extends TableGateway
 
     /**
      * Validates format of property key.
+     *
      * @param string $key Name of property
      */
     protected function validateKey($key)
     {
         if (preg_match(self::KEY_PATTERN, $key) === 0) {
-            throw new \InvalidArgumentException("Key '$key' is not valid.");
+            throw new InvalidArgumentException("Key '$key' is not valid.");
         }
     }
 
     /**
      * Returns database adapter for queries.
-     * @return \Zend_Db_Adapter_Abstract Database adapter
+     *
+     * @return Zend_Db_Adapter_Abstract Database adapter
      */
     protected function getAdapter()
     {
