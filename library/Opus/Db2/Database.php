@@ -36,9 +36,9 @@
 namespace Opus\Db2;
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
 use Opus\Config;
 
 /**

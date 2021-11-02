@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Db2
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Db2;
@@ -48,44 +50,27 @@ class Language
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=3, options={"fixed" = true})
-     */
+    /** @ORM\Column(type="string", length=3, options={"fixed" = true}) */
     private $part2B;
 
-    /**
-     * @ORM\Column(type="string", length=3, options={"fixed" = true})
-     */
+    /** @ORM\Column(type="string", length=3, options={"fixed" = true}) */
     private $part2T;
 
-    /**
-     * @ORM\Column(type="string", length=2, options={"fixed" = true})
-     */
+    /** @ORM\Column(type="string", length=2, options={"fixed" = true}) */
     private $part1;
 
-    /**
-     * @ORM\Column(type="string", columnDefinition="ENUM('I','M','S')")
-     */
+    /** @ORM\Column(type="string", columnDefinition="ENUM('I','M','S')") */
     private $scope;
 
-    /**
-     * @ORM\Column(type="string", columnDefinition="ENUM('A','C','E','H','L','S')")
-     */
+    /** @ORM\Column(type="string", columnDefinition="ENUM('A','C','E','H','L','S')") */
     private $type;
 
-    /**
-     * @ORM\Column(type="string", length=150)
-     */
+    /** @ORM\Column(type="string", length=150) */
     private $refName;
 
-    /**
-     * @ORM\Column(type="string", length=150)
-     */
+    /** @ORM\Column(type="string", length=150) */
     private $comment;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    /** @ORM\Column(type="smallint") */
     private $active;
-
 }
