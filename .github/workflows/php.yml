@@ -7,7 +7,7 @@ on:
     types: [assigned, opened, synchronize, reopened]
 
   schedule:
-    - cron: '0 23 * * *'
+    - cron: '5 0 * * *'
 
 jobs:
   build:
