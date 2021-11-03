@@ -35,6 +35,7 @@
 
 namespace OpusTest\Db2;
 
+use Doctrine\DBAL\Connection;
 use Opus\Db2\Database;
 use OpusTest\TestAsset\TestCase;
 
@@ -56,6 +57,14 @@ class DatabaseTest extends TestCase
         $params = $database->getConnectionParams();
 
         // var_dump($params);
+
+        $this->assertNotNull($params);
+
+        $this->assertArrayHasKey('adapterNamespace', $params);
+        $this->assertArrayHasKey('host', $params);
+        $this->assertArrayHasKey('username', $params);
+        $this->assertArrayHasKey('password', $params);
+        $this->assertArrayHasKey('dbname', $params);
     }
 
     public function testGetConnection()
@@ -65,5 +74,8 @@ class DatabaseTest extends TestCase
         $conn = $database->getConnection();
 
         // var_dump($conn);
+
+        $this->assertNotNull($conn);
+        $this->assertInstanceOf(Connection::class, $conn);
     }
 }
