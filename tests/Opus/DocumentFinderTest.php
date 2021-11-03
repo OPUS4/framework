@@ -143,6 +143,11 @@ class DocumentFinderTest extends TestCase
                 ->store();
     }
 
+    /**
+     * @param int[]  $ids
+     * @param string $state
+     * @throws ModelException
+     */
     private function checkServerState($ids, $state)
     {
         foreach ($ids as $id) {
@@ -379,10 +384,10 @@ class DocumentFinderTest extends TestCase
 
         $this->assertEquals(6, count($docs));
 
-        $expected_order = [2, 5, 3, 6, 1, 4];
+        $expectedOrder = [2, 5, 3, 6, 1, 4];
 
         foreach ($docs as $index => $docId) {
-            if ($docId != $expected_order[$index]) {
+            if ((int) $docId !== $expectedOrder[$index]) {
                 $this->fail('documents are not in expected order');
             }
         }

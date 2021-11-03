@@ -60,6 +60,10 @@ class NestedSetValidator
      */
     private $counter;
 
+    /**
+     * @param NestedSet $table
+     * @throws ModelException
+     */
     public function __construct($table)
     {
         if ($table !== null && $table instanceof NestedSet) {
@@ -71,19 +75,22 @@ class NestedSetValidator
 
     /**
      * Check structure of nested set.
+     *
+     * @param int $rootId
+     * @return bool
      */
     public function validate($rootId)
     {
         $select        = $this->table->select()->where('id = ?', $rootId);
         $node          = $this->table->fetchRow($select);
-        $this->counter = $node['left_id'];
+        $this->counter = (int) $node['left_id'];
         return $this->validateNode($rootId); // root node
     }
 
     /**
      * Validates a node and walks NestedSet recursively.
      *
-     * @param $nodeId ID for node in NestedSet
+     * @param int $nodeId ID for node in NestedSet
      * @return bool true - valid, false - invalid
      */
     public function validateNode($nodeId)
@@ -97,7 +104,7 @@ class NestedSetValidator
 
         $logger->err("{$this->counter}, $nodeId: $leftId, $rightId");
 
-        if ($leftId != $this->counter) {
+        if ((int) $leftId !== $this->counter) {
             // invalid
             $logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid (left_id)");
             return false;

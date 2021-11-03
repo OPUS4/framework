@@ -41,6 +41,7 @@
 namespace OpusTest;
 
 use DateTime;
+use InvalidArgumentException;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Config;
@@ -876,7 +877,7 @@ class DocumentTest extends TestCase
 
         $doc->addLanguage('de');
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Cannot add multiple values to Language');
+        $this->setExpectedException(InvalidArgumentException::class, 'Cannot add multiple values to Language');
 
         $doc->addLanguage('en');
     }
@@ -1561,12 +1562,12 @@ class DocumentTest extends TestCase
 
     public function testSortOrderForAddPersonAuthors()
     {
-        $document = $this->_createDocumentWithPersonAuthors(16);
+        $document = $this->createDocumentWithPersonAuthors(16);
         $docId    = $document->store();
 
         // Reload document; sanity check of SortOrder...
         $document = new Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // First check, if everybody is in place.
         $authors = $document->getPersonAuthor();
@@ -1578,16 +1579,16 @@ class DocumentTest extends TestCase
 
     public function testSortOrderForSetPersonAuthorReverse()
     {
-        $document = $this->_createDocumentWithPersonAuthors(16);
+        $document = $this->createDocumentWithPersonAuthors(16);
         $docId    = $document->store();
 
         // Reload document; sanity check of SortOrder...
         $document = new Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // Do something with authors: reverse
-        $authors     = $document->getPersonAuthor();
-        $new_authors = array_reverse($authors);
+        $authors    = $document->getPersonAuthor();
+        $newAuthors = array_reverse($authors);
 
         $index = 1;
 
@@ -1596,33 +1597,33 @@ class DocumentTest extends TestCase
             $index++;
         }
 
-        $document->setPersonAuthor($new_authors);
+        $document->setPersonAuthor($newAuthors);
         $document->store();
 
         // Reload document; sanity check of SortOrder...
         $document = new Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // First check, if everybody is in place.
         $authors = $document->getPersonAuthor();
         $this->assertTrue(is_array($authors));
-        $this->assertTrue(is_array($new_authors));
-        $this->assertEquals(count($new_authors), count($authors));
+        $this->assertTrue(is_array($newAuthors));
+        $this->assertEquals(count($newAuthors), count($authors));
 
-        for ($i = 0; $i < count($new_authors); $i++) {
-            $this->assertEquals($new_authors[$i]->getFirstName(), $authors[$i]->getFirstName());
-            $this->assertEquals($new_authors[$i]->getLastName(), $authors[$i]->getLastName());
+        for ($i = 0; $i < count($newAuthors); $i++) {
+            $this->assertEquals($newAuthors[$i]->getFirstName(), $authors[$i]->getFirstName());
+            $this->assertEquals($newAuthors[$i]->getLastName(), $authors[$i]->getLastName());
         }
     }
 
     public function testSortOrderForSetPersonAuthorShuffleDeleteAdd()
     {
-        $document = $this->_createDocumentWithPersonAuthors(16);
+        $document = $this->createDocumentWithPersonAuthors(16);
         $docId    = $document->store();
 
         // Reload document; sanity check of SortOrder...
         $document = new Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // Do something with authors: shuffle, remove some, add one...
         $authors    = $document->getPersonAuthor();
@@ -1641,7 +1642,7 @@ class DocumentTest extends TestCase
 
         // Reload document; sanity check of SortOrder...
         $document = new Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // First check, if everybody is in place.
         $authors = $document->getPersonAuthor();
@@ -1655,10 +1656,14 @@ class DocumentTest extends TestCase
         }
     }
 
-    private function _createDocumentWithPersonAuthors($author_count)
+    /**
+     * @param int $authorCount
+     * @return Document
+     */
+    private function createDocumentWithPersonAuthors($authorCount)
     {
         $document = new Document();
-        for ($i = 0; $i < $author_count; $i++) {
+        for ($i = 0; $i < $authorCount; $i++) {
             $person = new Person();
             $person->setFirstName('firstname-$i=' . $i);
             $person->setLastName('lastname-$i=' . $i);
@@ -1668,7 +1673,10 @@ class DocumentTest extends TestCase
         return $document;
     }
 
-    private function _checkPersonAuthorSortOrderForDocument($document)
+    /**
+     * @param Document $document
+     */
+    private function checkPersonAuthorSortOrderForDocument($document)
     {
         $authors = $document->getPersonAuthor();
         $numbers = [];
@@ -1678,8 +1686,8 @@ class DocumentTest extends TestCase
         }
 
         // Check if all numbers are unique
-        $unique_numbers = array_unique($numbers);
-        $this->assertEquals(count($authors), count($unique_numbers));
+        $uniqueNumbers = array_unique($numbers);
+        $this->assertEquals(count($authors), count($uniqueNumbers));
     }
 
     public function testGetEarliestPublicationDate()
@@ -1889,7 +1897,7 @@ class DocumentTest extends TestCase
         $doc = new Document($doc->getId());
         $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->assertTrue(count($doc->getPerson())===0, 'testcase changed?');
+        $this->assertTrue(count($doc->getPerson()) === 0, 'testcase changed?');
         $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
@@ -2392,6 +2400,10 @@ class DocumentTest extends TestCase
         // check indexing operations
     }
 
+    /**
+     * @return int
+     * @throws ModelException
+     */
     protected function setupDocumentWithMultipleTitles()
     {
         $doc = new Document();
@@ -2754,10 +2766,6 @@ class DocumentTest extends TestCase
         $this->assertEquals('test-value', $value);
     }
 
-    /**
-     * @expectedException \Opus\Model\ModelException
-     * @expectedExceptionMessage unknown enrichment key
-     */
     public function testGetEnrichmentValueBadKey()
     {
         $keyName = 'test.key1';
@@ -3752,9 +3760,9 @@ class DocumentTest extends TestCase
      * Removes the key from the array in order to check at the end if all keys have been
      * tested.
      *
-     * @param $key
-     * @param $value
-     * @param $array
+     * @param string   $key
+     * @param string   $value
+     * @param string[] $array
      */
     protected function checkArrayEntry($key, $value, &$array)
     {
@@ -4086,6 +4094,10 @@ class DocumentTest extends TestCase
         $this->assertEquals('2nd', $doc->getEdition());
     }
 
+    /**
+     * @return string[]
+     * @throws ModelException
+     */
     public function getIdentifierTypes()
     {
         $identifier = new Identifier();
@@ -4100,6 +4112,7 @@ class DocumentTest extends TestCase
     }
 
     /**
+     * @param string $type
      * @dataProvider getIdentifierTypes
      */
     public function testGetIdentifierDiffersFromGetIdentiferForType($type)

@@ -53,7 +53,7 @@ use Zend_Db_Table;
 class Mysqlutf8Test extends TestCase
 {
     /** @var\Zend_Db_Adapter_Abstract */
-    protected $dba_backup;
+    protected $dbaBackup;
 
     /** Ensure a clean database table.
      */
@@ -65,7 +65,7 @@ class Mysqlutf8Test extends TestCase
         $config = Config::get();
 
         // Backup existing adapter
-        $this->dba_backup = Zend_Db_Table::getDefaultAdapter();
+        $this->dbaBackup = Zend_Db_Table::getDefaultAdapter();
 
         // Use\Zend_Db factory to create a database adapter and make it default.
         if ($config === null || $config->db === null) {
@@ -87,7 +87,7 @@ class Mysqlutf8Test extends TestCase
         }
 
         // Restore existing adapter
-        Zend_Db_Table::setDefaultAdapter($this->dba_backup);
+        Zend_Db_Table::setDefaultAdapter($this->dbaBackup);
 
         parent::tearDown();
     }
