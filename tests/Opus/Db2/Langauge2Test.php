@@ -35,9 +35,13 @@
 
 namespace OpusTest\Db2;
 
+use Doctrine\ORM\Exception\MissingIdentifierField;
+use Exception;
 use Opus\Db2\Database;
 use Opus\Model2\Language;
 use OpusTest\TestAsset\TestCase;
+
+use function get_class;
 
 class Language2Test extends TestCase
 {
@@ -58,7 +62,7 @@ class Language2Test extends TestCase
         ]);
     }
 
-    public function testAdd()
+    public function testStoreLanguage()
     {
         $lang = new Language();
         $lang->setPart2B('ger');
@@ -66,12 +70,10 @@ class Language2Test extends TestCase
         $lang->setPart1('de');
         $lang->setRefName('German');
         $lang->setComment('test comment');
+        $lang->store();
 
         $entityManager = Database::getEntityManager();
-        $entityManager->persist($lang);
-        $entityManager->flush();
-
-        $lang2 = $entityManager->find('Opus\Model2\Language', $lang->getId());
+        $lang2         = $entityManager->find(Language::class, $lang->getId());
 
         $this->assertNotNull($lang2);
         $this->assertEquals('ger', $lang2->getPart2B());
@@ -82,5 +84,28 @@ class Language2Test extends TestCase
         $this->assertNull($lang2->getScope());
         $this->assertNull($lang2->getType());
         $this->assertEquals('0', $lang2->getActive());
+    }
+
+    public function testDeleteLanguage()
+    {
+        $lang = new Language();
+        $lang->setPart2B('ger');
+        $lang->setPart2T('deu');
+        $lang->setPart1('de');
+        $lang->setRefName('German');
+        $lang->setComment('test delete comment');
+        $lang->store();
+        $id = $lang->getId();
+        $lang->delete();
+
+        $entityManager = Database::getEntityManager();
+        try {
+            $exceptionClass = null;
+            $entityManager->find(Language::class, $lang->getId());
+        } catch (Exception $e) {
+            $exceptionClass = get_class($e);
+        }
+
+        $this->assertEquals(MissingIdentifierField::class, $exceptionClass);
     }
 }

@@ -41,7 +41,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="languages")
  */
-class Language
+class Language extends AbstractModel
 {
     /**
      * @ORM\Id
