@@ -37,17 +37,64 @@ namespace OpusTest\Db2;
 
 use Doctrine\DBAL\Connection;
 use Opus\Db2\Database;
+use Opus\Db2\Properties;
+use Opus\Document;
 use OpusTest\TestAsset\TestCase;
+
+use function array_keys;
 
 class DatabaseTest extends TestCase
 {
     private $database;
+    protected $properties;
 
     public function setUp()
     {
         parent::setUp();
 
         $this->database = new Database();
+
+        $this->clearTables(false, [
+            'documents',
+            'model_properties',
+            'model_types',
+            'propertykeys',
+            'document_identifiers',
+        ]);
+
+        $this->properties = new Properties();
+    }
+
+    /**
+     * Adds a document with two properties to the database.
+     *
+     * @param array $documentProperties Associative array of document keys & values
+     */
+    private function prepareDocumentProperties($documentProperties)
+    {
+        $properties = $this->properties;
+
+        $model = Document::new();
+        $model->store();
+
+        $properties->registerType('document');
+
+        $keys = array_keys($documentProperties);
+        foreach ($keys as $key) {
+            $properties->registerKey($key);
+        }
+
+        foreach ($keys as $key) {
+            $this->assertNull($properties->getProperty($model, $key));
+        }
+
+        foreach ($documentProperties as $key => $value) {
+            $properties->setProperty($model, $key, $value);
+        }
+
+        foreach ($documentProperties as $key => $value) {
+            $this->assertEquals($value, $properties->getProperty($model, $key));
+        }
     }
 
     public function testGetConnectionParams()
@@ -77,5 +124,89 @@ class DatabaseTest extends TestCase
 
         $this->assertNotNull($conn);
         $this->assertInstanceOf(Connection::class, $conn);
+    }
+
+    public function testSuccessfulSqlInjectionWithConnectionQuerySelect()
+    {
+        $key    = 'key1';
+        $value  = 'value1';
+        $key2   = 'key2';
+        $value2 = 'value2';
+        $this->prepareDocumentProperties([$key => $value, $key2 => $value2]);
+
+        $database     = $this->database;
+        $conn         = $database->getConnection();
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $sqlInjectionQuery = '" OR ""="';
+        $keyName           = $key . $sqlInjectionQuery;
+
+        $select = $queryBuilder
+            ->select('k.name', 'p.value')
+            ->from('model_properties', 'p')
+            ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
+            ->where('k.name = "' . $keyName . '"');
+
+        $values = $conn->fetchAllKeyValue($select);
+
+        // due to successful SQL injection, $values contains both key/value pairs instead of just [$key => $value]
+        $this->assertEquals([$key => $value, $key2 => $value2], $values);
+    }
+
+    public function testUnsuccessfulSqlInjectionWithConnectionQuerySelect()
+    {
+        $key    = 'key1';
+        $value  = 'value1';
+        $key2   = 'key2';
+        $value2 = 'value2';
+        $this->prepareDocumentProperties([$key => $value, $key2 => $value2]);
+
+        $database     = $this->database;
+        $conn         = $database->getConnection();
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $sqlInjectionQuery = '" OR ""="';
+
+        $select = $queryBuilder
+            ->select('k.name', 'p.value')
+            ->from('model_properties', 'p')
+            ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
+            ->where('k.name = ?');
+
+        $values = $conn->fetchAllKeyValue($select, [$key . $sqlInjectionQuery]);
+
+        // $values is empty instead of containing [$key => $value] since k.name gets set to: "key1" OR ""=""
+        $this->assertEquals([], $values);
+
+        $this->markTestIncomplete('TODO - can we still craft a successful SQL injection?');
+    }
+
+    public function testUnsuccessfulSqlInjectionWithQueryBuilderQuerySelect()
+    {
+        $key    = 'key1';
+        $value  = 'value1';
+        $key2   = 'key2';
+        $value2 = 'value2';
+        $this->prepareDocumentProperties([$key => $value, $key2 => $value2]);
+
+        $database     = $this->database;
+        $conn         = $database->getConnection();
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $sqlInjectionQuery = '" OR ""="';
+
+        $select = $queryBuilder
+            ->select('k.name', 'p.value')
+            ->from('model_properties', 'p')
+            ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
+            ->where('k.name = ?');
+
+        $select->setParameters([$key . $sqlInjectionQuery]);
+        $values = $queryBuilder->execute()->fetchAllKeyValue();
+
+        // $values is empty instead of containing [$key => $value] since k.name gets set to: "key1" OR ""=""
+        $this->assertEquals([], $values);
+
+        $this->markTestIncomplete('TODO - can we still craft a successful SQL injection?');
     }
 }
