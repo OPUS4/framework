@@ -38,7 +38,7 @@ namespace Opus\Model2;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Opus\Db2\LanguageRepository")
  * @ORM\Table(name="languages")
  */
 class Language extends AbstractModel
@@ -110,7 +110,7 @@ class Language extends AbstractModel
     /**
      * @param int $id
      */
-    public function setId(int $id)
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -126,7 +126,7 @@ class Language extends AbstractModel
     /**
      * @param string $part2B
      */
-    public function setPart2B(string $part2B)
+    public function setPart2B($part2B)
     {
         $this->part2B = $part2B;
     }
@@ -142,7 +142,7 @@ class Language extends AbstractModel
     /**
      * @param string $part2T
      */
-    public function setPart2T(string $part2T)
+    public function setPart2T($part2T)
     {
         $this->part2T = $part2T;
     }
@@ -158,7 +158,7 @@ class Language extends AbstractModel
     /**
      * @param string $part1
      */
-    public function setPart1(string $part1)
+    public function setPart1($part1)
     {
         $this->part1 = $part1;
     }
@@ -174,7 +174,7 @@ class Language extends AbstractModel
     /**
      * @param string $scope
      */
-    public function setScope(string $scope)
+    public function setScope($scope)
     {
         $this->scope = $scope;
     }
@@ -190,7 +190,7 @@ class Language extends AbstractModel
     /**
      * @param string $type
      */
-    public function setType(string $type)
+    public function setType($type)
     {
         $this->type = $type;
     }
@@ -206,7 +206,7 @@ class Language extends AbstractModel
     /**
      * @param string $refName
      */
-    public function setRefName(string $refName)
+    public function setRefName($refName)
     {
         $this->refName = $refName;
     }
@@ -222,7 +222,7 @@ class Language extends AbstractModel
     /**
      * @param string $comment
      */
-    public function setComment(string $comment)
+    public function setComment($comment)
     {
         $this->comment = $comment;
     }
@@ -238,8 +238,160 @@ class Language extends AbstractModel
     /**
      * @param int $active
      */
-    public function setActive(int $active)
+    public function setActive($active)
     {
         $this->active = $active;
+    }
+
+    /**
+     * Returns reference language name.
+     *
+     * @return string
+     */
+    public function getDisplayName()
+    {
+        return $this->getRefName();
+    }
+
+    /**
+     * Retrieve all Opus\Language instances from the database.
+     *
+     * @return array Array of Opus\Language objects.
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getAll()
+    {
+        return self::getRepository()->getAll();
+    }
+
+    /**
+     * Get all active languages.
+     *
+     * @return array Array of Opus\Language objects which are active.
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getAllActive()
+    {
+        return self::getRepository()->getAllActive();
+    }
+
+    /**
+     * Get all active languages.
+     *
+     * @return array Array of Opus\Language objects which are active.
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getAllActiveTable()
+    {
+        return self::getRepository()->getAllActiveTable();
+    }
+
+    /**
+     * Get properties of language object as array for a specific terminology code
+     *
+     * @param string $code ISO639-2 terminology code to retrieve properties for
+     * @return array|null Array of properties or null if object not found in database
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getPropertiesByPart2T($code)
+    {
+        return self::getRepository()->getPropertiesByPart2T($code);
+    }
+
+    /**
+     * Returns part2_t language code for locale (part1 code).
+     *
+     * @param string $locale
+     * @return null|string
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getPart2tForPart1($locale)
+    {
+        return self::getRepository()->getPart2tForPart1($locale);
+    }
+
+    /**
+     * Returns language code for internal language identifier.
+     *
+     * @param string $language Internal language identifier (e.g. 'deu')
+     * @param null $part string Field to use for language code
+     * @return string Language code
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getLanguageCode($language, $part = null)
+    {
+        return self::getRepository()->getLanguageCode($language, $part);
+    }
+
+    /**
+     * Checks if a language is being used in database.
+     *
+     * @return mixed
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function isUsed()
+    {
+        return self::getRepository()->isUsed($this->getPart2T());
+    }
+
+    /**
+     * Returns all languages used in database.
+     * @return mixed
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function getUsedLanguages()
+    {
+        return self::getRepository()->getUsedLanguages();
+    }
+
+    /**
+     * Removes cached values.
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public static function clearCache()
+    {
+        self::getRepository()->clearCache();
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'Comment' => $this->getComment(),
+            'Part2B'  => $this->getPart2B(),
+            'Part2T'  => $this->getPart2T(),
+            'Part1'   => $this->getPart1(),
+            'Scope'   => $this->getScope(),
+            'Type'    => $this->getType(),
+            'RefName' => $this->getRefName(),
+            'Active'  => $this->getActive(),
+        ];
+    }
+
+    /**
+     * @param array $data
+     */
+    public function updateFromArray($data)
+    {
+        $this->setComment($data['Comment']);
+        $this->setPart2B($data['Part2B']);
+        $this->setPart2T($data['Part2T']);
+        $this->setPart1($data['Part1']);
+        $this->setScope($data['Scope']);
+        $this->setType($data['Type']);
+        $this->setRefName($data['RefName']);
+        $this->setActive($data['Active']);
+    }
+
+    /**
+     * @param array $data
+     */
+    public static function fromArray($data)
+    {
+        $lang = new Language();
+        $lang->updateFromArray($data);
+        return $lang;
     }
 }

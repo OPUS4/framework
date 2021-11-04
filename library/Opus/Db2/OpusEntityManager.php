@@ -33,61 +33,91 @@
  * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-namespace Opus\Model2;
+namespace Opus\Db2;
 
-use Opus\Db2\OpusEntityManager;
 use Opus\Model\ModelException;
+use Opus\Model2\AbstractModel;
 
-abstract class AbstractModel
+use function get_class;
+
+class OpusEntityManager
 {
-    private static $entityManager;
-    private static $repository;
-
-    /**
-     * @return OpusEntityManager
-     */
-    protected static function getEntityManager()
-    {
-        if (self::$entityManager === null) {
-            self::$entityManager = new OpusEntityManager();
-        }
-        return self::$entityManager;
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityRepository|\Doctrine\Persistence\ObjectRepository
-     * @throws \Doctrine\ORM\ORMException
-     */
-    protected static function getRepository()
-    {
-        if (self::$repository === null) {
-            self::$repository = self::getEntityManager()->getRepository(static::class);
-        }
-        return self::$repository;
-    }
-
-    /** @return int */
-    abstract public function getId();
 
     /**
      * Persist all the models information to its database locations.
-     * @return mixed
+     * @param AbstractModel $entity
+     * @return int
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function store()
+    public function store($entity)
     {
-        return $this->getEntityManager()->store($this);
+        // TODO: pre store?
+
+        $entityManager = Database::getEntityManager();
+
+        $entityManager->beginTransaction();
+
+        // store internal and external fields
+        try {
+            $entityManager->persist($entity);
+            $entityManager->flush();
+        } catch (Exception $e) {
+            $entityManager->rollback();
+            throw $e;
+        }
+
+        // commit transaction
+        $entityManager->commit();
+
+        // TODO: post store?
+
+        return $entity->getId();
     }
 
     /**
      * Remove the model instance from the database.
+     * @param AbstractModel $entity
      * @throws ModelException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function delete()
+    public function delete($entity)
     {
-        return $this->getEntityManager()->delete($this);
+        $modelId = $entity->getId();
+
+        // if no primary key is set the model has
+        // not been stored yet, so delete gets skipped
+        // therefore postDelete of plugins does not get called either
+        if (null === $modelId) {
+            return;
+        }
+
+        // TODO: pre delete?
+
+        $entityManager = Database::getEntityManager();
+
+        // Start transaction
+        $entityManager->beginTransaction();
+        try {
+            $entityManager->remove($entity);
+            $entityManager->flush();
+            $entityManager->commit();
+        } catch (Exception $e) {
+            $entityManager->rollback();
+            $msg = $e->getMessage() . ' Model: ' . get_class($entity);
+            throw new ModelException($msg);
+        }
+
+        // TODO: post delete?
+    }
+
+    /**
+     * @param string $entityName
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function getRepository($entityName)
+    {
+        return Database::getEntityManager()->getRepository($entityName);
     }
 }

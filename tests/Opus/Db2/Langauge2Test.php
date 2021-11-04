@@ -35,24 +35,18 @@
 
 namespace OpusTest\Db2;
 
-use Doctrine\ORM\Exception\MissingIdentifierField;
-use Exception;
 use Opus\Db2\Database;
 use Opus\Model2\Language;
 use OpusTest\TestAsset\TestCase;
 
-use function get_class;
-
 class Language2Test extends TestCase
 {
-    private $database;
-
     public function setUp()
     {
         parent::setUp();
 
         $this->clearTables(false, [
-            'languages',
+           // 'languages',
             'documents',
             'document_subjects',
             'document_files',
@@ -60,6 +54,9 @@ class Language2Test extends TestCase
             'document_licences',
             'link_documents_licences',
         ]);
+
+        $entityManager = Database::getEntityManager();
+        $entityManager->clear();
     }
 
     public function testStoreLanguage()
@@ -71,6 +68,8 @@ class Language2Test extends TestCase
         $lang->setRefName('German');
         $lang->setComment('test comment');
         $lang->store();
+
+        $lang->extract($lang);
 
         $entityManager = Database::getEntityManager();
         $lang2         = $entityManager->find(Language::class, $lang->getId());
@@ -94,18 +93,16 @@ class Language2Test extends TestCase
         $lang->setPart1('de');
         $lang->setRefName('German');
         $lang->setComment('test delete comment');
+
         $lang->store();
         $id = $lang->getId();
+
         $lang->delete();
 
-        $entityManager = Database::getEntityManager();
-        try {
-            $exceptionClass = null;
-            $entityManager->find(Language::class, $lang->getId());
-        } catch (Exception $e) {
-            $exceptionClass = get_class($e);
-        }
+        $languageRepository = Database::getEntityManager()->getRepository(Language::class);
+        $lang2              = $languageRepository->find($id);
 
-        $this->assertEquals(MissingIdentifierField::class, $exceptionClass);
+        $this->assertNull($lang2);
+
     }
 }

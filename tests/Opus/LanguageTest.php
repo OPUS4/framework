@@ -37,9 +37,10 @@
 
 namespace OpusTest;
 
+use Opus\Db2\Database;
 use Opus\Document;
 use Opus\File;
-use Opus\Language;
+use Opus\Model2\Language;
 use Opus\Licence;
 use Opus\Model\DbException;
 use OpusTest\TestAsset\TestCase;
@@ -61,6 +62,10 @@ class LanguageTest extends TestCase
             'document_licences',
             'link_documents_licences',
         ]);
+
+        // We also need to clear the entity manager after clearing the tables.
+        $entityManager = Database::getEntityManager();
+        $entityManager->clear();
     }
 
     public function testStoreLanguage()
@@ -73,7 +78,9 @@ class LanguageTest extends TestCase
         $lang->setComment('test comment');
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertNotNull($lang);
         $this->assertEquals('ger', $lang->getPart2B());
@@ -148,7 +155,9 @@ class LanguageTest extends TestCase
         $lang->setScope('I');
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertEquals('I', $lang->getScope());
     }
@@ -161,7 +170,9 @@ class LanguageTest extends TestCase
         $lang->setScope(null);
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertNull($lang->getScope());
     }
@@ -184,7 +195,9 @@ class LanguageTest extends TestCase
             $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
         }
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertEquals('', $lang->getScope());
     }
@@ -197,7 +210,9 @@ class LanguageTest extends TestCase
         $lang->setType('H');
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertEquals('H', $lang->getType());
     }
@@ -210,7 +225,9 @@ class LanguageTest extends TestCase
         $lang->setType(null);
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertNull($lang->getType());
     }
@@ -233,7 +250,9 @@ class LanguageTest extends TestCase
             $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
         }
 
-        $lang = new Language($lang->getId());
+        //$lang = new Language($lang->getId());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $this->assertEquals('', $lang->getType());
     }
@@ -271,7 +290,10 @@ class LanguageTest extends TestCase
         $lang->setScope('I');
         $lang->setComment('Deutsche Sprache');
 
-        $lang = new Language($lang->store());
+        //$lang = new Language($lang->store());
+        // With Doctrine ORM we can not get an entity from the database via the constructor.
+        $lang->store();
+        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
 
         $data = $lang->toArray();
 
