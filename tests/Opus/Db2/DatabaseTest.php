@@ -140,6 +140,7 @@ class DatabaseTest extends TestCase
 
         $sqlInjection = '\'key1\'; DELETE FROM propertykeys WHERE 1=1';
 
+        // uses $sqlInjection directly within the query (unquoted)
         $select = $queryBuilder
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
@@ -151,9 +152,8 @@ class DatabaseTest extends TestCase
         // query is successful and returns correct result
         $this->assertEquals([$key => $value], $values);
 
-        $properties = new Properties();
         // due to successful SQL injection all property keys and properties were deleted
-        $this->assertEmpty($properties->getKeys());
+        $this->assertEmpty($this->properties->getKeys());
     }
 
     public function testSqlInjectionWithConnectionQuerySelectProtected()
@@ -170,6 +170,7 @@ class DatabaseTest extends TestCase
 
         $sqlInjection = '\'key1\'; DELETE FROM propertykeys WHERE 1=1';
 
+        // uses $sqlInjection directly within the query but quotes the input
         $select = $queryBuilder
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
@@ -181,12 +182,11 @@ class DatabaseTest extends TestCase
         // query return empty, because no key matches injection string
         $this->assertEmpty($values);
 
-        $properties = new Properties();
-        // All property keys still exist because injection failed
-        $this->assertCount(2, $properties->getKeys());
+        // all property keys still exist because injection failed
+        $this->assertCount(2, $this->properties->getKeys());
     }
 
-    public function testUnsuccessfulSqlInjectionWithConnectionQuerySelect()
+    public function testSqlInjectionWithConnectionQuerySelectProtected2()
     {
         $key    = 'key1';
         $value  = 'value1';
@@ -198,23 +198,25 @@ class DatabaseTest extends TestCase
         $conn         = $database->getConnection();
         $queryBuilder = $conn->createQueryBuilder();
 
-        $sqlInjectionQuery = '" OR ""="';
+        $sqlInjection = '\'key1\'; DELETE FROM propertykeys WHERE 1=1';
 
+        // binds the $sqlInjection parameter to a query placeholder
         $select = $queryBuilder
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
             ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
             ->where('k.name = ?');
 
-        $values = $conn->fetchAllKeyValue($select, [$key . $sqlInjectionQuery]);
+        $values = $conn->fetchAllKeyValue($select, [$sqlInjection]);
 
-        // $values is empty instead of containing [$key => $value] since k.name gets set to: "key1" OR ""=""
-        $this->assertEquals([], $values);
+        // query return empty, because no key matches injection string
+        $this->assertEmpty($values);
 
-        $this->markTestIncomplete('TODO - can we still craft a successful SQL injection?');
+        // all property keys still exist because injection failed
+        $this->assertCount(2, $this->properties->getKeys());
     }
 
-    public function testUnsuccessfulSqlInjectionWithQueryBuilderQuerySelect()
+    public function testSqlInjectionWithQueryBuilderQuerySelectProtected()
     {
         $key    = 'key1';
         $value  = 'value1';
@@ -226,20 +228,22 @@ class DatabaseTest extends TestCase
         $conn         = $database->getConnection();
         $queryBuilder = $conn->createQueryBuilder();
 
-        $sqlInjectionQuery = '" OR ""="';
+        $sqlInjection = '\'key1\'; DELETE FROM propertykeys WHERE 1=1';
 
+        // uses setParameters() to bind the $sqlInjection parameter to a query placeholder
         $select = $queryBuilder
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
             ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
             ->where('k.name = ?');
 
-        $select->setParameters([$key . $sqlInjectionQuery]);
+        $select->setParameters([$sqlInjection]);
         $values = $queryBuilder->execute()->fetchAllKeyValue();
 
-        // $values is empty instead of containing [$key => $value] since k.name gets set to: "key1" OR ""=""
-        $this->assertEquals([], $values);
+        // query return empty, because no key matches injection string
+        $this->assertEmpty($values);
 
-        $this->markTestIncomplete('TODO - can we still craft a successful SQL injection?');
+        // all property keys still exist because injection failed
+        $this->assertCount(2, $this->properties->getKeys());
     }
 }
