@@ -95,7 +95,7 @@ class AbstractPluginMock extends AbstractPlugin
     }
 
     /**
-     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
+     * @param int $modelId
      */
     public function postDelete($modelId)
     {

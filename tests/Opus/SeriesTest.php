@@ -167,8 +167,9 @@ class SeriesTest extends TestCase
         $series->delete();
     }
 
-    // "CRUD-completness tests on Opus\Series"
-
+    /**
+     * "CRUD-completness tests on Opus\Series"
+     */
     public function testCreateSeriesWithoutTitle()
     {
         $s = new Series();
@@ -216,8 +217,9 @@ class SeriesTest extends TestCase
         $s = new Series($id);
     }
 
-    // Tests in conjunction with class Opus\Model\Dependent\Link\DocumentSeries
-
+    /**
+     * Tests in conjunction with class Opus\Model\Dependent\Link\DocumentSeries
+     */
     public function testAssignDocumentToSeriesTwice()
     {
         $s = new Series();

@@ -46,8 +46,10 @@ use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Identifier;
 use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
+use Zend_Exception;
 
 use function count;
 use function sleep;
@@ -467,11 +469,11 @@ class IdentifierTest extends TestCase
     }
 
     /**
-     * @param int $docId
+     * @param int    $docId
      * @param string $value
-     * @param bool $isLocal
-     * @throws \Opus\Model\ModelException
-     * @throws \Zend_Exception
+     * @param bool   $isLocal
+     * @throws ModelException
+     * @throws Zend_Exception
      */
     private function assertDoi($docId, $value, $isLocal)
     {
@@ -487,9 +489,9 @@ class IdentifierTest extends TestCase
 
     /**
      * @param string $value
-     * @param bool $store
-     * @return array|mixed|Document|string
-     * @throws \Opus\Model\ModelException
+     * @param bool   $store
+     * @return array|Document|string
+     * @throws ModelException
      */
     private function createTestDocumentWithDoi($value, $store = true)
     {

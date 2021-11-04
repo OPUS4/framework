@@ -63,7 +63,7 @@ use function strtotime;
  */
 class DateTest extends TestCase
 {
-    protected $locale_backup;
+    protected $localeBackup;
 
     /**
      * Prepare german locale setup.

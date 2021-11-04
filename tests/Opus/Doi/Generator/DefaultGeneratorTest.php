@@ -246,6 +246,9 @@ class DefaultGeneratorTest extends TestCase
         $generator->getPrefix();
     }
 
+    /**
+     * @param Zend_Config $doiConfig
+     */
     private function adaptDoiConfiguration($doiConfig)
     {
         Config::get()->merge(new Zend_Config(['doi' => $doiConfig]));

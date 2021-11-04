@@ -35,6 +35,7 @@
 
 namespace OpusTest\TestAsset;
 
+use Doctrine\DBAL\Exception;
 use DOMDocument;
 use DOMXPath;
 use Opus\Config;
@@ -53,7 +54,7 @@ use const DIRECTORY_SEPARATOR;
  *
  * @category Tests
  */
-class TestCase extends SimpleTestCase
+class TestCase extends AbstractSimpleTestCase
 {
     private $tables;
 
@@ -62,6 +63,10 @@ class TestCase extends SimpleTestCase
         $this->clearTables(true);
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     protected function getTables()
     {
         if ($this->tables === null) {
@@ -82,6 +87,9 @@ class TestCase extends SimpleTestCase
 
     /**
      * Empty all listed tables.
+     *
+     * @param bool          $always Should tables be cleared even if empty
+     * @param null|string[] $tables Names of tables for clearing
      */
     protected function clearTables($always = false, $tables = null)
     {
@@ -109,6 +117,7 @@ class TestCase extends SimpleTestCase
      * a table.  Check, if the table is really empty.
      *
      * @param string $tablename Name of the table to be cleared.
+     * @param bool   $always Should table be cleared even if empty
      */
     protected function clearTable($tablename, $always = false)
     {
@@ -131,7 +140,7 @@ class TestCase extends SimpleTestCase
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
      *
-     * @param null $directory
+     * @param null|string $directory
      */
     protected function clearFiles($directory = null)
     {
@@ -172,6 +181,10 @@ class TestCase extends SimpleTestCase
         parent::setUp();
     }
 
+    /**
+     * @param string $resultString
+     * @return DOMXPath
+     */
     protected function prepareXpathFromResultString($resultString)
     {
         $domDocument = new DOMDocument();

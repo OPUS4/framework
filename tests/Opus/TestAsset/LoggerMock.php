@@ -37,20 +37,26 @@ namespace OpusTest\TestAsset;
 
 class LoggerMock
 {
-    private $_messages = [];
+    private $messages = [];
 
+    /**
+     * @param string $message
+     */
     public function err($message)
     {
-        $this->_messages[] = $message;
+        $this->messages[] = $message;
     }
 
     public function clear()
     {
-        $this->_messages = [];
+        $this->messages = [];
     }
 
+    /**
+     * @return string[]
+     */
     public function getMessages()
     {
-        return $this->_messages;
+        return $this->messages;
     }
 }

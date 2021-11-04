@@ -44,6 +44,7 @@ use Opus\File;
 use Opus\HashValues;
 use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
+use Opus\Util\File as FileUtil;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -76,9 +77,9 @@ use const DIRECTORY_SEPARATOR;
  */
 class FileTest extends TestCase
 {
-    protected $_src_path = '';
+    protected $srcPath = '';
 
-    protected $_dest_path = '';
+    protected $destPath = '';
 
     /**
      * Clear test tables and establish directories
@@ -91,15 +92,15 @@ class FileTest extends TestCase
         $config = Config::get();
         $path   = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
-        $this->_src_path = $path . DIRECTORY_SEPARATOR . 'src';
-        mkdir($this->_src_path, 0777, true);
+        $this->srcPath = $path . DIRECTORY_SEPARATOR . 'src';
+        mkdir($this->srcPath, 0777, true);
 
-        $this->_dest_path = $path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
-        mkdir($this->_dest_path, 0777, true);
-        mkdir($this->_dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
+        $this->destPath = $path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
+        mkdir($this->destPath, 0777, true);
+        mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
         $config->merge(new Zend_Config([
-            'workspacePath' => $this->_dest_path,
+            'workspacePath' => $this->destPath,
             'checksum'      => [
                 'maxVerificationSize' => 1,
             ],
@@ -113,8 +114,8 @@ class FileTest extends TestCase
      */
     public function tearDown()
     {
-        \Opus\Util\File::deleteDirectory($this->_src_path);
-        \Opus\Util\File::deleteDirectory($this->_dest_path);
+        FileUtil::deleteDirectory($this->srcPath);
+        FileUtil::deleteDirectory($this->destPath);
 
         parent::tearDown();
     }
@@ -123,9 +124,9 @@ class FileTest extends TestCase
      * @param string $filename
      * @return Document
      */
-    private function _createDocumentWithFile($filename)
+    private function createDocumentWithFile($filename)
     {
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
         touch($filepath);
 
         $doc  = new Document();
@@ -178,7 +179,7 @@ class FileTest extends TestCase
      */
     public function testFilesStoreDependent()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
@@ -211,13 +212,13 @@ class FileTest extends TestCase
      */
     public function testFilesTemporaryAbsoluteSource()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $file->setTempFile($this->_src_path . DIRECTORY_SEPARATOR . 'foobar.pdf');
+        $file->setTempFile($this->srcPath . DIRECTORY_SEPARATOR . 'foobar.pdf');
         $id = $doc->store();
 
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has not been copied.'
         );
     }
@@ -227,11 +228,11 @@ class FileTest extends TestCase
      */
     public function testFilesTemporaryRelativeSource()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
-        $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
+        $expectedPath = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -242,11 +243,11 @@ class FileTest extends TestCase
      */
     public function testFilesExistsAfterDelete()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
-        $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
+        $expectedPath = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -260,11 +261,11 @@ class FileTest extends TestCase
      */
     public function testDoDeleteReallyDeletesFileAndWorkingDirectory()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
-        $workingDir   = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id;
+        $workingDir   = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id;
         $expectedPath = $workingDir . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
 
         $this->assertFileExists($expectedPath, 'File has not been copied.');
@@ -287,7 +288,7 @@ class FileTest extends TestCase
      */
     public function testDeleteCallReturnsDeletionTokenAndNotActuallyRemovesAFile()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
@@ -295,7 +296,7 @@ class FileTest extends TestCase
 
         $this->assertNotNull($token, 'No deletion token returned.');
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has been deleted.'
         );
     }
@@ -305,7 +306,7 @@ class FileTest extends TestCase
      */
     public function testFileGetsDeletedThroughDocumentModel()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
@@ -315,13 +316,13 @@ class FileTest extends TestCase
 
         $doc->setFile(null);
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has been deleted before the model has been stored.'
         );
 
         $doc->store();
         $this->assertFileNotExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has not been deleted after storing the model.'
         );
     }
@@ -336,12 +337,12 @@ class FileTest extends TestCase
 
         $file = new File();
         $this->assertEquals(
-            $this->_src_path,
+            $this->srcPath,
             realpath($file->getSourcePath()),
             'Wrong source path loaded from configuration.'
         );
         $this->assertEquals(
-            $this->_dest_path,
+            $this->destPath,
             realpath($file->getDestinationPath()),
             'Wrong destination path loaded from configuration.'
         );
@@ -353,7 +354,7 @@ class FileTest extends TestCase
      */
     public function testMimeTypeIsSetAfterStore()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
@@ -377,7 +378,7 @@ class FileTest extends TestCase
         $fileNameWrong   = 'wrongName.pdf';
         $fileNameCorrect = 'correctName.pdf';
 
-        $doc   = $this->_createDocumentWithFile($fileNameWrong);
+        $doc   = $this->createDocumentWithFile($fileNameWrong);
         $file  = $doc->getFile(0);
         $docId = $doc->store();
 
@@ -386,7 +387,7 @@ class FileTest extends TestCase
         $file->setPathName($fileNameCorrect);
         $doc->store();
 
-        $path = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
+        $path = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
         $this->assertFileExists(
             $path . $fileNameCorrect,
             'Expecting file renamed properly.'
@@ -404,7 +405,7 @@ class FileTest extends TestCase
         $fileNameWrong   = 'wrongName.pdf';
         $fileNameCorrect = 'correctName.pdf';
 
-        $doc   = $this->_createDocumentWithFile($fileNameWrong);
+        $doc   = $this->createDocumentWithFile($fileNameWrong);
         $file  = $doc->getFile(0);
         $docId = $doc->store();
 
@@ -428,7 +429,7 @@ class FileTest extends TestCase
 
     public function testUpdateFileObjectDoesNotDeleteStoredFile()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $id   = $doc->store();
 
@@ -441,7 +442,7 @@ class FileTest extends TestCase
         $doc->store();
 
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File should not be deleted.'
         );
     }
@@ -453,10 +454,10 @@ class FileTest extends TestCase
     public function testFileSizeIsSetAfterStore()
     {
         // Create zero file.
-        $filename = $this->_src_path . DIRECTORY_SEPARATOR . 'foobar.txt';
+        $filename = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar.txt';
         touch($filename);
 
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
@@ -467,11 +468,11 @@ class FileTest extends TestCase
         );
 
         // Create random-sized file.
-        $filename_nonzero = $this->_src_path . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
-        $fh               = fopen($filename_nonzero, 'w');
+        $filenameNonZero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
+        $fh              = fopen($filenameNonZero, 'w');
 
-        if ($fh===false) {
-            $this->fail("Unable to write file $filename_nonzero.");
+        if ($fh === false) {
+            $this->fail("Unable to write file $filenameNonZero.");
         }
 
         $rand = rand(1, 100);
@@ -484,7 +485,7 @@ class FileTest extends TestCase
         $doc  = new Document();
         $file = $doc->addFile();
 
-        $file->setTempFile($filename_nonzero);
+        $file->setTempFile($filenameNonZero);
         $file->setPathName('copied-foobar-nonzero.txt');
 
         $doc->store();
@@ -505,16 +506,16 @@ class FileTest extends TestCase
      */
     public function testHashValueOfEmptyFileAfterStore()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
-        $actual_hash   = $file->getRealHash('md5');
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
-        $this->assertEquals($expected_hash, $actual_hash);
+        $actualHash   = $file->getRealHash('md5');
+        $expectedHash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertEquals($expectedHash, $actualHash);
 
         $this->assertTrue($file->canVerify());
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
     }
 
@@ -523,17 +524,17 @@ class FileTest extends TestCase
      */
     public function testHashValueOfModifiedFileAfterStore()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $expectedHash = 'd41d8cd98f00b204e9800998ecf8427e';
         $this->assertTrue($file->canVerify());
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
 
         $fh = fopen($file->getPath(), 'w');
-        if ($fh===false) {
+        if ($fh === false) {
             $this->fail("Unable to write file " . $file->getPath());
         }
 
@@ -543,23 +544,23 @@ class FileTest extends TestCase
         // need new object because Opus\File caches calculated hash values
         $file = new File($file->getId());
 
-        $this->assertFalse($file->verify('md5', $expected_hash));
+        $this->assertFalse($file->verify('md5', $expectedHash));
         $this->assertFalse($file->verifyAll());
     }
 
     public function testHashValueCachedOnceCalculated()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $expectedHash = 'd41d8cd98f00b204e9800998ecf8427e';
         $this->assertTrue($file->canVerify());
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
 
         $fh = fopen($file->getPath(), 'w');
-        if ($fh===false) {
+        if ($fh === false) {
             $this->fail("Unable to write file " . $file->getPath());
         }
 
@@ -567,7 +568,7 @@ class FileTest extends TestCase
         fclose($fh);
 
         // file has been changed, but it is still the same Opus\File object and values have been cached
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
     }
 
@@ -579,12 +580,12 @@ class FileTest extends TestCase
      */
     public function testInvalidHashAlgorithmAfterStore()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
         $this->setExpectedException('Exception'); // TODO broken for PHPunit 3.6
-        $actual_hash = $file->getRealHash('md23');
+        $file->getRealHash('md23');
     }
 
     /**
@@ -593,26 +594,26 @@ class FileTest extends TestCase
     public function testDisabledVerifyInConfig()
     {
         Config::get()->merge(new Zend_Config([
-            'workspacePath' => $this->_dest_path,
+            'workspacePath' => $this->destPath,
             'checksum'      => [
                 'maxVerificationSize' => 0,
             ],
         ]));
 
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
         $this->assertFalse($file->canVerify());
 
         Config::get()->merge(new Zend_Config([
-            'workspacePath' => $this->_dest_path,
+            'workspacePath' => $this->destPath,
             'checksum'      => [
                 'maxVerificationSize' => -1,
             ],
         ]));
 
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
@@ -624,7 +625,7 @@ class FileTest extends TestCase
      */
     public function testFileExists()
     {
-        $doc  = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
         $fileId = $doc->getFile(0)->getId();
@@ -639,7 +640,7 @@ class FileTest extends TestCase
     public function testAddFilesTwiceDoesNotOverwrite()
     {
         $filename = 'foobar.pdf';
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
         touch($filepath);
 
         $doc = new Document();
@@ -673,7 +674,7 @@ class FileTest extends TestCase
         $this->assertNotNull($doc->getId());
 
         $filename = "foobar.pdf";
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
         touch($filepath);
 
         $file = $doc->addFile();
@@ -692,7 +693,7 @@ class FileTest extends TestCase
     public function testInvalidateDocumentCache()
     {
         $filename = "foobar.pdf";
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
 
         touch($filepath);
 
@@ -825,6 +826,11 @@ class FileTest extends TestCase
         $this->assertEquals($files[0]->getSortOrder(), 1);
     }
 
+    /**
+     * @param string $filename
+     * @return string
+     * @throws Exception
+     */
     private function createTestFile($filename)
     {
         $config = Config::get();
@@ -889,8 +895,7 @@ class FileTest extends TestCase
         $files = $doc->getFile();
         $file  = $files[0];
 
-        if ($file->getVisibleInOai()) {
-        } else {
+        if (! $file->getVisibleInOai()) {
             $this->fail('Did not recognize value true.');
         }
 

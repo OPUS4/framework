@@ -48,7 +48,7 @@ use function is_callable;
  *
  * TODO needs refactoring
  */
-abstract class SimpleTestCase extends PHPUnit_Framework_TestCase
+abstract class AbstractSimpleTestCase extends PHPUnit_Framework_TestCase
 {
     private $configBackup;
 

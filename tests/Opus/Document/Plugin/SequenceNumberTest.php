@@ -153,8 +153,8 @@ class SequenceNumberTest extends TestCase
 
         // create ID in first run
         $plugin->postStoreInternal($model);
-        $identifiers  = $model->getIdentifier();
-        $id_first_run = $identifiers[0]->getValue();
+        $identifiers = $model->getIdentifier();
+        $idFirstRun  = $identifiers[0]->getValue();
 
         // check IDs after second run
         $plugin->postStoreInternal($model);
@@ -166,7 +166,7 @@ class SequenceNumberTest extends TestCase
             'List of identifiers should contain only one new identifier.'
         );
         $this->assertEquals(
-            $id_first_run,
+            $idFirstRun,
             $identifiers[0]->getValue(),
             'The one-and-only identifiers should not change.'
         );
@@ -174,12 +174,12 @@ class SequenceNumberTest extends TestCase
 
     public function testGenerateIdOnPublishedDocumentWithExistingSequence()
     {
-        $existing_model = new Document();
-        $existing_model->setServerState('published');
-        $existing_model->addIdentifier()
+        $existingModel = new Document();
+        $existingModel->setServerState('published');
+        $existingModel->addIdentifier()
                 ->setType('serial')
                 ->setValue(10);
-        $existing_model->store();
+        $existingModel->store();
 
         $model = new Document();
         $model->setServerState('published');
@@ -206,6 +206,6 @@ class SequenceNumberTest extends TestCase
         );
         $this->assertEquals(11, $identifiers[0]->getValue());
 
-        $existing_model->delete();
+        $existingModel->delete();
     }
 }

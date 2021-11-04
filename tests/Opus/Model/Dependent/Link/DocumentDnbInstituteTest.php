@@ -43,7 +43,6 @@ use OpusTest\TestAsset\TestCase;
 
 class DocumentDnbInstituteTest extends TestCase
 {
-
     public function testRoleFieldNoSetAccess()
     {
         $institute = new DocumentDnbInstitute();

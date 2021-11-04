@@ -76,11 +76,17 @@ class AbstractModelMock extends AbstractModel
         return $this->_mockDisplayName;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid()
     {
         return $this->mockValid;
     }
 
+    /**
+     * @param bool $valid
+     */
     public function setValid($valid)
     {
         $this->mockValid = $valid;
