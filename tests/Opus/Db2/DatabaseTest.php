@@ -39,6 +39,7 @@ use Doctrine\DBAL\Connection;
 use Opus\Db2\Database;
 use Opus\Db2\Properties;
 use Opus\Document;
+use Opus\Model\UnknownModelTypeException;
 use OpusTest\TestAsset\TestCase;
 
 use function array_keys;
@@ -245,5 +246,65 @@ class DatabaseTest extends TestCase
 
         // all property keys still exist because injection failed
         $this->assertCount(2, $this->properties->getKeys());
+    }
+
+    public function testSqlInjectionWithConnectionQueryInsert()
+    {
+        $properties = $this->properties;
+        $types      = $properties->getTypes();
+
+        $type = 'document';
+        $this->assertNotContains($type, $types);
+
+        // attempt to insert type (where the type includes the SQL injection string)
+        $sqlInjection = '\'document\'; DELETE FROM model_types WHERE 1=1';
+        $properties->registerType($sqlInjection);
+
+        $types = $properties->getTypes();
+
+        $this->assertCount(1, $types);
+
+        $this->markTestIncomplete('TODO - should Properties->registerType() attempt to remove any SQL injections?');
+
+        // proper type insertion failed because the injection string got inserted as type instead
+        $this->assertContains($type, $types);
+    }
+
+    public function testSqlInjectionWithConnectionQueryDelete()
+    {
+        $type   = 'document';
+        $key    = 'key1';
+        $value  = 'value1';
+        $key2   = 'key2';
+        $value2 = 'value2';
+        $this->prepareDocumentProperties([$key => $value, $key2 => $value2]);
+
+        $properties = $this->properties;
+        $types      = $properties->getTypes();
+        $keys       = $properties->getKeys();
+
+        $this->assertContains($type, $types);
+
+        $this->assertCount(2, $keys);
+        $this->assertContains($key, $keys);
+        $this->assertContains($key2, $keys);
+
+        // attempt to remove registered type (where the type includes the SQL injection string)
+        $sqlInjection = '\'document\'; DELETE FROM propertykeys WHERE 1=1';
+        try {
+            $properties->unregisterType($sqlInjection);
+        } catch (UnknownModelTypeException $e) {
+        }
+
+        $types = $properties->getTypes();
+        $keys  = $properties->getKeys();
+
+        // all property keys still exist because injection failed
+        $this->assertCount(2, $keys);
+
+        $this->markTestIncomplete('TODO - should Properties->unregisterType() attempt to remove any SQL injections?');
+
+        // type removal failed because no type matches the injection string
+        $this->assertNotContains($type, $types);
     }
 }
