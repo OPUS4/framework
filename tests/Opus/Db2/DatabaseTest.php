@@ -126,7 +126,7 @@ class DatabaseTest extends TestCase
         $this->assertInstanceOf(Connection::class, $conn);
     }
 
-    public function testSuccessfulSqlInjectionWithConnectionQuerySelect()
+    public function testSqlInjectionWithConnectionQuerySelectSuccessful()
     {
         $key    = 'key1';
         $value  = 'value1';
@@ -138,19 +138,52 @@ class DatabaseTest extends TestCase
         $conn         = $database->getConnection();
         $queryBuilder = $conn->createQueryBuilder();
 
-        $sqlInjectionQuery = '" OR ""="';
-        $keyName           = $key . $sqlInjectionQuery;
+        $sqlInjection = '\'key1\'; DELETE FROM propertykeys WHERE 1=1';
 
         $select = $queryBuilder
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
             ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
-            ->where('k.name = "' . $keyName . '"');
+            ->where('k.name = ' . $sqlInjection);
 
         $values = $conn->fetchAllKeyValue($select);
 
-        // due to successful SQL injection, $values contains both key/value pairs instead of just [$key => $value]
-        $this->assertEquals([$key => $value, $key2 => $value2], $values);
+        // query is successful and returns correct result
+        $this->assertEquals([$key => $value], $values);
+
+        $properties = new Properties();
+        // due to successful SQL injection all property keys and properties were deleted
+        $this->assertEmpty($properties->getKeys());
+    }
+
+    public function testSqlInjectionWithConnectionQuerySelectProtected()
+    {
+        $key    = 'key1';
+        $value  = 'value1';
+        $key2   = 'key2';
+        $value2 = 'value2';
+        $this->prepareDocumentProperties([$key => $value, $key2 => $value2]);
+
+        $database     = $this->database;
+        $conn         = $database->getConnection();
+        $queryBuilder = $conn->createQueryBuilder();
+
+        $sqlInjection = '\'key1\'; DELETE FROM propertykeys WHERE 1=1';
+
+        $select = $queryBuilder
+            ->select('k.name', 'p.value')
+            ->from('model_properties', 'p')
+            ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
+            ->where('k.name = ' . $conn->quote($sqlInjection));
+
+        $values = $conn->fetchAllKeyValue($select);
+
+        // query return empty, because no key matches injection string
+        $this->assertEmpty($values);
+
+        $properties = new Properties();
+        // All property keys still exist because injection failed
+        $this->assertCount(2, $properties->getKeys());
     }
 
     public function testUnsuccessfulSqlInjectionWithConnectionQuerySelect()
