@@ -34,7 +34,7 @@
 
 namespace OpusTest\Translate;
 
-use Opus\Db2\Translations;
+use Opus\Translate\Dao;
 use Opus\Translate\TranslateException;
 use OpusTest\TestAsset\TestCase;
 
@@ -50,7 +50,7 @@ class DaoTest extends TestCase
     {
         parent::setUp();
 
-        $this->translations = new Translations();
+        $this->translations = new Dao();
     }
 
     public function tearDown()

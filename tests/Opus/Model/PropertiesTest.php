@@ -36,7 +36,7 @@
 namespace OpusTest\Model;
 
 use InvalidArgumentException;
-use Opus\Db2\Properties;
+use Opus\Model\Properties;
 use Opus\Document;
 use Opus\Identifier;
 use Opus\Model\PropertiesException;

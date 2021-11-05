@@ -34,7 +34,7 @@
 
 namespace OpusTest\Translate;
 
-use Opus\Db2\Translations;
+use Opus\Translate\Dao;
 use Opus\Translate\DatabaseAdapter;
 use OpusTest\TestAsset\TestCase;
 use Zend_Translate;
@@ -49,7 +49,7 @@ class DatabaseAdapterTest extends TestCase
     {
         parent::setUp();
         $this->cache        = Zend_Translate::getCache();
-        $this->translations = new Translations();
+        $this->translations = new Dao();
     }
 
     public function tearDown()
