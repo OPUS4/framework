@@ -44,7 +44,7 @@ use Opus\Identifier\Urn;
 use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\ServerStateChangeListener;
+use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
 /**
  * Plugin for generating identifier urn.
@@ -53,7 +53,7 @@ use Opus\Model\Plugin\ServerStateChangeListener;
  * @package     Opus\Document_Plugin
  * @uses        \Opus\Model\Plugin\AbstractPlugin
  */
-class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListener
+class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerInterface
 {
 
     /**

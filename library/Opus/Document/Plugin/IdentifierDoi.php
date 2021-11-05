@@ -43,13 +43,13 @@ use Opus\Identifier;
 use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\ServerStateChangeListener;
+use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
 /**
  * Plugin for generating identifiers of type DOI.
  *
  */
-class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
+class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListenerInterface
 {
 
     /**
