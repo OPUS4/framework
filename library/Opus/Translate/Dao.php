@@ -51,6 +51,8 @@ use Opus\Db\TableGateway;
  * TODO merge getTranslations and getTranslationsByModule
  *      This is functionality for the management user interface. The translations are always needed with the module
  *      information.
+ *
+ * Added a change to provoke a conflict with doctrine branch to restore this file during merge.
  */
 class Dao implements StorageInterface
 {
