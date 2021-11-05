@@ -36,7 +36,6 @@
 
 namespace Opus\Translate;
 
-use Opus\Translate\Dao;
 use Zend_Locale;
 use Zend_Translate_Adapter;
 
