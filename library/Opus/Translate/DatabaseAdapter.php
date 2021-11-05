@@ -36,7 +36,7 @@
 
 namespace Opus\Translate;
 
-use Opus\Db2\Translations;
+use Opus\Translate\Dao;
 use Zend_Locale;
 use Zend_Translate_Adapter;
 
@@ -61,7 +61,7 @@ class DatabaseAdapter extends Zend_Translate_Adapter
     protected function _loadTranslationData($data, $locale, array $options = [])
     {
         // phpcs:enable
-        $database = new Translations();
+        $database = new Dao();
 
         $translations = $database->getTranslationsByLocale();
 
