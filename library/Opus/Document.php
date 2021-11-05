@@ -238,7 +238,7 @@ class Document extends AbstractDb
 
     /**
      * Zeigt an, ob der Wert von serverState verändert wurde. Nur in diesem Fall werden Plugins,
-     * die das Interface \Opus\Model\Plugin\ServerStateChangeListener implementieren, ausgeführt.
+     * die das Interface \Opus\Model\Plugin\ServerStateChangeListenerInterface implementieren, ausgeführt.
      *
      * @var bool
      */

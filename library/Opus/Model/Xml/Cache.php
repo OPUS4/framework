@@ -39,7 +39,7 @@ use Opus\Model\NotFoundException;
  *
  * TODO NAMESPACE rename class
  */
-class Cache implements \Opus\Model\Xml\XmlCacheInterface
+class Cache implements XmlCacheInterface
 {
 
     use \Opus\LoggingTrait;
@@ -202,7 +202,7 @@ class Cache implements \Opus\Model\Xml\XmlCacheInterface
      * @param \DOMDocument $xmlData
      * @return void
      */
-    public function put($documentId, $xmlVersion, $serverDateModified, \DOMDocument $xmlData)
+    public function put($documentId, $xmlVersion, $serverDateModified, $xmlData)
     {
         // skip adding cache entry if it is a valid entry already existing
         if (true === $this->hasValidEntry($documentId, $xmlVersion, $serverDateModified)) {
