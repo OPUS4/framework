@@ -46,7 +46,7 @@ use Opus\Identifier;
 use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\ServerStateChangeListener;
+use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
 use function filter_var;
 use function get_class;
@@ -58,7 +58,7 @@ use const FILTER_VALIDATE_BOOLEAN;
  *
  * phpcs:disable
  */
-class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListener
+class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListenerInterface
 {
     /**
      * was muss hier alles ausgewertet werden:
