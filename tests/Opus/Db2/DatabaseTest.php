@@ -104,12 +104,9 @@ class DatabaseTest extends TestCase
 
         $params = $database->getConnectionParams();
 
-        // var_dump($params);
-
         $this->assertNotNull($params);
 
         $this->assertArrayHasKey('adapterNamespace', $params);
-        $this->assertArrayHasKey('host', $params);
         $this->assertArrayHasKey('username', $params);
         $this->assertArrayHasKey('password', $params);
         $this->assertArrayHasKey('dbname', $params);
@@ -120,8 +117,6 @@ class DatabaseTest extends TestCase
         $database = $this->database;
 
         $conn = $database->getConnection();
-
-        // var_dump($conn);
 
         $this->assertNotNull($conn);
         $this->assertInstanceOf(Connection::class, $conn);
