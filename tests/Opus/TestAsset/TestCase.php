@@ -39,7 +39,7 @@ use Doctrine\DBAL\Exception;
 use DOMDocument;
 use DOMXPath;
 use Opus\Config;
-use Opus\Db2\Database;
+use Zend_Db_Table;
 
 use function array_diff;
 use function is_dir;
@@ -70,16 +70,9 @@ class TestCase extends AbstractSimpleTestCase
     protected function getTables()
     {
         if ($this->tables === null) {
-            $conn = Database::getConnection();
+            $conn = Zend_Db_Table::getDefaultAdapter();
 
-            $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-            $schema = $conn->getSchemaManager();
-
-            $this->tables = [];
-
-            foreach ($schema->listTables() as $table) {
-                $this->tables[] = $table->getName();
-            }
+            $this->tables = $conn->listTables();
         }
 
         return $this->tables;
@@ -93,13 +86,13 @@ class TestCase extends AbstractSimpleTestCase
      */
     protected function clearTables($always = false, $tables = null)
     {
-        // This is needed to workaround the constraints on the parent_id column.
-        $conn = Database::getConnection();
+        $conn = Zend_Db_Table::getDefaultAdapter();
 
         $this->assertNotNull($conn);
 
-        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
-        $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+        // This is needed to workaround the constraints on the parent_id column.
+        $conn->query('SET FOREIGN_KEY_CHECKS = 0;');
+        $conn->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
         if ($tables === null) {
             $tables = $this->getTables();
@@ -109,7 +102,7 @@ class TestCase extends AbstractSimpleTestCase
             self::clearTable($name, $always);
         }
 
-        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
+        $conn->query('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     /**
@@ -121,7 +114,7 @@ class TestCase extends AbstractSimpleTestCase
      */
     protected function clearTable($tablename, $always = false)
     {
-        $conn = Database::getConnection();
+        $conn = Zend_Db_Table::getDefaultAdapter();
 
         $this->assertNotNull($conn);
 
@@ -130,7 +123,7 @@ class TestCase extends AbstractSimpleTestCase
         $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
 
         if ($count > 0 || $always) {
-            $conn->executeStatement('TRUNCATE ' . $tablename);
+            $conn->query('TRUNCATE ' . $tablename);
 
             $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
             $this->assertEquals(0, $count, "Table $tablename is not empty!");
