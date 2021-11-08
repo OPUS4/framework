@@ -40,6 +40,7 @@ namespace Opus\Model;
 use BadMethodCallException;
 use DOMDocument;
 use InvalidArgumentException;
+use Opus\Db2\Properties;
 use Opus\LoggingTrait;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Xml\StrategyInterface;
