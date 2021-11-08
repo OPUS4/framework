@@ -47,7 +47,7 @@ use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 use Opus\Model\NotFoundException;
-use Opus\Model\Properties;
+use Opus\Db2\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Person;
