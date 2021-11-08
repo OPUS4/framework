@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2010-2020
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Model\Plugin;
 
+use DOMXPath;
 use Opus\CollectionRole;
 use Opus\Document;
 use Opus\Document\Plugin\XmlCache;
@@ -45,22 +48,34 @@ use Opus\Person;
 use Opus\Series;
 use OpusTest\TestAsset\TestCase;
 
+use function count;
+use function rand;
+use function sleep;
+
 /**
  * Plugin creating and deleting xml cache entries.
  *
+ * @uses        Opus\Model\Plugin\AbstractPlugin
+ *
  * @category    Framework
  * @package     Opus\Document\Plugin
- * @uses        Opus\Model\Plugin\AbstractPlugin
  */
 class InvalidateDocumentCacheTest extends TestCase
 {
-
     protected $collection;
     protected $collectionRole;
 
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+            'collections_roles',
+            'collections',
+            'link_documents_collections',
+        ]);
+
         $this->collectionRole = new CollectionRole();
         $this->collectionRole->setName("role-name-" . rand());
         $this->collectionRole->setOaiName("role-oainame-" . rand());
@@ -68,13 +83,13 @@ class InvalidateDocumentCacheTest extends TestCase
         $this->collectionRole->setVisibleBrowsingStart(1);
         $this->collectionRole->store();
         try {
-            $this->collectionRole->unregisterPlugin('Opus\Model\Plugin\InvalidateDocumentCache');
+            $this->collectionRole->unregisterPlugin(InvalidateDocumentCache::class);
         } catch (ModelException $ome) {
         }
 
         $this->collection = $this->collectionRole->addRootCollection();
         try {
-            $this->collection->unregisterPlugin('Opus\Model\Plugin\InvalidateDocumentCache');
+            $this->collection->unregisterPlugin(InvalidateDocumentCache::class);
         } catch (ModelException $ome) {
         }
         $this->collection->setName('dummy');
@@ -90,9 +105,8 @@ class InvalidateDocumentCacheTest extends TestCase
     {
         $xmlCache = new Cache();
 
-
         $docIds = [];
-        $doc1 = new Document();
+        $doc1   = new Document();
         $doc1->registerPlugin(new XmlCache());
         $docIds[] = $doc1->setType("article")
                 ->setServerState('published');
@@ -100,7 +114,6 @@ class InvalidateDocumentCacheTest extends TestCase
 //        $doc1->addLicence($licence);
         $doc1->addCollection($this->collection);
         $doc1->store();
-
 
         $this->assertTrue(
             $xmlCache->hasValidEntry(
@@ -119,7 +132,7 @@ class InvalidateDocumentCacheTest extends TestCase
 
         $author = new Person();
         try {
-            $author->unregisterPlugin('Opus\Model\Plugin\InvalidateDocumentCache');
+            $author->unregisterPlugin(InvalidateDocumentCache::class);
         } catch (ModelException $ome) {
         }
 
@@ -136,7 +149,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $this->assertTrue($domDocument->hasChildNodes(), 'cache entry consists of empty DOM document');
         $this->assertEquals(1, count($domDocument->childNodes), 'unexpected number of child nodes');
 
-        $xpath = new \DOMXpath($domDocument);
+        $xpath    = new DOMXPath($domDocument);
         $elements = $xpath->query("/Opus/Opus_Document/ServerDateModified");
         $this->assertEquals(1, count($elements), 'unexpected number of matching elements');
 
@@ -214,12 +227,11 @@ class InvalidateDocumentCacheTest extends TestCase
 
         $plugin = new InvalidateDocumentCache();
 
-
         // test dependent model
         $title = $doc3->addTitleMain();
         // unregister plugin if registered
         try {
-            $title->unregisterPlugin('Opus\Model\Plugin\InvalidateDocumentCache');
+            $title->unregisterPlugin(InvalidateDocumentCache::class);
         } catch (ModelException $ome) {
         }
         $title->setValue('Ein deutscher Titel');
@@ -247,7 +259,6 @@ class InvalidateDocumentCacheTest extends TestCase
             $doc4->getServerDateModified()
         ), 'Expected valid cache entry before title');
 
-
         $plugin->postStore($title);
 
         $this->assertTrue($xmlCache->hasValidEntry(
@@ -271,13 +282,12 @@ class InvalidateDocumentCacheTest extends TestCase
             $doc4->getServerDateModified()
         ), 'Expected valid cache entry after title');
 
-
 //        // test linked model
         //person
         $author = new Person($authorId);
         // unregister plugin if registered
         try {
-            $author->unregisterPlugin('Opus\Model\Plugin\InvalidateDocumentCache');
+            $author->unregisterPlugin(InvalidateDocumentCache::class);
         } catch (ModelException $ome) {
         }
         $author->setFirstName('Fritz');
@@ -326,9 +336,7 @@ class InvalidateDocumentCacheTest extends TestCase
             1,
             $doc4->getServerDateModified()
         ), 'Expected valid cache entry after person');
-//
         $plugin->postStore($this->collection);
-//
         $this->assertFalse($xmlCache->hasValidEntry(
             $doc1->getId(),
             1,
@@ -356,14 +364,13 @@ class InvalidateDocumentCacheTest extends TestCase
      */
     public function testSetServerDateModified()
     {
-
         $doc = new Document();
         $doc->registerPlugin(new XmlCache());
         $doc->setType("article")
                 ->setServerState('published');
 
         $doc->addCollection($this->collection);
-        $docId = $doc->store();
+        $docId              = $doc->store();
         $serverDateModified = $doc->getServerDateModified();
 
         $plugin = new InvalidateDocumentCache();
@@ -396,9 +403,9 @@ class InvalidateDocumentCacheTest extends TestCase
         $plugin->preDelete($licence);
         $docReloaded = new Document($docId);
         $this->assertTrue(
-            0 == ($docReloaded->getServerDateModified()->getZendDate()->compare(
+            0 === $docReloaded->getServerDateModified()->getZendDate()->compare(
                 $doc->getServerDateModified()->getZendDate()
-            )),
+            ),
             'Expected serverDateModified to be updated.'
         );
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -37,13 +38,10 @@ namespace Opus\Db;
 /**
  * Table gateway class for link table "link_accounts_roles".
  *
- * @category    Framework
- * @package     Opus\Db
- *
+ * phpcs:disable
  */
 class LinkDocumentsDnbInstitutes extends TableGateway
 {
-
     /**
      * DB table name.
      *
@@ -62,18 +60,18 @@ class LinkDocumentsDnbInstitutes extends TableGateway
      * Map foreign keys in this table to the column in the table they originate
      * from (i.e. the referenced table)
      *
-     * @var array $_referenceMap
+     * @var array
      */
     protected $_referenceMap = [
-        'Documents' => [
-            'columns' => 'document_id',
-            'refTableClass' => 'Opus\Db\Documents',
-            'refColumns' => 'id'
+        'Documents'     => [
+            'columns'       => 'document_id',
+            'refTableClass' => Documents::class,
+            'refColumns'    => 'id',
         ],
         'DnbInstitutes' => [
-            'columns' => 'dnb_institute_id',
-            'refTableClass' => 'Opus\Db\DnbInstitutes',
-            'refColumns' => 'id'
-        ]
+            'columns'       => 'dnb_institute_id',
+            'refTableClass' => DnbInstitutes::class,
+            'refColumns'    => 'id',
+        ],
     ];
 }

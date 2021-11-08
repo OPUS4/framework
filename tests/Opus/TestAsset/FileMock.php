@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\TestAsset;
@@ -37,28 +39,36 @@ use Opus\File;
 
 class FileMock extends File
 {
+    private $newRecord;
 
-    private $_newRecord;
+    private $fileId;
 
-    private $_fileId;
-
+    /**
+     * @param bool $newRecord
+     */
     public function __construct($newRecord = false)
     {
-        $this->_newRecord = $newRecord;
+        $this->newRecord = $newRecord;
     }
 
+    /**
+     * @return bool
+     */
     public function isNewRecord()
     {
-        return $this->_newRecord;
+        return $this->newRecord;
     }
 
     public function getId()
     {
-        $this->_fileId;
+        $this->fileId;
     }
 
+    /**
+     * @param int $fileId
+     */
     public function setId($fileId)
     {
-        $this->_fileId = $fileId;
+        $this->fileId = $fileId;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -40,10 +41,17 @@ use OpusTest\TestAsset\TestCase;
 
 class PermissionTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'user_roles',
+            'accounts',
+            'access_modules',
+            'link_accounts_roles',
+        ]);
+
         $this->setUpDatabase();
     }
 
@@ -97,7 +105,7 @@ class PermissionTest extends TestCase
 
         $account = $accounts[0];
 
-        $this->assertInstanceOf('Opus\Account', $account);
+        $this->assertInstanceOf(Account::class, $account);
         $this->assertEquals('john', $account->getLogin());
     }
 
@@ -117,7 +125,7 @@ class PermissionTest extends TestCase
         $expectedAccounts = ['john' => 'john', 'jane' => 'jane'];
 
         foreach ($accounts as $account) {
-            $this->assertInstanceOf('Opus\Account', $account);
+            $this->assertInstanceOf(Account::class, $account);
             $login = $account->getLogin();
             $this->assertContains($login, $expectedAccounts);
             unset($expectedAccounts[$login]); // every account just once

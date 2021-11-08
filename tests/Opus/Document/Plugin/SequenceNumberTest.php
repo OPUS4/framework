@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Document\Plugin
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Document\Plugin;
@@ -38,14 +40,16 @@ use Opus\Document;
 use Opus\Document\Plugin\SequenceNumber;
 use Opus\Identifier;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function count;
 
 class SequenceNumberTest extends TestCase
 {
-
     protected function setUp()
     {
         parent::setUp();
-        Config::get()->merge(new \Zend_Config([
+        Config::get()->merge(new Zend_Config([
             'sequence' => [
                 'identifier_type' => 'serial',
             ],
@@ -54,18 +58,18 @@ class SequenceNumberTest extends TestCase
 
     public function testExceptionOnInvalidModel()
     {
-        Config::set(new \Zend_Config([]));
+        Config::set(new Zend_Config([]));
 
-        $model = new Identifier();
+        $model  = new Identifier();
         $plugin = new SequenceNumber();
 
-        $this->setExpectedException('Opus\Document\DocumentException');
+        $this->setExpectedException(Document\DocumentException::class);
         $plugin->postStoreInternal($model);
     }
 
     public function testDontGenerateIdIfConfigNotSet()
     {
-        Config::set(new \Zend_Config([]));
+        Config::set(new Zend_Config([]));
 
         $model = new Document();
         $model->setServerState('published');
@@ -150,7 +154,7 @@ class SequenceNumberTest extends TestCase
         // create ID in first run
         $plugin->postStoreInternal($model);
         $identifiers = $model->getIdentifier();
-        $id_first_run = $identifiers[0]->getValue();
+        $idFirstRun  = $identifiers[0]->getValue();
 
         // check IDs after second run
         $plugin->postStoreInternal($model);
@@ -162,7 +166,7 @@ class SequenceNumberTest extends TestCase
             'List of identifiers should contain only one new identifier.'
         );
         $this->assertEquals(
-            $id_first_run,
+            $idFirstRun,
             $identifiers[0]->getValue(),
             'The one-and-only identifiers should not change.'
         );
@@ -170,12 +174,12 @@ class SequenceNumberTest extends TestCase
 
     public function testGenerateIdOnPublishedDocumentWithExistingSequence()
     {
-        $existing_model = new Document();
-        $existing_model->setServerState('published');
-        $existing_model->addIdentifier()
+        $existingModel = new Document();
+        $existingModel->setServerState('published');
+        $existingModel->addIdentifier()
                 ->setType('serial')
                 ->setValue(10);
-        $existing_model->store();
+        $existingModel->store();
 
         $model = new Document();
         $model->setServerState('published');
@@ -202,6 +206,6 @@ class SequenceNumberTest extends TestCase
         );
         $this->assertEquals(11, $identifiers[0]->getValue());
 
-        $existing_model->delete();
+        $existingModel->delete();
     }
 }

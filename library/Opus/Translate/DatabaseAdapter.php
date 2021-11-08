@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,14 +26,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Translate
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Translate;
+
+use Zend_Locale;
+use Zend_Translate_Adapter;
 
 /**
  * Adapter class for translations stored in database.
@@ -40,20 +45,21 @@ namespace Opus\Translate;
  * This class is used to read translations from database for \Zend_Translate. Database access should only be necessary
  * if the cache for the translations has been cleared.
  */
-class DatabaseAdapter extends \Zend_Translate_Adapter
+class DatabaseAdapter extends Zend_Translate_Adapter
 {
-
     /**
-     * Load translation data
+     * Load translation data.
+     *
+     * phpcs:disable
      *
      * @param  mixed              $data
-     * @param  string|\Zend_Locale $locale
+     * @param  string|Zend_Locale $locale
      * @param  array              $options (optional)
-     *
-     * @return array
+     * @return Translations|array
      */
     protected function _loadTranslationData($data, $locale, array $options = [])
     {
+        // phpcs:enable
         $database = new Dao();
 
         $translations = $database->getTranslationsByLocale();

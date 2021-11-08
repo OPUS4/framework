@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,12 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -39,9 +41,15 @@ use Opus\Database;
 use Opus\Version;
 use OpusTest\TestAsset\TestCase;
 
+use function array_pop;
+use function basename;
+use function ctype_digit;
+use function file_get_contents;
+use function preg_match;
+use function substr;
+
 class VersionTest extends TestCase
 {
-
     public function testCompareVersion()
     {
         $this->assertEquals(1, Version::compareVersion('5.0')); // greater
@@ -64,8 +72,8 @@ class VersionTest extends TestCase
         $scripts = $update->getUpdateScripts();
 
         foreach ($scripts as $script) {
-            $basename = basename($script);
-            $scriptNameVersion = ( int )substr($basename, 0, 3);
+            $basename          = basename($script);
+            $scriptNameVersion = (int) substr($basename, 0, 3);
 
             if ($scriptNameVersion < 3) {
                 // skip check because versioning schema did not exist before
@@ -105,8 +113,8 @@ class VersionTest extends TestCase
 
         $lastScript = array_pop($scripts);
 
-        $basename = basename($lastScript);
-        $scriptVersion = ( int )substr($basename, 0, 3);
+        $basename      = basename($lastScript);
+        $scriptVersion = (int) substr($basename, 0, 3);
 
         $this->assertEquals(
             $version,

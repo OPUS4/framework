@@ -25,59 +25,30 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
  * @category    Framework
- * @package     Opus\Db
- * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-namespace Opus\Db;
+namespace Opus\Model;
 
 /**
- * Table gateway class to table 'link_documents_collections'.
+ * Interface for comparing objects.
  *
- * phpcs:disable
+ * TODO NAMESPACE rename interface
  */
-class LinkDocumentsCollections extends TableGateway
+interface ComparableInterface
 {
     /**
-     * DB table name.
+     * Compares an object with the provided parameter object.
      *
-     * @var string
-     */
-    protected $_name = 'link_documents_collections';
-
-    /**
-     * DB table primary key name.
+     * The objects should generally be of the same type.
      *
-     * @var string
+     * @param mixed $obj Object to compare with
+     * @return int Returns -1 if less than parameter , 0 if equals or 1 if more than parameter object
      */
-    protected $_primary = ['document_id', 'collection_id'];
-
-    /**
-     * Map foreign keys in this table to the column in the table they originate
-     * from (i.e. the referenced table)
-     *
-     * @var array
-     */
-    protected $_referenceMap = [
-        'Documents'       => [
-            'columns'       => 'document_id',
-            'refTableClass' => Documents::class,
-            'refColumns'    => 'id',
-        ],
-        'Collections'     => [
-            'columns'       => 'collection_id',
-            'refTableClass' => Collections::class,
-            'refColumns'    => 'id',
-        ],
-        'CollectionRoles' => [
-            'columns'       => 'role_id',
-            'refTableClass' => CollectionsRoles::class,
-            'refColumns'    => 'id',
-        ],
-    ];
+    public function compare($obj);
 }

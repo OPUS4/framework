@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENCE
  * This code is free software: you can redistribute it and/or modify
@@ -11,45 +12,52 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+ * @copyright   Copyright (c) 2009-2018
+ *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
+ *
+ * TODO add interface (database implementation just one option)
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018
- *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
- *
- * TODO add interface (database implementation just one option)
  */
 
 namespace Opus\Model\Xml;
 
+use DOMDocument;
 use Opus\Db\DocumentXmlCache;
 use Opus\Document;
 use Opus\DocumentFinder;
+use Opus\Log;
+use Opus\LoggingTrait;
 use Opus\Model\ModelException;
 use Opus\Model\NotFoundException;
+use Zend_Db_Select;
+use Zend_Db_Table;
+
+use function count;
+use function libxml_clear_errors;
+use function libxml_get_errors;
 
 /**
- * Class Cache
- * @package Opus\Model\Xml
- *
  * TODO NAMESPACE rename class
+ *
+ * phpcs:disable
  */
 class Cache implements XmlCacheInterface
 {
-
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Holds gateway instance to document xml cache table
      *
      * @var DocumentXmlCache
      */
-    private $_table = null;
+    private $_table;
 
     /**
      * Perform document reindexing after a new cache entry is created
@@ -60,17 +68,13 @@ class Cache implements XmlCacheInterface
 
     /**
      * Plugin for updating the index.
+     *
      * @var
      *
      * TODO this is a temporary hack - see _postPut below
      */
-    private static $indexPluginClass = null;
+    private static $indexPluginClass;
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->_table = new DocumentXmlCache();
@@ -82,27 +86,27 @@ class Cache implements XmlCacheInterface
      * @param mixed $documentId
      * @param mixed $xmlVersion
      * @throws ModelException in case an XML processing error occurred
-     * @return \DOMDocument
+     * @return DOMDocument
      */
     public function get($documentId, $xmlVersion)
     {
-        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom = new DOMDocument('1.0', 'utf-8');
 
         $xmlData = $this->getData($documentId, $xmlVersion);
 
-        if (! is_null($xmlData)) {
+        if ($xmlData !== null) {
             libxml_clear_errors();
             $result = $dom->loadXML($xmlData);
             $errors = libxml_get_errors();
             if ($result === false) {
-                $errMsg = 'XML processing error for document with id ' . $documentId . "\n" .
-                    'number of errors: ' . count($errors) . "\n";
+                $errMsg = 'XML processing error for document with id ' . $documentId . "\n"
+                    . 'number of errors: ' . count($errors) . "\n";
                 foreach ($errors as $errnum => $error) {
-                    $errMsg .= "\n" . 'error #' . $errnum . "\n\t" .
-                        'error level: ' . $error->level . "\n\t" .
-                        'error code: ' . $error->code . "\n\t" .
-                        'error message: ' . $error->message . "\n\t" .
-                        'line:column: ' . $error->line . ':' . $error->column;
+                    $errMsg .= "\n" . 'error #' . $errnum . "\n\t"
+                        . 'error level: ' . $error->level . "\n\t"
+                        . 'error code: ' . $error->code . "\n\t"
+                        . 'error message: ' . $error->message . "\n\t"
+                        . 'line:column: ' . $error->line . ':' . $error->column;
                 }
                 Log::get()->err($errMsg);
                 throw new ModelException($errMsg);
@@ -114,6 +118,7 @@ class Cache implements XmlCacheInterface
 
     /**
      * Returns document XML from cache.
+     *
      * @param $documentId int Database ID of document
      * @param $xmlVersion string Version of XML
      * @return null|string Document XML from cache
@@ -154,7 +159,7 @@ class Cache implements XmlCacheInterface
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
-     * @return boolean
+     * @return bool
      */
     public function hasCacheEntry($documentId, $xmlVersion)
     {
@@ -194,13 +199,9 @@ class Cache implements XmlCacheInterface
     }
 
     /**
-     *
-     *
-     * @param mixed       $documentId
-     * @param mixed       $xmlVersion
-     * @param mixed       $serverDateModified
-     * @param \DOMDocument $xmlData
-     * @return void
+     * @param mixed $documentId
+     * @param mixed $xmlVersion
+     * @param mixed $serverDateModified
      */
     public function put($documentId, $xmlVersion, $serverDateModified, $xmlData)
     {
@@ -215,10 +216,10 @@ class Cache implements XmlCacheInterface
         }
 
         $newValue = [
-            'document_id' => $documentId,
-            'xml_version' => $xmlVersion,
+            'document_id'          => $documentId,
+            'xml_version'          => $xmlVersion,
             'server_date_modified' => $serverDateModified,
-            'xml_data' => $xmlData->saveXML()
+            'xml_data'             => $xmlData->saveXML(),
         ];
 
         $this->_table->insert($newValue);
@@ -229,15 +230,15 @@ class Cache implements XmlCacheInterface
     /**
      * Removes a cache entry.
      *
-     * @param mixed $documentId
-     * @param mixed $xmlVersion
-     * @return boolean
+     * @param mixed      $documentId
+     * @param null|mixed $xmlVersion
+     * @return bool
      *
      * TODO simplify (remove all entries for document-id)
      */
     public function remove($documentId, $xmlVersion = null)
     {
-        if (is_null($xmlVersion)) {
+        if ($xmlVersion === null) {
             $this->removeAllEntriesWhereDocumentId($documentId);
         } else {
             $rowSet = $this->_table->find($documentId, $xmlVersion);
@@ -257,7 +258,6 @@ class Cache implements XmlCacheInterface
      * Removes a all cache entries for a given document.
      *
      * @param mixed $documentId
-     * @return void
      */
     public function removeAllEntriesWhereDocumentId($documentId)
     {
@@ -268,29 +268,27 @@ class Cache implements XmlCacheInterface
     /**
      * Removes a all cache entries matching given constraint.
      *
-     * @param \Zend_Db_Select $select Select statement to use as subselect
+     * @param Zend_Db_Select $select Select statement to use as subselect
      *  The statement MUST return a list of document ids
-     * @return void
      */
     public function removeAllEntriesWhereSubSelect($select)
     {
-        $where = 'document_id IN ('.$select->assemble().')';
+        $where = 'document_id IN (' . $select->assemble() . ')';
         $this->_table->delete($where);
     }
 
     /**
      * Removes all cache entries.
-     *
-     * @return void
      */
     public function clear()
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db = Zend_Db_Table::getDefaultAdapter();
         $db->query('truncate table document_xml_cache');
     }
 
     /**
      * Removes all entries that are linked to model.
+     *
      * @param $model
      */
     public function removeAllEntriesForDependentModel($model)
@@ -314,7 +312,7 @@ class Cache implements XmlCacheInterface
      */
     protected function _postPut($documentId)
     {
-        if (! $this->_reindexDocumentAfterAddingCacheEntry || is_null(self::$indexPluginClass)) {
+        if (! $this->_reindexDocumentAfterAddingCacheEntry || self::$indexPluginClass === null) {
             return;
         }
 

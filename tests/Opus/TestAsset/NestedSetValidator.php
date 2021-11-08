@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -35,6 +36,7 @@
 namespace OpusTest\TestAsset;
 
 use Opus\Db\NestedSet;
+use Opus\LoggingTrait;
 use Opus\Model\ModelException;
 
 /**
@@ -42,24 +44,29 @@ use Opus\Model\ModelException;
  */
 class NestedSetValidator
 {
-
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Database table adapter.
+     *
      * @var NestedSet
      */
     private $table;
 
     /**
      * Position counter in NestedSet.
+     *
      * @var int
      */
     private $counter;
 
+    /**
+     * @param NestedSet $table
+     * @throws ModelException
+     */
     public function __construct($table)
     {
-        if (! is_null($table) && $table instanceof NestedSet) {
+        if ($table !== null && $table instanceof NestedSet) {
             $this->table = $table;
         } else {
             throw new ModelException('object must be instance of Opus\Db\NestedSet');
@@ -68,32 +75,36 @@ class NestedSetValidator
 
     /**
      * Check structure of nested set.
+     *
+     * @param int $rootId
+     * @return bool
      */
     public function validate($rootId)
     {
-        $select = $this->table->select()->where('id = ?', $rootId);
-        $node = $this->table->fetchRow($select);
-        $this->counter = $node['left_id'];
+        $select        = $this->table->select()->where('id = ?', $rootId);
+        $node          = $this->table->fetchRow($select);
+        $this->counter = (int) $node['left_id'];
         return $this->validateNode($rootId); // root node
     }
 
     /**
      * Validates a node and walks NestedSet recursively.
-     * @param $nodeId ID for node in NestedSet
+     *
+     * @param int $nodeId ID for node in NestedSet
      * @return bool true - valid, false - invalid
      */
     public function validateNode($nodeId)
     {
         $logger = $this->getLogger();
 
-        $select = $this->table->select()->where('id = ?', $nodeId);
-        $node = $this->table->fetchRow($select);
-        $leftId = $node['left_id'];
+        $select  = $this->table->select()->where('id = ?', $nodeId);
+        $node    = $this->table->fetchRow($select);
+        $leftId  = $node['left_id'];
         $rightId = $node['right_id'];
 
         $logger->err("{$this->counter}, $nodeId: $leftId, $rightId");
 
-        if ($leftId != $this->counter) {
+        if ((int) $leftId !== $this->counter) {
             // invalid
             $logger->err("{$this->counter}, $nodeId: $leftId, $rightId not valid (left_id)");
             return false;
@@ -114,7 +125,7 @@ class NestedSetValidator
                     'parent_id  = ?',
                     $nodeId
                 )->order('left_id ASC');
-                 $children = $this->table->fetchAll($selectChildren);
+                 $children      = $this->table->fetchAll($selectChildren);
                 foreach ($children as $child) {
                     if ($this->validateNode($child['id']) === false) {
                         return false;

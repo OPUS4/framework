@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model\Plugin
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Plugin;
@@ -44,11 +46,9 @@ use Opus\Model\Xml\Cache;
 
 /**
  * Base class for plugins that need to update documents associated with collection tree.
- *
  */
 abstract class AbstractCollection extends AbstractPlugin
 {
-
     /**
      * make sure documents related to Collection[Role]s in subtree are updated
      * (XML-Cache and server_date_published)
@@ -57,7 +57,7 @@ abstract class AbstractCollection extends AbstractPlugin
      */
     protected function updateDocuments($collection)
     {
-        if (is_null($collection) || is_null($collection->getId())) {
+        if ($collection === null || $collection->getId() === null) {
             // no collection provided or collection has not been saved, so there is no ID
             return;
         }

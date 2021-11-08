@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,6 +25,9 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2014-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
@@ -34,12 +38,11 @@
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use Exception;
 use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
 use Opus\Identifier\Urn;
@@ -50,141 +53,124 @@ use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 use Opus\Storage\FileNotFoundException;
+use Zend_Date;
+
+use function array_filter;
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function array_walk;
+use function count;
+use function explode;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_null;
+use function is_numeric;
+use function is_object;
+use function preg_match;
+use function reset;
+use function strtolower;
+use function substr;
+use function usort;
 
 /**
  * Domain model for documents in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\AbstractModel
  *
  * The following are the magic methods for the simple fields of Opus\Document.
  *
+ * @category    Framework
+ * @package     Opus
  * @method static Document new()
  * @method static Document get(int $docId)
- *
  * @method void setCompletedDate(Date $date)
  * @method Date getCompletedDate()
- *
  * @method void setCompletedYear(integer $year)
  * @method integer getCompletedYear()
- *
  * @method void setContributingCorporation(string $value)
  * @method string getContributingCorporation()
- *
  * @method void setCreatingCorporation(string $value)
  * @method string getCreatingCorporation()
- *
  * @method void setThesisDateAccepted(Date $date)
  * @method Date getThesisDateAccepted()
- *
  * @method void setThesisYearAccepted(integer $year)
  * @method integer getThesisYearAccepted()
- *
  * @method void setEdition(string $value)
  * @method string getEdition()
- *
  * @method void setEmbargoDate(Date $date)
  * @method Date getEmbargoDate()
- *
  * @method void setIssue(string $issue)
  * @method string getIssue()
- *
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
- *
  * @method void setPageFirst(string $pageFirst)
  * @method string getPageFirst()
- *
  * @method void setPageLast(string $pageLast)
  * @method string getPageLast()
- *
  * @method void setPageNumber(string $pageNumber)
  * @method string getPageNumber()
- *
  * @method void setArticleNumber(string $articleNumber)
  * @method string getArticleNumber()
- *
  * @method void setPublishedDate(Date $date)
  * @method Date getPublishedDate()
- *
  * @method void setPublishedYear(integer $year)
  * @method integer getPublishedYear()
- *
  * @method void setPublisherName(string $name)
  * @method string getPublisherName()
- *
  * @method void setPublisherPlace(string $place)
  * @method string getPublisherPlace()
- *
  * @method void setPublicationState(string $state)
  * @method string getPublicationState()
- *
  * @method void setServerDateCreated(Date|string $date)
  * @method Date getServerDateCreated()
- *
  * @method void setServerDateModified(Date $date)
  * @method Date getServerDateModified()
- *
  * @method void setServerDatePublished(Date|string $date)
  * @method Date getServerDatePublished()
- *
  * @method void setServerDateDeleted(Date $date)
  * @method Date getServerDateDeleted()
- *
  * @method string getServerState()
- *
  * @method void setType(string $type)
  * @method string getType()
- *
  * @method void setVolume(string $volume)
  * @method string getVolume()
- *
  * @method void setBelongsToBibliography(boolean $bibliography)
  * @method boolean getBelongsToBibliography()
  *
  * Methods for complex fields.
- *
  * @method Note addNote()
  * @method void setNote(Note[] $notes)
  * @method Note[] getNote()
- *
  * @method Patent addPatent()
  * @method void setPatent(Patent[] $patents)
  * @method Patent[] getPatent()
- *
  * @method Title addTitleMain()
  * @method Title[] getTitleMain()
  * @method void setTitleMain(Title[] $titles)
- *
  * @method Title addTitleParent()
  * @method Title[] getTitleParent()
  * @method void setTitleParent(Title[] $titles)
- *
  * @method Title addTitleSub()
  * @method Title[] getTitleSub()
  * @method void setTitleSub(Title[] $titles)
- *
  * @method Title addTitleAdditional()
  * @method Title[] getTitleAdditional()
  * @method void setTitleAdditional(Title[] $titles)
- *
  * @method TitleAbstract addTitleAbstract()
  * @method TitleAbstract[] getTitleAbstract()
  * @method void setTitleAbstract(TitleAbstract[] $abstracts)
- *
  * @method Subject addSubject(Subject[] $subject = null)
  * @method Subject[] getSubject()
  * @method void setSubject(Subject[] $subjects)
- *
  * @method DocumentDnbInstitute addThesisGrantor(DnbInstitute $institute)
  * @method DocumentDnbInstitute[] getThesisGrantor()
  * @method void setThesisGrantor(DnbInstitute[] $institutes)
- *
  * @method DnbInstitute addThesisPublisher(DnbInstitute $institute)
  * @method DocumentDnbInstitute[] getThesisPublisher()
  * @method void setThesisPublisher(DnbInstitute[] $institutes)
- *
  * @method Enrichment addEnrichment(Enrichment $enrichment = null)
  * @method void setEnrichment(Enrichment[] $enrichments)
  *
@@ -197,24 +183,21 @@ use Opus\Storage\FileNotFoundException;
  * @method void addSeries(Series $series)
  * @method Series[] getSeries()
  * @method void setSeries(Series[] $series)
- *
  * @method Identifier addIdentifier(Identifier $identifier = null)
  * @method void setIdentifier(Identifier[] $identifiers)
  * @method Identifier[] getIdentifier()
- *
  * @method Reference addReference(Reference $reference = null)
  * @method void setReference(Reference[] $references)
  * @method Reference[] getReference()
- *
  * @method DocumentPerson addPerson(Person $person)
  * @method void setPerson(DocumentPerson[] $persons)
  * @method DocumentPerson[] getPerson()
- *
  * @method File addFile()
+ *
+ * phpcs:disable
  */
 class Document extends AbstractDb
 {
-
     const STATE_DELETED = 'deleted';
 
     const STATE_INPROGRESS = 'inprogress';
@@ -234,7 +217,7 @@ class Document extends AbstractDb
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\Documents';
+    protected static $tableGatewayClass = Db\Documents::class;
 
     /**
      * Zeigt an, ob der Wert von serverState verändert wurde. Nur in diesem Fall werden Plugins,
@@ -250,9 +233,9 @@ class Document extends AbstractDb
      *
      * @var string
      */
-    private $oldServerState = null;
+    private $oldServerState;
 
-    private static $defaultPlugins = null;
+    private static $defaultPlugins;
 
     /**
      * Plugins to load
@@ -273,17 +256,17 @@ class Document extends AbstractDb
      */
     public function getDefaultPlugins()
     {
-        if (is_null(self::$defaultPlugins)) {
+        if (self::$defaultPlugins === null) {
             $config = Config::get(); // use function
 
             if (isset($config->model->plugins->document)) {
-                $plugins = $config->model->plugins->document;
+                $plugins              = $config->model->plugins->document;
                 self::$defaultPlugins = $plugins->toArray();
             } else {
                 self::$defaultPlugins = [
-                    'Opus\Document\Plugin\XmlCache',
-                    'Opus\Document\Plugin\IdentifierUrn',
-                    'Opus\Document\Plugin\IdentifierDoi'
+                    Document\Plugin\XmlCache::class,
+                    Document\Plugin\IdentifierUrn::class,
+                    Document\Plugin\IdentifierDoi::class,
                 ];
             }
         }
@@ -300,226 +283,232 @@ class Document extends AbstractDb
      * The documents external fields, i.e. those not mapped directly to the
      * Opus\Db\Documents table gateway.
      *
-     * @var array
      * @see \Opus\Model\Abstract::$_externalFields
+     *
+     * @var array
      */
-    protected $_externalFields = [
-        'TitleMain' => [
-            'model' => 'Opus\Title',
+    protected $externalFields = [
+        'TitleMain'          => [
+            'model'   => Title::class,
             'options' => ['type' => 'main'],
-            'fetch' => 'lazy'
+            'fetch'   => 'lazy',
         ],
-        'TitleAbstract' => [
-            'model' => 'Opus\TitleAbstract',
+        'TitleAbstract'      => [
+            'model'   => TitleAbstract::class,
             'options' => ['type' => 'abstract'],
-            'fetch' => 'lazy'
+            'fetch'   => 'lazy',
         ],
-        'TitleParent' => [
-            'model' => 'Opus\Title',
+        'TitleParent'        => [
+            'model'   => Title::class,
             'options' => ['type' => 'parent'],
-            'fetch' => 'lazy'
+            'fetch'   => 'lazy',
         ],
-        'TitleSub' => [
-            'model' => 'Opus\Title',
+        'TitleSub'           => [
+            'model'   => Title::class,
             'options' => ['type' => 'sub'],
-            'fetch' => 'lazy'
+            'fetch'   => 'lazy',
         ],
-        'TitleAdditional' => [
-            'model' => 'Opus\Title',
+        'TitleAdditional'    => [
+            'model'   => Title::class,
             'options' => ['type' => 'additional'],
-            'fetch' => 'lazy'
+            'fetch'   => 'lazy',
         ],
-        'Identifier' => [
-            'model' => 'Opus\Identifier',
-            'fetch' => 'lazy'
+        'Identifier'         => [
+            'model' => Identifier::class,
+            'fetch' => 'lazy',
         ],
-        'Reference' => [
-            'model' => 'Opus\Reference',
-            'fetch' => 'lazy'
+        'Reference'          => [
+            'model' => Reference::class,
+            'fetch' => 'lazy',
         ],
-        'ReferenceIsbn' => [
-            'model' => 'Opus\Reference',
+        'ReferenceIsbn'      => [
+            'model'   => Reference::class,
             'options' => ['type' => 'isbn'],
-            'fetch' => 'lazy'
+            'fetch'   => 'lazy',
         ],
-        'ReferenceUrn' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'urn']
+        'ReferenceUrn'       => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'urn'],
         ],
-        'ReferenceDoi' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'doi']
+        'ReferenceDoi'       => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'doi'],
         ],
-        'ReferenceHandle' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'handle']
+        'ReferenceHandle'    => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'handle'],
         ],
-        'ReferenceUrl' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'url']
+        'ReferenceUrl'       => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'url'],
         ],
-        'ReferenceIssn' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'issn']
+        'ReferenceIssn'      => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'issn'],
         ],
-        'ReferenceStdDoi' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'std-doi']
+        'ReferenceStdDoi'    => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'std-doi'],
         ],
-        'ReferenceCrisLink' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'cris-link']
+        'ReferenceCrisLink'  => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'cris-link'],
         ],
         'ReferenceSplashUrl' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'splash-url']
+            'model'   => Reference::class,
+            'options' => ['type' => 'splash-url'],
         ],
-        'ReferenceOpus4' => [
-            'model' => 'Opus\Reference',
-            'options' => ['type' => 'opus4-id']
+        'ReferenceOpus4'     => [
+            'model'   => Reference::class,
+            'options' => ['type' => 'opus4-id'],
         ],
-        'Note' => [
-            'model' => 'Opus\Note',
-            'fetch' => 'lazy'
+        'Note'               => [
+            'model' => Note::class,
+            'fetch' => 'lazy',
         ],
-        'Patent' => [
-            'model' => 'Opus\Patent',
-            'fetch' => 'lazy'
+        'Patent'             => [
+            'model' => Patent::class,
+            'fetch' => 'lazy',
         ],
-        'Enrichment' => [
-            'model' => 'Opus\Enrichment',
-            'fetch' => 'lazy'
+        'Enrichment'         => [
+            'model' => Enrichment::class,
+            'fetch' => 'lazy',
         ],
-        'Licence' => [
-            'model' => 'Opus\Licence',
-            'through' => 'Opus\Model\Dependent\Link\DocumentLicence',
-            'fetch' => 'lazy'
+        'Licence'            => [
+            'model'   => Licence::class,
+            'through' => Model\Dependent\Link\DocumentLicence::class,
+            'fetch'   => 'lazy',
         ],
-        'Person' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'Person'             => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonAdvisor' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'advisor'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonAdvisor'      => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'advisor'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonAuthor' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'author'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonAuthor'       => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'author'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonContributor' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'contributor'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonContributor'  => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'contributor'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonEditor' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'editor'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonEditor'       => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'editor'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonReferee' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'referee'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonReferee'      => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'referee'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonOther' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'other'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonOther'        => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'other'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonTranslator' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'translator'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonTranslator'   => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'translator'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'PersonSubmitter' => [
-            'model' => 'Opus\Person',
-            'through' => 'Opus\Model\Dependent\Link\DocumentPerson',
-            'options'  => ['role' => 'submitter'],
-            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
+        'PersonSubmitter'    => [
+            'model'      => Person::class,
+            'through'    => DocumentPerson::class,
+            'options'    => ['role' => 'submitter'],
+            'sort_order' => ['sort_order' => 'ASC'], // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
-            'fetch' => 'lazy'
+            'fetch'      => 'lazy',
         ],
-        'Series' => [
-            'model' => 'Opus\Series',
-            'through' => 'Opus\Model\Dependent\Link\DocumentSeries',
-            'fetch' => 'lazy'
+        'Series'             => [
+            'model'   => Series::class,
+            'through' => Model\Dependent\Link\DocumentSeries::class,
+            'fetch'   => 'lazy',
         ],
-        'Subject' => [
-            'model' => 'Opus\Subject',
-            'fetch' => 'lazy'
+        'Subject'            => [
+            'model' => Subject::class,
+            'fetch' => 'lazy',
         ],
-        'File' => [
-            'model' => 'Opus\File',
-            'fetch' => 'lazy'
+        'File'               => [
+            'model' => File::class,
+            'fetch' => 'lazy',
         ],
-        'Collection' => [
-            'model' => 'Opus\Collection',
-            'fetch' => 'lazy'
+        'Collection'         => [
+            'model' => Collection::class,
+            'fetch' => 'lazy',
         ],
-        'ThesisPublisher' => [
-            'model' => 'Opus\DnbInstitute',
-            'through' => 'Opus\Model\Dependent\Link\DocumentDnbInstitute',
-            'options' => ['role' => 'publisher'],
+        'ThesisPublisher'    => [
+            'model'         => DnbInstitute::class,
+            'through'       => DocumentDnbInstitute::class,
+            'options'       => ['role' => 'publisher'],
             'addprimarykey' => ['publisher'],
-            'fetch' => 'lazy'
+            'fetch'         => 'lazy',
         ],
-        'ThesisGrantor' => [
-            'model' => 'Opus\DnbInstitute',
-            'through' => 'Opus\Model\Dependent\Link\DocumentDnbInstitute',
-            'options' => ['role' => 'grantor'],
+        'ThesisGrantor'      => [
+            'model'         => DnbInstitute::class,
+            'through'       => DocumentDnbInstitute::class,
+            'options'       => ['role' => 'grantor'],
             'addprimarykey' => ['grantor'],
-            'fetch' => 'lazy'
-        ]
+            'fetch'         => 'lazy',
+        ],
     ];
 
     /**
      * Initialize the document's fields.  The language field needs special
      * treatment to initialize the default values.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $fields = [
             'BelongsToBibliography',
-            'CompletedDate', 'CompletedYear',
+            'CompletedDate',
+            'CompletedYear',
             'ContributingCorporation',
             'CreatingCorporation',
-            'ThesisDateAccepted', 'ThesisYearAccepted',
+            'ThesisDateAccepted',
+            'ThesisYearAccepted',
             'Edition',
             'EmbargoDate',
             'Issue',
             'Language',
-            'PageFirst', 'PageLast', 'PageNumber', 'ArticleNumber',
-            'PublishedDate', 'PublishedYear',
-            'PublisherName', 'PublisherPlace',
+            'PageFirst',
+            'PageLast',
+            'PageNumber',
+            'ArticleNumber',
+            'PublishedDate',
+            'PublishedYear',
+            'PublisherName',
+            'PublisherPlace',
             'PublicationState',
             'ServerDateCreated',
             'ServerDateModified',
@@ -527,13 +516,13 @@ class Document extends AbstractDb
             'ServerDateDeleted',
             'ServerState',
             'Type',
-            'Volume'
+            'Volume',
         ];
 
         // create internal fields
         foreach ($fields as $fieldname) {
-            if (isset($this->_externalFields[$fieldname])) {
-                throw new \Exception("Field $fieldname exists in _externalFields");
+            if (isset($this->externalFields[$fieldname])) {
+                throw new Exception("Field $fieldname exists in _externalFields");
             }
 
             $field = new Field($fieldname);
@@ -541,7 +530,7 @@ class Document extends AbstractDb
         }
 
         // create external fields
-        foreach (array_keys($this->_externalFields) as $fieldname) {
+        foreach (array_keys($this->externalFields) as $fieldname) {
             $field = new Field($fieldname);
             $field->setMultiplicity('*');
             $this->addField($field);
@@ -550,12 +539,17 @@ class Document extends AbstractDb
         // Initialize available date fields and set up date validator
         // if the particular field is present
         $dateFields = [
-            'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
+            'ThesisDateAccepted',
+            'CompletedDate',
+            'PublishedDate',
             'ServerDateCreated',
-            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate'
+            'ServerDateModified',
+            'ServerDatePublished',
+            'ServerDateDeleted',
+            'EmbargoDate',
         ];
         foreach ($dateFields as $fieldName) {
-            $this->getField($fieldName)->setValueModelClass('Opus\Date');
+            $this->getField($fieldName)->setValueModelClass(Date::class);
         }
 
         $this->initFieldOptionsForDisplayAndValidation();
@@ -587,22 +581,22 @@ class Document extends AbstractDb
         $this->getField('ServerState')
                 ->setDefault([
                     'unpublished' => 'unpublished',
-                    'published' => 'published',
-                    'deleted' => 'deleted',
-                    'restricted' => 'restricted',
-                    'audited' => 'audited',
-                    'inprogress' => 'inprogress'
+                    'published'   => 'published',
+                    'deleted'     => 'deleted',
+                    'restricted'  => 'restricted',
+                    'audited'     => 'audited',
+                    'inprogress'  => 'inprogress',
                 ])
                 ->setSelection(true);
 
         // Add the allowed values for publication_state column
         $this->getField('PublicationState')
                 ->setDefault([
-                    'draft' => 'draft',
-                    'accepted' => 'accepted',
+                    'draft'     => 'draft',
+                    'accepted'  => 'accepted',
                     'submitted' => 'submitted',
                     'published' => 'published',
-                    'updated' => 'updated'
+                    'updated'   => 'updated',
                 ])
                 ->setSelection(true);
 
@@ -617,20 +611,18 @@ class Document extends AbstractDb
 
     /**
      * Store multiple languages as a comma seperated string.
-     *
-     * @return void
      */
     protected function _storeLanguage()
     {
         $result = null;
-        if ($this->_fields['Language']->getValue() !== null) {
-            if ($this->_fields['Language']->hasMultipleValues()) {
-                $result = implode(',', $this->_fields['Language']->getValue());
+        if ($this->fields['Language']->getValue() !== null) {
+            if ($this->fields['Language']->hasMultipleValues()) {
+                $result = implode(',', $this->fields['Language']->getValue());
             } else {
-                $result = $this->_fields['Language']->getValue();
+                $result = $this->fields['Language']->getValue();
             }
         }
-        $this->_primaryTableRow->language = $result;
+        $this->primaryTableRow->language = $result;
     }
 
     /**
@@ -641,14 +633,14 @@ class Document extends AbstractDb
     protected function _fetchLanguage()
     {
         $result = null;
-        if (empty($this->_primaryTableRow->language) === false) {
-            if ($this->_fields['Language']->hasMultipleValues()) {
-                $result = explode(',', $this->_primaryTableRow->language);
+        if (empty($this->primaryTableRow->language) === false) {
+            if ($this->fields['Language']->hasMultipleValues()) {
+                $result = explode(',', $this->primaryTableRow->language);
             } else {
-                $result = $this->_primaryTableRow->language;
+                $result = $this->primaryTableRow->language;
             }
         } else {
-            if ($this->_fields['Language']->hasMultipleValues()) {
+            if ($this->fields['Language']->hasMultipleValues()) {
                 $result = [];
             } else {
                 $result = null;
@@ -660,23 +652,23 @@ class Document extends AbstractDb
     /**
      * Retrieve all Opus\Document instances from the database.
      *
-     * @return array Array of Opus\Document objects.
-     *
      * @deprecated
+     *
+     * @return array Array of Opus\Document objects.
      */
-    public static function getAll(array $ids = null)
+    public static function getAll(?array $ids = null)
     {
-        return self::getAllFrom('Opus\Document', 'Opus\Db\Documents', $ids);
+        return self::getAllFrom(self::class, Db\Documents::class, $ids);
     }
 
     /**
      * Returns all document that are in a specific server (publication) state.
      *
-     * @param  string  $state The state to check for.
-     * @throws \Exception Thrown if an unknown state is encountered.
-     * @return array The list of documents in the specified state.
-     *
      * @deprecated
+     *
+     * @param  string $state The state to check for.
+     * @throws Exception Thrown if an unknown state is encountered.
+     * @return array The list of documents in the specified state.
      */
     public static function getAllByState($state)
     {
@@ -689,10 +681,10 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
+     * @deprecated
+     *
      * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order. Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
-     *
-     * @deprecated
      */
     public static function getAllDocumentsByDoctype($sortReverse = '0')
     {
@@ -703,11 +695,11 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
+     * @deprecated
+     *
      * @param  string $state    Document state to select, defaults to "published", returning all states if set to NULL.
      * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
-     *
-     * @deprecated
      */
     public static function getAllDocumentsByDoctypeByState($state, $sortReverse = '0')
     {
@@ -723,10 +715,10 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @return array array with all ids of the entries in the desired order.
-     *
      * @deprecated
+     *
+     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @return array array with all ids of the entries in the desired order.
      */
     public static function getAllDocumentsByPubDate($sortReverse = '0')
     {
@@ -737,11 +729,11 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     *
      * @deprecated
+     *
+     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
+     * @return array array with all ids of the entries in the desired order.
      */
     public static function getAllDocumentsByPubDateByState($state, $sortReverse = '0')
     {
@@ -757,10 +749,10 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles associated with the corresponding
      * document id.
      *
-     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     *
      * @deprecated
+     *
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
+     * @return array array with all ids of the entries in the desired order.
      */
     public static function getAllDocumentsByAuthors($sortReverse = '0')
     {
@@ -772,11 +764,11 @@ class Document extends AbstractDb
      * (publication) state associated with the corresponding document id.
      * This array is sorted by authors (first one only)
      *
-     * @param  string  $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     *
      * @deprecated
+     *
+     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
+     * @return array array with all ids of the entries in the desired order.
      */
     public static function getAllDocumentsByAuthorsByState($state, $sortReverse = '0')
     {
@@ -792,10 +784,10 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles associated with the corresponding
      * document id.
      *
+     * @deprecated
+     *
      * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
-     *
-     * @deprecated
      */
     public static function getAllDocumentsByTitles($sortReverse = '0')
     {
@@ -806,11 +798,11 @@ class Document extends AbstractDb
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
+     * @deprecated
+     *
      * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
      * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
-     *
-     * @deprecated
      */
     public static function getAllDocumentsByTitlesByState($state, $sortReverse = '0')
     {
@@ -825,10 +817,10 @@ class Document extends AbstractDb
     /**
      * Returns an array of all document ids.
      *
-     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array Array of document ids.
-     *
      * @deprecated
+     *
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
+     * @return array Array of document ids.
      */
     public static function getAllIds($sortReverse = '0')
     {
@@ -838,11 +830,11 @@ class Document extends AbstractDb
     /**
      * Returns all document that are in a specific server (publication) state.
      *
+     * @deprecated
+     *
      * @param string $state Document state to select, defaults to "published", returning all states if set to NULL.
      * @param string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array The list of documents in the specified state.
-     *
-     * @deprecated
      */
     public static function getAllIdsByState($state = 'published', $sortReverse = '0')
     {
@@ -858,11 +850,11 @@ class Document extends AbstractDb
      * Retrieve an array of all document_id titles associated with the given
      * (identifier, value)
      *
-     * @param string $value value of the identifer that should be queried in DB
-     * @param string [$type] optional string describing the type of identifier (default is urn)
-     * @return array array with all ids of the entries.
-     *
      * @deprecated
+     *
+     * @param string   $value value of the identifer that should be queried in DB
+     * @param string [ $type] optional string describing the type of identifier (default is urn)
+     * @return array array with all ids of the entries.
      */
     public static function getDocumentByIdentifier($value, $type = 'urn')
     {
@@ -875,11 +867,11 @@ class Document extends AbstractDb
      * Returns all documents that are in publication state and whose ids are within the given range.
      * Used by SolrIndexBuilder.
      *
+     * @deprecated
+     *
      * @param int $start The smallest document id to be considered.
      * @param int $end The largest document id to be considered.
      * @return array The list of document ids within the given range.
-     *
-     * @deprecated
      */
     public static function getAllPublishedIds($start, $end)
     {
@@ -900,14 +892,14 @@ class Document extends AbstractDb
     /**
      * Returns the earliest date (server_date_published) of all documents.
      *
-     * @return string|null /^\d{4}-\d{2}-\d{2}$/ on success, null otherwise
-     *
      * @deprecated
+     *
+     * @return string|null /^\d{4}-\d{2}-\d{2}$/ on success, null otherwise
      */
     public static function getEarliestPublicationDate()
     {
-        $table = TableGateway::getInstance('Opus\Db\Documents');
-        $select = $table->select()->from($table, 'min(server_date_published) AS min_date')
+        $table     = TableGateway::getInstance(Db\Documents::class);
+        $select    = $table->select()->from($table, 'min(server_date_published) AS min_date')
                 ->where('server_date_published IS NOT NULL')
                 ->where('TRIM(server_date_published) != \'\'');
         $timestamp = $table->fetchRow($select)->toArray();
@@ -926,10 +918,10 @@ class Document extends AbstractDb
     /**
      * Returns an array of ids for all document of the specified type.
      *
-     * @param  string  $typename The name of the document type.
-     * @return array Array of document ids.
-     *
      * @deprecated
+     *
+     * @param  string $typename The name of the document type.
+     * @return array Array of document ids.
      */
     public static function getIdsForDocType($typename)
     {
@@ -941,31 +933,31 @@ class Document extends AbstractDb
     /**
      * Returns an array of ids for all documents published between two dates.
      *
-     * @param  string  $from    (Optional) The earliest publication date to include.
-     * @param  string  $until   (Optional) The latest publication date to include.
-     * @return array Array of document ids.
-     *
      * @deprecated
+     *
+     * @param  null|string $from (Optional) The earliest publication date to include.
+     * @param  null|string $until (Optional) The latest publication date to include.
+     * @return array Array of document ids.
      */
     public static function getIdsForDateRange($from = null, $until = null)
     {
         try {
-            if (true === is_null($from)) {
-                $from = new \Zend_Date(self::getEarliestPublicationDate());
+            if ($from === null) {
+                $from = new Zend_Date(self::getEarliestPublicationDate());
             } else {
-                $from = new \Zend_Date($from);
+                $from = new Zend_Date($from);
             }
-        } catch (\Exception $e) {
-            throw new \Exception('Invalid date string supplied: ' . $from);
+        } catch (Exception $e) {
+            throw new Exception('Invalid date string supplied: ' . $from);
         }
         try {
-            if (true === is_null($until)) {
-                $until = new \Zend_Date();
+            if ($until === null) {
+                $until = new Zend_Date();
             } else {
-                $until = new \Zend_Date($until);
+                $until = new Zend_Date($until);
             }
-        } catch (\Exception $e) {
-            throw new \Exception('Invalid date string supplied: ' . $until);
+        } catch (Exception $e) {
+            throw new Exception('Invalid date string supplied: ' . $until);
         }
 
         $searchRange = null;
@@ -986,7 +978,7 @@ class Document extends AbstractDb
                 . '%"';
         }
 
-        $table = TableGateway::getInstance('Opus\Db\Documents');
+        $table = TableGateway::getInstance(Db\Documents::class);
         // TODO server date publish really needed ?
         // because server date modified is in any case setted to latest change date
         $select = $table->select()
@@ -995,7 +987,7 @@ class Document extends AbstractDb
                 ->orWhere('server_date_modified ' . $searchRange);
 
         $rows = $table->fetchAll($select)->toArray();
-        $ids = [];
+        $ids  = [];
         foreach ($rows as $row) {
             $ids[] = $row['id'];
         }
@@ -1005,26 +997,25 @@ class Document extends AbstractDb
     /**
      * Bulk update of ServerDateModified for documents matching selection
      *
-     * @param Date $date Opus\Date-Object holding the date to be set
+     * @param Date  $date Opus\Date-Object holding the date to be set
      * @param array $ids array of document ids
      */
     public static function setServerDateModifiedByIds($date, $ids)
     {
         // Update wird nur ausgeführt, wenn IDs übergeben werden
-        if (is_null($ids) || count($ids) == 0) {
+        if ($ids === null || count($ids) === 0) {
             return;
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
-
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
         $where = $table->getAdapter()->quoteInto('id IN (?)', $ids);
 
         try {
             $table->update(['server_date_modified' => "$date"], $where);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $logger = Log::get();
-            if (! is_null($logger)) {
+            if ($logger !== null) {
                 $logger->err(__METHOD__ . ' ' . $e);
             }
         }
@@ -1043,7 +1034,7 @@ class Document extends AbstractDb
             $ids = Collection::fetchCollectionIdsByDocumentId($this->getId());
 
             foreach ($ids as $id) {
-                $collection = new Collection($id);
+                $collection    = new Collection($id);
                 $collections[] = $collection;
             }
         }
@@ -1053,12 +1044,10 @@ class Document extends AbstractDb
 
     /**
      * Store all Opus\Collection objects for this document.
-     *
-     * @return void
      */
     protected function _storeCollection($collections)
     {
-        if (true === is_null($this->getId())) {
+        if ($this->getId() === null) {
             return;
         }
 
@@ -1078,8 +1067,6 @@ class Document extends AbstractDb
 
     /**
      * Add URN identifer if no identifier has been added yet.
-     *
-     * @return void
      */
     protected function _storeIdentifierUrn($identifiers)
     {
@@ -1098,7 +1085,7 @@ class Document extends AbstractDb
                 $nss = $config->urn->nss;
 
                 if (! empty($nid) && ! empty($nss)) {
-                    $urn = new Urn($nid, $nss);
+                    $urn      = new Urn($nid, $nss);
                     $urnValue = $urn->getUrn($this->getId());
                     $urnModel = new Identifier();
                     $urnModel->setValue($urnValue);
@@ -1122,10 +1109,10 @@ class Document extends AbstractDb
             }
         }
         $options = null;
-        if (array_key_exists('options', $this->_externalFields['Identifier'])) {
-            $options = $this->_externalFields['Identifier']['options'];
+        if (array_key_exists('options', $this->externalFields['Identifier'])) {
+            $options = $this->externalFields['Identifier']['options'];
         }
-        $this->_storeExternal($this->_fields['Identifier']->getValue(), $options);
+        $this->_storeExternal($this->fields['Identifier']->getValue(), $options);
     }
 
     private function isIdentifierSet($identifiers)
@@ -1145,12 +1132,10 @@ class Document extends AbstractDb
 
     /**
      * Add UUID identifier if none has been added.
-     *
-     * @return void
      */
     protected function _storeIdentifierUuid($value)
     {
-        if (true === is_null($value)) {
+        if ($value === null) {
             $uuidModel = new Identifier();
             $uuidModel->setValue(UUID::generate());
             $this->setIdentifierUuid($uuidModel);
@@ -1162,7 +1147,6 @@ class Document extends AbstractDb
      * no value is set.
      *
      * @param string $value Server state of document.
-     * @return void
      */
     protected function _storeServerState($value)
     {
@@ -1170,7 +1154,7 @@ class Document extends AbstractDb
             $value = self::STATE_UNPUBLISHED;
             $this->setServerState($value);
         }
-        $this->_primaryTableRow->server_state = $value;
+        $this->primaryTableRow->server_state = $value;
     }
 
     /**
@@ -1187,7 +1171,7 @@ class Document extends AbstractDb
      */
     public function setServerState($serverState)
     {
-        if (is_null($this->oldServerState) && ! $this->serverStateChanged) {
+        if ($this->oldServerState === null && ! $this->serverStateChanged) {
             // erste Änderung des Wertes von serverState
             $this->oldServerState = $this->getServerState();
         }
@@ -1195,7 +1179,7 @@ class Document extends AbstractDb
         // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
         // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
         // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
-        $this->serverStateChanged = ($serverState !== $this->oldServerState);
+        $this->serverStateChanged = $serverState !== $this->oldServerState;
 
         return parent::setServerState($serverState);
     }
@@ -1251,6 +1235,7 @@ class Document extends AbstractDb
 
     /**
      * Returns title in document language.
+     *
      * @return Title
      *
      * TODO could be done using the database directly, but Opus\Title would still have to instantiated
@@ -1286,12 +1271,12 @@ class Document extends AbstractDb
     {
         $docLanguage = $this->getLanguage();
 
-        if (is_null($language)) {
+        if ($language === null) {
             $language = $docLanguage;
         }
 
         if (count($titles) > 0) {
-            if (! is_null($language)) {
+            if ($language !== null) {
                 $titleInDocLang = null;
 
                 foreach ($titles as $title) {
@@ -1299,13 +1284,13 @@ class Document extends AbstractDb
 
                     if ($language === $titleLanguage) {
                         return $title;
-                    } elseif ($docLanguage == $titleLanguage) {
+                    } elseif ($docLanguage === $titleLanguage) {
                         $titleInDocLang = $title;
                     }
                 }
 
                 // if available return title in document language
-                if (! is_null($titleInDocLang)) {
+                if ($titleInDocLang !== null) {
                     return $titleInDocLang;
                 }
             }
@@ -1328,7 +1313,7 @@ class Document extends AbstractDb
      */
     public function getFile($param = null)
     {
-        if (is_null($param)) {
+        if ($param === null) {
             $files = parent::getFile();
             usort($files, [$this, 'compareFiles']);
             return $files;
@@ -1340,10 +1325,10 @@ class Document extends AbstractDb
 
     public function compareFiles($a, $b)
     {
-        if ($a->getSortOrder() == $b->getSortOrder()) {
-            return ($a->getId() < $b->getId()) ? -1 : 1;
+        if ($a->getSortOrder() === $b->getSortOrder()) {
+            return $a->getId() < $b->getId() ? -1 : 1;
         }
-        return ($a->getSortOrder() < $b->getSortOrder()) ? -1 : 1;
+        return $a->getSortOrder() < $b->getSortOrder() ? -1 : 1;
     }
 
     /**
@@ -1358,16 +1343,16 @@ class Document extends AbstractDb
         $date = new Date();
         $date->setNow();
         if (true === $this->isNewRecord()) {
-            if (is_null($this->getServerDateCreated())) {
+            if ($this->getServerDateCreated() === null) {
                 $this->setServerDateCreated($date);
             }
         }
         $this->setServerDateModified($date);
 
         if (true === $this->isNewRecord() || true === $this->isModified()) {
-            // Initially set ServerDatePublished if ServerState == 'published'
+            // Initially set ServerDatePublished if ServerState==='published'
             if ($this->getServerState() === 'published') {
-                if (is_null($this->getServerDatePublished())) {
+                if ($this->getServerDatePublished() === null) {
                     $this->setServerDatePublished($date);
                 }
             }
@@ -1405,15 +1390,14 @@ class Document extends AbstractDb
      * Erase all document fields, which are passed in $fieldnames array.
      *
      * @param array $fieldnames
-     * @return Document Provide fluent interface.
-     *
+     * @return $this Provide fluent interface.
      * @throws DocumentException If a given field does no exist.
      */
     public function deleteFields($fieldnames)
     {
         foreach ($fieldnames as $fieldname) {
             $field = $this->_getField($fieldname);
-            if (is_null($field)) {
+            if ($field === null) {
                 throw new DocumentException("Cannot delete field $fieldname: Does not exist?");
             }
             switch ($fieldname) {
@@ -1430,17 +1414,17 @@ class Document extends AbstractDb
     /**
      * Compares EmbargoDate with parameter or system time.
      *
-     * @param Date $now
+     * @param null|Date $now
      * @return bool true - if embargo date has passed; false - if not
      */
     public function hasEmbargoPassed($now = null)
     {
         $embargoDate = $this->getEmbargoDate();
 
-        if (is_null($embargoDate)) {
+        if ($embargoDate === null) {
             return true;
         }
-        if (is_null($now)) {
+        if ($now === null) {
             $now = new Date();
             $now->setNow();
         }
@@ -1450,7 +1434,7 @@ class Document extends AbstractDb
         $embargoDate->setSecond(59);
         $embargoDate->setTimezone($now->getTimezone());
 
-        return ($embargoDate->compare($now) == -1);
+        return $embargoDate->compare($now) === -1;
     }
 
     /**
@@ -1477,21 +1461,21 @@ class Document extends AbstractDb
      * TODO support different mechanisms implemented in separate classes
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isOpenAccess()
     {
         $docId = $this->getId();
 
         // can only be open access if it has been stored
-        if (is_null($docId)) {
+        if ($docId === null) {
             return false;
         }
 
-        $role = CollectionRole::fetchByName('open_access');
+        $role       = CollectionRole::fetchByName('open_access');
         $collection = $role->getCollectionByOaiSubset('open_access');
 
-        if (! is_null($collection)) {
+        if ($collection !== null) {
             return $collection->holdsDocumentById($this->getId());
         } else {
             return false;
@@ -1506,13 +1490,13 @@ class Document extends AbstractDb
      */
     public function getEnrichment($key = null)
     {
-        if (is_null($key) || is_numeric($key)) {
+        if ($key === null || is_numeric($key)) {
             return $this->__call('getEnrichment', [$key]);
         } else {
             $enrichments = $this->__call('getEnrichment', []);
 
             $matches = array_filter($enrichments, function ($enrichment) use ($key) {
-                return $enrichment->getKeyName() == $key;
+                return $enrichment->getKeyName() === $key;
             });
 
             switch (count($matches)) {
@@ -1540,7 +1524,7 @@ class Document extends AbstractDb
     {
         $enrichment = $this->getEnrichment($key);
 
-        if (! is_null($enrichment)) {
+        if ($enrichment !== null) {
             if (is_array($enrichment)) {
                 return array_map(function ($value) {
                     return $value->getValue();
@@ -1551,7 +1535,7 @@ class Document extends AbstractDb
         } else {
             $enrichmentKey = EnrichmentKey::fetchByName($key);
 
-            if (is_null($enrichmentKey)) {
+            if ($enrichmentKey === null) {
                 throw new ModelException('unknown enrichment key');
             } else {
                 return null;
@@ -1583,23 +1567,23 @@ class Document extends AbstractDb
     /**
      * Disconnects object from database and stores it as new document.
      *
+     * @deprecated not implemented yet
+     *
      * @return mixed
      * @throws ModelException
      *
      * TODO no idea how to do this properly
      * TODO not fully implemented yet
-     *
-     * @deprecated not implemented yet
      */
     public function storeAsNew()
     {
         $this->resetDatabaseEntry();
 
-        foreach ($this->_fields as $field) {
+        foreach ($this->fields as $field) {
             $field->setModified(true);
         }
 
-        foreach ($this->_externalFields as $fieldName => $fieldInfo) {
+        foreach ($this->externalFields as $fieldName => $fieldInfo) {
             $field = $this->getField($fieldName);
             $field->setModified(true);
 
@@ -1619,19 +1603,19 @@ class Document extends AbstractDb
      * All child objects are copied as well. The copy can then be modified and stored without affecting the original
      * object.
      *
+     * @deprecated not implemented yet
+     *
      * @return Document
      * @throws ModelException
      *
      * TODO track copying in enrichment (?) - do it externally to this function
      * TODO not fully implemented yet
-     *
-     * @deprecated not implemented yet
      */
     public function getCopy()
     {
         $document = new Document();
 
-        foreach ($this->_fields as $fieldName => $field) {
+        foreach ($this->fields as $fieldName => $field) {
             $document->getField($fieldName)->setValue($field->getValue());
             // TODO handle simple values
             // TODO handle complex values -> create new objects
@@ -1645,11 +1629,11 @@ class Document extends AbstractDb
     {
         return $this->serverStateChanged;
     }
+
     public function __call($name, array $arguments)
     {
-        $accessor = substr($name, 0, 3);
+        $accessor  = substr($name, 0, 3);
         $fieldname = substr($name, 3);
-
 
         if (! in_array($accessor, ['set', 'get', 'add'])) {
             return parent::__call($name, $arguments);

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,6 +35,7 @@
 namespace OpusTest\Translate;
 
 use Opus\Translate\Dao;
+use Opus\Translate\TranslateException;
 use OpusTest\TestAsset\TestCase;
 
 /**
@@ -42,20 +44,35 @@ use OpusTest\TestAsset\TestCase;
  */
 class DaoTest extends TestCase
 {
+    private $translations;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->translations = new Dao();
+    }
+
+    public function tearDown()
+    {
+        $this->translations->removeAll();
+
+        parent::tearDown();
+    }
 
     public function testAddTranslations()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'testkey1' => [
                 'de' => 'Testschlüssel 1',
-                'en' => 'test key one'
+                'en' => 'test key one',
             ],
             'testkey2' => [
                 'de' => 'Testschlüssel 2',
-                'en' => 'test key two'
-            ]
+                'en' => 'test key two',
+            ],
         ];
 
         $dao->addTranslations($data);
@@ -67,17 +84,17 @@ class DaoTest extends TestCase
 
     public function testAddTranslationsForModule()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'testkey1' => [
                 'de' => 'Testschlüssel 1',
-                'en' => 'test key one'
+                'en' => 'test key one',
             ],
             'testkey2' => [
                 'de' => 'Testschlüssel 2',
-                'en' => 'test key two'
-            ]
+                'en' => 'test key two',
+            ],
         ];
 
         $dao->addTranslations($data, 'admin');
@@ -89,15 +106,15 @@ class DaoTest extends TestCase
 
     public function testSetTranslation()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('admin_index_title', [
             'de' => 'Verwaltung',
-            'en' => 'Administration'
+            'en' => 'Administration',
         ]);
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ]);
 
         $translations = $dao->getAll();
@@ -111,15 +128,15 @@ class DaoTest extends TestCase
 
     public function testSetTranslationForUpdate()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('admin_index_title', [
             'de' => 'Verwaltung',
-            'en' => 'Administration'
+            'en' => 'Administration',
         ]);
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ]);
 
         $translations = $dao->getAll();
@@ -132,7 +149,7 @@ class DaoTest extends TestCase
 
         $dao->setTranslation('admin_index_title', [
             'de' => 'Editiert',
-            'en' => 'Edited'
+            'en' => 'Edited',
         ]);
 
         $translations = $dao->getAll();
@@ -146,11 +163,11 @@ class DaoTest extends TestCase
 
     public function testSetTranslationWithNullRemovesEntry()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'en' => 'test key one',
-            'de' => 'Testschlüssel 1'
+            'de' => 'Testschlüssel 1',
         ];
 
         $dao->setTranslation('testkey1', $data);
@@ -164,11 +181,11 @@ class DaoTest extends TestCase
 
     public function testSetTranslationWithModule()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'en' => 'test key one',
-            'de' => 'Testschlüssel 1'
+            'de' => 'Testschlüssel 1',
         ];
 
         $dao->setTranslation('testkey1', $data, 'module');
@@ -179,11 +196,11 @@ class DaoTest extends TestCase
 
     public function testRemove()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $translations = [
             'de' => 'Verwaltung',
-            'en' => 'Administration'
+            'en' => 'Administration',
         ];
 
         $dao->setTranslation('admin', $translations);
@@ -199,11 +216,11 @@ class DaoTest extends TestCase
 
     public function testRemoveAll()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $translations = [
             'de' => 'Verwaltung',
-            'en' => 'Administration'
+            'en' => 'Administration',
         ];
 
         $dao->setTranslation('admin', $translations);
@@ -217,11 +234,11 @@ class DaoTest extends TestCase
 
     public function testRemoveModule()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $translations1 = [
             'de' => 'Verwaltung',
-            'en' => 'Administration'
+            'en' => 'Administration',
         ];
 
         $dao->setTranslation('admin', $translations1);
@@ -230,7 +247,7 @@ class DaoTest extends TestCase
 
         $translations2 = [
             'de' => 'Testschüssel',
-            'en' => 'test key'
+            'en' => 'test key',
         ];
 
         $dao->setTranslation('testkey', $translations2, 'test');
@@ -240,24 +257,24 @@ class DaoTest extends TestCase
 
     public function testGetTranslation()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ]);
 
         $translation = $dao->getTranslation('testkey1');
 
         $this->assertEquals([
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ], $translation);
     }
 
     public function testGetTranslationForUnknownKey()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $translation = $dao->getTranslation('unknownkey');
 
@@ -266,11 +283,11 @@ class DaoTest extends TestCase
 
     public function testGetTranslationForLocale()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ]);
 
         $this->assertEquals('Testschlüssel 1', $dao->getTranslation('testkey1', 'de'));
@@ -279,11 +296,11 @@ class DaoTest extends TestCase
 
     public function testGetTranslationForUnknownLocale()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ]);
 
         $this->assertNull($dao->getTranslation('testkey1', 'fr'));
@@ -294,16 +311,16 @@ class DaoTest extends TestCase
      */
     public function testGetTranslationForKeyExistingInDefaultAndModule()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ]);
 
         $dao->setTranslation('testkey1', [
             'de' => 'Moduletestschlüssel 1',
-            'en' => 'module test key one'
+            'en' => 'module test key one',
         ], 'module');
 
         $translation = $dao->getTranslation('testkey1');
@@ -313,18 +330,18 @@ class DaoTest extends TestCase
 
     public function testGetTranslations()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ];
 
         $dao->setTranslation('testkey1', $data);
 
         $dataModule = [
             'de' => 'Modul',
-            'en' => 'Module'
+            'en' => 'Module',
         ];
 
         $dao->setTranslation('modulekey', $dataModule);
@@ -340,18 +357,18 @@ class DaoTest extends TestCase
 
     public function testGetTranslationsForModule()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ];
 
         $dao->setTranslation('testkey1', $data);
 
         $dataAdmin = [
             'de' => 'Verwaltung',
-            'en' => 'Administration'
+            'en' => 'Administration',
         ];
 
         $dao->setTranslation('admin', $dataAdmin, 'admin');
@@ -365,18 +382,18 @@ class DaoTest extends TestCase
 
     public function testGetTranslationsByLocale()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ];
 
         $dao->setTranslation('testkey1', $data);
 
         $dataModule = [
             'de' => 'Modul',
-            'en' => 'Module'
+            'en' => 'Module',
         ];
 
         $dao->setTranslation('modulekey', $dataModule, 'admin');
@@ -390,22 +407,22 @@ class DaoTest extends TestCase
         $this->assertEquals([
             'en' => [
                 'modulekey' => 'Module',
-                'testkey1' => 'test key one'
+                'testkey1'  => 'test key one',
             ],
             'de' => [
                 'modulekey' => 'Modul',
-                'testkey1' => 'Testschlüssel 1'
-            ]
+                'testkey1'  => 'Testschlüssel 1',
+            ],
         ], $all);
     }
 
     public function testRenameKey()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ];
 
         $dao->setTranslation('testkey1', $data);
@@ -425,23 +442,19 @@ class DaoTest extends TestCase
         $this->assertNull($translations);
     }
 
-    /**
-     * @expectedException \Opus\Translate\TranslateException
-     * @expectedExceptionMessage Duplicate entry
-     */
     public function testRenameKeyNewKeyAlreadyExists()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'testkey1' => [
                 'en' => 'test key one',
-                'de' => 'Testschlüssel 1'
+                'de' => 'Testschlüssel 1',
             ],
             'testkey2' => [
                 'en' => 'test key two',
-                'de' => 'Testschlüssel 2'
-            ]
+                'de' => 'Testschlüssel 2',
+            ],
         ];
 
         $dao->addTranslations($data);
@@ -449,16 +462,18 @@ class DaoTest extends TestCase
         $this->assertEquals($data['testkey1'], $dao->getTranslation('testkey1'));
         $this->assertEquals($data['testkey2'], $dao->getTranslation('testkey2'));
 
+        $this->setExpectedException(TranslateException::class, 'Duplicate entry');
+
         $dao->renameKey('testkey1', 'testkey2');
     }
 
     public function testRenameKeyInModuleOnly()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'en' => 'test key one',
-            'de' => 'Testschlüssel 1'
+            'de' => 'Testschlüssel 1',
         ];
 
         $dao->setTranslation('testkey1', $data);
@@ -483,16 +498,16 @@ class DaoTest extends TestCase
 
     public function testRenameKeyDefaultOnly()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Testschlüssel 1',
-            'en' => 'test key one'
+            'en' => 'test key one',
         ];
 
         $data2 = [
             'de' => 'Modulschlüssel',
-            'en' => 'module key'
+            'en' => 'module key',
         ];
 
         $dao->setTranslation('testkey1', $data);
@@ -512,11 +527,11 @@ class DaoTest extends TestCase
 
     public function testSetSpecialTranslation()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Jump to',
-            'en' => 'Gehe zu'
+            'en' => 'Gehe zu',
         ];
 
         $dao->setTranslation('admin-actionbox-goto-section', $data);
@@ -528,11 +543,11 @@ class DaoTest extends TestCase
 
     public function testGetTranslationsWithModules()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $data = [
             'de' => 'Deutsch',
-            'en' => 'Englisch'
+            'en' => 'Englisch',
         ];
 
         $dao->setTranslation('testKey', $data, 'setup');
@@ -552,12 +567,12 @@ class DaoTest extends TestCase
 
     public function testGetTranslationsWithModulesFilteredByModules()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
-        $keyData = ['en' => 'keyEN', 'de' => 'keyDE'];
+        $keyData        = ['en' => 'keyEN', 'de' => 'keyDE'];
         $defaultKeyData = ['en' => 'defaultKeyEN', 'de' => 'defaultKeyDE'];
         $publishKeyData = ['en' => 'publishKeyEN', 'de' => 'publishKeyDE'];
-        $adminKeyData = ['en' => 'adminKeyEN', 'de' => 'adminKeyDE'];
+        $adminKeyData   = ['en' => 'adminKeyEN', 'de' => 'adminKeyDE'];
 
         $dao->setTranslation('key', $keyData);
         $dao->setTranslation('default_key', $defaultKeyData, 'default');
@@ -591,26 +606,26 @@ class DaoTest extends TestCase
 
     public function testGetModules()
     {
-        $dao = new Dao();
+        $dao = $this->translations;
 
         $dao->setTranslation('testKey1', [
             'en' => 'test key 1',
-            'de' => 'Testschlüssel 1'
+            'de' => 'Testschlüssel 1',
         ]);
 
         $dao->setTranslation('testKey2', [
             'en' => 'test key 2',
-            'de' => 'Testschlüssel 2'
+            'de' => 'Testschlüssel 2',
         ], 'home');
 
         $dao->setTranslation('testKey3', [
             'en' => 'test key 3',
-            'de' => 'Testschlüssel 3'
+            'de' => 'Testschlüssel 3',
         ], 'admin');
 
         $dao->setTranslation('testKey3', [
             'en' => 'test key 4',
-            'de' => 'Testschlüssel 4'
+            'de' => 'Testschlüssel 4',
         ], 'admin');
 
         $modules = $dao->getModules();
@@ -619,7 +634,7 @@ class DaoTest extends TestCase
         $this->assertEquals([
             'default',
             'home',
-            'admin'
+            'admin',
         ], $modules);
     }
 }

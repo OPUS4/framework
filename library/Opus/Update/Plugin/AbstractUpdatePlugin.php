@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,61 +25,71 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Update\Plugin;
 
+use Opus\LoggingTrait;
+use Zend_Config;
+use Zend_Exception;
+
+use const PHP_EOL;
+
 /**
- * Class Opus\Update\Plugin\Abstract
  * @package Opus\Update\Plugin
  */
 abstract class AbstractUpdatePlugin
 {
-
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Configuration for application.
-     * @var \Zend_Config
+     *
+     * @var Zend_Config
      */
-    private $_config;
+    private $config;
 
     /**
      * Suppresses output to console.
-     * @var boolean
+     *
+     * @var bool
      */
-    private $_quietMode;
+    private $quietMode;
 
     /**
      * Sets configuration.
-     * @param $config \Zend_Config
+     *
+     * @param Zend_Config $config
      */
-    public function setConfig(Zend_Config $config)
+    public function setConfig($config)
     {
-        $this->_config = $config;
+        $this->config = $config;
     }
 
     /**
      * Returns configuration object for application.
-     * @return \Zend_Config
-     * @throws \Zend_Exception
+     *
+     * @return Zend_Config
+     * @throws Zend_Exception
      */
     public function getConfig()
     {
-        if (is_null($this->_config)) {
-            $this->_config = Config::get();
+        if ($this->config === null) {
+            $this->config = Config::get();
         }
-        return $this->_config;
+        return $this->config;
     }
 
     /**
      * Writes message to log.
-     * @param $message
+     *
+     * @param string $message
      *
      * TODO log to file
      */
@@ -86,7 +97,7 @@ abstract class AbstractUpdatePlugin
     {
         $logger = $this->getLogger();
 
-        if (! is_null($logger)) {
+        if ($logger !== null) {
             $logger->info($message);
         }
 
@@ -96,18 +107,25 @@ abstract class AbstractUpdatePlugin
         }
     }
 
+    /**
+     * @param bool $enabled
+     */
     public function setQuietMode($enabled)
     {
-        $this->_quietMode = $enabled;
+        $this->quietMode = $enabled;
     }
 
+    /**
+     * @return bool
+     */
     public function getQuietMode()
     {
-        return $this->_quietMode;
+        return $this->quietMode;
     }
 
     /**
      * Performs update operation.
+     *
      * @return mixed
      */
     abstract public function run();

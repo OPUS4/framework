@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,22 +25,30 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Util
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Util;
 
 use Opus\Config;
+use Opus\Util\File;
 use OpusTest\TestAsset\TestCase;
+
+use function file_exists;
+use function mkdir;
+use function touch;
+use function uniqid;
+
+use const DIRECTORY_SEPARATOR;
 
 class FileTest extends TestCase
 {
-
-    private $__src_path = '';
+    private $srcPath = '';
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -50,9 +59,9 @@ class FileTest extends TestCase
         parent::setUp();
 
         $config = Config::get();
-        $path = $config->workspacePath . '/' . uniqid();
+        $path   = $config->workspacePath . '/' . uniqid();
 
-        $this->__src_path = $path . '/src';
+        $this->srcPath = $path . '/src';
     }
 
     /**
@@ -61,7 +70,7 @@ class FileTest extends TestCase
      */
     protected function tearDown()
     {
-        \Opus\Util\File::deleteDirectory($this->__src_path);
+        File::deleteDirectory($this->srcPath);
         parent::tearDown();
     }
 
@@ -70,8 +79,8 @@ class FileTest extends TestCase
      */
     public function testDeleteNonExistingDirectory()
     {
-        $this->assertFalse(file_exists($this->__src_path));
-        $this->assertTrue(\Opus\Util\File::deleteDirectory($this->__src_path));
+        $this->assertFalse(file_exists($this->srcPath));
+        $this->assertTrue(File::deleteDirectory($this->srcPath));
     }
 
     /**
@@ -79,9 +88,9 @@ class FileTest extends TestCase
      */
     public function testDeleteEmptyDirectory()
     {
-        mkdir($this->__src_path, 0777, true);
-        $this->assertTrue(\Opus\Util\File::deleteDirectory($this->__src_path));
-        $this->assertFalse(file_exists($this->__src_path));
+        mkdir($this->srcPath, 0777, true);
+        $this->assertTrue(File::deleteDirectory($this->srcPath));
+        $this->assertFalse(file_exists($this->srcPath));
     }
 
     /**
@@ -89,11 +98,11 @@ class FileTest extends TestCase
      */
     public function testDeleteNonEmptyDirectory()
     {
-        mkdir($this->__src_path, 0777, true);
-        touch($this->__src_path . '/' . 'test.txt');
-        $this->assertTrue(\Opus\Util\File::deleteDirectory($this->__src_path));
-        $this->assertFalse(file_exists($this->__src_path));
-        $this->assertFalse(file_exists($this->__src_path));
+        mkdir($this->srcPath, 0777, true);
+        touch($this->srcPath . '/test.txt');
+        $this->assertTrue(File::deleteDirectory($this->srcPath));
+        $this->assertFalse(file_exists($this->srcPath));
+        $this->assertFalse(file_exists($this->srcPath));
     }
 
     /**
@@ -101,10 +110,10 @@ class FileTest extends TestCase
      */
     public function testDeleteDirectoryOnFile()
     {
-        mkdir($this->__src_path, 0777, true);
-        $file = $this->__src_path . '/' . 'test.txt';
+        mkdir($this->srcPath, 0777, true);
+        $file = $this->srcPath . '/test.txt';
         touch($file);
-        $this->assertTrue(\Opus\Util\File::deleteDirectory($file));
+        $this->assertTrue(File::deleteDirectory($file));
         $this->assertFalse(file_exists($file));
     }
 
@@ -113,10 +122,10 @@ class FileTest extends TestCase
      */
     public function testAddDirectorySeparator()
     {
-        $path = $this->__src_path;
+        $path = $this->srcPath;
         $this->assertEquals(
             $path . DIRECTORY_SEPARATOR,
-            \Opus\Util\File::addDirectorySeparator($path)
+            File::addDirectorySeparator($path)
         );
     }
 
@@ -126,7 +135,7 @@ class FileTest extends TestCase
     public function testAddDirectorySeparatorOnNull()
     {
         $path = null;
-        $this->assertEquals(null, \Opus\Util\File::addDirectorySeparator($path));
+        $this->assertEquals(null, File::addDirectorySeparator($path));
     }
 
     /**
@@ -134,22 +143,27 @@ class FileTest extends TestCase
      */
     public function testAddDirectorySeparatorWithAlreadyExistingSeparator()
     {
-        $path = $this->__src_path . DIRECTORY_SEPARATOR;
+        $path = $this->srcPath . DIRECTORY_SEPARATOR;
         $this->assertEquals(
             $path,
-            \Opus\Util\File::addDirectorySeparator($path)
+            File::addDirectorySeparator($path)
         );
     }
 
     /**
      * Test adding directory separator to path with trailing whitespaces.
+     *
+     * TODO is the function meant to keep the trailing whitespaces or remove them?
+     *      the original implementation of the function contains a line for removing whitespace including a comment
+     *      about it, but the line didn't work, so the function kept the whitespace (like it is tested here), but
+     *      was that the goal?
      */
     public function testAddDirectorySeparatorWithTrailingWhitespaces()
     {
-        $path = $this->__src_path . '   ';
+        $path = $this->srcPath;
         $this->assertEquals(
             $path . DIRECTORY_SEPARATOR,
-            \Opus\Util\File::addDirectorySeparator($path)
+            File::addDirectorySeparator($path . '    ')
         );
     }
 }

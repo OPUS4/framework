@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,23 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Translate;
 
 use Opus\Db\TableGateway;
+use Opus\Db\TranslationKeys;
+use Opus\Db\Translations;
+use Zend_Db_Statement_Exception;
+
+use function count;
+use function is_array;
 
 /**
  * Class for managing custom translations in database.
@@ -51,16 +59,17 @@ use Opus\Db\TableGateway;
  * TODO merge getTranslations and getTranslationsByModule
  *      This is functionality for the management user interface. The translations are always needed with the module
  *      information.
- *
- * Added a change to provoke a conflict with doctrine branch to restore this file during merge.
  */
 class Dao implements StorageInterface
 {
+    const TABLE_TRANSLATION_KEYS = TranslationKeys::class;
 
-    const TABLE_TRANSLATION_KEYS = 'Opus\Db\TranslationKeys';
+    const TABLE_TRANSLATIONS = Translations::class;
 
-    const TABLE_TRANSLATIONS = 'Opus\Db\Translations';
-
+    /**
+     * @param string      $key
+     * @param null|string $module
+     */
     public function remove($key, $module = null)
     {
         $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
@@ -82,12 +91,13 @@ class Dao implements StorageInterface
 
     /**
      * Deletes all translations for a module.
-     * @param $module
+     *
+     * @param string $module
      */
     public function removeModule($module)
     {
         $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
-        $where = $keysTable->getAdapter()->quoteInto('`module` = ?', $module);
+        $where     = $keysTable->getAdapter()->quoteInto('`module` = ?', $module);
         $keysTable->delete($where);
     }
 
@@ -96,13 +106,15 @@ class Dao implements StorageInterface
      *
      * Always adding key even if already present.
      *
-     * @param $key
-     * @param $translation
+     * @param string $key
+     * @param array  $translation
+     * @param string $module
      */
     public function setTranslation($key, $translation, $module = 'default')
     {
-        if (is_null($translation)) {
-            return $this->remove($key, $module);
+        if ($translation === null) {
+            $this->remove($key, $module);
+            return;
         }
 
         $keysTable = TableGateway::getInstance(self::TABLE_TRANSLATION_KEYS);
@@ -112,8 +124,8 @@ class Dao implements StorageInterface
         $database->beginTransaction();
 
         $keysTable->insertIgnoreDuplicate([
-            'key' => $key,
-            'module' => $module
+            'key'    => $key,
+            'module' => $module,
         ], 'id');
 
         $keyId = $database->lastInsertId();
@@ -124,7 +136,7 @@ class Dao implements StorageInterface
             $translationsTable->insertIgnoreDuplicate([
                 'key_id' => $keyId,
                 'locale' => $language,
-                'value' => $value
+                'value'  => $value,
             ]);
         }
 
@@ -137,8 +149,10 @@ class Dao implements StorageInterface
      * This function gets 0 or more rows from database depending on how many locales are
      * stored.
      *
-     * @param      $key
-     * @param null $locale
+     * @param string      $key
+     * @param null|string $locale
+     * @param null|string $module
+     * @return null|array
      */
     public function getTranslation($key, $locale = null, $module = null)
     {
@@ -149,11 +163,11 @@ class Dao implements StorageInterface
             ->join(['keys' => 'translationkeys'], 't.key_id = keys.id')
             ->where('keys.key = ?', $key);
 
-        if (! is_null($locale)) {
+        if ($locale !== null) {
             $select->where('t.locale = ?', $locale);
         }
 
-        if (! is_null($module)) {
+        if ($module !== null) {
             $select->where('keys.module = ?', $module);
         }
 
@@ -162,7 +176,7 @@ class Dao implements StorageInterface
         if (count($rows) > 0) {
             $result = [];
 
-            if (is_null($locale)) {
+            if ($locale === null) {
                 foreach ($rows as $row) {
                     $result[$row['locale']] = $row['value'];
                 }
@@ -184,7 +198,8 @@ class Dao implements StorageInterface
 
     /**
      * Finds a translation containing the search string.
-     * @param $needle
+     *
+     * @param string $needle
      */
     public function findTranslation($needle)
     {
@@ -192,7 +207,9 @@ class Dao implements StorageInterface
 
     /**
      * Returns all translations, optionally just for a module.
-     * @param null $module
+     *
+     * @param null|string $module
+     * @return array
      */
     public function getTranslations($module = null)
     {
@@ -202,7 +219,7 @@ class Dao implements StorageInterface
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
             ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
 
-        if (! is_null($module)) {
+        if ($module !== null) {
             $select->where('keys.module = ?', $module);
         }
 
@@ -211,9 +228,9 @@ class Dao implements StorageInterface
         $result = [];
 
         foreach ($rows as $row) {
-            $key = $row['key'];
+            $key    = $row['key'];
             $locale = $row['locale'];
-            $value = $row['value'];
+            $value  = $row['value'];
 
             $result[$key][$locale] = $value;
         }
@@ -221,6 +238,10 @@ class Dao implements StorageInterface
         return $result;
     }
 
+    /**
+     * @param null|string $module
+     * @return array
+     */
     public function getTranslationsByLocale($module = null)
     {
         $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
@@ -229,7 +250,7 @@ class Dao implements StorageInterface
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
             ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
 
-        if (! is_null($module)) {
+        if ($module !== null) {
             $select->where('keys.module = ?', $module);
         }
 
@@ -238,9 +259,9 @@ class Dao implements StorageInterface
         $result = [];
 
         foreach ($rows as $row) {
-            $key = $row['key'];
+            $key    = $row['key'];
             $locale = $row['locale'];
-            $value = $row['value'];
+            $value  = $row['value'];
 
             $result[$locale][$key] = $value;
         }
@@ -250,7 +271,9 @@ class Dao implements StorageInterface
 
     /**
      * Adds translations to the database.
-     * @param $translations
+     *
+     * @param array  $translations
+     * @param string $module
      */
     public function addTranslations($translations, $module = 'default')
     {
@@ -262,8 +285,8 @@ class Dao implements StorageInterface
 
         foreach ($translations as $key => $locales) {
             $keysTable->insertIgnoreDuplicate([
-                'key' => $key,
-                'module' => $module
+                'key'    => $key,
+                'module' => $module,
             ]);
 
             $keyId = $keysTable->getAdapter()->lastInsertId();
@@ -274,7 +297,7 @@ class Dao implements StorageInterface
                 $translationsTable->insertIgnoreDuplicate([
                     'key_id' => $keyId,
                     'locale' => $language,
-                    'value'  => $value
+                    'value'  => $value,
                 ]);
             }
         }
@@ -284,6 +307,8 @@ class Dao implements StorageInterface
 
     /**
      * Returns all translations.
+     *
+     * @return array
      */
     public function getAll()
     {
@@ -293,6 +318,9 @@ class Dao implements StorageInterface
     /**
      * Renames translation key.
      *
+     * @param string $key
+     * @param string $newKey
+     * @param string $module
      * @throws TranslateException
      */
     public function renameKey($key, $newKey, $module = 'default')
@@ -308,20 +336,24 @@ class Dao implements StorageInterface
         $where[] = $database->quoteInto('`module` = ?', $module);
 
         $data = [
-            'key' => $newKey
+            'key' => $newKey,
         ];
 
         $database->beginTransaction();
 
         try {
             $keysTable->update($data, $where);
-        } catch (\Zend_Db_Statement_Exception $ndbse) {
+        } catch (Zend_Db_Statement_Exception $ndbse) {
             throw new TranslateException($ndbse);
         }
 
         $database->commit();
     }
 
+    /**
+     * @param null|string $modules
+     * @return array
+     */
     public function getTranslationsWithModules($modules = null)
     {
         $table = TableGateway::getInstance(self::TABLE_TRANSLATIONS);
@@ -330,7 +362,7 @@ class Dao implements StorageInterface
             ->from(['t' => 'translations'], ['keys.key', 'locale', 'value', 'keys.module'])
             ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
 
-        if (! is_null($modules)) {
+        if ($modules !== null) {
             if (is_array($modules)) {
                 $select->where('keys.module IN (?)', $modules);
             } else {
@@ -343,12 +375,12 @@ class Dao implements StorageInterface
         $result = [];
 
         foreach ($rows as $row) {
-            $key = $row['key'];
+            $key    = $row['key'];
             $locale = $row['locale'];
-            $value = $row['value'];
+            $value  = $row['value'];
             $module = $row['module'];
 
-            $result[$key]['module'] = $module;
+            $result[$key]['module']          = $module;
             $result[$key]['values'][$locale] = $value;
         }
 
@@ -357,6 +389,7 @@ class Dao implements StorageInterface
 
     /**
      * @inheritDoc
+     * @return string[]
      */
     public function getModules()
     {
@@ -365,8 +398,6 @@ class Dao implements StorageInterface
         $select = $table->getAdapter()->select()
             ->from(['keys' => 'translationkeys'], ['keys.module'])->distinct();
 
-        $rows = $table->getAdapter()->fetchCol($select);
-
-        return $rows;
+        return $table->getAdapter()->fetchCol($select);
     }
 }

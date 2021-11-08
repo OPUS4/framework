@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2016, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2016, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -39,36 +41,39 @@ use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
+use Zend_Db_Select;
+use Zend_Db_Table_Select;
+use Zend_Select;
+
+use function array_unique;
+use function count;
+use function get_class;
+use function is_array;
 
 /**
  * Domain model for documents in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Db\Documents
  *
  * TODO IDEA shows '.d' in sub selects as error, because it cannot detect the declaration in constructor
  *      maybe SQL string can be replaced by using the API (that would solve the problem) - OPUSVIER-4428
+ *
+ * phpcs:disable
  */
 class DocumentFinder
 {
-
     /**
      * Table gateway class for the documents table.
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus\Db\Documents';
+    protected static $tableGatewayClass = Db\Documents::class;
 
-    /**
-     * @var Opus\Db\Table\Abstract
-     */
-    private $_db = null;
+    /** @var Opus\Db\Table\Abstract */
+    private $_db;
 
-    /**
-     * @var \Zend_Db_Table_Select
-     */
-    private $_select = null;
+    /** @var Zend_Db_Table_Select */
+    private $_select;
 
     /**
      * Create new instance of Opus\DocumentList class.  The created object
@@ -76,9 +81,9 @@ class DocumentFinder
      */
     public function __construct()
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
 
-        $this->_db = $table->getAdapter();
+        $this->_db     = $table->getAdapter();
         $this->_select = $this->_db->select()->from(['d' => 'documents']);
     }
 
@@ -110,7 +115,7 @@ class DocumentFinder
     /**
      * Returns the \Zend_Db_Select object used to build query
      *
-     * @return \Zend_Db_Select
+     * @return Zend_Db_Select
      */
     public function getSelect()
     {
@@ -120,7 +125,7 @@ class DocumentFinder
     /**
      * Returns the \Zend_Db_Select object used to build query
      *
-     * @return \Zend_Db_Select
+     * @return Zend_Db_Select
      */
     public function getSelectIds()
     {
@@ -132,7 +137,7 @@ class DocumentFinder
     /**
      * Debug method
      *
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function debug()
     {
@@ -181,7 +186,7 @@ class DocumentFinder
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setIdRange($start, $end)
     {
@@ -193,7 +198,7 @@ class DocumentFinder
      * Add range-start-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setIdRangeStart($start)
     {
@@ -205,7 +210,7 @@ class DocumentFinder
      * Add range-end-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setIdRangeEnd($end)
     {
@@ -217,7 +222,7 @@ class DocumentFinder
      * Add subset-constraints to be applied on the result set.
      *
      * @param  array $subset
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setIdSubset($subset)
     {
@@ -240,7 +245,7 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setType($type)
     {
@@ -252,7 +257,7 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $typeArray
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setTypeInList($typeArray)
     {
@@ -264,7 +269,7 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerState($serverState)
     {
@@ -276,7 +281,7 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $serverStateArray
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerStateInList($serverStateArray)
     {
@@ -289,7 +294,7 @@ class DocumentFinder
      * result set to all documents with ServerDateCreated < $until.
      *
      * @param  string $until
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDateCreatedBefore($until)
     {
@@ -302,7 +307,7 @@ class DocumentFinder
      * result set to all documents with ServerDateCreated > $until.
      *
      * @param  string $until
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDateCreatedAfter($until)
     {
@@ -315,7 +320,7 @@ class DocumentFinder
      * result set to all documents with ServerDatePublished < $until.
      *
      * @param  string $until
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDatePublishedBefore($until)
     {
@@ -328,7 +333,7 @@ class DocumentFinder
      *
      * @param  string $from
      * @param  string $until
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDatePublishedRange($from, $until)
     {
@@ -342,7 +347,7 @@ class DocumentFinder
      *
      * @param  string $from
      * @param  string $until
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDateModifiedRange($from, $until)
     {
@@ -355,7 +360,7 @@ class DocumentFinder
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $from
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDateModifiedAfter($from)
     {
@@ -367,7 +372,7 @@ class DocumentFinder
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $from
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setServerDateModifiedBefore($until)
     {
@@ -377,9 +382,10 @@ class DocumentFinder
 
     /**
      * Add range constraint for embargo date applied to result set.
+     *
      * @param string $from
      * @param string $until
-     * @return DocumentFinder fluent interface
+     * @return $this fluent interface
      */
     public function setEmbargoDateRange($from, $until)
     {
@@ -390,8 +396,9 @@ class DocumentFinder
 
     /**
      * Add range constraint for embargo date applied to result set.
+     *
      * @param string $until
-     * @return DocumentFinder fluent interface
+     * @return $this fluent interface
      */
     public function setEmbargoDateBefore($until)
     {
@@ -401,8 +408,9 @@ class DocumentFinder
 
     /**
      * Add range constraint for embargo date applied to result set.
+     *
      * @param string $from Start date of range constraint for result set.
-     * @return DocumentFinder fluent interface
+     * @return $this fluent interface
      */
     public function setEmbargoDateAfter($from)
     {
@@ -424,7 +432,7 @@ class DocumentFinder
      * the documents and therefore they do not appear as now available documents.
      *
      * @param string $until Date of expiration of embargo
-     * @return DocumentFinder fluent interface
+     * @return $this fluent interface
      */
     public function setEmbargoDateBeforeNotModifiedAfter($until)
     {
@@ -437,7 +445,7 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setEnrichmentKeyExists($keyName)
     {
@@ -452,13 +460,13 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setEnrichmentKeyValue($keyName, $value)
     {
         $quotedKeyName = $this->_db->quote($keyName);
-        $quotedValue    = $this->_db->quote($value);
-        $subselect = "SELECT id FROM document_enrichments AS e "
+        $quotedValue   = $this->_db->quote($value);
+        $subselect     = "SELECT id FROM document_enrichments AS e "
             . "WHERE document_id = d.id AND key_name = $quotedKeyName AND value = $quotedValue";
 
         $this->_select->where("EXISTS ($subselect)");
@@ -469,13 +477,13 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setIdentifierTypeValue($type, $value)
     {
         $quotedType  = $this->_db->quote($type);
         $quotedValue = $this->_db->quote($value);
-        $subselect = "SELECT id FROM document_identifiers AS i "
+        $subselect   = "SELECT id FROM document_identifiers AS i "
             . "WHERE i.document_id = d.id AND type = $quotedType AND value = $quotedValue";
 
         $this->_select->where("EXISTS ($subselect)");
@@ -486,12 +494,12 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setIdentifierTypeExists($type)
     {
-        $quotedType  = $this->_db->quote($type);
-        $subselect = "SELECT id FROM document_identifiers AS i WHERE i.document_id = d.id AND type = $quotedType";
+        $quotedType = $this->_db->quote($type);
+        $subselect  = "SELECT id FROM document_identifiers AS i WHERE i.document_id = d.id AND type = $quotedType";
 
         $this->_select->where("EXISTS ($subselect)");
         return $this;
@@ -501,7 +509,7 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $value
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setBelongsToBibliography($value)
     {
@@ -513,12 +521,12 @@ class DocumentFinder
      * Add constraints to be applied on the result set.
      *
      * @param  string $value
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setCollectionRoleId($roleId)
     {
-        $quotedRoleId  = $this->_db->quote($roleId);
-        $subselect = "SELECT document_id
+        $quotedRoleId = $this->_db->quote($roleId);
+        $subselect    = "SELECT document_id
             FROM collections AS c, link_documents_collections AS l
             WHERE l.document_id = d.id
               AND l.collection_id = c.id
@@ -531,17 +539,17 @@ class DocumentFinder
     /**
      * Add constraints to be applied on the result set.
      *
-     * @param  int|array|\Zend_Select $value id, array of ids of collections
+     * @param  int|array|Zend_Select $value id, array of ids of collections
      * or \Zend_Select instance to set. If a \Zend_Select-object is provided,
      * the resulting statement must return a list of collection ids.
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setCollectionId($collectionId)
     {
-        if ($collectionId instanceof \Zend_Select) {
+        if ($collectionId instanceof Zend_Select) {
             $quotedCollectionId = $collectionId->assemble();
         } else {
-            $quotedCollectionId  = $this->_db->quote($collectionId);
+            $quotedCollectionId = $this->_db->quote($collectionId);
         }
         $subselect = "SELECT document_id
             FROM link_documents_collections AS l
@@ -553,16 +561,14 @@ class DocumentFinder
     }
 
     /**
-     *
      * Add instance of dependent model as constraint.
      *
      * @param AbstractDb $model Instance of dependent model.
-     *
      * @return DocumentFinder Fluent interface.
      */
     public function setDependentModel($model)
     {
-        if (! ($model instanceof AbstractDb)) {
+        if (! $model instanceof AbstractDb) {
             throw new DocumentFinderException('Expected instance of Opus\Model\AbstractDb.');
         }
         $id = null;
@@ -584,21 +590,23 @@ class DocumentFinder
             return $this->setCollectionRoleId($id);
         }
 
-        if (! ($model instanceof AbstractDependentModel ||
-                $model instanceof AbstractLinkModel)) {
+        if (
+            ! ($model instanceof AbstractDependentModel ||
+                $model instanceof AbstractLinkModel)
+        ) {
             $linkModelClass = $this->_getLinkModelClass($model);
-            if (is_null($linkModelClass)) {
-                throw new DocumentFinderException('link model class unknown for model '.get_class($model));
+            if ($linkModelClass === null) {
+                throw new DocumentFinderException('link model class unknown for model ' . get_class($model));
             }
             $model = new $linkModelClass();
         }
-        if (! is_null($id)) {
+        if ($id !== null) {
             $id = $this->_db->quote($id);
         }
-        $idCol = $model->getParentIdColumn();
+        $idCol             = $model->getParentIdColumn();
         $tableGatewayClass = $model->getTableGatewayClass();
         if (empty($tableGatewayClass)) {
-            throw new DocumentFinderException('No table gateway class provided for '.get_class($model));
+            throw new DocumentFinderException('No table gateway class provided for ' . get_class($model));
         }
         $table = TableGateway::getInstance($tableGatewayClass)->info('name');
         if (empty($idCol) || empty($table)) {
@@ -637,19 +645,19 @@ class DocumentFinder
     private function _getLinkModelClass(AbstractDb $model)
     {
         $linkModelClass = null;
-        $modelClass = get_class($model);
+        $modelClass     = get_class($model);
         switch ($modelClass) {
-            case 'Opus\Series':
-                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentSeries';
+            case Series::class:
+                $linkModelClass = Model\Dependent\Link\DocumentSeries::class;
                 break;
-            case 'Opus\Person':
-                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentPerson';
+            case Person::class:
+                $linkModelClass = Model\Dependent\Link\DocumentPerson::class;
                 break;
-            case 'Opus\Licence':
-                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentLicence';
+            case Licence::class:
+                $linkModelClass = Model\Dependent\Link\DocumentLicence::class;
                 break;
-            case 'Opus\DnbInstitute':
-                $linkModelClass = 'Opus\Model\Dependent\Link\DocumentDnbInstitute';
+            case DnbInstitute::class:
+                $linkModelClass = Model\Dependent\Link\DocumentDnbInstitute::class;
                 break;
         }
         return $linkModelClass;
@@ -658,55 +666,50 @@ class DocumentFinder
     /**
      * Add a subselect as constraint
      *
-     * @param \Zend_Db_Select $select A select object used as subselect in query.
+     * @param Zend_Db_Select $select A select object used as subselect in query.
      * The subquery must return a list of document ids.
-     *
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setSubSelectExists($select)
     {
-
-        $this->_select->where('d.id IN ('.$select->assemble().')');
+        $this->_select->where('d.id IN (' . $select->assemble() . ')');
         return $this;
     }
 
     /**
      * Add a subselect as constraint
      *
-     * @param \Zend_Db_Select $select A select object used as subselect in query.
+     * @param Zend_Db_Select $select A select object used as subselect in query.
      * The subquery must return a list of document ids.
-     *
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setSubSelectNotExists($select)
     {
-
-        $this->_select->where(' NOT d.id IN ('.$select->assemble().')');
+        $this->_select->where(' NOT d.id IN (' . $select->assemble() . ')');
         return $this;
     }
 
     /**
      * Only return documents with at leat one file marked as visible in oai.
      *
-     * @return DocumentFinder Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setFilesVisibleInOai()
     {
-
             $subselect = "SELECT DISTINCT document_id
             FROM document_files AS f
             WHERE f.document_id = d.id
             AND f.visible_in_oai=1";
 
-            $this->_select->where('d.id IN ('.$subselect.')');
+            $this->_select->where('d.id IN (' . $subselect . ')');
             return $this;
     }
 
     /**
      * Ordering to be applied on the result set.
      *
-     * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return DocumentFinder Fluent interface.
+     * @param  bool $order Sort ascending if true, descending otherwise.
+     * @return $this Fluent interface.
      */
     public function orderByAuthorLastname($order = true)
     {
@@ -725,8 +728,8 @@ class DocumentFinder
     /**
      * Ordering to be applied on the result set.
      *
-     * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return DocumentFinder Fluent interface.
+     * @param  bool $order Sort ascending if true, descending otherwise.
+     * @return $this Fluent interface.
      */
     public function orderByTitleMain($order = true)
     {
@@ -744,8 +747,8 @@ class DocumentFinder
     /**
      * Ordering to be applied on the result set.
      *
-     * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return DocumentFinder Fluent interface.
+     * @param  bool $order Sort ascending if true, descending otherwise.
+     * @return $this Fluent interface.
      */
     public function orderById($order = true)
     {
@@ -756,8 +759,8 @@ class DocumentFinder
     /**
      * Ordering to be applied on the result set.
      *
-     * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return DocumentFinder Fluent interface.
+     * @param  bool $order Sort ascending if true, descending otherwise.
+     * @return $this Fluent interface.
      */
     public function orderByType($order = true)
     {
@@ -768,8 +771,8 @@ class DocumentFinder
     /**
      * Ordering to be applied on the result set.
      *
-     * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return DocumentFinder Fluent interface.
+     * @param  bool $order Sort ascending if true, descending otherwise.
+     * @return $this Fluent interface.
      */
     public function orderByServerDatePublished($order = true)
     {

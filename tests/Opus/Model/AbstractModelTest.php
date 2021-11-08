@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,14 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model;
@@ -41,7 +43,9 @@ use Opus\Document;
 use Opus\Identifier;
 use Opus\Language;
 use Opus\Log;
+use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
+use Opus\Model\ModelException;
 use Opus\Model\NotFoundException;
 use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
@@ -50,26 +54,28 @@ use Opus\Person;
 use OpusTest\Model\Mock\AbstractModelMock;
 use OpusTest\Model\Mock\ModelWithHiddenField;
 use OpusTest\TestAsset\TestCase;
+use Zend_Log;
+use Zend_Validate_Alnum;
+use Zend_Validate_NotEmpty;
+
+use function array_pop;
+use function date_format;
 
 /**
  * Test cases for class Opus\Model\AbstractDb.
  *
  * @package Opus\Model
  * @category Tests
- *
  * @group AbstractTest
  */
 class AbstractModelTest extends TestCase
 {
-
     /**
      * Test if describe() returns the fieldnames of all previosly added fields.
-     *
-     * @return void
      */
     public function testDescribeReturnsAllFields()
     {
-        $mock = new AbstractModelMock;
+        $mock = new AbstractModelMock();
         $mock->addField(new Field('Field1'))
             ->addField(new Field('Field2'));
         $fields = $mock->describe();
@@ -79,110 +85,93 @@ class AbstractModelTest extends TestCase
     /**
      * Test if a field can be defined as internal thus it gets not reported by
      * describe().
-     *
-     * @return void
      */
     public function testHideInternalField()
     {
-        $model = new ModelWithHiddenField(null);
+        $model  = new ModelWithHiddenField(null);
         $result = $model->describe();
         $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');
     }
 
     /**
      * Test if an internal field can not be set.
-     *
-     * @return void
      */
     public function testSetCallToInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $model->setHiddenField('value');
     }
 
     /**
      * Test if an internal field can not be queried.
-     *
-     * @return void
      */
     public function testGetCallToInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $model->getHiddenField();
     }
 
     /**
      * Test if an internal field can not be added to.
-     *
-     * @return void
      */
     public function testAddCallToInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $model->addHiddenField();
     }
 
     /**
      * Test if an internal field can not be retrieved.
-     *
-     * @return void
      */
     public function testGetInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException('Opus\Model\ModelException');
+        $this->setExpectedException(ModelException::class);
         $model->getField('HiddenField');
     }
 
     /**
      * Test if set calls can be done in a flunet interface style.
      * E.g. $model->setField(1)->setAnotherField('Foo');
-     *
-     * @return void
      */
     public function testFluentInterfaceOnSetCall()
     {
-        $model = new AbstractModelMock;
+        $model  = new AbstractModelMock();
         $result = $model->setValue('Value');
         $this->assertInstanceOf(
-            'OpusTest\Model\Mock\AbstractModelMock',
+            AbstractModelMock::class,
             $result,
             'No fluent interface after set...() call.'
         );
     }
 
-
     /**
      * Test if a call to an unknown model method throws an exception
      * describing exactly this problem - not an "unknown field" exception.
-     *
-     * @return void
      */
     public function testCallToUnknownMethodThrowsBadMethodCallException()
     {
         $this->setExpectedException('BadMethodCallException');
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->notAMethodOfThisClass();
     }
 
     /**
      * Test if a model can validate its field values.
-     *
-     * @return void
      */
     public function testValidateModel()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->setValue('FieldValue');
 
         $field1 = new Field('Field1');
-        $field1->setValidator(new \Zend_Validate_Alnum());
+        $field1->setValidator(new Zend_Validate_Alnum());
 
         $field2 = new Field('Field2');
-        $field2->setValidator(new \Zend_Validate_NotEmpty());
+        $field2->setValidator(new Zend_Validate_NotEmpty());
         $field2->setMandatory(true);
 
         $model->addField($field1)->addField($field2);
@@ -199,12 +188,10 @@ class AbstractModelTest extends TestCase
     /**
      * Test if fields that are not marked as mandatory can remain
      * empty but survive validation.
-     *
-     * @return void
      */
     public function testNotMandatoryFieldsValidateEvenIfEmpty()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->getField('Value')->setMandatory(false);
         $model->setValue('');
         $this->assertTrue($model->isValid(), 'Validation should succeed.');
@@ -212,16 +199,14 @@ class AbstractModelTest extends TestCase
 
     /**
      * Test if a model can validate its field values.
-     *
-     * @return void
      */
     public function testValidationIsSkippedForFieldsWithNoValidator()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->setValue('FieldValue');
 
         $field1 = new Field('Field1');
-        $field1->setValidator(new \Zend_Validate_Alnum());
+        $field1->setValidator(new Zend_Validate_Alnum());
 
         $model->addField($field1);
 
@@ -232,14 +217,12 @@ class AbstractModelTest extends TestCase
 
     /**
      * Test if a validation error list can be retrieved.
-     *
-     * @return void
      */
     public function testValidationErrorsAreObtainable()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->getField('Value')->setMandatory(true);
-        $model->getField('Value')->setValidator(new \Zend_Validate_NotEmpty());
+        $model->getField('Value')->setValidator(new Zend_Validate_NotEmpty());
         // Model field "Value" is empty.
         $this->assertFalse($model->isValid(), 'Validation should fail.');
         $this->assertNotNull($model->getValidationErrors(), 'Validation errors are not set.');
@@ -248,14 +231,12 @@ class AbstractModelTest extends TestCase
     /**
      * Test if the returned validation errors are in the form of an
      * associative array mapping fieldnamed to errors.
-     *
-     * @return void
      */
     public function testValidationErrorsAreObtainablePerField()
     {
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $model->getField('Value')->setMandatory(true);
-        $model->getField('Value')->setValidator(new \Zend_Validate_NotEmpty());
+        $model->getField('Value')->setValidator(new Zend_Validate_NotEmpty());
         $model->isValid();
 
         $errors = $model->getValidationErrors();
@@ -265,15 +246,13 @@ class AbstractModelTest extends TestCase
     /**
      * Test if a submodel gets validated by its supermodel when the containing
      * field is set to be mandatory.
-     *
-     * @return void
      */
     public function testValidationOfSubmodelIfStoredInMandatoryField()
     {
-        $submodel = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
-        $model = new AbstractModelMock();
-        $field = new Field('Submodel');
-        $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock')
+        $submodel = $this->getMock(AbstractModelMock::class);
+        $model    = new AbstractModelMock();
+        $field    = new Field('Submodel');
+        $field->setValueModelClass(AbstractModelMock::class)
             ->setMandatory(true)
             ->setValue($submodel);
         $model->addField($field);
@@ -286,18 +265,15 @@ class AbstractModelTest extends TestCase
         $model->isValid();
     }
 
-
     /**
      * Test if validation of submodels gets triggers for each model in
      * a multivalue field.
-     *
-     * @return void
      */
     public function testValidationOfSubmodelsInMultivalueFields()
     {
-        $submodels[] = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
-        $submodels[] = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
-        $submodels[] = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
+        $submodels[] = $this->getMock(AbstractModelMock::class);
+        $submodels[] = $this->getMock(AbstractModelMock::class);
+        $submodels[] = $this->getMock(AbstractModelMock::class);
 
         // expect calls to isValid
         foreach ($submodels as $submodel) {
@@ -305,9 +281,9 @@ class AbstractModelTest extends TestCase
                 ->method('isValid');
         }
 
-        $model = new AbstractModelMock;
+        $model = new AbstractModelMock();
         $field = new Field('Submodels');
-        $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock')
+        $field->setValueModelClass(AbstractModelMock::class)
             ->setMandatory(true)
             ->setMultiplicity('*')
             ->setValue($submodels);
@@ -317,18 +293,15 @@ class AbstractModelTest extends TestCase
         $model->isValid();
     }
 
-
     /**
      * Test if a submodel validation fault triggers a supermodels validation fault.
-     *
-     * @return void
      */
     public function testValidationFailsIfSubmodelValidationDoesSo()
     {
-        $submodel = $this->getMock('OpusTest\Model\Mock\AbstractModelMock');
-        $model = new AbstractModelMock;
-        $field = new Field('Submodel');
-        $field->setValueModelClass('OpusTest\Model\Mock\AbstractModelMock')
+        $submodel = $this->getMock(AbstractModelMock::class);
+        $model    = new AbstractModelMock();
+        $field    = new Field('Submodel');
+        $field->setValueModelClass(AbstractModelMock::class)
             ->setMandatory(true)
             ->setValue($submodel);
         $model->addField($field);
@@ -347,9 +320,9 @@ class AbstractModelTest extends TestCase
      */
     public function testGetOwningModelClassForFieldOfDocument()
     {
-        $doc = new Document();
+        $doc   = new Document();
         $field = $doc->getField('Type');
-        $this->assertEquals('Opus\Document', $field->getOwningModelClass());
+        $this->assertEquals(Document::class, $field->getOwningModelClass());
     }
 
     /**
@@ -358,8 +331,8 @@ class AbstractModelTest extends TestCase
     public function testGetOwningModelClassForFieldOfPerson()
     {
         $person = new Person();
-        $field = $person->getField('FirstName');
-        $this->assertEquals('Opus\Person', $field->getOwningModelClass());
+        $field  = $person->getField('FirstName');
+        $this->assertEquals(Person::class, $field->getOwningModelClass());
     }
 
     /**
@@ -367,19 +340,19 @@ class AbstractModelTest extends TestCase
      */
     public function testGetOwningModelClassForFieldOfDocumentPerson()
     {
-        $doc = new Document();
+        $doc    = new Document();
         $person = new Person();
         $doc->addPerson($person);
         $persons = $doc->getPerson();
-        $person = $persons[0];
+        $person  = $persons[0];
 
         // Test for field that belongs to Opus\Person
         $field = $person->getField('FirstName');
-        $this->assertEquals('Opus\Person', $field->getOwningModelClass());
+        $this->assertEquals(Person::class, $field->getOwningModelClass());
 
         // Test for field that belongs to Opus\Model\Dependent\Link\DocumentPerson
         $field = $person->getField('SortOrder');
-        $this->assertEquals('Opus\Model\Dependent\Link\DocumentPerson', $field->getOwningModelClass());
+        $this->assertEquals(DocumentPerson::class, $field->getOwningModelClass());
     }
 
     public function testGetFieldForUnkownField()
@@ -400,7 +373,7 @@ class AbstractModelTest extends TestCase
 
     public function testSetLogger()
     {
-        $logger = new \Zend_Log();
+        $logger = new Zend_Log();
 
         $model = new AbstractModelMock();
 
@@ -444,8 +417,8 @@ class AbstractModelTest extends TestCase
         $doc = new Document();
 
         $doc->updateFromArray([
-            'Type' => 'article',
-            'Edition' => 'First'
+            'Type'    => 'article',
+            'Edition' => 'First',
         ]);
 
         $this->assertEquals('article', $doc->getType());
@@ -457,10 +430,10 @@ class AbstractModelTest extends TestCase
         $doc = new Document();
 
         $doc->updateFromArray([
-            'Type' => 'article',
+            'Type'         => 'article',
             'PersonAuthor' => [
-                ['LastName' => 'Tester']
-            ]
+                ['LastName' => 'Tester'],
+            ],
         ]);
 
         $this->assertEquals('article', $doc->getType());
@@ -479,11 +452,11 @@ class AbstractModelTest extends TestCase
         $doc = new Document();
 
         $doc->updateFromArray([
-            'Type' => 'article',
+            'Type'         => 'article',
             'PersonAuthor' => [
                 ['LastName' => 'author1'],
-                ['LastName' => 'author2', 'Email' => 'author@example.org']
-            ]
+                ['LastName' => 'author2', 'Email' => 'author@example.org'],
+            ],
         ]);
 
         $this->assertEquals('article', $doc->getType());
@@ -531,12 +504,12 @@ class AbstractModelTest extends TestCase
     public function testFromArray()
     {
         $date = Date::fromArray([
-            'Year' => 2018,
+            'Year'  => 2018,
             'Month' => 10,
-            'Day' => 12
+            'Day'   => 12,
         ]);
 
-        $this->assertInstanceOf('Opus\Date', $date);
+        $this->assertInstanceOf(Date::class, $date);
         $this->assertEquals('2018-10-12', $date->__toString());
     }
 
@@ -557,7 +530,7 @@ class AbstractModelTest extends TestCase
         $doc = new Document();
         $doc->store();
 
-        $key = 'indexed';
+        $key   = 'indexed';
         $value = 'true';
 
         $doc->setProperty($key, $value);
@@ -570,10 +543,10 @@ class AbstractModelTest extends TestCase
         $doc = new Document();
         $doc->store();
 
-        $key = 'indexed';
+        $key   = 'indexed';
         $value = 'true';
 
-        $key2 = 'source';
+        $key2   = 'source';
         $value2 = 'sword';
 
         $doc->setProperty($key, $value);
@@ -587,7 +560,7 @@ class AbstractModelTest extends TestCase
     {
         $doc = new Document();
 
-        $key = 'source';
+        $key   = 'source';
         $value = 'sword';
 
         $this->setExpectedException(PropertiesException::class, 'Model ID is null');
@@ -597,13 +570,13 @@ class AbstractModelTest extends TestCase
 
     public function testDeletingModelRemovesProperties()
     {
-        $doc = Document::new();
+        $doc        = Document::new();
         $identifier = Identifier::new();
         $identifier->setType('isbn');
         $identifier->setValue('testvalue');
         $doc->addIdentifier($identifier);
 
-        $docId = $doc->store();
+        $docId        = $doc->store();
         $identifierId = $identifier->getId();
 
         $identifier->setProperty('registered', 'true');
@@ -614,7 +587,7 @@ class AbstractModelTest extends TestCase
 
         $this->assertCount(1, $properties);
         $this->assertEquals([
-            'registered' => 'true'
+            'registered' => 'true',
         ], $properties);
 
         $doc->setIdentifier([]); // remove/delete identifier
@@ -634,7 +607,7 @@ class AbstractModelTest extends TestCase
 
     public function testSettingDocumentDeletedDoesNotRemoveProperties()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $doc->setProperty('prop1', 'value1');
@@ -647,7 +620,7 @@ class AbstractModelTest extends TestCase
         $this->assertCount(2, $properties);
         $this->assertEquals([
             'prop1' => 'value1',
-            'prop2' => 'value2'
+            'prop2' => 'value2',
         ], $properties);
 
         $doc->deleteDocument();
@@ -661,13 +634,13 @@ class AbstractModelTest extends TestCase
         $this->assertCount(2, $properties);
         $this->assertEquals([
             'prop1' => 'value1',
-            'prop2' => 'value2'
+            'prop2' => 'value2',
         ], $properties);
     }
 
     public function testDeletingDocumentRemovesProperties()
     {
-        $doc = Document::new();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $doc->setProperty('prop1', 'value1');
@@ -680,7 +653,7 @@ class AbstractModelTest extends TestCase
         $this->assertCount(2, $properties);
         $this->assertEquals([
             'prop1' => 'value1',
-            'prop2' => 'value2'
+            'prop2' => 'value2',
         ], $properties);
 
         $doc->delete();

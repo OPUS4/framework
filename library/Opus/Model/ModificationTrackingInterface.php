@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,42 +25,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus\Update
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Model
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
-namespace OpusTest\Update\Plugin;
+namespace Opus\Model;
 
-use Opus\Update\Plugin\AbstractUpdatePlugin;
-use OpusTest\TestAsset\TestCase;
-
-class AbstractUpdatePluginTest extends TestCase
+/**
+ * Interface defining methods for tracking and clearing modifcation status.
+ *
+ * @category Framework
+ * @package  Opus\Model
+ */
+interface ModificationTrackingInterface
 {
+    /**
+     * Returns true if modification status is set.
+     *
+     * @return bool True, if modified. False if not.
+     */
+    public function isModified();
 
-    private $_stub;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->_stub = $this->getMockForAbstractClass(AbstractUpdatePlugin::class);
-    }
-
-
-    public function testQuietModeOff()
-    {
-        $this->expectOutputString('Test output.' . PHP_EOL);
-        $this->_stub->log('Test output.');
-    }
-
-    public function testQuietModeOn()
-    {
-        $this->_stub->setQuietMode(true);
-
-        $this->expectOutputString('');
-        $this->_stub->log('Test output.');
-    }
+    /**
+     * Sets modified status.
+     *
+     * @param bool $modified
+     * @return mixed
+     */
+    public function setModified($modified);
 }

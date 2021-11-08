@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,35 +25,48 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use Exception;
+use Opus\Bootstrap\Base;
+use Opus\Doi\DataCiteXmlGenerationException;
+use Opus\Identifier\Urn;
+use Opus\Model\DateField;
+use Opus\Model\Field;
+use Opus\Model\UnixTimestampField;
+use Opus\Security\Realm;
+use Opus\Statistic\LocalCounter;
+use Opus\Storage\File as OpusStorageFile;
+use Opus\Translate\DatabaseAdapter;
+use Opus\Util\MetadataImport;
+use Opus\Validate\MateDecorator;
+use OpusDb_Mysqlutf8;
 use OpusTest\TestAsset\TestCase;
+
+use function exec;
+use function in_array;
 
 /**
  * Test cases to load all class files.
  *
  * @package Opus
  * @category Tests
- *
  * @group RequireTest
- *
  */
 class RequireTest extends TestCase
 {
-
     /**
      * Overwrite standard setUp method, no database connection needed.  Will
      * create a file listing of class files instead.
-     *
-     * @return void
      */
     public function setUp()
     {
@@ -60,8 +74,6 @@ class RequireTest extends TestCase
 
     /**
      * Overwrite standard tearDown method, no cleanup needed.
-     *
-     * @return void
      */
     public function tearDown()
     {
@@ -71,18 +83,16 @@ class RequireTest extends TestCase
      * Try to load all class files, just to make sure no syntax error have
      * been introduced.  As a side effect, all classes will be visible to
      * code coverage report.
-     *
-     * @return void
      */
     public function testRequire()
     {
-        $path = APPLICATION_PATH . '/library/Opus/';
-        $cmd = "find $path -type f -iname \"*php\"";
+        $path       = APPLICATION_PATH . '/library/Opus/';
+        $cmd        = "find $path -type f -iname \"*php\"";
         $classFiles = [];
         exec($cmd, $classFiles);
 
         foreach ($classFiles as $file) {
-            require_once($file);
+            require_once $file;
         }
     }
 
@@ -93,40 +103,26 @@ class RequireTest extends TestCase
      */
     public function instantiateTestProvider()
     {
-        $path = APPLICATION_PATH . '/library/Opus/';
-        $cmd = "find $path -type f -iname \"*php\" -print0 |xargs -r0 grep -hE \"class[[:space:]]+Opus_\" |cut -d\" \" -f 2 |grep Opus_";
+        $path    = APPLICATION_PATH . '/library/Opus/';
+        $cmd     = "find $path -type f -iname \"*php\" -print0 |xargs -r0 grep -hE \"class[[:space:]]+Opus_\" |cut -d\" \" -f 2 |grep Opus_";
         $classes = [];
         exec($cmd, $classes);
 
         $blacklist = [
-            'Opus\Validate\MateDecorator',
-            'Opus\Db\Adapter\Pdo\Mysqlutf8',
-            'Opus\Bootstrap\Base',
-            'Opus\Statistic\LocalCounter',
-            'Opus\Identifier\Urn',
-            'Opus\GPG',
-            'Opus\Security\Realm',
-            'Opus\Model\Field',
-            'Opus\Model\UnixTimestampField',
-            'Opus\Model\DateField',
-            'Opus\Storage\File',
-            'Opus\Reviewer',
-            'Opus\Privilege',
-            'Opus\SolrSearch\Exception',
-            'Opus\Util\MetadataImport',
-            'Opus\Search\Solr\Solarium\Document',
-            'Opus\Search\Solr\Solarium\Adapter',
-            'Opus\Search\Solr\Solarium\Filter\Complex',
-            'Opus\Search\Solr\Document\Xslt',
-            'Opus\Search\Solr\Filter\Raw',
-            'Opus\Search\Facet\Set',
-            'Opus\Search\Facet\Field',
-            'Opus\Search\Result\Facet',
-            'Opus\Search\Result\Match',
-            'Opus\Search\Filter\Simple',
-            'Opus\Translate\DatabaseAdapter',
-            'Opus\Translate\DefaultAdapter',
-            'Opus\Doi\DataCiteXmlGenerationException'
+            MateDecorator::class,
+            OpusDb_Mysqlutf8::class,
+            Base::class,
+            LocalCounter::class,
+            Urn::class,
+            Realm::class,
+            Field::class,
+            UnixTimestampField::class,
+            DateField::class,
+            OpusStorageFile::class,
+            MetadataImport::class,
+            DatabaseAdapter::class,
+            DatabaseAdapter::class,
+            DataCiteXmlGenerationException::class,
         ];
 
         $data = [];
@@ -144,18 +140,19 @@ class RequireTest extends TestCase
     /**
      * Try to load all class files and instantiate objects.
      *
-     * @return void
+     *
      *
      * Class files must be loaded (required_once) before the classes can be used.
-     * @depends testRequire
      *
+     * @param string $class
+     * @depends testRequire
      * @dataProvider instantiateTestProvider
      */
     public function testInstantiateTest($class)
     {
         try {
             new $class();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail("Loading class $class failed: " . $e->getMessage());
         }
     }

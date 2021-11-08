@@ -12,10 +12,11 @@
     "ext-dom": "*",
     "ext-pdo": "*",
     "ext-fileinfo": "*",
+    "ext-json": "*",
     "ext-libxml": "*",
     "zendframework/zendframework1": "1.12.*",
     "opus4-repo/opus4-common": "dev-master",
-    "opus4-repo/opus4-doi": "4.7"
+    "opus4-repo/opus4-doi": "4.7.*"
   },
   "autoload": {
     "psr-4": {
@@ -33,15 +34,12 @@
     "behat/behat": "3.3.*",
     "phpunit/php-invoker": "~1.1",
     "phpunit/phpunit-selenium": "1.4.2",
-    "doctrine/instantiator": "1.0.5",
-    "phploc/phploc": "*",
-    "phpdocumentor/phpdocumentor": "2.*",
     "phpmd/phpmd" : "2.*",
     "sebastian/phpcpd": "*",
-    "mayflower/php-codebrowser": "~1.1",
-    "squizlabs/php_codesniffer": "2.*",
+    "mayflower/php-codebrowser": "*",
+    "squizlabs/php_codesniffer": "*",
     "opus4-repo/codesniffer": "dev-master",
-    "zendframework/zend-coding-standard": "~1.0.0",
+    "laminas/laminas-coding-standard": "<2.3",
     "phpmetrics/phpmetrics": "*"
   },
   "minimum-stability": "dev",
@@ -70,9 +68,9 @@
       "Composer\\Config::disableProcessTimeout",
       "phpunit --log-junit build/phpunit.xml --colors=always"
     ],
-    "cs-check": "phpcs -n --extensions=php,phtml,css,js,inc",
-    "cs-fix": "phpcbf --extensions=php,phtml,css,js,inc",
-    "cs-report": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml",
+    "cs-check": "phpcs -n --extensions=php,phtml,css,js,inc -v",
+    "cs-fix": "phpcbf --extensions=php,phtml,css,js,inc -v",
+    "cs-report": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml -v",
     "phpmd": "phpmd library xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
     "phploc": "phploc --log-csv build/phploc.csv src",
     "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true",

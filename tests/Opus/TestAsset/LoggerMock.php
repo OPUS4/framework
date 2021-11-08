@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,32 +25,38 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\TestAsset;
 
 class LoggerMock
 {
+    private $messages = [];
 
-    private $_messages = [];
-
+    /**
+     * @param string $message
+     */
     public function err($message)
     {
-        $this->_messages[] = $message;
+        $this->messages[] = $message;
     }
 
     public function clear()
     {
-        $this->_messages = [];
+        $this->messages = [];
     }
 
+    /**
+     * @return string[]
+     */
     public function getMessages()
     {
-        return $this->_messages;
+        return $this->messages;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus\Model
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
  * The fields should be fetched in the order in which they were added. That mean getBefore should return 'bar', if
  * 'Target' has not been fetched yet and getAfter should return 'baz', if 'Target' has been fetched already.
+ *
+ * @category    Tests
+ * @package     Opus\Model
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Model\Mock;
@@ -40,14 +42,16 @@ namespace OpusTest\Model\Mock;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 
+/**
+ * phpcs:disable
+ */
 class CheckFieldOrderDummyClass extends AbstractDb
 {
+    protected static $tableGatewayClass = AbstractTableProvider::class;
 
-    protected static $_tableGatewayClass = "OpusTest\Model\Mock\AbstractTableProvider";
+    private $targetFetched = false;
 
-    private $_targetFetched = false;
-
-    protected function _init()
+    protected function init()
     {
         $this->addField(new Field("Before"));
         $this->addField(new Field("Target"));
@@ -56,7 +60,7 @@ class CheckFieldOrderDummyClass extends AbstractDb
 
     protected function _fetchBefore()
     {
-        if ($this->_targetFetched === true) {
+        if ($this->targetFetched === true) {
             return $this->getTarget();
         }
         return "bar"; // target has not been fetched yet
@@ -64,13 +68,13 @@ class CheckFieldOrderDummyClass extends AbstractDb
 
     protected function _fetchTarget()
     {
-        $this->_targetFetched = true;
+        $this->targetFetched = true;
         return "foo";
     }
 
     protected function _fetchAfter()
     {
-        if ($this->_targetFetched === false) {
+        if ($this->targetFetched === false) {
             return $this->getTarget();
         }
         return "baz"; // target has been fetched

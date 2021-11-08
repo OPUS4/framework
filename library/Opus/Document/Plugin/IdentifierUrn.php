@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,14 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @author      Julian Heise (heise@zib.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
+ * @author      Julian Heise (heise@zib.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Document\Plugin;
@@ -46,52 +48,57 @@ use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
+use function array_filter;
+use function count;
+use function filter_var;
+use function get_class;
+
+use const FILTER_VALIDATE_BOOLEAN;
+
 /**
  * Plugin for generating identifier urn.
  *
- * @category    Framework
- * @package     Opus\Document_Plugin
  * @uses        \Opus\Model\Plugin\AbstractPlugin
+ *
+ * phpcs:disable
  */
 class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerInterface
 {
-
     /**
      * Generates a new URN for any document that has no URN assigned yet.
      * URN's are generated for Opus\Document instances only.
      */
     public function postStoreInternal(ModelInterface $model)
     {
-
         $log = Log::get();
 
-        if (! ($model instanceof Document)) {
-            $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
+        if (! $model instanceof Document) {
+            $log->err(self::class . ' found unexpected model class ' . get_class($model));
             return;
         }
 
         $serverState = $model->getServerState();
-        $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
+        $log->debug(self::class . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
 
         if ($serverState !== 'published') {
-            $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
+            $log->debug(self::class . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
             return;
         }
 
         // prüfe zuerst, ob das Dokument das Enrichment opus.urn.autoCreate besitzt
         // in diesem Fall bestimmt der Wert des Enrichments, ob eine URN beim Publish generiert wird
         $generateUrn = null;
-        $enrichment = $model->getEnrichment('opus.urn.autoCreate');
-        if (! is_null($enrichment)) {
+        $enrichment  = $model->getEnrichment('opus.urn.autoCreate');
+        if ($enrichment !== null) {
             $enrichmentValue = $enrichment->getValue();
-            $generateUrn = ($enrichmentValue == 'true');
+            $generateUrn     = $enrichmentValue === 'true';
             $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
         }
 
         $config = Config::get();
-        if (is_null($generateUrn)) {
+        if ($generateUrn === null) {
             // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
-            $generateUrn = (isset($config->urn->autoCreate) && filter_var($config->urn->autoCreate, FILTER_VALIDATE_BOOLEAN));
+            $generateUrn = isset($config->urn->autoCreate) && filter_var($config->urn->autoCreate, FILTER_VALIDATE_BOOLEAN);
         }
 
         if (! $generateUrn) {
@@ -127,7 +134,7 @@ class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerI
         $nid = $config->urn->nid;
         $nss = $config->urn->nss;
 
-        $urn = new Urn($nid, $nss);
+        $urn       = new Urn($nid, $nss);
         $urn_value = $urn->getUrn($model->getId());
         $urn_model = new Identifier();
         $urn_model->setValue($urn_value);
@@ -170,7 +177,7 @@ class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerI
         $files = array_filter(
             $document->getFile(),
             function ($f) {
-                return $f->getVisibleInOai() == 1;
+                return ( int )$f->getVisibleInOai() === 1;
             }
         );
         return count($files) > 0;

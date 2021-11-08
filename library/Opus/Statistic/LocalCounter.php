@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,43 +26,61 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Statistic
  * @author      Tobias Leidinger <tobias.leidinger@gmail.com>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Statistic;
 
+use DOMDocument;
+use Exception;
 use Opus\Config;
+use Opus\Db\DocumentStatistics;
 use Opus\Db\TableGateway;
 use Opus\Model\ModelException;
+
+use function array_key_exists;
+use function date;
+use function filter_var;
+use function is_readable;
+use function max;
+use function md5;
+use function str_replace;
+use function stristr;
+use function strtolower;
+use function time;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Controller for Opus Applications.
  *
- * @category    Framework
- * @package     Opus\Statistic
+ * phpcs:disable
  */
 class LocalCounter
 {
-
     /**
      * Holds instance of the class
+     *
      * @var LocalCounter
      */
-    private static $localCounter = null;
+    private static $localCounter;
 
     /**
      * double click interval for fulltext in sec
+     *
      * @var int
      */
     private $doubleClickIntervalPdf = 30;
 
     /**
      * double click interval for frontdoor in sec
+     *
      * @var int
      */
     private $doubleClickIntervalHtml = 10;
@@ -102,7 +121,7 @@ class LocalCounter
         'WebStripper',
         'WebZIP',
         'Wget',
-        'Xenu Link Sleuth'
+        'Xenu Link Sleuth',
     ];
 
     private function __construct()
@@ -110,12 +129,11 @@ class LocalCounter
     }
 
     /**
-     *
      * @return LocalCounter
      */
     public static function getInstance()
     {
-        if (self::$localCounter == null) {
+        if (self::$localCounter === null) {
             self::$localCounter = new LocalCounter();
         }
         return self::$localCounter;
@@ -132,7 +150,7 @@ class LocalCounter
         $userAgent = strtolower($userAgent);
 
         foreach ($this->spiderList as $spider) {
-            if (stristr($userAgent, $spider) != false || stristr($userAgent, str_replace(' ', '+', $spider)) != false) {
+            if (stristr($userAgent, $spider) !== false || stristr($userAgent, str_replace(' ', '+', $spider)) !== false) {
                 return true;
             }
         }
@@ -141,9 +159,8 @@ class LocalCounter
 
     private function isRedirectStatusOk($redirectStatus)
     {
-        return $redirectStatus == 200 || $redirectStatus == 304;
+        return $redirectStatus === 200 || $redirectStatus === 304;
     }
-
 
     public function countFrontdoor($documentId)
     {
@@ -156,14 +173,11 @@ class LocalCounter
     }
 
     /**
-     *
-     *
      * @param $documentId
      * @param $fileId
      * @param $ip
      * @param $userAgent
      * @param $redirectStatus
-
      * @return int new counter value for given doc_id - month -year triple or FALSE if double click or spider
      */
     public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null)
@@ -176,17 +190,17 @@ class LocalCounter
             //print('type not defined');
             return 0;
         }
-        if ($ip == null || $ip == '') {
+        if ($ip === null || $ip === '') {
             if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
                 $ip = $_SERVER['REMOTE_ADDR'];
             }
         }
-        if ($userAgent == null || $userAgent == '') {
+        if ($userAgent === null || $userAgent === '') {
             if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
                 $userAgent = $_SERVER['HTTP_USER_AGENT'];
             }
         }
-        if ($redirectStatus == null || $redirectStatus == '') {
+        if ($redirectStatus === null || $redirectStatus === '') {
             if (array_key_exists('REDIRECT_STATUS', $_SERVER)) {
                 $redirectStatus = $_SERVER['REDIRECT_STATUS'];
             }
@@ -194,60 +208,59 @@ class LocalCounter
 
         $time = time();
         //determine whether it was a double click or not
-        if ($this->isRedirectStatusOk($redirectStatus) == false) {
+        if ($this->isRedirectStatusOk($redirectStatus) === false) {
         //    print('wrong redirect status');
             return 0;
         }
-        if ($this->checkSpider($userAgent) == true) {
+        if ($this->checkSpider($userAgent) === true) {
         //    print('spider found');
             return 0;
         }
 
         //don't log any file id if the frontdoor is counted
-        if ($type == 'frontdoor') {
+        if ($type === 'frontdoor') {
             $fileId = -1;
         }
-        if ($this->logClick($documentId, $fileId, $time) == true) {
+        if ($this->logClick($documentId, $fileId, $time) === true) {
         //    print('double click');
             return 0;
         }
 
         //no double click? increase counter!
-        $year = date('Y', $time);
+        $year  = date('Y', $time);
         $month = date('n', $time);
 
-        $ods = TableGateway::getInstance("Opus\Db\DocumentStatistics");
-        $db = $ods->getAdapter();
+        $ods = TableGateway::getInstance(DocumentStatistics::class);
+        $db  = $ods->getAdapter();
         $db->beginTransaction();
 
         try {
-            $value = 0;
+            $value       = 0;
             $createEntry = true;
 
             $rowSet = $ods->find($documentId, $year, $month, $type);
             if ($rowSet->count() > 0) {
-                $value = $rowSet->current()->count;
+                $value       = $rowSet->current()->count;
                 $createEntry = false;
             }
 
             $value++;
             $data = [
                 'document_id' => $documentId,
-                'year' => $year,
-                'month' => $month,
-                'count' => $value,
-                'type' => $type,
+                'year'        => $year,
+                'month'       => $month,
+                'count'       => $value,
+                'type'        => $type,
             ];
 
             //TODO direct $ods->insert() possible??
 
-            $where = $db->quoteInto('document_id = ?', $documentId) .
-            $ods->getAdapter()->quoteInto(' AND year = ?', $year) .
-            $ods->getAdapter()->quoteInto(' AND month = ?', $month) .
-            $ods->getAdapter()->quoteInto(' AND type = ?', $type);
+            $where = $db->quoteInto('document_id = ?', $documentId)
+            . $ods->getAdapter()->quoteInto(' AND year = ?', $year)
+            . $ods->getAdapter()->quoteInto(' AND month = ?', $month)
+            . $ods->getAdapter()->quoteInto(' AND type = ?', $type);
 
-
-            if ($createEntry == true) {
+            if ($createEntry === true) {
                 $ods->insert($data);
             } else {
                 $ods->update($data, $where);
@@ -255,9 +268,9 @@ class LocalCounter
 
             $db->commit();
             return $value;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->rollBack();
-            print ($e->getMessage());
+            print $e->getMessage();
             return 0;
         }
 
@@ -281,13 +294,12 @@ class LocalCounter
 
         $tempDir = Config::getInstance()->getTempPath();
         //initialize log data
-        $md5Ip = "h".md5($ip);
-
+        $md5Ip = "h" . md5($ip);
 
         //TODO determine file type of file id
         $filetype = 'pdf';
 
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         if (is_readable($tempDir . '~localstat.xml') === false) {
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);
@@ -296,7 +308,7 @@ class LocalCounter
         }
 
         $xmlAccess = $dom->getElementsByTagName("access")->item(0);
-        if (is_null($xmlAccess)) {
+        if ($xmlAccess === null) {
             $message = 'Error loading click-log "' . $tempDir . '~localstat.xml"';
             throw new ModelException($message);
         }
@@ -317,37 +329,37 @@ class LocalCounter
         $xmlTime = $dom->createElement('time', $time);
         $xmlAccess->appendChild($xmlTime);
         //get document id, create if not exists
-        $xmlDocumentId = $dom->getElementsByTagName('document'. $documentId)->item(0);
-        if ($xmlDocumentId == null) {
-            $xmlDocumentId = $dom->createElement('document'. $documentId);
+        $xmlDocumentId = $dom->getElementsByTagName('document' . $documentId)->item(0);
+        if ($xmlDocumentId === null) {
+            $xmlDocumentId = $dom->createElement('document' . $documentId);
             $xmlAccess->appendChild($xmlDocumentId);
         }
 
         //get ip node
         $xmlIp = $xmlDocumentId->getElementsByTagName($md5Ip)->item(0);
-        if ($xmlIp == null) {
+        if ($xmlIp === null) {
             $xmlIp = $dom->createElement($md5Ip);
             $xmlDocumentId->appendChild($xmlIp);
         }
 
         //get file id, create if not exists
-        $xmlFileId = $xmlIp->getElementsByTagName('file'. $fileId)->item(0);
+        $xmlFileId = $xmlIp->getElementsByTagName('file' . $fileId)->item(0);
         if ($xmlFileId == null) {
-            $xmlFileId = $dom->createElement('file'. $fileId);
+            $xmlFileId = $dom->createElement('file' . $fileId);
             $xmlIp->appendChild($xmlFileId);
         }
 
         //read last Access for this file id
-        $fileIdTime = $xmlFileId->getAttribute('lastAccess');
+        $fileIdTime  = $xmlFileId->getAttribute('lastAccess');
         $doubleClick = false;
 
         if ($fileIdTime == null || $time - $fileIdTime > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
             /*no lastAccess set (new entry for this id) or lastAccess too far away
              -> create entry with actual time -> return no double click*/
-        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalHtml) && (($filetype == 'html') || ($fileId == -1))) {
+        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalHtml) && (($filetype === 'html') || ($fileId === -1))) {
             //html file double click
             $doubleClick = true;
-        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype == 'pdf') && ($fileId != -1)) {
+        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype === 'pdf') && ($fileId != -1)) {
             //pdf file double click
             $doubleClick = true;
         }
@@ -364,7 +376,7 @@ class LocalCounter
 
     public function readMonths($documentId, $datatype = 'files', $year = null)
     {
-        if ($year == null) {
+        if ($year === null) {
             //set current year
             $year = date('Y', time());
         }
@@ -372,14 +384,14 @@ class LocalCounter
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = TableGateway::getInstance('Opus\Db\Documentstatistics');
+        $ods    = TableGateway::getInstance(DocumentStatistics::class);
         $select = $ods->select()->where('year = ?', $year)
             ->where('document_id = ?', $documentId)
             ->where('type = ?', $datatype)
             ->order('month');
 
         $queryResult = $ods->fetchAll($select);
-        $result = [];
+        $result      = [];
         foreach ($queryResult as $row) {
             $result[$row->month] = $row->count;
         }
@@ -397,7 +409,7 @@ class LocalCounter
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = TableGateway::getInstance('Opus\Db\Documentstatistics');
+        $ods = TableGateway::getInstance(DocumentStatistics::class);
 
         $select = $ods->select()
             ->from(['stat' => 'document_statistics'], ['count' => 'SUM(stat.count)'])
@@ -412,7 +424,7 @@ class LocalCounter
             ->order('stat2.year');
 
         $queryResult = $ods->fetchAll($select);
-        $result = [];
+        $result      = [];
         foreach ($queryResult as $row) {
             $result[$row->year] = $row->count;
         }
@@ -428,13 +440,12 @@ class LocalCounter
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = TableGateway::getInstance('Opus\Db\Documentstatistics');
+        $ods = TableGateway::getInstance(DocumentStatistics::class);
 
         $select = $ods->select()
             ->from(['stat' => 'document_statistics'], ['count' => 'SUM(stat.count)'])
             ->where('stat.type = ?', $datatype)
             ->where('stat.document_id = ?', $documentId);
-
 
         $queryResult = $ods->fetchAll($select);
         unset($result);

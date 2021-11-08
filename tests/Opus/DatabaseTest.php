@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,21 +25,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
 use Opus\Database;
 use OpusTest\TestAsset\TestCase;
+use PDOException;
+
+use function array_map;
+use function basename;
+use function count;
+use function substr;
 
 class DatabaseTest extends TestCase
 {
-
     public function testGetSqlFiles()
     {
         $database = new Database();
@@ -73,7 +80,7 @@ class DatabaseTest extends TestCase
 
         foreach ($scripts as $script) {
             $basename = basename($script);
-            $number = substr($basename, 0, 3);
+            $number   = substr($basename, 0, 3);
 
             $this->assertGreaterThan($lastNumber, $number);
             $lastNumber = $number;
@@ -125,9 +132,6 @@ class DatabaseTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \PDOException
-     */
     public function testBadSqlThrowsException()
     {
         $this->markTestIncomplete('exec function does not throw exceptions yet');
@@ -141,8 +145,6 @@ class DatabaseTest extends TestCase
 
     /**
      * Tests if an error in multiple statements is reported.
-     * @expectedException \PDOException
-     * @expectedExceptionMessage schema_ver' doesn't exist
      */
     public function testPdoExecErrorReportingFirstStatement()
     {
@@ -151,6 +153,8 @@ class DatabaseTest extends TestCase
         $pdo = $database->getPdo($database->getName());
 
         $sql = 'TRUNCATE TABLE `schema_ver`; INSERT INTO `schema_version` (`version`) VALUES (\'5.0\');';
+
+        $this->setExpectedException(PDOException::class, 'schema_ver\' doesn\'t exist');
 
         $pdo->exec($sql);
     }
@@ -177,9 +181,6 @@ class DatabaseTest extends TestCase
 
     /**
      * Using 'query' function produces exceptions when iterating through statements.
-     *
-     * @expectedException \PDOException
-     * @expectedExceptionMessage schema_ver' doesn't exist
      */
     public function testPdoQueryErrorReporting()
     {
@@ -192,6 +193,8 @@ class DatabaseTest extends TestCase
         $statement = $pdo->query($sql);
 
         $this->assertEquals('00000', $statement->errorCode());
+
+        $this->setExpectedException(PDOException::class, 'schema_ver\' doesn\'t exist');
 
         $statement->nextRowset();
     }
@@ -213,12 +216,11 @@ class DatabaseTest extends TestCase
             $statement->nextRowset();
 
             $this->fail('Should have thrown exception.');
-        } catch (\PDOException $pdoex) {
+        } catch (PDOException $pdoex) {
         }
 
         $this->assertFalse($statement->nextRowset());
     }
-
 
     public function testPdoQueryIteratingResults()
     {
@@ -263,6 +265,8 @@ class DatabaseTest extends TestCase
 
     public function testGetVersionNullForOldDatabase()
     {
+        $this->clearTables(false, ['schema_version']);
+
         $database = new Database();
 
         $version = $database->getVersion();

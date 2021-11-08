@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Tests
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Dependent\Link;
@@ -36,31 +38,27 @@ namespace OpusTest\Model\Dependent\Link;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 
 class DocumentDnbInstituteTest extends TestCase
 {
-
-    /**
-     * @expectedException \Opus\Model\ModelException
-     * @expectedExceptionMessage Access to internal field not allowed: Role
-     */
     public function testRoleFieldNoSetAccess()
     {
         $institute = new DocumentDnbInstitute();
 
+        $this->setExpectedException(ModelException::class, 'Access to internal field not allowed: Role');
+
         $institute->setRole('grantor');
     }
 
-    /**
-     * @expectedException \Opus\Model\ModelException
-     * @expectedExceptionMessage Access to internal field not allowed: Role
-     */
     public function testRoleFieldNoGetAccess()
     {
         $institute = new DocumentDnbInstitute();
 
-        $role = $institute->getRole();
+        $this->setExpectedException(ModelException::class, 'Access to internal field not allowed: Role');
+
+        $institute->getRole();
     }
 
     public function testToArray()
@@ -80,34 +78,34 @@ class DocumentDnbInstituteTest extends TestCase
         $data = $institute->toArray();
 
         $this->assertEquals([
-            'Name' => 'Solutions',
-            'Department' => 'Big Solutions',
-            'Address' => 'Research Street',
-            'City' => 'Berlin',
-            'Phone' => '555-1234',
+            'Name'         => 'Solutions',
+            'Department'   => 'Big Solutions',
+            'Address'      => 'Research Street',
+            'City'         => 'Berlin',
+            'Phone'        => '555-1234',
             'DnbContactId' => '123',
-            'IsGrantor' => 0,
-            'IsPublisher' => 1,
-            'Role' => null
+            'IsGrantor'    => 0,
+            'IsPublisher'  => 1,
+            'Role'         => null,
         ], $data);
     }
 
     public function testFromArray()
     {
         $institute = DocumentDnbInstitute::fromArray([
-            'Name' => 'Solutions',
-            'Department' => 'Big Solutions',
-            'Address' => 'Research Street',
-            'City' => 'Berlin',
-            'Phone' => '555-1234',
+            'Name'         => 'Solutions',
+            'Department'   => 'Big Solutions',
+            'Address'      => 'Research Street',
+            'City'         => 'Berlin',
+            'Phone'        => '555-1234',
             'DnbContactId' => '123',
-            'IsGrantor' => 1,
-            'IsPublisher' => 0,
-            'Role' => 'grantor'
+            'IsGrantor'    => 1,
+            'IsPublisher'  => 0,
+            'Role'         => 'grantor',
         ]);
 
         $this->assertNotNull($institute);
-        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentDnbInstitute', $institute);
+        $this->assertInstanceOf(DocumentDnbInstitute::class, $institute);
 
         $this->assertEquals('Solutions', $institute->getName());
         $this->assertEquals('Big Solutions', $institute->getDepartment());
@@ -124,19 +122,19 @@ class DocumentDnbInstituteTest extends TestCase
         $institute = new DocumentDnbInstitute();
 
         $institute->updateFromArray([
-            'Name' => 'Solutions',
-            'Department' => 'Big Solutions',
-            'Address' => 'Research Street',
-            'City' => 'Berlin',
-            'Phone' => '555-1234',
+            'Name'         => 'Solutions',
+            'Department'   => 'Big Solutions',
+            'Address'      => 'Research Street',
+            'City'         => 'Berlin',
+            'Phone'        => '555-1234',
             'DnbContactId' => '123',
-            'IsGrantor' => 1,
-            'IsPublisher' => 0,
-            'Role' => 'grantor'
+            'IsGrantor'    => 1,
+            'IsPublisher'  => 0,
+            'Role'         => 'grantor',
         ]);
 
         $this->assertNotNull($institute);
-        $this->assertInstanceOf('Opus\Model\Dependent\Link\DocumentDnbInstitute', $institute);
+        $this->assertInstanceOf(DocumentDnbInstitute::class, $institute);
 
         $this->assertEquals('Solutions', $institute->getName());
         $this->assertEquals('Big Solutions', $institute->getDepartment());
@@ -177,15 +175,15 @@ class DocumentDnbInstituteTest extends TestCase
         $data = $institute->toArray();
 
         $this->assertEquals([
-            'Name' => 'Solutions',
-            'Department' => 'Big Solutions',
-            'Address' => 'Research Street',
-            'City' => 'Berlin',
-            'Phone' => '555-1234',
+            'Name'         => 'Solutions',
+            'Department'   => 'Big Solutions',
+            'Address'      => 'Research Street',
+            'City'         => 'Berlin',
+            'Phone'        => '555-1234',
             'DnbContactId' => '123',
-            'IsGrantor' => 0,
-            'IsPublisher' => 1,
-            'Role' => 'grantor'
+            'IsGrantor'    => 0,
+            'IsPublisher'  => 1,
+            'Role'         => 'grantor',
         ], $data);
     }
 }

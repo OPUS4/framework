@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
@@ -38,63 +40,54 @@ use Opus\Db\TableGateway;
 use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
+
+use function count;
 
 /**
  * Domain model for licences in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model\Abstract
  *
+ * @category    Framework
+ * @package     Opus
  * @method void setActive(boolean $active)
  * @method boolean getActive()
- *
  * @method void setCommentInternal(string $comment)
  * @method string getCommentInternal
- *
  * @method void setDescMarkup(string $markup)
  * @method string getDescMarkup()
- *
  * @method void setDescText(string $description)
  * @method string getDescText()
- *
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
- *
  * @method void setLinkLicence(string $url)
  * @method string getLinkLicence()
- *
  * @method void setLinkLogo(string $url)
  * @method string getLinkLogo()
- *
  * @method void setLinkSign(string $url)
  * @method string getLinkSign()
- *
  * @method void setMimeType(string $mimeType)
  * @method string getMimeType()
- *
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setNameLong(string $longName)
  * @method string getNameLong()
- *
  * @method void setSortOrder(integer $position)
  * @method integer getSortOrder()
- *
  * @method void setPodAllowed(boolean $allowed)
  * @method boolean getPodAllowed()
  *
+ * phpcs:disable
  */
 class Licence extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\DocumentLicences';
+    protected static $tableGatewayClass = Db\DocumentLicences::class;
 
     /**
      * Retrieve all Opus\Licence instances from the database.
@@ -103,18 +96,19 @@ class Licence extends AbstractDb
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus\Licence', 'Opus\Db\DocumentLicences', null, 'sort_order');
+        return self::getAllFrom(self::class, Db\DocumentLicences::class, null, 'sort_order');
     }
 
     /**
      * Fetch licence with matching name.
+     *
      * @return Licence
      */
     public static function fetchByName($name)
     {
-        $licences = TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $licences->select()->where('name = ?', $name);
-        $row = $licences->fetchRow($select);
+        $licences = TableGateway::getInstance(self::$tableGatewayClass);
+        $select   = $licences->select()->where('name = ?', $name);
+        $row      = $licences->fetchRow($select);
 
         if (isset($row)) {
             return new Licence($row);
@@ -131,7 +125,7 @@ class Licence extends AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
@@ -150,10 +144,8 @@ class Licence extends AbstractDb
      * - NameLong
      * - PodAllowed
      * - SortOrder
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         $active = new Field('Active');
         $active->setCheckbox(true);
@@ -166,7 +158,7 @@ class Licence extends AbstractDb
         $descText = new Field('DescText');
         $descText->setTextarea(true);
 
-        $licenceLanguage = new Field('Language');
+        $licenceLanguage    = new Field('Language');
         $availableLanguages = Config::getInstance()->getAvailableLanguages();
         if ($availableLanguages !== null) {
             $licenceLanguage->setDefault($availableLanguages);
@@ -176,7 +168,7 @@ class Licence extends AbstractDb
 
         $linkLicence = new Field('LinkLicence');
         $linkLicence->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $linkLogo = new Field('LinkLogo');
         $linkSign = new Field('LinkSign');
@@ -186,7 +178,7 @@ class Licence extends AbstractDb
 
         $nameLong = new Field('NameLong');
         $nameLong->setMandatory(true)
-            ->setValidator(new \Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $sortOrder = new Field('SortOrder');
 
@@ -220,15 +212,17 @@ class Licence extends AbstractDb
 
     /**
      * Checks if licence is used by documents.
+     *
      * @return bool true if licence is used, false if not
      */
     public function isUsed()
     {
-        return ($this->getDocumentCount() > 0);
+        return $this->getDocumentCount() > 0;
     }
 
     /**
      * Determines number of documents using this licence.
+     *
      * @return int Number of documents
      * @throws DocumentFinderException
      */

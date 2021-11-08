@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
@@ -38,26 +40,29 @@ use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Document;
 use Opus\Model\ModelException;
+use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
 use OpusTest\Model\Plugin\AbstractPluginMock;
 use OpusTest\TestAsset\TestCase;
+
+use function count;
+use function in_array;
+use function is_array;
+use function is_object;
+use function rand;
+use function round;
+use function sleep;
 
 /**
  * Test cases for class Opus\CollectionRole.
  *
  * @category    Tests
  * @package     Opus\Collection
- *
  * @group       CollectionTests
- *
  */
 class CollectionRoleTest extends TestCase
 {
-
-    /**
-     *
-     * @var CollectionRole
-     */
+    /** @var CollectionRole */
     protected $object;
 
     /**
@@ -67,13 +72,13 @@ class CollectionRoleTest extends TestCase
      */
     public static function createRandomObject()
     {
-        $name = "name-" . rand();
-        $oai_name = "oainame-" . rand();
+        $name    = "name-" . rand();
+        $oaiName = "oainame-" . rand();
 
         // Object is not stored.
         $object = new CollectionRole();
         $object->setName($name);
-        $object->setOaiName($oai_name);
+        $object->setOaiName($oaiName);
 
         return $object;
     }
@@ -84,6 +89,13 @@ class CollectionRoleTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(true, [
+            'collections_roles',
+            'collections',
+            'documents',
+            'link_documents_collections',
+        ]);
 
         // Create first dummy role, just to make sure ID=1 exists.
         self::createRandomObject()->store();
@@ -103,10 +115,10 @@ class CollectionRoleTest extends TestCase
         );
         $this->object->delete();
 
-        $role_id = $this->object->store();
+        $roleId = $this->object->store();
         $this->assertNotNull(
-            $role_id,
-            'CollectionRole role_id return value check on stored record.'
+            $roleId,
+            'CollectionRole roleId return value check on stored record.'
         );
         $this->assertFalse(
             $this->object->isNewRecord(),
@@ -115,8 +127,8 @@ class CollectionRoleTest extends TestCase
 
         $this->object->delete();
 
-        $this->setExpectedException('Opus\Model\NotFoundException');
-        new CollectionRole($role_id);
+        $this->setExpectedException(NotFoundException::class);
+        new CollectionRole($roleId);
     }
 
     /**
@@ -124,7 +136,7 @@ class CollectionRoleTest extends TestCase
      */
     public function testDeleteRoleWithDocuments()
     {
-        $root = $this->object->addRootCollection();
+        $root       = $this->object->addRootCollection();
         $collection = $root->addLastChild();
         $this->object->store();
 
@@ -133,12 +145,12 @@ class CollectionRoleTest extends TestCase
         $d->addCollection($collection);
         $d->store();
 
-        $role_id = $this->object->getId();
-        $role = new CollectionRole($role_id);
+        $roleId = $this->object->getId();
+        $role   = new CollectionRole($roleId);
         $role->delete();
 
-        $this->setExpectedException('Opus\Model\NotFoundException');
-        new CollectionRole($role_id);
+        $this->setExpectedException(NotFoundException::class);
+        new CollectionRole($roleId);
     }
 
     /**
@@ -151,17 +163,17 @@ class CollectionRoleTest extends TestCase
             'CollectionRole isNewRecord check failed on new record.'
         );
 
-        $role_id = $this->object->store();
+        $roleId = $this->object->store();
         $this->assertNotNull(
-            $role_id,
-            'CollectionRole role_id return value check on stored record.'
+            $roleId,
+            'CollectionRole roleId return value check on stored record.'
         );
         $this->assertNotNull(
             $this->object->getId(),
             'CollectionRole getId check on stored record.'
         );
         $this->assertTrue(
-            $role_id === $this->object->getId(),
+            $roleId === $this->object->getId(),
             'CollectionRole->store return value check failed.'
         );
         $this->assertFalse(
@@ -174,10 +186,7 @@ class CollectionRoleTest extends TestCase
             is_object($role),
             'CollectionRole reloading failed.'
         );
-        $this->assertFalse(
-            is_null($role->getId()),
-            'CollectionRole getId check on stored record.'
-        );
+        $this->assertNotNull($role->getId(), 'CollectionRole getId check on stored record.');
         $this->assertFalse(
             $role->isNewRecord(),
             'CollectionRole isNewRecord check failed on reloaded record.'
@@ -199,14 +208,14 @@ class CollectionRoleTest extends TestCase
 
         $this->object->setName($name);
         $this->assertTrue(
-            ($this->object->getName() === $name),
+            $this->object->getName() === $name,
             'CollectionRole name check failed.'
         );
 
         $this->object->store();
         $role = new CollectionRole($this->object->getId());
         $this->assertTrue(
-            ($role->getName() === $name),
+            $role->getName() === $name,
             'CollectionRole name check on reloaded object failed.'
         );
 
@@ -225,7 +234,7 @@ class CollectionRoleTest extends TestCase
     }
 
     /**
-     * @param $role CollectionRole
+     * @param CollectionRole $role
      */
     protected function prepateCollectionRole($role)
     {
@@ -257,21 +266,21 @@ class CollectionRoleTest extends TestCase
         $this->assertInternalType('array', $data);
         $this->assertCount(count($role->describe()), $data); // one entry for every field
         $this->assertEquals([
-            'Name' => $role->getName(),
-            'OaiName' => $role->getOaiName(),
-            'Position' => 3,
-            'Visible' => 1,
+            'Name'                 => $role->getName(),
+            'OaiName'              => $role->getOaiName(),
+            'Position'             => 3,
+            'Visible'              => 1,
             'VisibleBrowsingStart' => 1,
-            'VisibleFrontdoor' => 1,
-            'VisibleOai' => 1,
-            'DisplayBrowsing' => 'name',
-            'DisplayFrontdoor' => 'number,name',
-            'IsClassification' => 0,
-            'AssignRoot' => 1,
-            'AssignLeavesOnly' => 0,
-            'RootCollection' => null,
+            'VisibleFrontdoor'     => 1,
+            'VisibleOai'           => 1,
+            'DisplayBrowsing'      => 'name',
+            'DisplayFrontdoor'     => 'number,name',
+            'IsClassification'     => 0,
+            'AssignRoot'           => 1,
+            'AssignLeavesOnly'     => 0,
+            'RootCollection'       => null,
             'HideEmptyCollections' => 1,
-            'Language' => 'en'
+            'Language'             => 'en',
         ], $data);
     }
 
@@ -292,21 +301,21 @@ class CollectionRoleTest extends TestCase
         $this->assertInternalType('array', $data);
         $this->assertCount(count($role->describe()), $data); // one entry for every field
         $this->assertEquals([
-            'Name' => $role->getName(),
-            'OaiName' => $role->getOaiName(),
-            'Position' => '3',
-            'Visible' => '1',
+            'Name'                 => $role->getName(),
+            'OaiName'              => $role->getOaiName(),
+            'Position'             => '3',
+            'Visible'              => '1',
             'VisibleBrowsingStart' => '1',
-            'VisibleFrontdoor' => '1',
-            'VisibleOai' => '1',
-            'DisplayBrowsing' => 'name',
-            'DisplayFrontdoor' => 'number,name',
-            'IsClassification' => '0',
-            'AssignRoot' => '1',
-            'AssignLeavesOnly' => '0',
-            'RootCollection' => [],
+            'VisibleFrontdoor'     => '1',
+            'VisibleOai'           => '1',
+            'DisplayBrowsing'      => 'name',
+            'DisplayFrontdoor'     => 'number,name',
+            'IsClassification'     => '0',
+            'AssignRoot'           => '1',
+            'AssignLeavesOnly'     => '0',
+            'RootCollection'       => [],
             'HideEmptyCollections' => 1,
-            'Language' => 'en'
+            'Language'             => 'en',
         ], $data);
     }
 
@@ -320,7 +329,7 @@ class CollectionRoleTest extends TestCase
         $role->store();
 
         $root = $role->getRootCollection();
-        $col = $root->addLastChild();
+        $col  = $root->addLastChild();
         $col->setName('Col1');
         $col2 = $root->addLastChild();
         $col2->setName('Col2');
@@ -338,24 +347,24 @@ class CollectionRoleTest extends TestCase
 
         $this->assertInternalType('array', $data);
         $this->assertEquals([
-            'Name' => $role->getName(),
-            'OaiName' => $role->getOaiName(),
-            'Position' => '3',
-            'Visible' => '1',
+            'Name'                 => $role->getName(),
+            'OaiName'              => $role->getOaiName(),
+            'Position'             => '3',
+            'Visible'              => '1',
             'VisibleBrowsingStart' => '1',
-            'VisibleFrontdoor' => '1',
-            'VisibleOai' => '1',
-            'DisplayBrowsing' => 'name',
-            'DisplayFrontdoor' => 'number,name',
-            'IsClassification' => '0',
-            'AssignRoot' => '1',
-            'AssignLeavesOnly' => '0',
-            'RootCollection' => [
-                ['Id' => $col->getId(),'Name' => $col->getName()],
-                ['Id' => $col2->getId(),'Name' => $col2->getName()],
+            'VisibleFrontdoor'     => '1',
+            'VisibleOai'           => '1',
+            'DisplayBrowsing'      => 'name',
+            'DisplayFrontdoor'     => 'number,name',
+            'IsClassification'     => '0',
+            'AssignRoot'           => '1',
+            'AssignLeavesOnly'     => '0',
+            'RootCollection'       => [
+                ['Id' => $col->getId(), 'Name' => $col->getName()],
+                ['Id' => $col2->getId(), 'Name' => $col2->getName()],
             ],
             'HideEmptyCollections' => 1,
-            'Language' => 'en'
+            'Language'             => 'en',
         ], $data);
     }
 
@@ -399,7 +408,7 @@ class CollectionRoleTest extends TestCase
 
         $fetched = CollectionRole::fetchByOaiName('test');
 
-        $this->assertInstanceOf('Opus\CollectionRole', $fetched);
+        $this->assertInstanceOf(CollectionRole::class, $fetched);
     }
 
     /**
@@ -423,15 +432,15 @@ class CollectionRoleTest extends TestCase
         $name = $this->object->getName();
 
         // Check fetchAll works even if object is unstored.
-        $roles = CollectionRole::fetchAll();
-        $roles_count_old = count($roles);
+        $roles         = CollectionRole::fetchAll();
+        $rolesCountOld = count($roles);
         $this->assertTrue(is_array($roles), "Array return value expected.");
 
         // Check fetchAll works after storing *and* contains the object.
         $this->object->store();
         $roles = CollectionRole::fetchAll();
         $this->assertTrue(is_array($roles), "Array return value expected.");
-        $this->assertTrue(count($roles) > $roles_count_old, "Increasing count expected.");
+        $this->assertTrue(count($roles) > $rolesCountOld, "Increasing count expected.");
 
         $seen = false;
         foreach ($roles as $role) {
@@ -444,9 +453,6 @@ class CollectionRoleTest extends TestCase
         $this->assertTrue($seen, "CollectionRole is not visible in fetchAll.");
     }
 
-    /**
-     *
-     */
     public function testGetOaiSetNames()
     {
         // List of set names on unstored object
@@ -553,7 +559,7 @@ class CollectionRoleTest extends TestCase
         $role->store();
 
         $root = $role->addRootCollection();
-        $col = $root->addLastChild();
+        $col  = $root->addLastChild();
         $role->store();
 
         $doc = new Document();
@@ -573,7 +579,7 @@ class CollectionRoleTest extends TestCase
         $role->store();
 
         $root = $role->addRootCollection();
-        $col = $root->addLastChild();
+        $col  = $root->addLastChild();
         $col->setOaiSubset('test');
         $col->setVisible(0);
         $role->store();
@@ -652,21 +658,21 @@ class CollectionRoleTest extends TestCase
         $role = $this->object;
         $role->store();
 
-        $root = $role->addRootCollection();
+        $root       = $role->addRootCollection();
         $collection = $root->addFirstChild();
         $collection->setOaiSubset('foo');
         $role->store();
 
-        $oai_set = $role->getOaiName() . ':' . $collection->getOaiSubset();
+        $oaiSet = $role->getOaiName() . ':' . $collection->getOaiSubset();
 
-        $this->assertFalse($role->existsDocumentIdsInSet($oai_set));
+        $this->assertFalse($role->existsDocumentIdsInSet($oaiSet));
 
         $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $d->store();
 
-        $this->assertTrue($role->existsDocumentIdsInSet($oai_set));
+        $this->assertTrue($role->existsDocumentIdsInSet($oaiSet));
     }
 
     /**
@@ -677,7 +683,7 @@ class CollectionRoleTest extends TestCase
         $this->object->store();
 
         $oaiSetName = $this->object->getOaiName();
-        $sets = CollectionRole::getDocumentIdsInSet("$oaiSetName:foo");
+        $sets       = CollectionRole::getDocumentIdsInSet("$oaiSetName:foo");
 
         $this->assertTrue(is_array($sets), "Expected array return value.");
         $this->assertTrue(count($sets) === 0, "Expected empty array.");
@@ -691,24 +697,24 @@ class CollectionRoleTest extends TestCase
         $this->object->store();
 
         // Populate database with dummy objects.
-        $i_max = rand(5, 10);
-        for ($i = 0; $i < $i_max; $i++) {
+        $iMax = rand(5, 10);
+        for ($i = 0; $i < $iMax; $i++) {
             $object = self::createRandomObject();
             $object->store();
         }
 
         // Check if setPosition works properly.
-        $num_roles = count(CollectionRole::fetchAll());
-        $check_positions = [1, $num_roles, round((1 + $num_roles) / 2), 1];
+        $numRoles       = count(CollectionRole::fetchAll());
+        $checkPositions = [1, $numRoles, round((1 + $numRoles) / 2), 1];
 
-        foreach ($check_positions as $position) {
+        foreach ($checkPositions as $position) {
             $this->object->setPosition($position);
             $this->object->store();
 
             // Reload object, otherwise the result will be trivial.
             $role = new CollectionRole($this->object->getId());
             $this->assertTrue(
-                ($role->getPosition() === "$position"),
+                $role->getPosition() === "$position",
                 'CollectionRole position check failed.'
             );
         }
@@ -735,27 +741,27 @@ class CollectionRoleTest extends TestCase
 
         $role->store();
 
-        $this->assertFalse(is_null($role->getId()), 'CollectionRole storing failed: should have an Id.');
+        $this->assertNotNull($role->getId(), 'CollectionRole storing failed: should have an Id.');
 
         // Restore object, validate.
-        $role_id = $role->getId();
-        $role = new CollectionRole($role_id);
+        $roleId = $role->getId();
+        $role   = new CollectionRole($roleId);
 
         $this->assertNotNull($role->getName(), 'CollectionRole name check failed.');
         $this->assertNotNull($role->getOaiName(), 'CollectionRole oai_name check failed.');
 
-        $this->assertTrue(($role->getDisplayBrowsing() === 'Number, Name'), 'CollectionRole display_browsing check failed.');
-        $this->assertTrue(($role->getDisplayFrontdoor() === 'Name'), 'CollectionRole display_frontdoor check failed.');
+        $this->assertTrue($role->getDisplayBrowsing() === 'Number, Name', 'CollectionRole display_browsing check failed.');
+        $this->assertTrue($role->getDisplayFrontdoor() === 'Name', 'CollectionRole display_frontdoor check failed.');
 
-        $this->assertTrue(($role->getVisible() === '1'), 'CollectionRole visible check failed.');
-        $this->assertTrue(($role->getVisibleBrowsingStart() === '1'), 'CollectionRole visible_browsing_start check failed.');
-        $this->assertTrue(($role->getVisibleFrontdoor() === '0'), 'CollectionRole visible_frontdoor check failed.');
-        $this->assertTrue(($role->getVisibleOai() === '1'), 'CollectionRole visible_oai check failed.');
+        $this->assertTrue($role->getVisible() === '1', 'CollectionRole visible check failed.');
+        $this->assertTrue($role->getVisibleBrowsingStart() === '1', 'CollectionRole visible_browsing_start check failed.');
+        $this->assertTrue($role->getVisibleFrontdoor() === '0', 'CollectionRole visible_frontdoor check failed.');
+        $this->assertTrue($role->getVisibleOai() === '1', 'CollectionRole visible_oai check failed.');
 
-        $this->assertTrue(($role->getPosition() === '1'), 'CollectionRole position check failed.');
+        $this->assertTrue($role->getPosition() === '1', 'CollectionRole position check failed.');
     }
 
-    /*
+    /**
      * Test if first storing role, then adding root collection and finally
      * storing root works.
      */
@@ -774,16 +780,16 @@ class CollectionRoleTest extends TestCase
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role = new CollectionRole($role->getId());
-        $root_new = $role->getRootCollection();
+        $role    = new CollectionRole($role->getId());
+        $rootNew = $role->getRootCollection();
         $this->assertEquals(
-            $root_new->getId(),
+            $rootNew->getId(),
             $root->getId(),
             'Root->getId must be equal Root->Reload->getId'
         );
     }
 
-    /*
+    /**
      * Test if first creating role, then adding root collection and finally
      * storing role works.
      */
@@ -800,16 +806,16 @@ class CollectionRoleTest extends TestCase
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role = new CollectionRole($role->getId());
-        $root_new = $role->getRootCollection();
+        $role    = new CollectionRole($role->getId());
+        $rootNew = $role->getRootCollection();
         $this->assertEquals(
-            $root_new->getId(),
+            $rootNew->getId(),
             $root->getId(),
             'Root->getId must be equal Root->Reload->getId'
         );
     }
 
-    /*
+    /**
      * Test adding externally created root collection and finally storing role.
      */
     public function testAddNewUnstoredRootCollectionStoringRole()
@@ -826,10 +832,10 @@ class CollectionRoleTest extends TestCase
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role = new CollectionRole($role->getId());
-        $root_new = $role->getRootCollection();
+        $role    = new CollectionRole($role->getId());
+        $rootNew = $role->getRootCollection();
         $this->assertEquals(
-            $root_new->getId(),
+            $rootNew->getId(),
             $root->getId(),
             'Root->getId must be equal Root->Reload->getId'
         );
@@ -840,7 +846,7 @@ class CollectionRoleTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $root = $this->object->addRootCollection();
+        $root       = $this->object->addRootCollection();
         $collection = $root->addLastChild();
         $this->object->store();
 
@@ -861,10 +867,9 @@ class CollectionRoleTest extends TestCase
      */
     public function testInvalidateDocumentCacheOnDelete()
     {
-        $root = $this->object->addRootCollection();
+        $root       = $this->object->addRootCollection();
         $collection = $root->addLastChild();
         $this->object->store();
-
 
         $d = new Document();
         $d->setServerState('published');
@@ -881,7 +886,7 @@ class CollectionRoleTest extends TestCase
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
-        $d = new Document($docId);
+        $d                       = new Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue($serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
@@ -1049,7 +1054,7 @@ class CollectionRoleTest extends TestCase
 
         $result = $role->getCollectionByOaiSubset('open_access');
 
-        $this->assertInstanceOf('Opus\Collection', $result);
+        $this->assertInstanceOf(Collection::class, $result);
         $this->assertEquals($col->getId(), $result->getId());
     }
 
@@ -1094,7 +1099,7 @@ class CollectionRoleTest extends TestCase
 
     public function testStoreIsClassification()
     {
-        $role = $this->object;
+        $role   = $this->object;
         $roleId = $role->store();
 
         $role = new CollectionRole($roleId);
@@ -1115,7 +1120,7 @@ class CollectionRoleTest extends TestCase
 
     public function testStoreAssignRoot()
     {
-        $role = $this->object;
+        $role   = $this->object;
         $roleId = $role->store();
 
         $role = new CollectionRole($roleId);
@@ -1136,7 +1141,7 @@ class CollectionRoleTest extends TestCase
 
     public function testStoreAssignLeavesOnly()
     {
-        $role = $this->object;
+        $role   = $this->object;
         $roleId = $role->store();
 
         $role = new CollectionRole($roleId);
@@ -1171,7 +1176,7 @@ class CollectionRoleTest extends TestCase
         $collRoleId = $collRole->store();
 
         $collRole = new CollectionRole($collRoleId);
-        $doc = new Document();
+        $doc      = new Document();
         $doc->addCollection($collRole->getRootCollection());
         $docId = $doc->store();
 
@@ -1199,6 +1204,9 @@ class CollectionRoleTest extends TestCase
         $this->assertTrue($collRoleId > 0);
     }
 
+    /**
+     * @return string[][]
+     */
     public function invalidCollectionRoleNameDataProvider()
     {
         return [
@@ -1211,22 +1219,24 @@ class CollectionRoleTest extends TestCase
             ['-a'],
             ['0a'],
             ['0_1'],
-            ['0-1']
+            ['0-1'],
         ];
     }
 
     /**
      * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
      *
+     * @param string $invalidName
      * @dataProvider invalidCollectionRoleNameDataProvider
-     * @expectedException \Opus\Model\ModelException
-     * @expectedExceptionMessage invalid data
      */
     public function testInvalidCollectionRoleName($invalidName)
     {
         $collRole = new CollectionRole();
         $collRole->setName($invalidName);
         $collRole->setOaiName('foo');
+
+        $this->setExpectedException(ModelException::class, 'invalid data');
+
         $collRole->store();
     }
 }

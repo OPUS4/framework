@@ -7,7 +7,7 @@ on:
     types: [assigned, opened, synchronize, reopened]
 
   schedule:
-    - cron: '5 0 * * *'
+    - cron: '0 22 * * *'
 
 jobs:
   build:
@@ -37,8 +37,8 @@ jobs:
       - name: Setup OPUS 4
         run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
 
-      - name: Coding-Style
-        run: php composer.phar cs-check
-
       - name: Test
         run: php composer.phar test
+
+      - name: Coding-Style
+        run: php composer.phar cs-check

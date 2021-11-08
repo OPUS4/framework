@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Test
  * @package     Framework
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Plugin;
@@ -37,12 +39,8 @@ namespace OpusTest\Model\Plugin;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
 
-/**
- *
- */
 class AbstractPluginMock extends AbstractPlugin
 {
-
     /**
      * Array containing names of methods that have been called
      */
@@ -97,7 +95,7 @@ class AbstractPluginMock extends AbstractPlugin
     }
 
     /**
-     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
+     * @param int $modelId
      */
     public function postDelete($modelId)
     {

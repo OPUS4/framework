@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,37 +25,45 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
 use Opus\Document;
 use Opus\Licence;
+use Opus\Model\DbConstrainViolationException;
 use Opus\Model\Xml\Cache;
 use OpusTest\TestAsset\TestCase;
+
+use function count;
+use function sleep;
 
 /**
  * Test cases for class Opus\Licence.
  *
  * @package Opus
  * @category Tests
- *
  * @group LicenceTest
  */
 class LicenceTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['document_licences', 'link_documents_licences']);
+    }
 
     /**
      * Test if a set of licences can be retrieved by getAll().
-     *
-     * @return void
      */
     public function testRetrieveAllLicences()
     {
@@ -73,8 +82,6 @@ class LicenceTest extends TestCase
 
     /**
      * Test if the licences display name matches its long name.
-     *
-     * @return void
      */
     public function testDisplayNameMatchesLongName()
     {
@@ -105,7 +112,6 @@ class LicenceTest extends TestCase
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
 
-
     /**
      * Regression Test for OPUSVIER-3114
      */
@@ -113,7 +119,7 @@ class LicenceTest extends TestCase
     {
         $fields = ['SortOrder', 'CommentInternal', 'PodAllowed'];
 
-        $licence = new Licence();
+        $licence   = new Licence();
         $licenceId = $licence
                 ->setNameLong('Test')
                 ->setLinkLicence('http://test')
@@ -144,8 +150,8 @@ class LicenceTest extends TestCase
         $docReloaded = new Document($docId);
 
         $this->assertEquals(
-            (string)$serverDateModified,
-            (string)$docReloaded->getServerDateModified(),
+            (string) $serverDateModified,
+            (string) $docReloaded->getServerDateModified(),
             'Expected no difference in server date modified.'
         );
     }
@@ -175,7 +181,7 @@ class LicenceTest extends TestCase
         $licence = Licence::fetchByName('CC BY 4.0');
 
         $this->assertNotNull($licence);
-        $this->assertInstanceOf('Opus\Licence', $licence);
+        $this->assertInstanceOf(Licence::class, $licence);
     }
 
     public function testFetchByNameUnknown()
@@ -191,10 +197,6 @@ class LicenceTest extends TestCase
         $this->assertNull($licence);
     }
 
-    /**
-     * @expectedException \Opus\Model\DbConstrainViolationException
-     * @expectedExceptionMessage Duplicate entry
-     */
     public function testNameUnique()
     {
         $licence = new Licence();
@@ -207,6 +209,9 @@ class LicenceTest extends TestCase
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
         $licence->setLinkLicence('link 2');
+
+        $this->setExpectedException(DbConstrainViolationException::class, 'Duplicate entry');
+
         $licence->store();
     }
 
@@ -247,38 +252,38 @@ class LicenceTest extends TestCase
         $data = $licence->toArray();
 
         $this->assertEquals([
-            'Active' => 1,
+            'Active'          => 1,
             'CommentInternal' => 'A comment about this licence.',
-            'DescMarkup' => '<b>Licence Description Markup</b>',
-            'DescText' => 'Licence Description',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence',
-            'LinkLogo' => 'http://www.example.org/licence/logo',
-            'LinkSign' => 'http://www.example.org/licence/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'L',
-            'NameLong' => 'Licence',
-            'SortOrder' => 2,
-            'PodAllowed' => 1
+            'DescMarkup'      => '<b>Licence Description Markup</b>',
+            'DescText'        => 'Licence Description',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence',
+            'LinkLogo'        => 'http://www.example.org/licence/logo',
+            'LinkSign'        => 'http://www.example.org/licence/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'L',
+            'NameLong'        => 'Licence',
+            'SortOrder'       => 2,
+            'PodAllowed'      => 1,
         ], $data);
     }
 
     public function testFromArray()
     {
         $licence = Licence::fromArray([
-            'Active' => 1,
+            'Active'          => 1,
             'CommentInternal' => 'A comment about this licence.',
-            'DescMarkup' => '<b>Licence Description Markup</b>',
-            'DescText' => 'Licence Description',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence',
-            'LinkLogo' => 'http://www.example.org/licence/logo',
-            'LinkSign' => 'http://www.example.org/licence/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'L',
-            'NameLong' => 'Licence',
-            'SortOrder' => 2,
-            'PodAllowed' => 1
+            'DescMarkup'      => '<b>Licence Description Markup</b>',
+            'DescText'        => 'Licence Description',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence',
+            'LinkLogo'        => 'http://www.example.org/licence/logo',
+            'LinkSign'        => 'http://www.example.org/licence/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'L',
+            'NameLong'        => 'Licence',
+            'SortOrder'       => 2,
+            'PodAllowed'      => 1,
         ]);
 
         $this->assertEquals(1, $licence->getActive());
@@ -301,19 +306,19 @@ class LicenceTest extends TestCase
         $licence = new Licence();
 
         $licence->updateFromArray([
-            'Active' => 1,
+            'Active'          => 1,
             'CommentInternal' => 'A comment about this licence.',
-            'DescMarkup' => '<b>Licence Description Markup</b>',
-            'DescText' => 'Licence Description',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence',
-            'LinkLogo' => 'http://www.example.org/licence/logo',
-            'LinkSign' => 'http://www.example.org/licence/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'L',
-            'NameLong' => 'Licence',
-            'SortOrder' => 2,
-            'PodAllowed' => 1
+            'DescMarkup'      => '<b>Licence Description Markup</b>',
+            'DescText'        => 'Licence Description',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence',
+            'LinkLogo'        => 'http://www.example.org/licence/logo',
+            'LinkSign'        => 'http://www.example.org/licence/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'L',
+            'NameLong'        => 'Licence',
+            'SortOrder'       => 2,
+            'PodAllowed'      => 1,
         ]);
 
         $this->assertEquals(1, $licence->getActive());
@@ -335,9 +340,9 @@ class LicenceTest extends TestCase
     {
         $licence = new Licence();
         $licence->updateFromArray([
-            'NameLong' => 'Licence',
-            'Name' => 'L',
-            'LinkLicence' => 'http://www.example.org/licence'
+            'NameLong'    => 'Licence',
+            'Name'        => 'L',
+            'LinkLicence' => 'http://www.example.org/licence',
         ]);
 
         $licence->store();
@@ -355,9 +360,9 @@ class LicenceTest extends TestCase
     {
         $licence = new Licence();
         $licence->updateFromArray([
-            'NameLong' => 'Licence',
-            'Name' => 'L',
-            'LinkLicence' => 'http://www.example.org/licence'
+            'NameLong'    => 'Licence',
+            'Name'        => 'L',
+            'LinkLicence' => 'http://www.example.org/licence',
         ]);
 
         $licence->store();

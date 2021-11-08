@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENCE
  * This code is free software: you can redistribute it and/or modify
@@ -11,18 +12,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+ * @copyright   Copyright (c) 2009-2018
+ *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018
- *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
+use Opus\Db\Jobs;
 use Opus\Db\TableGateway;
 use Opus\Job;
 use OpusTest\TestAsset\TestCase;
@@ -35,7 +38,6 @@ use OpusTest\TestAsset\TestCase;
  */
 class JobTest extends TestCase
 {
-
     public function tearDown()
     {
         Job::deleteAll();
@@ -44,8 +46,6 @@ class JobTest extends TestCase
 
     /**
      * Test if sha1_id column gets set.
-     *
-     * @return void
      */
     public function testCreatedJobWritesSha1ToHashColumn()
     {
@@ -54,16 +54,14 @@ class JobTest extends TestCase
         $job->setData('somedata');
         $jobId = $job->store();
 
-        $jobTable = TableGateway::getInstance('Opus\Db\Jobs');
-        $jobRow = $jobTable->fetchRow("id = $jobId");
+        $jobTable = TableGateway::getInstance(Jobs::class);
+        $jobRow   = $jobTable->fetchRow("id = $jobId");
 
         $this->assertEquals($job->getSha1Id(), $jobRow->sha1_id, 'Job SHA1 hash has not been set in database.');
     }
 
     /**
      * Test if equal insitialized jobs returns same SHA1 id.
-     *
-     * @return void
      */
     public function testEqualJobsHaveEqualHashes()
     {
@@ -80,8 +78,6 @@ class JobTest extends TestCase
 
     /**
      * Test if isUniqueInQueue() return True if no jobs exists.
-     *
-     * @return void
      */
     public function testUniquenessTestReturnsTrueIfNoJobIsPresent()
     {
@@ -95,8 +91,6 @@ class JobTest extends TestCase
     /**
      * Test if isUniqueInQueue() return False if a job with same
      * data setup has already been stored.
-     *
-     * @return void
      */
     public function testUniquenessTestReturnsFalseIfJobWithSameHashIsPresent()
     {
@@ -248,7 +242,7 @@ class JobTest extends TestCase
 
         $this->assertEquals([
             'EventType1' => 2,
-            'EventType2' => 2
+            'EventType2' => 2,
         ], $count);
     }
 
@@ -278,7 +272,7 @@ class JobTest extends TestCase
         $count = Job::getCountPerLabel(Job::STATE_PROCESSING);
 
         $this->assertEquals([
-            'EventType1' => 1
+            'EventType1' => 1,
         ], $count);
     }
 }

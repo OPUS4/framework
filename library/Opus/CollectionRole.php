@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,23 +26,32 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use Exception;
 use Opus\Db\Collections;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Opus\Validate\CollectionRoleName;
+use Zend_Db_Table;
+use Zend_Validate_NotEmpty;
+
+use function strrpos;
+use function substr;
+
+use const PHP_INT_MAX;
 
 /**
  * Domain model for collection roles in the Opus framework
@@ -56,80 +66,66 @@ use Opus\Validate\CollectionRoleName;
  * - 'Name, Number'
  * - 'Number, Name'
  *
- *
+ * @uses        \Opus\Model\AbstractModel
  *
  * @category    Framework
  * @package     Opus
- * @uses        \Opus\Model\AbstractModel
- *
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setOaiName(string $oaiName)
  * @method string getOaiName()
- *
  * @method void setPosition(integer $pos)
  * @method integer getPosition()
- *
  * @method void setVisible(boolean $visible)
  * @method boolean getVisible()
- *
  * @method void setVisibleBrowsingStart(boolean $visibleBrowsingStart)
  * @method boolean getVisibleBrowsingStart()
- *
  * @method void setVisibleFrontdoor(boolean $visibleFrontdoor)
  * @method boolean getVisibleFrontdoor()
- *
  * @method void setVisibleOai(boolean $visibleOai)
  * @method boolean getVisibleOai()
- *
  * @method void setDisplayBrowsing(string $format)
  * @method string getDisplayBrowsing()
- *
  * @method void setDisplayFrontdoor(string $format)
  * @method string getDisplayFrontdoor()
- *
  * @method void setIsClassification(boolean $isClassification)
  * @method boolean getIsClassification()
- *
  * @method void setAssignRoot(boolean $assignRoot)
  * @method boolean getAssignRoot()
- *
  * @method void setAssignLeavesOnly(boolean $assignLeavesOnly)
  * @method boolean getAssignLeavesOnly()
- *
  * @method void setRootCollection(Collection $collection)
  * @method Collection getRootCollection()
- *
  * @method void setHideEmptyCollections(boolean $hideEmptyCollections)
  * @method boolean getHideEmptyCollections()
- *
  * @method void setLanguage(string $language)
  * @method string getLanguage()
+ *
+ * phpcs:disable
  */
 class CollectionRole extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus\Db\CollectionsRoles';
+    protected static $tableGatewayClass = Db\CollectionsRoles::class;
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
      * Opus\Db\Documents table gateway.
      *
-     * @var array
      * @see \Opus\Model\Abstract::$_externalFields
+     *
+     * @var array
      */
-    protected $_externalFields = [
+    protected $externalFields = [
         // Will contain the Root Node of this Role.
         'RootCollection' => [
-            'model' => 'Opus\Collection',
+            'model'   => Collection::class,
             'options' => ['left_id' => 1],
-            'fetch' => 'lazy',
+            'fetch'   => 'lazy',
         ],
     ];
 
@@ -141,17 +137,15 @@ class CollectionRole extends AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus\Model\Plugin\InvalidateDocumentCache',
-            'Opus\CollectionRole\Plugin\DeleteTree'
+            Model\Plugin\InvalidateDocumentCache::class,
+            CollectionRole\Plugin\DeleteTree::class,
         ];
     }
 
     /**
      * Initialize model.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
         // Attributes, which are defined by the database schema.
         $name = new Field('Name');
@@ -159,12 +153,11 @@ class CollectionRole extends AbstractDb
         $this->addField($name);
 
         $oaiName = new Field('OaiName');
-        $oaiName->setMandatory(true)->setValidator(new \Zend_Validate_NotEmpty());
+        $oaiName->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($oaiName);
 
         $position = new Field('Position');
         $this->addField($position);
-
 
         // Attributes for defining visibility.
         $visible = new Field('Visible');
@@ -182,7 +175,6 @@ class CollectionRole extends AbstractDb
         $visibleOai = new Field('VisibleOai');
         $visibleOai->setCheckbox(true);
         $this->addField($visibleOai);
-
 
         // Attributes for defining output formats.
         $displayBrowsing = new Field('DisplayBrowsing');
@@ -217,6 +209,7 @@ class CollectionRole extends AbstractDb
      * Returns long name.
      *
      * @see \Opus\Model\Abstract#getDisplayName()
+     *
      * @return string Model class name and identifier (e.g. Opus\CollectionRole#1234).
      *
      * TODO: Outsource this->getName to this->getRootNode->getName
@@ -228,13 +221,11 @@ class CollectionRole extends AbstractDb
 
     /**
      * Fixes ordering of all CollectionRoles by re-numbering position columns.
-     *
-     * @return void
      */
     public static function fixPositions()
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
-        $db = $table->getAdapter();
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
+        $db    = $table->getAdapter();
 
         // FIXME: Hardcoded table and column names.
         $reorderQuery = 'SET @pos = 0; '
@@ -249,18 +240,19 @@ class CollectionRole extends AbstractDb
 
     /**
      * Returns position number of last collection role.
+     *
      * @return int Highest used position number for collection roles
      */
     public static function getLastPosition()
     {
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
-        $db = $table->getAdapter();
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
+        $db    = $table->getAdapter();
 
         $query = 'SELECT MAX(position) FROM collections_roles;';
 
         $result = $db->fetchOne($query);
 
-        return ( int )$result;
+        return (int) $result;
     }
 
     /**
@@ -270,9 +262,7 @@ class CollectionRole extends AbstractDb
      * TODO: This method belongs to Opus\Db\CollectionsRoles.
      * TODO: Make sure this method only gets called if the field changed.
      *
-     * @param integer $to Target position after saving.
-     *
-     * @return void
+     * @param int $to Target position after saving.
      */
     protected function _storePosition($to = PHP_INT_MAX)
     {
@@ -286,8 +276,8 @@ class CollectionRole extends AbstractDb
             $to = 1;
         }
 
-        $row = $this->_primaryTableRow;
-        $db = $row->getTable()->getAdapter();
+        $row = $this->primaryTableRow;
+        $db  = $row->getTable()->getAdapter();
 
         // Re-Order.
         // TODO: This reorder-query is only nesseccary, if someone destroyed the
@@ -298,21 +288,21 @@ class CollectionRole extends AbstractDb
         // Find the current position of the current row in the new ordering.
         // Case 1: If row is new, shift all nodes plus one.
         // Case 2: If row is old, shift nodes in between plus/minus one.
-        $range = $db->quoteInto("position >= ?", $to);
+        $range    = $db->quoteInto("position >= ?", $to);
         $posShift = ' + 1 ';
 
         if (! $this->isNewRecord()) {
             $posQuery = 'SELECT position FROM collections_roles WHERE id = ?';
-            $pos = $db->fetchOne($posQuery, $this->getId());
+            $pos      = $db->fetchOne($posQuery, $this->getId());
 
             $range = "position BETWEEN ? AND ?";
             if ($to < $pos) {
-                $range = $db->quoteInto($range, $to, null, 1);
-                $range = $db->quoteInto($range, $pos, null, 1);
+                $range    = $db->quoteInto($range, $to, null, 1);
+                $range    = $db->quoteInto($range, $pos, null, 1);
                 $posShift = ' + 1 ';
             } else {
-                $range = $db->quoteInto($range, $pos, null, 1);
-                $range = $db->quoteInto($range, $to, null, 1);
+                $range    = $db->quoteInto($range, $pos, null, 1);
+                $range    = $db->quoteInto($range, $to, null, 1);
                 $posShift = ' - 1 ';
             }
         }
@@ -333,11 +323,12 @@ class CollectionRole extends AbstractDb
      * Overwrites standard toArray() to prevent infinite recursion due to parent
      * collections.
      *
-     * @return array A (nested) array representation of the model.
      * @deprecated Method shouldn't be used any more.  Use object or xml.
      *
      * TODO Check why this method isn't used any more.
      * TODO What should be the behaviour of this function.
+     *
+     * @return array A (nested) array representation of the model.
      */
     public function toArray()
     {
@@ -350,7 +341,7 @@ class CollectionRole extends AbstractDb
 
             foreach ($root->getChildren() as $child) {
                 $collections[] = [
-                    'Id' => $child->getId(),
+                    'Id'   => $child->getId(),
                     'Name' => $child->getName(),
                 ];
             }
@@ -365,8 +356,7 @@ class CollectionRole extends AbstractDb
      * ALTERNATE CONSTRUCTOR: Retrieve Opus\CollectionRole instance by name.
      * Returns null if name is null *or* nothing found.
      *
-     * @param string $name Name of collection role to look for.
-     *
+     * @param null|string $name Name of collection role to look for.
      * @return CollectionRole
      */
     public static function fetchByName($name = null)
@@ -375,9 +365,9 @@ class CollectionRole extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
         if (isset($row)) {
             return new CollectionRole($row);
@@ -392,8 +382,7 @@ class CollectionRole extends AbstractDb
      *
      * TODO: Return Opus\Model\NotFoundException?
      *
-     * @param string $oaiName OaiName of collection role to look for.
-     *
+     * @param null|string $oaiName OaiName of collection role to look for.
      * @return CollectionRole
      */
     public static function fetchByOaiName($oaiName = null)
@@ -402,9 +391,9 @@ class CollectionRole extends AbstractDb
             return;
         }
 
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('oai_name = ?', $oaiName);
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
         if (isset($row)) {
             return new CollectionRole($row);
@@ -422,8 +411,8 @@ class CollectionRole extends AbstractDb
      */
     public static function fetchAll()
     {
-        // $roles = self::getAllFrom('Opus\CollectionRole', self::$_tableGatewayClass);
-        $table = TableGateway::getInstance(self::$_tableGatewayClass);
+        // $roles = self::getAllFrom('Opus\CollectionRole', self::$tableGatewayClass);
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
         $roles = $table->fetchAll(null, 'position');
         return self::createObjects($roles);
     }
@@ -432,7 +421,6 @@ class CollectionRole extends AbstractDb
      * Mass-constructur.
      *
      * @param array $array Array of whatever new Collection(...) takes.
-     *
      * @return array|Collection Constructed Opus\Collection(s).
      *
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
@@ -447,7 +435,7 @@ class CollectionRole extends AbstractDb
         // FIXME: Add Model_AbstractDb::createObjects(...) when using PHP 5.3
 
         foreach ($array as $element) {
-            $c = new CollectionRole($element);
+            $c         = new CollectionRole($element);
             $results[] = $c;
         }
 
@@ -465,13 +453,13 @@ class CollectionRole extends AbstractDb
      *
      * FIXME: Unit-tests, if empty OaiSets are returned.
      *
-     * @return array Array-hash with (id, name, oai_name, count)
-     *
      * @see modules/oai/controllers/IndexController.php
+     *
+     * @return array Array-hash with (id, name, oai_name, count)
      */
     public function getOaiSetNames()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return [];
         }
 
@@ -484,18 +472,19 @@ class CollectionRole extends AbstractDb
             AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
             GROUP BY c.id, c.oai_subset, c.number, c.name";
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db     = Zend_Db_Table::getDefaultAdapter();
         $select = $db->quoteInto($select, $this->getId());
         return $db->fetchAll($select);
     }
 
     /**
      * Fetches all oai subset names for this role.
+     *
      * @return array
      */
     public function getAllOaiSetNames()
     {
-        if (is_null($this->getId())) {
+        if ($this->getId() === null) {
             return [];
         }
 
@@ -504,7 +493,7 @@ class CollectionRole extends AbstractDb
             WHERE c.role_id = ? AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
             GROUP BY c.id, c.oai_subset, c.number, c.name";
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db     = Zend_Db_Table::getDefaultAdapter();
         $select = $db->quoteInto($select, $this->getId());
         return $db->fetchAll($select);
     }
@@ -517,11 +506,11 @@ class CollectionRole extends AbstractDb
      * The visibility and oai name of the root collection is derived from the
      * collection role (VisibleOai and OaiName).
      *
-     * @return array Array-hash with (id, name, oai_name, count)
-     *
      * @see modules/oai/controllers/IndexController.php
      *
      * TODO why does incomplete GROUP BY not cause an exception here (like in getOaiSetNames)?
+     *
+     * @return array Array-hash with (id, name, oai_name, count)
      */
     public static function fetchAllOaiEnabledRoles()
     {
@@ -540,40 +529,39 @@ class CollectionRole extends AbstractDb
             AND r.oai_name != ''
             GROUP BY r.oai_name";
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db = Zend_Db_Table::getDefaultAdapter();
         return $db->fetchAll($select);
     }
 
     /**
      * Return the ids of documents in an oai set.
      *
-     * @param  string $oaiSetName The name of the oai set.
+     * @see modules/oai/controllers/IndexController.php
      *
+     * @param  string $oaiSetName The name of the oai set.
      * @return array The ids of the documents in the set.
      *
      * FIXME: Need Collection constructor-by-oaiSetName.
      * FIXME: Check OAI set names for invalid characters (i.e. ':')
      * FIXME: Belongs to Opus\Collection
      * FIXME: Code duplication from getDocumentIdsInSet.
-     *
-     * @see modules/oai/controllers/IndexController.php
      */
     public function existsDocumentIdsInSet($oaiSetName)
     {
-        $colonPos = strrpos($oaiSetName, ':');
-        $oaiPrefix = substr($oaiSetName, 0, $colonPos);
+        $colonPos   = strrpos($oaiSetName, ':');
+        $oaiPrefix  = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
 
         if ($this->getOaiName() !== $oaiPrefix) {
-            throw new \Exception("Given OAI prefix does not match this role.");
+            throw new Exception("Given OAI prefix does not match this role.");
         }
 
         $oaiPrefix = $this->getOaiName();
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db = Zend_Db_Table::getDefaultAdapter();
 
         $quotePostfix = $db->quote("$oaiPostfix");
-        $quoteRoleId = $db->quote($this->getId());
+        $quoteRoleId  = $db->quote($this->getId());
 
         $select = " SELECT count(c.id) FROM collections AS c "
                 . " WHERE c.oai_subset = $quotePostfix "
@@ -584,11 +572,11 @@ class CollectionRole extends AbstractDb
                 . "    WHERE l.collection_id = c.id AND l.role_id = c.role_id "
                 . " )";
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db     = Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchOne($select);
         // $this->log("$oaiSetName: $result");
 
-        if (isset($result) and $result > 0) {
+        if (isset($result) && $result > 0) {
             return true;
         }
 
@@ -598,33 +586,32 @@ class CollectionRole extends AbstractDb
     /**
      * Return the ids of documents in an oai set.
      *
-     * @param  string $oaiSetName The name of the oai set.
+     * @see modules/oai/controllers/IndexController.php
      *
+     * @param  string $oaiSetName The name of the oai set.
      * @return array              The ids of the documents in the set.
      *
      * FIXME: Replace method by something more general.
      * FIXME: Don't use internal knowledge from database.
      * FIXME: Make this method non-static.
-     *
-     * @see modules/oai/controllers/IndexController.php
      */
     public static function getDocumentIdsInSet($oaiSetName)
     {
-        $colonPos = strrpos($oaiSetName, ':');
-        $oaiPrefix = substr($oaiSetName, 0, $colonPos);
+        $colonPos   = strrpos($oaiSetName, ':');
+        $oaiPrefix  = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
 
         $role = self::fetchByOaiName($oaiPrefix);
-        if (is_null($oaiPrefix) === true) {
-            throw new \Exception("Given OAI prefix does not exist in roles.");
+        if ($oaiPrefix === null) {
+            throw new Exception("Given OAI prefix does not exist in roles.");
         }
 
         $oaiPrefix = $role->getOaiName();
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db = Zend_Db_Table::getDefaultAdapter();
 
         $quotePostfix = $db->quote("$oaiPostfix");
-        $quoteRoleId = $db->quote($role->getId());
+        $quoteRoleId  = $db->quote($role->getId());
 
         $subselect = "SELECT DISTINCT id FROM collections "
                 . "   WHERE oai_subset = $quotePostfix "
@@ -635,20 +622,18 @@ class CollectionRole extends AbstractDb
                 . " WHERE role_id = $quoteRoleId "
                 . "   AND collection_id IN ($subselect) ";
 
-        $db = \Zend_Db_Table::getDefaultAdapter();
-        $result = $db->fetchCol($select);
-        // $role->log("$oaiSetName: #" . count($result));
-
-        return $result;
+        $db = Zend_Db_Table::getDefaultAdapter();
+        return $db->fetchCol($select);
     }
 
     /**
      * Returns collection for OAI subset.
+     *
      * @param $oaisubset
      */
     public function getCollectionByOaiSubset($oaisubset)
     {
-        $db = \Zend_Db_Table::getDefaultAdapter();
+        $db = Zend_Db_Table::getDefaultAdapter();
 
         $quoteOaiSubset = $db->quote("$oaisubset");
 
@@ -682,7 +667,7 @@ class CollectionRole extends AbstractDb
         }
 
         $collections = TableGateway::getInstance(Collections::class);
-        $root = $collections->getRootNode($this->getId());
+        $root        = $collections->getRootNode($this->getId());
 
         if (! isset($root)) {
             return;
@@ -694,9 +679,9 @@ class CollectionRole extends AbstractDb
     /**
      * Store root collection: Initialize Node.
      *
-     * @param Collection $collection Collection to store as Root.
-     *
      * @see AbstractDb
+     *
+     * @param Collection $collection Collection to store as Root.
      */
     public function _storeRootCollection($collection)
     {
@@ -716,8 +701,7 @@ class CollectionRole extends AbstractDb
      * Extend magic add-method.  Add $collection if given; otherwise
      * create.
      *
-     * @param Collection $collection (optional) collection object to add
-     *
+     * @param null|Collection $collection (optional) collection object to add
      * @return Collection
      */
     public function addRootCollection($collection = null)
@@ -728,7 +712,7 @@ class CollectionRole extends AbstractDb
             $collection = parent::addRootCollection();
         }
 
-        if ($collection->isNewRecord() and ! $this->isNewRecord()) {
+        if ($collection->isNewRecord() && ! $this->isNewRecord()) {
             $collection->setPositionKey('Root');
             $collection->setRoleId($this->getId());
         }

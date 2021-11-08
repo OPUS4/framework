@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,41 +25,84 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2021, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\TestAsset;
+
+use Doctrine\DBAL\Exception;
+use DOMDocument;
+use DOMXPath;
+use Opus\Config;
+use Zend_Db_Table;
+
+use function array_diff;
+use function is_dir;
+use function rmdir;
+use function scandir;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
  *
  * @category Tests
  */
-class TestCase extends SimpleTestCase
+class TestCase extends AbstractSimpleTestCase
 {
+    private $tables;
+
+    protected function resetDatabase()
+    {
+        $this->clearTables(true);
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    protected function getTables()
+    {
+        if ($this->tables === null) {
+            $conn = Zend_Db_Table::getDefaultAdapter();
+
+            $this->tables = $conn->listTables();
+        }
+
+        return $this->tables;
+    }
 
     /**
      * Empty all listed tables.
      *
-     * @return void
+     * @param bool          $always Should tables be cleared even if empty
+     * @param null|string[] $tables Names of tables for clearing
      */
-    private function _clearTables()
+    protected function clearTables($always = false, $tables = null)
     {
+        $conn = Zend_Db_Table::getDefaultAdapter();
+
+        $this->assertNotNull($conn);
+
         // This is needed to workaround the constraints on the parent_id column.
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
+        $conn->query('SET FOREIGN_KEY_CHECKS = 0;');
+        $conn->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
-
-        foreach ($adapter->listTables() as $tableName) {
-            self::clearTable($tableName);
+        if ($tables === null) {
+            $tables = $this->getTables();
         }
-        $adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
+
+        foreach ($tables as $name) {
+            self::clearTable($name, $always);
+        }
+
+        $conn->query('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     /**
@@ -66,36 +110,43 @@ class TestCase extends SimpleTestCase
      * a table.  Check, if the table is really empty.
      *
      * @param string $tablename Name of the table to be cleared.
-     * @return void
+     * @param bool   $always Should table be cleared even if empty
      */
-    protected function clearTable($tablename)
+    protected function clearTable($tablename, $always = false)
     {
-        $adapter = \Zend_Db_Table::getDefaultAdapter();
-        $this->assertNotNull($adapter);
+        $conn = Zend_Db_Table::getDefaultAdapter();
 
-        $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('TRUNCATE ' . $tablename);
+        $this->assertNotNull($conn);
 
-        $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-        $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        $tablename = $conn->quoteIdentifier($tablename);
+
+        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+
+        if ($count > 0 || $always) {
+            $conn->query('TRUNCATE ' . $tablename);
+
+            $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+            $this->assertEquals(0, $count, "Table $tablename is not empty!");
+        }
     }
 
     /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
-     * @param null $directory
+     *
+     * @param null|string $directory
      */
     protected function clearFiles($directory = null)
     {
-        if (is_null($directory)) {
+        if ($directory === null) {
             if (empty(APPLICATION_PATH)) {
                 return;
             }
-            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
-                . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
+            $config   = Config::get();
+            $filesDir = $config->workspacePath . '/files';
+            $files    = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), ['.', '..']);
+            $files    = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -108,7 +159,7 @@ class TestCase extends SimpleTestCase
             }
         }
 
-        if (! is_null($directory)) {
+        if ($directory !== null) {
             rmdir($directory);
         }
 
@@ -117,26 +168,26 @@ class TestCase extends SimpleTestCase
 
     /**
      * Standard setUp method for clearing database.
-     *
-     * @return void
      */
     protected function setUp()
     {
         parent::setUp();
-
-        $this->_clearTables();
     }
 
+    /**
+     * @param string $resultString
+     * @return DOMXPath
+     */
     protected function prepareXpathFromResultString($resultString)
     {
-        $domDocument = new \DOMDocument();
+        $domDocument = new DOMDocument();
         $domDocument->loadXML($resultString);
 
-        $xpath = new \DOMXPath($domDocument);
+        $xpath = new DOMXPath($domDocument);
 
         $namespace = $domDocument->documentElement->namespaceURI;
 
-        if (! is_null($namespace)) {
+        if ($namespace !== null) {
             $xpath->registerNamespace('ns', $namespace);
         }
 

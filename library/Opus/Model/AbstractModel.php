@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,20 +25,32 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model;
 
+use BadMethodCallException;
+use DOMDocument;
+use InvalidArgumentException;
+use Opus\LoggingTrait;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
-use Opus\Model\Xml\Strategy;
+use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
+use Zend_Date;
+
+use function array_diff;
+use function array_keys;
+use function in_array;
+use function is_string;
+use function substr;
 
 /**
  * Abstract class for all domain models in the Opus framework.
@@ -59,21 +72,18 @@ use Opus\Model\Xml\Version1;
  * Properties are defined by developers, while an Enrichment is defined
  * by the institutions running OPUS 4.
  *
- *
- * @category    Framework
- * @package     Opus\Model
+ * phpcs:disable
  */
 abstract class AbstractModel implements PropertySupportInterface
 {
-
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Holds all fields of the domain model.
      *
      * @var array
      */
-    protected $_fields = [];
+    protected $fields = [];
 
     /**
      * TODO This should be an option in externalFields[]
@@ -83,20 +93,17 @@ abstract class AbstractModel implements PropertySupportInterface
      *
      * @var array
      */
-    protected $_internalFields = [];
+    protected $internalFields = [];
 
-    /**
-     * @var Properties Access object for internal properties associated with model
-     */
+    /** @var Properties Access object for internal properties associated with model */
     private static $propertiesService;
 
     /**
      * Call to _init().
-     *
      */
     public function __construct()
     {
-        $this->_init();
+        $this->init();
     }
 
     public static function new()
@@ -111,37 +118,35 @@ abstract class AbstractModel implements PropertySupportInterface
 
     /**
      * Overwrite to initialize custom fields.
-     *
-     * @return void
      */
-    abstract protected function _init();
+    abstract protected function init();
 
     /**
      * Magic method to access the models fields via virtual set/get methods.
      *
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
-     * @throws \InvalidArgumentException When adding a link to a field without an argument.
+     * @throws InvalidArgumentException When adding a link to a field without an argument.
      * @throws ModelException     If an unknown field or method is requested.
      * @throws SecurityException  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
     public function __call($name, array $arguments)
     {
-        $accessor = substr($name, 0, 3);
+        $accessor  = substr($name, 0, 3);
         $fieldname = substr($name, 3);
 
         $argumentGiven = false;
         $argument      = null;
         if (false === empty($arguments)) {
             $argumentGiven = true;
-            $argument = $arguments[0];
+            $argument      = $arguments[0];
         }
 
         // Filter calls to unknown methods and turn them into an exception
         $validAccessors = ['set', 'get', 'add'];
         if (in_array($accessor, $validAccessors) === false) {
-            throw new \BadMethodCallException($name . ' is no method in this object.');
+            throw new BadMethodCallException($name . ' is no method in this object.');
         }
 
         // check if requested field is known
@@ -178,13 +183,12 @@ abstract class AbstractModel implements PropertySupportInterface
      * Implements field getter mechanism.
      *
      * @param $field Field The field to work on.
-     * @param mixed            $index Index of the element to fetch.
-     *
+     * @param mixed                            $index Index of the element to fetch.
      * @return mixed    The value of the field.
      */
     protected function _getFieldValue(Field $field, $index)
     {
-        if (! is_null($index)) {
+        if ($index !== null) {
             return $field->getValue($index);
         }
 
@@ -194,9 +198,9 @@ abstract class AbstractModel implements PropertySupportInterface
     /**
      * Implements setter mechanism.
      *
-     * @param Field $field The field to work on.
-     * @param array|null       $values Any value to set.
-     * @return AbstractModel Provide fluent interface.
+     * @param Field      $field The field to work on.
+     * @param array|null $values Any value to set.
+     * @return $this Provide fluent interface.
      */
     protected function _setFieldValue(Field $field, $values)
     {
@@ -208,20 +212,19 @@ abstract class AbstractModel implements PropertySupportInterface
      * Implements adder mechanism.
      *
      * @param Field $field The field to work on.
-     * @param mixed  $arguments Arguments passed in the get-call.
-     *
+     * @param mixed $arguments Arguments passed in the get-call.
      * @return AbstractModel The added model (can be a new model).
      */
     protected function _addFieldValue(Field $field, $value)
     {
-        if (is_null($value)) {
+        if ($value === null) {
             $modelclass = $field->getValueModelClass();
-            if (is_null($modelclass)) {
+            if ($modelclass === null) {
                 throw new ModelException(
                     'Add accessor without parameter currently only available for fields holding models.'
                 );
             }
-            $value = new $modelclass;
+            $value = new $modelclass();
         }
 
         $field->addValue($value);
@@ -233,12 +236,12 @@ abstract class AbstractModel implements PropertySupportInterface
      * it will be replaced by the given field.
      *
      * @param Field $field Field instance that gets appended to the models field collection.
-     * @return AbstractModel Provide fluent interface.
+     * @return $this Provide fluent interface.
      */
     public function addField(Field $field)
     {
-        $this->_fields[$field->getName()] = $field;
-        $field->setOwningModelClass(get_class($this));
+        $this->fields[$field->getName()] = $field;
+        $field->setOwningModelClass(static::class);
         return $this;
     }
 
@@ -251,7 +254,7 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function getField($name)
     {
-        if (true === in_array($name, $this->_internalFields, true)) {
+        if (true === in_array($name, $this->internalFields, true)) {
             throw new ModelException('Access to internal field not allowed: ' . $name);
         }
         return $this->_getField($name);
@@ -265,8 +268,8 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     protected function _getField($name)
     {
-        if (isset($this->_fields[$name])) {
-            return $this->_fields[$name];
+        if (isset($this->fields[$name])) {
+            return $this->fields[$name];
         } else {
             return null;
         }
@@ -280,8 +283,8 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function hasField($name)
     {
-        return (true === isset($this->_fields[$name]))
-                and (false === in_array($name, $this->_internalFields, true));
+        return (true === isset($this->fields[$name]))
+                and (false === in_array($name, $this->internalFields, true));
     }
 
     /**
@@ -292,9 +295,9 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function hasMultipleValueField($name)
     {
-        return (true === isset($this->_fields[$name]))
-                and (false === in_array($name, $this->_internalFields, true))
-                and (true === $this->_fields[$name]->getMultiplicity());
+        return (true === isset($this->fields[$name]))
+                and (false === in_array($name, $this->internalFields, true))
+                and (true === $this->fields[$name]->getMultiplicity());
     }
 
     /**
@@ -302,11 +305,12 @@ abstract class AbstractModel implements PropertySupportInterface
      * that are defined to be inetrnal in $_internalFields.
      *
      * @see    \Opus\Model\Abstract::_internalFields
+     *
      * @return array    List of fields
      */
     public function describe()
     {
-        return array_diff(array_keys($this->_fields), $this->_internalFields);
+        return array_diff(array_keys($this->fields), $this->internalFields);
     }
 
     /**
@@ -317,7 +321,7 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function getDisplayName()
     {
-        return get_class($this);
+        return static::class;
     }
 
     /**
@@ -327,7 +331,7 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function __toString()
     {
-        if (is_null($this->getDisplayName())) {
+        if ($this->getDisplayName() === null) {
             return '';
         }
 
@@ -343,8 +347,8 @@ abstract class AbstractModel implements PropertySupportInterface
     {
         $result = [];
 
-        foreach (array_keys($this->_fields) as $fieldname) {
-            $field = $this->_getField($fieldname);
+        foreach (array_keys($this->fields) as $fieldname) {
+            $field      = $this->_getField($fieldname);
             $fieldvalue = $field->getValue();
 
             if (! $field->hasMultipleValues()) {
@@ -356,7 +360,7 @@ abstract class AbstractModel implements PropertySupportInterface
             foreach ($fieldvalue as $value) {
                 if ($value instanceof AbstractModel) {
                     $fieldvalues[] = $value->toArray();
-                } elseif ($value instanceof \Zend_Date) {
+                } elseif ($value instanceof Zend_Date) {
                     $fieldvalues[] = $value->toArray();
                 } else {
                     $fieldvalues[] = $value;
@@ -375,13 +379,14 @@ abstract class AbstractModel implements PropertySupportInterface
 
     /**
      * Creates object and initializes it with data.
+     *
      * @param $data
      * @return mixed
      */
     public static function fromArray($data)
     {
-        $modelClass = get_called_class();
-        $model = new $modelClass();
+        $modelClass = static::class;
+        $model      = new $modelClass();
         $model->updateFromArray($data);
         return $model;
     }
@@ -400,10 +405,10 @@ abstract class AbstractModel implements PropertySupportInterface
         if ($this instanceof AbstractLinkModel) {
             // Link-model classes proxy functions to a model class
             $model = $this->getModel();
-            if (is_null($model)) {
+            if ($model === null) {
                 // if model object not present create one
                 $modelClass = $this->getModelClass();
-                $model = new $modelClass();
+                $model      = new $modelClass();
                 $this->setModel($model);
             } else {
                 $model->clearFields();
@@ -414,19 +419,19 @@ abstract class AbstractModel implements PropertySupportInterface
 
         foreach ($data as $fieldName => $values) {
             $field = $this->getField($fieldName);
-            if (! is_null($field)) {
+            if ($field !== null) {
                 $fieldModelClass = $field->getValueModelClass();
-                $linkModelClass = $field->getLinkModelClass();
+                $linkModelClass  = $field->getLinkModelClass();
 
-                if (is_null($fieldModelClass)) {
+                if ($fieldModelClass === null) {
                     $field->setValue($values);
                 } else {
-                    if ($field->getMultiplicity() == '*') {
+                    if ($field->getMultiplicity() === '*') {
                         $models = [];
                         foreach ($values as $modelValues) {
                             $model = new $fieldModelClass();
 
-                            if (! is_null($linkModelClass)) {
+                            if ($linkModelClass !== null) {
                                 $linkModel = new $linkModelClass();
                                 $linkModel->setModel($model);
                                 $model = $linkModel;
@@ -440,7 +445,7 @@ abstract class AbstractModel implements PropertySupportInterface
                     } else {
                         $model = new $fieldModelClass();
 
-                        if (! is_null($linkModelClass)) {
+                        if ($linkModelClass !== null) {
                             $linkModel = new $linkModelClass();
                             $linkModel->setModel($model);
                             $model = $linkModel;
@@ -452,7 +457,7 @@ abstract class AbstractModel implements PropertySupportInterface
                     }
                 }
             } else {
-                $modelClass = get_called_class();
+                $modelClass = static::class;
                 $this->getLogger()->err("Unknown field name '$fieldName' in class '$modelClass'.");
             }
         }
@@ -461,16 +466,16 @@ abstract class AbstractModel implements PropertySupportInterface
     /**
      * Returns a Dom representation of the model.
      *
-     * @param array $excludeFields Array of fields that shall not be serialized.
-     * @param Strategy $strategy Version of Xml to process
-     * @return \DomDocument A Dom representation of the model.
+     * @param null|array    $excludeFields Array of fields that shall not be serialized.
+     * @param null|StrategyInterface $strategy Version of Xml to process
+     * @return DOMDocument A Dom representation of the model.
      */
-    public function toXml(array $excludeFields = null, $strategy = null)
+    public function toXml(?array $excludeFields = null, $strategy = null)
     {
-        if (is_null($excludeFields) === true) {
+        if ($excludeFields === null) {
             $excludeFields = [];
         }
-        if (is_null($strategy) === true) {
+        if ($strategy === null) {
             $strategy = new Version1();
         }
         $xml = new Xml();
@@ -484,17 +489,17 @@ abstract class AbstractModel implements PropertySupportInterface
     /**
      * Instantiates an Opus\Model from xml as delivered by the toXml() method.
      *
-     * @param  \DomDocument|string  $xml                The xml representing the model.
-     * @param  Xml      $customDeserializer (Optional) Specify a custom deserializer object.
+     * @param  DOMDocument|string $xml                The xml representing the model.
+     * @param  null|Xml           $customDeserializer (Optional) Specify a custom deserializer object.
      * @return AbstractModel The Opus\Model derived from xml.
      */
-    public static function fromXml($xml, Xml $customDeserializer = null)
+    public static function fromXml($xml, ?Xml $customDeserializer = null)
     {
-        if (is_null($customDeserializer)) {
+        if ($customDeserializer === null) {
             $customDeserializer = new Xml();
         }
 
-        if ($xml instanceof \DomDocument) {
+        if ($xml instanceof DomDocument) {
             $customDeserializer->setDomDocument($xml);
         } elseif (is_string($xml)) {
             $customDeserializer->setXml($xml);
@@ -505,7 +510,6 @@ abstract class AbstractModel implements PropertySupportInterface
         return $customDeserializer->getModel();
     }
 
-
     /**
      * Loop through all fields and check if they are valid.
      *
@@ -515,23 +519,23 @@ abstract class AbstractModel implements PropertySupportInterface
      * If a mandatory field contains models itself, a validation is triggered
      * on these models.
      *
-     * @return Boolean True if all fields report to be valid, false if
+     * @return bool True if all fields report to be valid, false if
      *                 at least one field fails validation.
      */
     public function isValid()
     {
-        foreach ($this->_fields as $field) {
-            $value = $field->getValue();
+        foreach ($this->fields as $field) {
+            $value     = $field->getValue();
             $mandatory = $field->isMandatory();
 
             // skip optional and empty fields
-            if ((false === $mandatory) and (is_null($value) or ('' === $value))) {
+            if ((false === $mandatory) && ($value === null || ('' === $value))) {
                 continue;
             }
 
             // validate
             $validator = $field->getValidator();
-            if (is_null($validator) === false) {
+            if ($validator !== null) {
                 if ($validator->isValid($value) === false) {
                     return false;
                 }
@@ -562,10 +566,10 @@ abstract class AbstractModel implements PropertySupportInterface
     public function getValidationErrors()
     {
         $result = [];
-        foreach ($this->_fields as $field) {
+        foreach ($this->fields as $field) {
             $validator = $field->getValidator();
             if (null !== $validator) {
-                $messages = $validator->getMessages();
+                $messages                  = $validator->getMessages();
                 $result[$field->getName()] = $messages;
             }
         }
@@ -582,7 +586,7 @@ abstract class AbstractModel implements PropertySupportInterface
      * To exclude fields from updating consider using a
      * Opus\Model\Filter decorator for the given update model.
      *
-     * @return void
+     *
      *
      * TODO does not work recursive - values of submodels don't get transferred
      */
@@ -606,13 +610,14 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function clearFields()
     {
-        foreach ($this->_fields as $fieldName => $field) {
+        foreach ($this->fields as $fieldName => $field) {
             $field->setValue(null);
         }
     }
 
     /**
      * Part of PropertySupportInterface.
+     *
      * @return int|null ID of model
      * @throws SecurityException
      * @throws ModelException
@@ -624,6 +629,7 @@ abstract class AbstractModel implements PropertySupportInterface
 
     /**
      * Set a property for a model.
+     *
      * @param string $key Name of property
      * @param string $value Value of property
      * @throws UnknownModelTypeException
@@ -638,6 +644,7 @@ abstract class AbstractModel implements PropertySupportInterface
 
     /**
      * Returns value of a property stored for a model.
+     *
      * @param string $key Name of property
      * @return string|null
      * @throws PropertiesException
@@ -662,7 +669,7 @@ abstract class AbstractModel implements PropertySupportInterface
      */
     public function getModelType()
     {
-        $className = get_class($this);
+        $className = static::class;
         throw new UnknownModelTypeException("Properties not supported for $className");
     }
 

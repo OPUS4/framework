@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,69 +25,70 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Statistic
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Statistic;
 
 use Opus\Config;
+use Opus\Db\DocumentStatistics;
 use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\Statistic\LocalCounter;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function count;
+use function unlink;
 
 /**
  * Test for Opus\Statistic\LocalCounter.
  *
  * @package Opus\Statistic
  * @category Tests
- *
  * @group LocalCounterTest
  */
 class LocalCounterTest extends TestCase
 {
-
     /**
      * Document to count on :)
      *
      * @var Opus\Document
      */
-    protected $_document = null;
+    protected $document;
 
     /**
      * Provide clean documents and statistics table and remove temporary files.
      * Create document for counting.
-     *
-     * @return void
      */
     public function setUp()
     {
         parent::setUp();
 
+        $this->clearTables(false, ['documents', 'document_statistics']);
 
         $path = Config::getInstance()->getTempPath() . '~localstat.xml';
         @unlink($path);
 
-        $this->_document = new Document();
-        $this->_document->setType("doctoral_thesis");
-        $this->_document->store();
+        $this->document = new Document();
+        $this->document->setType("doctoral_thesis");
+        $this->document->store();
 
         //setting server globals
-        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['REMOTE_ADDR']     = '127.0.0.1';
         $_SERVER['HTTP_USER_AGENT'] = 'bla';
         $_SERVER['REDIRECT_STATUS'] = 200;
     }
 
     /**
      * Clean up tables, remove temporary files.
-     *
-     * @return void
      */
     public function tearDown()
     {
@@ -98,37 +100,33 @@ class LocalCounterTest extends TestCase
 
     /**
      * Test getting singleton instance.
-     *
-     * @return void
      */
     public function testGetInstance()
     {
         $lc = LocalCounter::getInstance();
         $this->assertNotNull($lc, 'Expected instance');
-        $this->assertInstanceOf('Opus\Statistic\LocalCounter', $lc, 'Expected object of type Opus\Statistic\LocalCounter.');
+        $this->assertInstanceOf(LocalCounter::class, $lc, 'Expected object of type Opus\Statistic\LocalCounter.');
     }
 
     /**
      * Simulate single click and check if the document counter gets increased.
-     *
-     * @return void
      */
     public function testCountSingleClick()
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
-        Config::get()->merge(new \Zend_Config([
-            'statistics' => ['localCounterEnabled' => 1]
+        Config::get()->merge(new Zend_Config([
+            'statistics' => ['localCounterEnabled' => 1],
         ]));
 
-        $docId = $this->_document->getId();
+        $docId = $this->document->getId();
 
         // issue counting request
         $lc = LocalCounter::getInstance();
         $lc->count($docId, 1, 'files');
 
         // check database table for counting value
-        $ods = TableGateway::getInstance('Opus\Db\DocumentStatistics');
+        $ods  = TableGateway::getInstance(DocumentStatistics::class);
         $rows = $ods->fetchAll()->toArray();
 
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
@@ -144,18 +142,18 @@ class LocalCounterTest extends TestCase
     {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
-        Config::get()->merge(new \Zend_Config([
-            'statistics' => ['localCounterEnabled' => 1]
+        Config::get()->merge(new Zend_Config([
+            'statistics' => ['localCounterEnabled' => 1],
         ]));
 
-        $docId = $this->_document->getId();
+        $docId = $this->document->getId();
 
         // issue counting request
         $lc = LocalCounter::getInstance();
         $lc->count($docId, null, 'frontdoor');
 
         // check database table for counting value
-        $ods = TableGateway::getInstance("Opus\Db\DocumentStatistics");
+        $ods  = TableGateway::getInstance(DocumentStatistics::class);
         $rows = $ods->fetchAll()->toArray();
 
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');

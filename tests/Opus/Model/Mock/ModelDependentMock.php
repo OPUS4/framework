@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Mock;
 
@@ -43,22 +45,19 @@ use Opus\Model\Dependent\AbstractDependentModel;
  */
 class ModelDependentMock extends AbstractDependentModel
 {
-
     public $deleteHasBeenCalled = false;
 
     public $doDeleteHasBeenCalled = false;
 
     public $setParentIdHasBeenCalled = false;
 
-    public $id = null;
-
-    private $_discriminatorObject = null;
+    public $id;
 
     public function __construct()
     {
     }
 
-    public function _init()
+    public function init()
     {
     }
 
@@ -67,16 +66,25 @@ class ModelDependentMock extends AbstractDependentModel
         $this->deleteHasBeenCalled = true;
     }
 
+    /**
+     * @param string $token
+     */
     public function doDelete($token)
     {
         $this->doDeleteHasBeenCalled = true;
     }
 
+    /**
+     * @param int $id
+     */
     public function setParentId($id)
     {
         $this->setParentIdHasBeenCalled = true;
     }
 
+    /**
+     * @return int
+     */
     public function getId()
     {
         if (null === $this->id) {
@@ -85,19 +93,11 @@ class ModelDependentMock extends AbstractDependentModel
         return $this->id;
     }
 
+    /**
+     * @param int $id
+     */
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * Sets an object reference that helps to mime object
-     * references when comparing instances of this class.
-     *
-     * @param <type> $object An arbitrary object
-     */
-    public function setDiscriminatorObject($object)
-    {
-        $this->_discriminatorObject = $object;
     }
 }

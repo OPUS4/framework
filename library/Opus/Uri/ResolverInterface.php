@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,30 +25,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus\Model
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Uri
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
-namespace Opus\Model;
+namespace Opus\Uri;
 
 /**
- * Interface for comparing objects.
+ * Interface for classes resolving URIs to concrete content specified by the URI.
  *
- * TODO NAMESPACE rename interface
+ * @category    Framework
+ * @package     Opus\Uri
+ *
+ * TODO NAMESPACE rename class
  */
-interface Comparable
+interface ResolverInterface
 {
-
     /**
-     * Compares an object with the provided parameter object.
+     * Get content of a represented resource.
      *
-     * The objects should generally be of the same type.
-     *
-     * @param $obj Object to compare with
-     * @return -1 if less than parameter, 0 if equals or 1 if more than parameter object
+     * @param string $uri The URI pointing to a resource.
+     * @return mixed A representation of the specified resource.
      */
-    public function compare($obj);
+    public function get($uri);
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus\Doi
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Doi\Generator;
@@ -39,7 +41,10 @@ use Opus\Util\ClassLoaderHelper;
 
 class DoiGeneratorFactory
 {
-
+    /**
+     * @return DoiGeneratorInterface
+     * @throws DoiException
+     */
     public static function create()
     {
         $config = Config::get();
@@ -50,7 +55,7 @@ class DoiGeneratorFactory
             throw new DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
         }
 
-        if ($config->doi->generatorClass == '') {
+        if (empty($config->doi->generatorClass)) { // TODO empty good enough
             // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
             throw new DoiException('mandatory configuration key doi.generatorClass is empty - check your configuration');
         }
@@ -64,8 +69,6 @@ class DoiGeneratorFactory
             throw new DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
         }
 
-        $generator = new $generatorClassName();
-
-        return $generator;
+        return new $generatorClassName();
     }
 }

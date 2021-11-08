@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,31 +25,64 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus\Uri
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ *
+ * @category    Framework
+ * @package     Opus\Db2
+ * @author      Jens Schwidder <schwidder@zib.de>
+ */
 
-namespace Opus\Uri;
+namespace Opus\Db2;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
+use Opus\Config;
+use Opus\Database as OpusDatabase;
 
 /**
- * Interface for classes resolving URIs to concrete content specified by the URI.
- *
- * @category    Framework
- * @package     Opus\Uri
- *
- * TODO NAMESPACE rename class
+ * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
+ *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
  */
-interface Resolver
+class Database
 {
+    private static $conn;
 
     /**
-     * Get content of a represented resource.
-     *
-     * @param string $uri The URI pointing to a resource.
-     * @return mixed A representation of the specified resource.
+     * @return array
      */
-    public function get($uri);
+    public static function getConnectionParams()
+    {
+        $config = Config::get(); // TODO use function (no direkt class dependency)
+
+        if (isset($config->db->params)) {
+            $dbConfig = $config->db->params;
+        }
+
+        return $dbConfig->toArray();
+    }
+
+    /**
+     * @return Connection
+     * @throws Exception
+     */
+    public static function getConnection()
+    {
+        if (self::$conn === null) {
+            $params = self::getConnectionParams();
+
+            $db = new OpusDatabase();
+
+            $dbName = $db->getName();
+
+            $pdo = $db->getPdo($dbName);
+
+            $params['pdo'] = $pdo;
+
+            self::$conn = DriverManager::getConnection($params);
+        }
+
+        return self::$conn;
+    }
 }

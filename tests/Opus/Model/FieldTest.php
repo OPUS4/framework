@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,40 +25,48 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model;
 
+use ClassWithDeleteMethod;
+use fieldTestInspector;
+use InvalidArgumentException;
 use Opus\Date;
 use Opus\Model\Field;
 use Opus\Model\ModelException;
 use OpusTest\Model\Mock\ModelAbstractDbMock;
 use OpusTest\Model\Mock\ModelDependentMock;
 use OpusTest\TestAsset\TestCase;
+use stdClass;
+use Zend_Date;
+
+use function get_class;
+use function is_array;
 
 /**
  * Test cases for class Opus\Model\Field.
  *
  * @category Tests
  * @package  Opus\Model
- *
  * @group    FieldTest
  */
 class FieldTest extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
@@ -70,10 +79,20 @@ class FieldTest extends TestCase
     public function invalidSetMultiplicityValuesDataProvider()
     {
         return [
-            ['0'],['1'],[0],[-1],['a'],
-            ['z'],[''],[' '],[true],[false],
-            [565676.234],[-0.0435],[new \InvalidArgumentException()],
-            [[1,2,3,4]]
+            ['0'],
+            ['1'],
+            [0],
+            [-1],
+            ['a'],
+            ['z'],
+            [''],
+            [' '],
+            [true],
+            [false],
+            [565676.234],
+            [-0.0435],
+            [new InvalidArgumentException()],
+            [[1, 2, 3, 4]],
         ];
     }
 
@@ -104,8 +123,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if the class name of a model can be retrieved from the field.
-     *
-     * @return void
      */
     public function testNameOfValueClassCanBeRetrieved()
     {
@@ -118,8 +135,6 @@ class FieldTest extends TestCase
     /**
      * Test that the returned model class name is empty if the field value
      * is not an model instance.
-     *
-     * @return void
      */
     public function testNameOfValueClassIsEmptyIfNoModelClassIsSet()
     {
@@ -129,12 +144,9 @@ class FieldTest extends TestCase
         $this->assertNull($classname, 'Class name returned when no model instance is set as value.');
     }
 
-
     /**
      * Test if a field is set to have single value it never returns an array
      * as its value.
-     *
-     * @return void
      */
     public function testSinglevaluedFieldOnlyHasSingleValue()
     {
@@ -144,12 +156,9 @@ class FieldTest extends TestCase
         $this->assertFalse(is_array($result), 'Returned value should not be an array.');
     }
 
-
     /**
      * Test if a field is set to have multiple values it always returns an array
      * as its value.
-     *
-     * @return void
      */
     public function testMultivaluedFieldOnlyHasArrayValue()
     {
@@ -161,8 +170,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if a field returns right multiplicity
-     *
-     * @return void
      */
     public function testSinglevaluedFieldMultiplicity()
     {
@@ -174,8 +181,6 @@ class FieldTest extends TestCase
     /**
      * Test if a field is set to have single value it does not accept an array as
      * its input value.
-     *
-     * @return void
      */
     public function testSingleValuedFieldTakesSingleValue()
     {
@@ -189,8 +194,7 @@ class FieldTest extends TestCase
      * Test if only valid integer values greater zero or "*" can be set
      * as multiplicity.
      *
-     * @return void
-     *
+     * @param string $value
      * @dataProvider invalidSetMultiplicityValuesDataProvider
      */
     public function testInputValuesForMultiplicityAreIntegerOrStar($value)
@@ -203,14 +207,12 @@ class FieldTest extends TestCase
     /**
      * Test if a specific value can be obtained from a multivalued field by
      * specifying an array index.
-     *
-     * @return void
      */
     public function testGetSpecificIndexFromMultivalueField()
     {
         $field = new Field('MyField');
         $field->setMultiplicity('*');
-        $field->setValue([1,2,'Hallo']);
+        $field->setValue([1, 2, 'Hallo']);
         $this->assertEquals(1, $field->getValue(0), 'Wrong value on index 0.');
         $this->assertEquals(2, $field->getValue(1), 'Wrong value on index 1.');
         $this->assertEquals('Hallo', $field->getValue(2), 'Wrong value on index 2.');
@@ -218,12 +220,10 @@ class FieldTest extends TestCase
 
     /**
      * Test if the modified flag of a field is set to false.
-     *
-     * @return void
      */
     public function testModifiedFlagIsNotSetInitially()
     {
-        $field = new Field('MyField');
+        $field  = new Field('MyField');
         $result = $field->isModified();
         $this->assertFalse($result, 'Modified flag is initially true.');
     }
@@ -231,8 +231,6 @@ class FieldTest extends TestCase
     /**
      * Test if the modified falg is indeed set to true if a call to setValue()
      * gives a new value to the field.
-     *
-     * @return void
      */
     public function testModifiedFlagIsSetAfterSettingNewValue()
     {
@@ -244,8 +242,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if the modified flag can be set back to false again.
-     *
-     * @return void
      */
     public function testModifiedFlagIsClearable()
     {
@@ -259,12 +255,10 @@ class FieldTest extends TestCase
     /**
      * Test if the modified flag is set to true after a call to setValue()
      * with the current value of the field.
-     *
-     * @return void
      */
     public function testModifiedFlagRemainsAfterSettingSameValueAgain()
     {
-        $field = new Field('MyField');
+        $field  = new Field('MyField');
         $before = $field->isModified();
         $field->setValue($field->getValue());
         $after = $field->isModified();
@@ -273,8 +267,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if modified flag can be triggered.
-     *
-     * @return void
      */
     public function testModifiedFlagCanBeTriggerdViaSetModified()
     {
@@ -286,8 +278,6 @@ class FieldTest extends TestCase
 
     /**
      * Test setting of default values
-     *
-     * @return void
      */
     public function testSetDefault()
     {
@@ -300,8 +290,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if setting the selection flag clear other flags.
-     *
-     * @return void
      */
     public function testSelectionFlagClearsOtherFlags()
     {
@@ -317,8 +305,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if setting the textarea flag clear other flags.
-     *
-     * @return void
      */
     public function testTextareaFlagClearsOtherFlags()
     {
@@ -334,8 +320,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if setting the checkbox flag clear other flags.
-     *
-     * @return void
      */
     public function testCheckboxFlagClearsOtherFlags()
     {
@@ -344,27 +328,28 @@ class FieldTest extends TestCase
         $field->setSelection(true);
         $field->setCheckbox(true);
 
-
         $this->assertTrue($field->isCheckbox(), 'Checkbox flag does not get set.');
         $this->assertFalse($field->isTextarea(), 'Textarea flag does not get cleared when selection is set.');
         $this->assertFalse($field->isSelection(), 'Selection flag does not get cleared when selection is set.');
     }
+
     /**
      * Test that only real boolean values can be passed to flag functions.
      *
-     * @return void
-     *
+     * @param string $func
+     * @param mixed  $input
+     * @param mixed  $output
      * @dataProvider setterGetterCallDataProvider
      */
     public function testSetterGetterTypeCastingInputValues($func, $input, $output)
     {
         $field = new Field('MyField');
 
-        $set_callname = 'set' . $func;
-        $get_callname = 'is' . $func;
+        $setCallname = 'set' . $func;
+        $getCallname = 'is' . $func;
 
-        $field->$set_callname($input);
-        $result = $field->$get_callname();
+        $field->$setCallname($input);
+        $result = $field->$getCallname();
 
         $this->assertEquals($output, $result, 'Retrieved value considered wrong.');
     }
@@ -373,8 +358,6 @@ class FieldTest extends TestCase
      * Test if setting object references uses a weaker comparison method
      * to ensure that objects with same attribute values are treated as equal
      * even if they are different instances.
-     *
-     * @return void
      */
     public function testWeakComparisonForObjectReferences()
     {
@@ -407,8 +390,6 @@ class FieldTest extends TestCase
     /**
      * Test if setting a non-object value enforces strong comparision
      * including type checking.
-     *
-     * @return void
      */
     public function testStrongComparisionForNonObjectsValues()
     {
@@ -426,66 +407,56 @@ class FieldTest extends TestCase
 
     /**
      * Test if new values can be added to present values of a multivalued field.
-     *
-     * @return void
      */
     public function testAddingValueToMultivaluedFields()
     {
         $field = new Field('MyField');
         $field->setMultiplicity('*');
 
-        $field->setValue([1,2,3,4]);
+        $field->setValue([1, 2, 3, 4]);
         $field->addValue(15);
 
-        $this->assertEquals([1,2,3,4,15], $field->getValue(), 'Value has not been added.');
+        $this->assertEquals([1, 2, 3, 4, 15], $field->getValue(), 'Value has not been added.');
     }
 
     /**
      * Test if a whole array can be added to a multivalued field.
-     *
-     * @return void
      */
     public function testAddingArrayValuesToMultivaluedField()
     {
         $field = new Field('MyField');
         $field->setMultiplicity('*');
 
-        $field->setValue([1,2,3,4]);
-        $field->addValue([15,16,17]);
+        $field->setValue([1, 2, 3, 4]);
+        $field->addValue([15, 16, 17]);
 
-        $this->assertEquals([1,2,3,4,15,16,17], $field->getValue(), 'Values have not been added.');
+        $this->assertEquals([1, 2, 3, 4, 15, 16, 17], $field->getValue(), 'Values have not been added.');
     }
 
     /**
      * Test if values can be added to an uninitialized field.
-     *
-     * @return void.
      */
     public function testAddingValuesToEmptyField()
     {
         $field = new Field('MyField');
         $field->setMultiplicity('*');
-        $field->addValue([15,16,17]);
-        $this->assertEquals([15,16,17], $field->getValue(), 'Values have not been added.');
+        $field->addValue([15, 16, 17]);
+        $this->assertEquals([15, 16, 17], $field->getValue(), 'Values have not been added.');
     }
 
     /**
      * Test if values can be added to an uninitialized non-multiple field.
-     *
-     * @return void.
      */
     public function testAddingValuesToNonMultipleField()
     {
         $this->setExpectedException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity('1');
-        $field->addValue([15,16,17]);
+        $field->addValue([15, 16, 17]);
     }
 
     /**
      * Test if single value can be added to an uninitialized non-multiple field.
-     *
-     * @return void.
      */
     public function testAddingSingleValueToNonMultipleField()
     {
@@ -497,35 +468,29 @@ class FieldTest extends TestCase
 
     /**
      * Test if adding multiple values raises the modified flag.
-     *
-     * @return void
      */
     public function testAddingValuesSetsModifiedFlag()
     {
         $field = new Field('MyField');
         $field->setMultiplicity('*');
         $field->clearModified();
-        $field->addValue([15,16,17]);
+        $field->addValue([15, 16, 17]);
         $this->assertTrue($field->isModified(), 'Adding values should raise "modified" flag.');
     }
 
     /**
      * Test if attempt to add more values than allowed throws an exception.
-     *
-     * @return void
      */
     public function testAddingMoreValuesThenAllowedThrowsException()
     {
         $this->setExpectedException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity(3);
-        $field->addValue([15,16,17, 18]);
+        $field->addValue([15, 16, 17, 18]);
     }
 
     /**
      * Test if setting multi-value fields to null clears field properly.
-     *
-     * @return void
      */
     public function testSetMultivalueFieldToNull()
     {
@@ -537,17 +502,14 @@ class FieldTest extends TestCase
         $this->assertTrue(empty($value), 'Multivalue field not cleared after setting to null.');
     }
 
-
     /**
      * Test if delete() is not issued if the field value is not an Opus\Model\Dependent_*
-     *
-     * @return void
      */
     public function testSetFieldValueToNullDoesNotTriggerDeleteWithNoDependentModel()
     {
         $clazz = 'class ClassWithDeleteMethod { public $trigger = false; public function delete() { $this->trigger = true; } }';
         eval($clazz);
-        $obj = new \ClassWithDeleteMethod();
+        $obj   = new ClassWithDeleteMethod();
         $field = new Field('SomeField');
         $field->setValue($obj);
         $field->setValue(null);
@@ -555,12 +517,9 @@ class FieldTest extends TestCase
         $this->assertFalse($obj->trigger, 'Delete method has been called on non Opus\Model\Dependent\AbstractDependentModel class.');
     }
 
-
     /**
      * Test if setting a field containing a dependent model to "null" issues
      * a delete() request on that model.
-     *
-     * @return void
      */
     public function testSetDependentModelFieldToNullRemovesModelFromDatabase()
     {
@@ -580,8 +539,6 @@ class FieldTest extends TestCase
     /**
      * Test if setting a multivalue field containing dependent models to "null" issues
      * a delete() request to all these model.
-     *
-     * @return void
      */
     public function testSetDependentModelMultivalueFieldToNullRemovesModelsFromDatabase()
     {
@@ -592,7 +549,7 @@ class FieldTest extends TestCase
 
         $field = new Field('ExternalModels');
         $field->setMultiplicity('*');
-        $field->setValueModelClass('OpusTest\Model\Mock\ModelDependentMock');
+        $field->setValueModelClass(ModelDependentMock::class);
         $field->setValue($depmo);
 
         // issue the test
@@ -606,8 +563,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if Field reports modification if contained Model is modified.
-     *
-     * @return void
      */
     public function testIsModifiedReturnsTrueIfReferencedModelHasBeenModified()
     {
@@ -629,8 +584,6 @@ class FieldTest extends TestCase
     /**
      * Test if Field reports modification if contained models are arrays.
      * Regression test for OPUSVIER-2261.
-     *
-     * @return void
      */
     public function testIsModifiedReturnsTrueIfArrayContainsModifiedModel()
     {
@@ -655,21 +608,17 @@ class FieldTest extends TestCase
 
     /**
      * Test if an exception occurs if value of unexpected type is set.
-     *
-     * @return void
      */
     public function testValueOfUnexpectedTypeThrowsException()
     {
         $field = new Field('myfield');
         $field->setValueModelClass('Zend_Date');
-        $this->setExpectedException('Opus\Model\ModelException');
-        $field->setValue(new \stdClass());
+        $this->setExpectedException(ModelException::class);
+        $field->setValue(new stdClass());
     }
 
     /**
      * Test if an excpetion occurs if value of unexpected type is set.
-     *
-     * @return void
      */
     public function testValueOfUncastableDataThrowsException()
     {
@@ -686,8 +635,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if a value gets casted to the fields valueModelClass if possible.
-     *
-     * @return void
      */
     public function testSetterValueGetsCasted()
     {
@@ -700,14 +647,12 @@ class FieldTest extends TestCase
         }
         $result = $field->getValue();
 
-        $this->assertTrue($result instanceof \Zend_Date, 'Value has not been casted to valueModelClass object.');
+        $this->assertTrue($result instanceof Zend_Date, 'Value has not been casted to valueModelClass object.');
     }
 
     /**
      * Test if a pending delete operation is collected on every delete of a
      * dependent Model.
-     *
-     * @return void
      */
     public function testDeleteCollectsPendingOperations()
     {
@@ -717,12 +662,12 @@ class FieldTest extends TestCase
         eval('
             class fieldTestInspector extends \Opus\Model\Field {
                 public function getPendingDeletes() {
-                    return $this->_pendingDeletes;
+                    return $this->pendingDeletes;
                 }
             }
         ');
 
-        $field = new \fieldTestInspector('ExternalModel');
+        $field = new fieldTestInspector('ExternalModel');
         $field->setValueModelClass(get_class($depmo));
         $field->setValue($depmo);
 
@@ -736,8 +681,6 @@ class FieldTest extends TestCase
 
     /**
      * Test if pending deletes get executed.
-     *
-     * @return void
      */
     public function testDoPendingDeletesLoopsModelsAndDoesDelete()
     {
@@ -748,7 +691,7 @@ class FieldTest extends TestCase
 
         $field = new Field('ExternalModels');
         $field->setMultiplicity('*');
-        $field->setValueModelClass('OpusTest\Model\Mock\ModelDependentMock');
+        $field->setValueModelClass(ModelDependentMock::class);
         $field->setValue($depmo);
 
         // issue the test

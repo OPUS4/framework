@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,11 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Doi\Generator
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Doi\Generator;
@@ -38,10 +40,10 @@ use Opus\Document;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Doi\Generator\DoiGeneratorException;
 use OpusTest\TestAsset\TestCase;
+use Zend_Config;
 
 class DefaultGeneratorTest extends TestCase
 {
-
     public function testGenerateWithMissingConfig()
     {
         // create minimal test document to provide document ID
@@ -81,52 +83,52 @@ class DefaultGeneratorTest extends TestCase
     public function testGenerateWithPrefixConfig()
     {
         // create minimal test document to provide document ID
-        $doc = new Document();
+        $doc   = new Document();
         $docId = $doc->store();
 
         $this->adaptDoiConfiguration(['prefix' => '12.3456']);
 
         $generator = new DefaultGenerator();
-        $doi = $generator->generate($doc);
+        $doi       = $generator->generate($doc);
         $this->assertEquals('12.3456/' . $docId, $doi);
     }
 
     public function testGenerateWithPrefixConfigAlt()
     {
         // create minimal test document to provide document ID
-        $doc = new Document();
+        $doc   = new Document();
         $docId = $doc->store();
 
         $this->adaptDoiConfiguration(['prefix' => '12.3456/']);
 
         $generator = new DefaultGenerator();
-        $doi = $generator->generate($doc);
+        $doi       = $generator->generate($doc);
         $this->assertEquals('12.3456/' . $docId, $doi);
     }
 
     public function testGenerateWithCompleteConfig()
     {
         // create minimal test document to provide document ID
-        $doc = new Document();
+        $doc   = new Document();
         $docId = $doc->store();
 
         $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest']);
 
         $generator = new DefaultGenerator();
-        $doi = $generator->generate($doc);
+        $doi       = $generator->generate($doc);
         $this->assertEquals('12.3456/opustest-' . $docId, $doi);
     }
 
     public function testGenerateWithCompleteConfigAlt()
     {
         // create minimal test document to provide document ID
-        $doc = new Document();
+        $doc   = new Document();
         $docId = $doc->store();
 
         $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest-']);
 
         $generator = new DefaultGenerator();
-        $doi = $generator->generate($doc);
+        $doi       = $generator->generate($doc);
         $this->assertEquals('12.3456/opustest-' . $docId, $doi);
     }
 
@@ -224,30 +226,31 @@ class DefaultGeneratorTest extends TestCase
         $this->assertTrue($generator->isLocal('12.3456/opustest-789'));
     }
 
-    /**
-     * @expectedException \Opus\Doi\Generator\DoiGeneratorException
-     */
     public function testGetPrefixNoConfiguration()
     {
         $generator = new DefaultGenerator();
 
+        $this->setExpectedException(DoiGeneratorException::class);
+
         $generator->getPrefix();
     }
 
-    /**
-     * @expectedException \Opus\Doi\Generator\DoiGeneratorException
-     */
     public function testGetPrefixEmptyConfiguration()
     {
         $this->adaptDoiConfiguration(['prefix' => ' ', 'localPrefix' => ' ']);
 
         $generator = new DefaultGenerator();
 
+        $this->setExpectedException(DoiGeneratorException::class);
+
         $generator->getPrefix();
     }
 
+    /**
+     * @param Zend_Config $doiConfig
+     */
     private function adaptDoiConfiguration($doiConfig)
     {
-        Config::get()->merge(new \Zend_Config(['doi' => $doiConfig]));
+        Config::get()->merge(new Zend_Config(['doi' => $doiConfig]));
     }
 }

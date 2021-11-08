@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
-*/
+ */
 
 namespace OpusTest\Model\Dependent\Link;
 
@@ -43,16 +45,14 @@ use Opus\Model\AbstractModel;
  */
 class AbstractModelMock extends AbstractModel
 {
-
     private $mockValid = true;
 
     /**
      * No fields to add for this mock model so the method has an empty body.
      *
-     * @return void
      * @see \Opus\Model\AbstractModel#_init()
      */
-    protected function _init()
+    protected function init()
     {
     }
 
@@ -60,7 +60,6 @@ class AbstractModelMock extends AbstractModel
      * Setter for mock display name to be returned.
      *
      * @param string $displayName Mock display name.
-     * @return void
      */
     public function setDisplayName($displayName)
     {
@@ -77,11 +76,17 @@ class AbstractModelMock extends AbstractModel
         return $this->_mockDisplayName;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid()
     {
         return $this->mockValid;
     }
 
+    /**
+     * @param bool $valid
+     */
     public function setValid($valid)
     {
         $this->mockValid = $valid;

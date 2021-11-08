@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,39 +25,37 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus\Db
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Db\Adapter\Pdo;
 
+use Exception;
 use Opus\Config;
 use OpusTest\TestAsset\TestCase;
+use Zend_Db;
+use Zend_Db_Table;
 
 /**
  * Test cases for Site entity.
  *
  * @category    Tests
  * @package     Opus\Db
- *
  * @group       Mysqlutf8Test
  */
 class Mysqlutf8Test extends TestCase
 {
-
-    /**
-     * @var\Zend_Db_Adapter_Abstract
-     */
-    protected $dba_backup;
+    /** @var\Zend_Db_Adapter_Abstract */
+    protected $dbaBackup;
 
     /** Ensure a clean database table.
-     *
-     * @return void
      */
     public function setUp()
     {
@@ -66,59 +65,53 @@ class Mysqlutf8Test extends TestCase
         $config = Config::get();
 
         // Backup existing adapter
-        $this->dba_backup = \Zend_Db_Table::getDefaultAdapter();
+        $this->dbaBackup = Zend_Db_Table::getDefaultAdapter();
 
         // Use\Zend_Db factory to create a database adapter and make it default.
-        if (is_null($config) or is_null($config->db)) {
-            throw new \Exception("Config does not exist.");
+        if ($config === null || $config->db === null) {
+            throw new Exception("Config does not exist.");
         }
-        $db = \Zend_Db::factory($config->db);
-        \Zend_Db_Table::setDefaultAdapter($db);
+        $db = Zend_Db::factory($config->db);
+        Zend_Db_Table::setDefaultAdapter($db);
     }
 
     /**
      * Tear down database changed.
-     *
-     * @return void
      */
     public function tearDown()
     {
         // Close connection for clean transaction state.
-        $dba = \Zend_Db_Table::getDefaultAdapter();
-        if (! is_null($dba)) {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        if ($dba !== null) {
             $dba->closeConnection();
         }
 
         // Restore existing adapter
-        \Zend_Db_Table::setDefaultAdapter($this->dba_backup);
+        Zend_Db_Table::setDefaultAdapter($this->dbaBackup);
 
         parent::tearDown();
     }
 
     /**
      * Test if starting nested transactions gets handeld by the adapter.
-     *
-     * @return void
      */
     public function testStartNestingTransactions()
     {
-        $dba = \Zend_Db_Table::getDefaultAdapter();
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         try {
             $dba->beginTransaction();
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->fail('Failed start of nested transaction.');
         }
     }
 
     /**
      * Test if all opened transactions can be committed.
-     *
-     * @return void
      */
     public function testCommitNestedTransactions()
     {
-        $dba = \Zend_Db_Table::getDefaultAdapter();
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         $dba->beginTransaction();
         $dba->beginTransaction();
@@ -129,23 +122,20 @@ class Mysqlutf8Test extends TestCase
 
         try {
             $dba->commit();
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return;
         }
         $this->fail('Commit without transaction goes ok.');
     }
 
-
     /**
      * Test if all opened transactions can be ended by rollback.
      *
      * FIXME: design fault: on rollback should abort all enclosing transactions!
-     *
-     * @return void
      */
     public function testRollbackNestedTransactions()
     {
-        $dba = \Zend_Db_Table::getDefaultAdapter();
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->beginTransaction();
         $dba->beginTransaction();
         $dba->beginTransaction();
@@ -156,7 +146,7 @@ class Mysqlutf8Test extends TestCase
 
         try {
             $dba->rollback();
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return;
         }
         $this->fail('Rollback without transaction goes ok.');
