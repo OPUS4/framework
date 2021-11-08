@@ -75,6 +75,7 @@ use const FILTER_VALIDATE_BOOLEAN;
  * TODO cache type ids?
  * TODO cache key ids?
  * TODO see getTable function (the model class/interface should be database independent)
+ * TODO validate type and key formats, so it is not possible to store arbitrary strings
  */
 class Properties extends AbstractTableGateway
 {
