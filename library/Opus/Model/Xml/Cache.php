@@ -203,7 +203,7 @@ class Cache implements XmlCacheInterface
      * @param mixed $xmlVersion
      * @param mixed $serverDateModified
      */
-    public function put($documentId, $xmlVersion, $serverDateModified, DOMDocument $xmlData)
+    public function put($documentId, $xmlVersion, $serverDateModified, $xmlData)
     {
         // skip adding cache entry if it is a valid entry already existing
         if (true === $this->hasValidEntry($documentId, $xmlVersion, $serverDateModified)) {

@@ -37,6 +37,7 @@ namespace OpusTest\TestAsset;
 
 use Exception;
 use InvalidArgumentException;
+use Opus\Config;
 use Opus\Document;
 use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\AbstractDependentModel;
@@ -309,8 +310,9 @@ class DocumentBasedTestCase extends TestCase
     {
         parent::tearDown();
 
-        $cache = new Cache(false);
-        $files = APPLICATION_PATH . '/tests/workspace/files/';
+        $cache  = new Cache(false);
+        $config = Config::get();
+        $files  = $config->workspacePath . '/files/';
 
         foreach ($this->created as $model) {
             /** @var AbstractDb $model */

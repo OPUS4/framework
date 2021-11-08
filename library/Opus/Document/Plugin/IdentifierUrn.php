@@ -46,7 +46,7 @@ use Opus\Identifier\Urn;
 use Opus\Log;
 use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\ServerStateChangeListener;
+use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
 use function array_filter;
 use function count;
@@ -62,7 +62,7 @@ use const FILTER_VALIDATE_BOOLEAN;
  *
  * phpcs:disable
  */
-class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListener
+class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerInterface
 {
     /**
      * Generates a new URN for any document that has no URN assigned yet.
