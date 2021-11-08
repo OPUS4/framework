@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Db2;
@@ -44,6 +40,11 @@ use OpusTest\TestAsset\TestCase;
 
 use function array_keys;
 
+/**
+ * For some of the SQL injection tests the model properties tables were used.
+ * The purpose of those test is to illustrate what code should look like that
+ * is protected against SQL injections.
+ */
 class DatabaseTest extends TestCase
 {
     private $database;
@@ -141,7 +142,7 @@ class DatabaseTest extends TestCase
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
             ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
-            ->where('k.name = ' . $sqlInjection);
+            ->where('k.name = ' . $sqlInjection); // User input used directly without quoting
 
         $values = $conn->fetchAllKeyValue($select);
 
@@ -171,7 +172,7 @@ class DatabaseTest extends TestCase
             ->select('k.name', 'p.value')
             ->from('model_properties', 'p')
             ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
-            ->where('k.name = ' . $conn->quote($sqlInjection));
+            ->where('k.name = ' . $conn->quote($sqlInjection)); // Need to quote user input
 
         $values = $conn->fetchAllKeyValue($select);
 
@@ -203,7 +204,7 @@ class DatabaseTest extends TestCase
             ->join('p', 'propertykeys', 'k', 'p.key_id = k.id')
             ->where('k.name = ?');
 
-        $values = $conn->fetchAllKeyValue($select, [$sqlInjection]);
+        $values = $conn->fetchAllKeyValue($select, [$sqlInjection]); // Parameters are quoted automatically
 
         // query return empty, because no key matches injection string
         $this->assertEmpty($values);
@@ -243,7 +244,7 @@ class DatabaseTest extends TestCase
         $this->assertCount(2, $this->properties->getKeys());
     }
 
-    public function testSqlInjectionWithConnectionQueryInsert()
+    public function testSqlInjectionWithConnectionQueryInsertProtected()
     {
         $properties = $this->properties;
         $types      = $properties->getTypes();
@@ -253,19 +254,22 @@ class DatabaseTest extends TestCase
 
         // attempt to insert type (where the type includes the SQL injection string)
         $sqlInjection = '\'document\'; DELETE FROM model_types WHERE 1=1';
-        $properties->registerType($sqlInjection);
+
+        $conn = $this->database->getConnection();
+
+        $conn->beginTransaction();
+        $conn->insert(Properties::TABLE_TYPES, ['type' => $sqlInjection]); // Values get quotes automatically
+        $conn->commit();
 
         $types = $properties->getTypes();
 
         $this->assertCount(1, $types);
 
-        $this->markTestIncomplete('TODO - should Properties->registerType() attempt to remove any SQL injections?');
-
-        // proper type insertion failed because the injection string got inserted as type instead
-        $this->assertContains($type, $types);
+        // SQL injection string was quoted and inserted as type instead of being executed
+        $this->assertContains($sqlInjection, $types);
     }
 
-    public function testSqlInjectionWithConnectionQueryDelete()
+    public function testSqlInjectionWithConnectionQueryDeleteProtected()
     {
         $type   = 'document';
         $key    = 'key1';
@@ -286,9 +290,15 @@ class DatabaseTest extends TestCase
 
         // attempt to remove registered type (where the type includes the SQL injection string)
         $sqlInjection = '\'document\'; DELETE FROM propertykeys WHERE 1=1';
+
+        $conn = $this->database->getConnection();
+
         try {
-            $properties->unregisterType($sqlInjection);
+            $conn->beginTransaction();
+            $conn->delete(Properties::TABLE_TYPES, ['type' => $sqlInjection]); // Values quoted automatically
+            $conn->commit();
         } catch (UnknownModelTypeException $e) {
+            // SQL injection string not found as type
         }
 
         $types = $properties->getTypes();
@@ -297,9 +307,7 @@ class DatabaseTest extends TestCase
         // all property keys still exist because injection failed
         $this->assertCount(2, $keys);
 
-        $this->markTestIncomplete('TODO - should Properties->unregisterType() attempt to remove any SQL injections?');
-
         // type removal failed because no type matches the injection string
-        $this->assertNotContains($type, $types);
+        $this->assertContains($type, $types);
     }
 }
