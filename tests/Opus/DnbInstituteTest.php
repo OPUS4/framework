@@ -65,38 +65,38 @@ class DnbInstituteTest extends TestCase
 
     public function testStoreAndLoadDnbInstitute()
     {
-        $name           = 'Forschungsinstitut für Code Coverage';
-        $address        = 'Musterstr. 23 - 12345 Entenhausen - Calisota';
-        $city           = 'Calisota';
-        $phone          = '+1 234 56789';
-        $dnb_contact_id = 'F1111-1111';
-        $is_grantor     = '1';
+        $name         = 'Forschungsinstitut für Code Coverage';
+        $address      = 'Musterstr. 23 - 12345 Entenhausen - Calisota';
+        $city         = 'Calisota';
+        $phone        = '+1 234 56789';
+        $dnbContactId = 'F1111-1111';
+        $isGrantor    = '1';
 
-        $dnb_institute = new DnbInstitute();
-        $dnb_institute->setName($name)
+        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute->setName($name)
                 ->setAddress($address)
                 ->setCity($city)
                 ->setPhone($phone)
-                ->setDnbContactId($dnb_contact_id)
-                ->setIsGrantor($is_grantor);
+                ->setDnbContactId($dnbContactId)
+                ->setIsGrantor($isGrantor);
         // store
-        $id = $dnb_institute->store();
+        $id = $dnbInstitute->store();
 
         //load
-        $loaded_institute = new DnbInstitute($id);
+        $loadedInstitute = new DnbInstitute($id);
 
-        $this->assertEquals($name, $loaded_institute->getName(), 'Loaded other name, then stored.');
-        $this->assertEquals($address, $loaded_institute->getAddress(), 'Loaded other address, then stored.');
-        $this->assertEquals($city, $loaded_institute->getCity(), 'Loaded other city, then stored.');
-        $this->assertEquals($phone, $loaded_institute->getPhone(), 'Loaded other phone number, then stored.');
+        $this->assertEquals($name, $loadedInstitute->getName(), 'Loaded other name, then stored.');
+        $this->assertEquals($address, $loadedInstitute->getAddress(), 'Loaded other address, then stored.');
+        $this->assertEquals($city, $loadedInstitute->getCity(), 'Loaded other city, then stored.');
+        $this->assertEquals($phone, $loadedInstitute->getPhone(), 'Loaded other phone number, then stored.');
         $this->assertEquals(
-            $dnb_contact_id,
-            $loaded_institute->getDnbContactId(),
+            $dnbContactId,
+            $loadedInstitute->getDnbContactId(),
             'Loaded other DNB contact ID, then stored.'
         );
         $this->assertEquals(
-            $is_grantor,
-            $loaded_institute->getIsGrantor(),
+            $isGrantor,
+            $loadedInstitute->getIsGrantor(),
             'Loaded other information about grantor status, then stored.'
         );
     }
@@ -106,17 +106,17 @@ class DnbInstituteTest extends TestCase
      */
     public function testRetrieveAllDnbInstitutes()
     {
-        $dnb_institutes = [];
+        $dnbInstitutes = [];
         for ($i = 1; $i <= 3; $i++) {
-            $dnb_institute = new DnbInstitute();
-            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
-            $dnb_institute->setCity('Calisota');
-            $dnb_institute->store();
-            $dnb_institutes[] = $dnb_institutes;
+            $dnbInstitute = new DnbInstitute();
+            $dnbInstitute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
+            $dnbInstitute->setCity('Calisota');
+            $dnbInstitute->store();
+            $dnbInstitutes[] = $dnbInstitutes;
         }
 
         $result = DnbInstitute::getAll();
-        $this->assertEquals(count($dnb_institutes), count($result), 'Wrong number of objects retrieved.');
+        $this->assertEquals(count($dnbInstitutes), count($result), 'Wrong number of objects retrieved.');
     }
 
     public function testRetrieveGrantors()
@@ -124,16 +124,16 @@ class DnbInstituteTest extends TestCase
         $publishers = [];
         $grantors   = [];
         for ($i = 1; $i <= 10; $i++) {
-            $dnb_institute = new DnbInstitute();
-            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
-            $dnb_institute->setCity('Calisota');
-            if (0===$i % 2) {
-                $dnb_institute->setIsGrantor(1);
-                $dnb_institute->store();
-                $grantors[] = $dnb_institute;
+            $dnbInstitute = new DnbInstitute();
+            $dnbInstitute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
+            $dnbInstitute->setCity('Calisota');
+            if (0 === $i % 2) {
+                $dnbInstitute->setIsGrantor(1);
+                $dnbInstitute->store();
+                $grantors[] = $dnbInstitute;
             } else {
-                $dnb_institute->store();
-                $publishers[] = $dnb_institute;
+                $dnbInstitute->store();
+                $publishers[] = $dnbInstitute;
             }
         }
         $result = DnbInstitute::getGrantors();
@@ -166,8 +166,8 @@ class DnbInstituteTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $dnb_institute = new DnbInstitute();
-        $dnbId         = $dnb_institute->setName('Test')
+        $dnbInstitute = new DnbInstitute();
+        $dnbId        = $dnbInstitute->setName('Test')
                 ->setCity('Berlin')
                 ->setIsGrantor(1)
                 ->store();
@@ -175,13 +175,13 @@ class DnbInstituteTest extends TestCase
         $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
-                ->setThesisGrantor($dnb_institute);
+                ->setThesisGrantor($dnbInstitute);
         $docId = $doc->store();
 
         $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
-        $dnb_institute->setName('Test Institute');
-        $dnb_institute->store();
+        $dnbInstitute->setName('Test Institute');
+        $dnbInstitute->store();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
 
@@ -189,7 +189,6 @@ class DnbInstituteTest extends TestCase
      * Regression Test for OPUSVIER-3041
      * added field 'department' to model
      */
-
     public function testDepartmentIsStored()
     {
         $dnbInstitute = new DnbInstitute();
@@ -211,8 +210,8 @@ class DnbInstituteTest extends TestCase
     {
         $fields = ['Address', 'City', 'Phone', 'DnbContactId'];
 
-        $dnb_institute = new DnbInstitute();
-        $dnbId         = $dnb_institute->setName('Test')
+        $dnbInstitute = new DnbInstitute();
+        $dnbId        = $dnbInstitute->setName('Test')
                 ->setCity('Berlin')
                 ->setIsGrantor(1)
                 ->store();
@@ -220,22 +219,22 @@ class DnbInstituteTest extends TestCase
         $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
-                ->setThesisGrantor($dnb_institute);
+                ->setThesisGrantor($dnbInstitute);
         $docId              = $doc->store();
         $serverDateModified = $doc->getServerDateModified();
 
         sleep(1);
 
         foreach ($fields as $fieldName) {
-            $oldValue = $dnb_institute->{'get' . $fieldName}();
-            $dnb_institute->{'set' . $fieldName}(1);
+            $oldValue = $dnbInstitute->{'get' . $fieldName}();
+            $dnbInstitute->{'set' . $fieldName}(1);
             $this->assertNotEquals(
-                $dnb_institute->{'get' . $fieldName}(),
+                $dnbInstitute->{'get' . $fieldName}(),
                 $oldValue,
                 'Expected different values before and after setting value'
             );
         }
-        $dnb_institute->store();
+        $dnbInstitute->store();
         $docReloaded = new Document($docId);
 
         $this->assertEquals(

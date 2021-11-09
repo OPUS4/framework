@@ -39,27 +39,36 @@ use Opus\File;
 
 class FileMock extends File
 {
-    private $_newRecord;
+    private $newRecord;
 
-    private $_fileId;
+    private $fileId;
 
+    /**
+     * @param bool $newRecord
+     */
     public function __construct($newRecord = false)
     {
-        $this->_newRecord = $newRecord;
+        $this->newRecord = $newRecord;
     }
 
+    /**
+     * @return bool
+     */
     public function isNewRecord()
     {
-        return $this->_newRecord;
+        return $this->newRecord;
     }
 
     public function getId()
     {
-        $this->_fileId;
+        $this->fileId;
     }
 
+    /**
+     * @param int $fileId
+     */
     public function setId($fileId)
     {
-        $this->_fileId = $fileId;
+        $this->fileId = $fileId;
     }
 }

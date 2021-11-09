@@ -40,9 +40,9 @@ namespace OpusTest;
 use Opus\Db2\Database;
 use Opus\Document;
 use Opus\File;
-use Opus\Model2\Language;
 use Opus\Licence;
 use Opus\Model\DbException;
+use Opus\Model2\Language;
 use OpusTest\TestAsset\TestCase;
 
 use function count;

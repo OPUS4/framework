@@ -72,13 +72,13 @@ class CollectionRoleTest extends TestCase
      */
     public static function createRandomObject()
     {
-        $name     = "name-" . rand();
-        $oai_name = "oainame-" . rand();
+        $name    = "name-" . rand();
+        $oaiName = "oainame-" . rand();
 
         // Object is not stored.
         $object = new CollectionRole();
         $object->setName($name);
-        $object->setOaiName($oai_name);
+        $object->setOaiName($oaiName);
 
         return $object;
     }
@@ -115,10 +115,10 @@ class CollectionRoleTest extends TestCase
         );
         $this->object->delete();
 
-        $role_id = $this->object->store();
+        $roleId = $this->object->store();
         $this->assertNotNull(
-            $role_id,
-            'CollectionRole role_id return value check on stored record.'
+            $roleId,
+            'CollectionRole roleId return value check on stored record.'
         );
         $this->assertFalse(
             $this->object->isNewRecord(),
@@ -128,7 +128,7 @@ class CollectionRoleTest extends TestCase
         $this->object->delete();
 
         $this->setExpectedException(NotFoundException::class);
-        new CollectionRole($role_id);
+        new CollectionRole($roleId);
     }
 
     /**
@@ -145,12 +145,12 @@ class CollectionRoleTest extends TestCase
         $d->addCollection($collection);
         $d->store();
 
-        $role_id = $this->object->getId();
-        $role    = new CollectionRole($role_id);
+        $roleId = $this->object->getId();
+        $role   = new CollectionRole($roleId);
         $role->delete();
 
         $this->setExpectedException(NotFoundException::class);
-        new CollectionRole($role_id);
+        new CollectionRole($roleId);
     }
 
     /**
@@ -163,17 +163,17 @@ class CollectionRoleTest extends TestCase
             'CollectionRole isNewRecord check failed on new record.'
         );
 
-        $role_id = $this->object->store();
+        $roleId = $this->object->store();
         $this->assertNotNull(
-            $role_id,
-            'CollectionRole role_id return value check on stored record.'
+            $roleId,
+            'CollectionRole roleId return value check on stored record.'
         );
         $this->assertNotNull(
             $this->object->getId(),
             'CollectionRole getId check on stored record.'
         );
         $this->assertTrue(
-            $role_id === $this->object->getId(),
+            $roleId === $this->object->getId(),
             'CollectionRole->store return value check failed.'
         );
         $this->assertFalse(
@@ -186,7 +186,7 @@ class CollectionRoleTest extends TestCase
             is_object($role),
             'CollectionRole reloading failed.'
         );
-        $this->assertNotNull($role->getId(),'CollectionRole getId check on stored record.');
+        $this->assertNotNull($role->getId(), 'CollectionRole getId check on stored record.');
         $this->assertFalse(
             $role->isNewRecord(),
             'CollectionRole isNewRecord check failed on reloaded record.'
@@ -234,7 +234,7 @@ class CollectionRoleTest extends TestCase
     }
 
     /**
-     * @param $role CollectionRole
+     * @param CollectionRole $role
      */
     protected function prepateCollectionRole($role)
     {
@@ -432,15 +432,15 @@ class CollectionRoleTest extends TestCase
         $name = $this->object->getName();
 
         // Check fetchAll works even if object is unstored.
-        $roles           = CollectionRole::fetchAll();
-        $roles_count_old = count($roles);
+        $roles         = CollectionRole::fetchAll();
+        $rolesCountOld = count($roles);
         $this->assertTrue(is_array($roles), "Array return value expected.");
 
         // Check fetchAll works after storing *and* contains the object.
         $this->object->store();
         $roles = CollectionRole::fetchAll();
         $this->assertTrue(is_array($roles), "Array return value expected.");
-        $this->assertTrue(count($roles) > $roles_count_old, "Increasing count expected.");
+        $this->assertTrue(count($roles) > $rolesCountOld, "Increasing count expected.");
 
         $seen = false;
         foreach ($roles as $role) {
@@ -663,16 +663,16 @@ class CollectionRoleTest extends TestCase
         $collection->setOaiSubset('foo');
         $role->store();
 
-        $oai_set = $role->getOaiName() . ':' . $collection->getOaiSubset();
+        $oaiSet = $role->getOaiName() . ':' . $collection->getOaiSubset();
 
-        $this->assertFalse($role->existsDocumentIdsInSet($oai_set));
+        $this->assertFalse($role->existsDocumentIdsInSet($oaiSet));
 
         $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $d->store();
 
-        $this->assertTrue($role->existsDocumentIdsInSet($oai_set));
+        $this->assertTrue($role->existsDocumentIdsInSet($oaiSet));
     }
 
     /**
@@ -697,17 +697,17 @@ class CollectionRoleTest extends TestCase
         $this->object->store();
 
         // Populate database with dummy objects.
-        $i_max = rand(5, 10);
-        for ($i = 0; $i < $i_max; $i++) {
+        $iMax = rand(5, 10);
+        for ($i = 0; $i < $iMax; $i++) {
             $object = self::createRandomObject();
             $object->store();
         }
 
         // Check if setPosition works properly.
-        $num_roles       = count(CollectionRole::fetchAll());
-        $check_positions = [1, $num_roles, round((1 + $num_roles) / 2), 1];
+        $numRoles       = count(CollectionRole::fetchAll());
+        $checkPositions = [1, $numRoles, round((1 + $numRoles) / 2), 1];
 
-        foreach ($check_positions as $position) {
+        foreach ($checkPositions as $position) {
             $this->object->setPosition($position);
             $this->object->store();
 
@@ -744,8 +744,8 @@ class CollectionRoleTest extends TestCase
         $this->assertNotNull($role->getId(), 'CollectionRole storing failed: should have an Id.');
 
         // Restore object, validate.
-        $role_id = $role->getId();
-        $role    = new CollectionRole($role_id);
+        $roleId = $role->getId();
+        $role   = new CollectionRole($roleId);
 
         $this->assertNotNull($role->getName(), 'CollectionRole name check failed.');
         $this->assertNotNull($role->getOaiName(), 'CollectionRole oai_name check failed.');
@@ -761,7 +761,7 @@ class CollectionRoleTest extends TestCase
         $this->assertTrue($role->getPosition() === '1', 'CollectionRole position check failed.');
     }
 
-    /*
+    /**
      * Test if first storing role, then adding root collection and finally
      * storing root works.
      */
@@ -780,16 +780,16 @@ class CollectionRoleTest extends TestCase
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role     = new CollectionRole($role->getId());
-        $root_new = $role->getRootCollection();
+        $role    = new CollectionRole($role->getId());
+        $rootNew = $role->getRootCollection();
         $this->assertEquals(
-            $root_new->getId(),
+            $rootNew->getId(),
             $root->getId(),
             'Root->getId must be equal Root->Reload->getId'
         );
     }
 
-    /*
+    /**
      * Test if first creating role, then adding root collection and finally
      * storing role works.
      */
@@ -806,16 +806,16 @@ class CollectionRoleTest extends TestCase
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role     = new CollectionRole($role->getId());
-        $root_new = $role->getRootCollection();
+        $role    = new CollectionRole($role->getId());
+        $rootNew = $role->getRootCollection();
         $this->assertEquals(
-            $root_new->getId(),
+            $rootNew->getId(),
             $root->getId(),
             'Root->getId must be equal Root->Reload->getId'
         );
     }
 
-    /*
+    /**
      * Test adding externally created root collection and finally storing role.
      */
     public function testAddNewUnstoredRootCollectionStoringRole()
@@ -832,10 +832,10 @@ class CollectionRoleTest extends TestCase
             'Root->getRoleId must be equal Role->getId'
         );
 
-        $role     = new CollectionRole($role->getId());
-        $root_new = $role->getRootCollection();
+        $role    = new CollectionRole($role->getId());
+        $rootNew = $role->getRootCollection();
         $this->assertEquals(
-            $root_new->getId(),
+            $rootNew->getId(),
             $root->getId(),
             'Root->getId must be equal Root->Reload->getId'
         );
@@ -1204,6 +1204,9 @@ class CollectionRoleTest extends TestCase
         $this->assertTrue($collRoleId > 0);
     }
 
+    /**
+     * @return string[][]
+     */
     public function invalidCollectionRoleNameDataProvider()
     {
         return [
@@ -1223,6 +1226,7 @@ class CollectionRoleTest extends TestCase
     /**
      * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
      *
+     * @param string $invalidName
      * @dataProvider invalidCollectionRoleNameDataProvider
      */
     public function testInvalidCollectionRoleName($invalidName)

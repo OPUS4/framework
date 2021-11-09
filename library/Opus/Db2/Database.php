@@ -35,23 +35,27 @@
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\Setup;
 use Opus\Config;
+use Opus\Database as OpusDatabase;
 
 /**
  * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
  *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
- *
- * phpcs:disable
  */
 class Database
 {
     private static $conn;
     private static $entityManager;
 
+    /**
+     * @return array
+     */
     public static function getConnectionParams()
     {
         $config = Config::get(); // TODO use function (no direkt class dependency)
@@ -63,12 +67,16 @@ class Database
         return $dbConfig->toArray();
     }
 
+    /**
+     * @return Connection
+     * @throws Exception
+     */
     public static function getConnection()
     {
         if (self::$conn === null) {
             $params = self::getConnectionParams();
 
-            $db = new \Opus\Database();
+            $db = new OpusDatabase();
 
             $dbName = $db->getName();
 
@@ -90,15 +98,15 @@ class Database
      */
     public static function getEntityManager()
     {
-        $isDevMode = true;
-        $proxyDir = null;
-        $cache = null;
+        $isDevMode                 = true;
+        $proxyDir                  = null;
+        $cache                     = null;
         $useSimpleAnnotationReader = false;
-        $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__), $isDevMode, $proxyDir, $cache, $useSimpleAnnotationReader);
+        $config                    = Setup::createAnnotationMetadataConfiguration([__DIR__], $isDevMode, $proxyDir, $cache, $useSimpleAnnotationReader);
 
         $conn = self::getConnection();
 
-        if (self::$entityManager === null){
+        if (self::$entityManager === null) {
             self::$entityManager = EntityManager::create($conn, $config);
         }
 

@@ -36,10 +36,12 @@
 namespace Opus\Db2;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\ORMException;
 use Opus\Model2\Language;
 
 use function array_merge;
 use function array_unique;
+use function in_array;
 
 class LanguageRepository extends EntityRepository
 {
@@ -52,6 +54,7 @@ class LanguageRepository extends EntityRepository
 
     /**
      * Retrieve all Opus\Language instances from the database.
+     *
      * @return array|object[]
      */
     public function getAll()
@@ -61,6 +64,7 @@ class LanguageRepository extends EntityRepository
 
     /**
      * Get all active languages.
+     *
      * @return object[]
      */
     public function getAllActive()
@@ -70,12 +74,13 @@ class LanguageRepository extends EntityRepository
 
     /**
      * Get all active languages.
+     *
      * @return object[]
      */
     public function getAllActiveTable()
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $query = $queryBuilder->select('*')
+        $query        = $queryBuilder->select('*')
             ->from('languages', 'Language')
             ->where('active = 1')
             ->getQuery();
@@ -91,7 +96,7 @@ class LanguageRepository extends EntityRepository
     public function getPropertiesByPart2T($code)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $query = $queryBuilder->select()
+        $query        = $queryBuilder->select()
             ->from('languages', 'Language')
             ->where('part2_t = ?1')
             ->setParameter(1, $code)
@@ -124,8 +129,8 @@ class LanguageRepository extends EntityRepository
     /**
      * Returns language code for internal language identifier.
      *
-     * @param string $language Internal language identifier (e.g. 'deu')
-     * @param null $part string Field to use for language code
+     * @param string      $language Internal language identifier (e.g. 'deu')
+     * @param null|string $part string Field to use for language code
      * @return string Language code
      */
     public function getLanguageCode($language, $part = null)
@@ -156,9 +161,10 @@ class LanguageRepository extends EntityRepository
      * - document_files
      * - document_subjects
      * - document_title_abstracts
+     *
      * @param string $language
      * @return bool
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function isUsed($language)
     {
@@ -168,6 +174,7 @@ class LanguageRepository extends EntityRepository
 
     /**
      * Returns all languages used in database.
+     *
      * @return array|null
      */
     public function getUsedLanguages()
@@ -188,7 +195,6 @@ class LanguageRepository extends EntityRepository
 
         // get languages for documents
         foreach ($tables as $table) {
-
             // Using the ORM queryBuilder does not work here because there are currently
             // no entity classes for the tables.
             //$queryBuilder = $this->getEntityManager()->createQueryBuilder();
@@ -199,9 +205,9 @@ class LanguageRepository extends EntityRepository
             //    ->getQuery();
             // $rows = $query->getArrayResult();
 
-            $conn = Database::getConnection();
+            $conn         = Database::getConnection();
             $queryBuilder = $conn->createQueryBuilder();
-            $query = $queryBuilder->select('language')
+            $query        = $queryBuilder->select('language')
                 ->distinct()
                 ->from($table)
                 ->where('language IS NOT NULL');
@@ -225,5 +231,4 @@ class LanguageRepository extends EntityRepository
     {
         self::$usedLanguages = null;
     }
-
 }

@@ -103,6 +103,5 @@ class Language2Test extends TestCase
         $lang2              = $languageRepository->find($id);
 
         $this->assertNull($lang2);
-
     }
 }

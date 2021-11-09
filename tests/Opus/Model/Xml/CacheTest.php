@@ -98,7 +98,7 @@ class CacheTest extends TestCase
      *
      * @return array
      */
-    private function _getRandomDataSet()
+    private function getRandomDataSet()
     {
         do {
             $testId = mt_rand(0, $this->maxEntries);
@@ -137,7 +137,7 @@ class CacheTest extends TestCase
     {
         // initial test setup
         $this->fillCache();
-        $dataSet = $this->_getRandomDataSet();
+        $dataSet = $this->getRandomDataSet();
 
         $cache      = new Cache();
         $validEntry = $cache->hasValidEntry(
@@ -173,7 +173,7 @@ class CacheTest extends TestCase
     {
         // initial test setup
         $this->fillCache();
-        $dataSet = $this->_getRandomDataSet();
+        $dataSet = $this->getRandomDataSet();
 
         $cache     = new Cache();
         $cachedDom = $cache->get($dataSet['document_id'], $dataSet['xml_version']);
@@ -196,6 +196,7 @@ class CacheTest extends TestCase
     }
 
     /**
+     * @param array $dataSet
      * @dataProvider invalidCombinationOfIdAndVersion
      */
     public function testGetReturnsEmptyXmlByInvalidDataOnEmptyCache($dataSet)
@@ -208,6 +209,7 @@ class CacheTest extends TestCase
     }
 
     /**
+     * @param array $dataSet
      * @dataProvider invalidCombinationOfIdAndVersion
      */
     public function testGetReturnsEmptyXmlByInvalidDataOnFilledCache($dataSet)
@@ -291,7 +293,7 @@ class CacheTest extends TestCase
     public function testRemoveCacheEntry()
     {
         $this->fillCache();
-        $dataSet            = $this->_getRandomDataSet();
+        $dataSet            = $this->getRandomDataSet();
         $documentId         = $dataSet['document_id'];
         $xmlVersion         = $dataSet['xml_version'];
         $serverDateModified = $dataSet['server_date_modified'];
@@ -329,7 +331,7 @@ class CacheTest extends TestCase
     public function testRemoveAllEntriesWhereDocumentId()
     {
         $this->fillCache();
-        $dataSet            = $this->_getRandomDataSet();
+        $dataSet            = $this->getRandomDataSet();
         $documentId         = $dataSet['document_id'];
         $xmlVersion         = $dataSet['xml_version'];
         $serverDateModified = $dataSet['server_date_modified'];
@@ -360,7 +362,7 @@ class CacheTest extends TestCase
     public function testIfADocumentIsCached()
     {
         $this->fillCache();
-        $dataSet    = $this->_getRandomDataSet();
+        $dataSet    = $this->getRandomDataSet();
         $documentId = $dataSet['document_id'];
         $xmlVersion = $dataSet['xml_version'];
 

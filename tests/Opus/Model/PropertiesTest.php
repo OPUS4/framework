@@ -33,12 +33,12 @@
  * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-namespace OpusTest\Model2;
+namespace OpusTest\Model;
 
 use InvalidArgumentException;
+use Opus\Db2\Properties;
 use Opus\Document;
 use Opus\Identifier;
-use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Model\UnknownPropertyKeyException;
@@ -263,6 +263,9 @@ class PropertiesTest extends TestCase
         $this->assertContains($key, $keys);
     }
 
+    /**
+     * @return string[][]
+     */
     public function validKeyProvider()
     {
         return [
@@ -276,7 +279,7 @@ class PropertiesTest extends TestCase
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @throws Zend_Db_Adapter_Exception
      * @dataProvider validKeyProvider
      */
@@ -289,6 +292,9 @@ class PropertiesTest extends TestCase
         $this->assertContains($key, $properties->getKeys());
     }
 
+    /**
+     * @return string[][]
+     */
     public function invalidKeyProvider()
     {
         return [
@@ -305,7 +311,7 @@ class PropertiesTest extends TestCase
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @throws Zend_Db_Adapter_Exception
      * @dataProvider invalidKeyProvider
      */

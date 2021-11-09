@@ -807,7 +807,7 @@ class Version1Test extends TestCase
      */
     private static function createInvalidUTF8String()
     {
-        $invalid_chars = [
+        $invalidChars = [
             1,
             2,
             3,
@@ -840,7 +840,7 @@ class Version1Test extends TestCase
         ];
 
         $string = '';
-        foreach ($invalid_chars as $char) {
+        foreach ($invalidChars as $char) {
             $string .= " " . $char . ":" . chr($char);
         }
 

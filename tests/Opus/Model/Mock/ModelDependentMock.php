@@ -53,8 +53,6 @@ class ModelDependentMock extends AbstractDependentModel
 
     public $id;
 
-    private $_discriminatorObject;
-
     public function __construct()
     {
     }
@@ -68,16 +66,25 @@ class ModelDependentMock extends AbstractDependentModel
         $this->deleteHasBeenCalled = true;
     }
 
+    /**
+     * @param string $token
+     */
     public function doDelete($token)
     {
         $this->doDeleteHasBeenCalled = true;
     }
 
+    /**
+     * @param int $id
+     */
     public function setParentId($id)
     {
         $this->setParentIdHasBeenCalled = true;
     }
 
+    /**
+     * @return int
+     */
     public function getId()
     {
         if (null === $this->id) {
@@ -86,19 +93,11 @@ class ModelDependentMock extends AbstractDependentModel
         return $this->id;
     }
 
+    /**
+     * @param int $id
+     */
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * Sets an object reference that helps to mime object
-     * references when comparing instances of this class.
-     *
-     * @param <type> $object An arbitrary object
-     */
-    public function setDiscriminatorObject($object)
-    {
-        $this->_discriminatorObject = $object;
     }
 }

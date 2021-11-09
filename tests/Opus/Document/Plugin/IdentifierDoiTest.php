@@ -43,6 +43,7 @@ use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Enrichment;
 use Opus\EnrichmentKey;
 use Opus\Identifier;
+use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -79,11 +80,19 @@ class IdentifierDoiTest extends TestCase
         $enrichmentKey->store();
     }
 
+    /**
+     * @param Zend_Config $doiConfig
+     */
     private function adaptDoiConfiguration($doiConfig)
     {
         Config::get()->merge(new Zend_Config(['doi' => $doiConfig]));
     }
 
+    /**
+     * @param null|string $enrichmentValue
+     * @return int
+     * @throws ModelException
+     */
     private function createMinimalDocument($enrichmentValue = null)
     {
         $model = Document::new();
@@ -212,6 +221,11 @@ class IdentifierDoiTest extends TestCase
         $this->assertGeneratedDoi($docId, 1);
     }
 
+    /**
+     * @param int $docId
+     * @param int $numOfEnrichments
+     * @throws ModelException
+     */
     private function assertNoGeneratedDoi($docId, $numOfEnrichments = 0)
     {
         $model = new Document($docId);
@@ -223,6 +237,11 @@ class IdentifierDoiTest extends TestCase
         $this->assertEmpty($dois);
     }
 
+    /**
+     * @param int $docId
+     * @param int $numOfEnrichments
+     * @throws ModelException
+     */
     private function assertGeneratedDoi($docId, $numOfEnrichments = 0)
     {
         $model = new Document($docId);

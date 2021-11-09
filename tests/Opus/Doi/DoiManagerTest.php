@@ -365,6 +365,10 @@ class DoiManagerTest extends TestCase
         $this->verifyWithVerifiedDoiWithReverification('example.org', '54321');
     }
 
+    /**
+     * @param string $hostname
+     * @param string $port
+     */
     public function verifyWithVerifiedDoiWithReverification($hostname, $port)
     {
         Config::get()->merge(new Zend_Config([
@@ -712,11 +716,17 @@ class DoiManagerTest extends TestCase
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
+    /**
+     * @param Zend_Config $doiConfig
+     */
     private function adaptDoiConfiguration($doiConfig)
     {
         Config::get()->merge(new Zend_Config(['doi' => $doiConfig]));
     }
 
+    /**
+     * @param Document $doc
+     */
     private function addRequiredPropsToDoc($doc)
     {
         $doc->setCompletedYear(2018);
@@ -738,6 +748,13 @@ class DoiManagerTest extends TestCase
         $doc->store();
     }
 
+    /**
+     * @param string      $doiPrefix
+     * @param null|string $status
+     * @param null|string $registrationTs
+     * @return int
+     * @throws ModelException
+     */
     private function createTestDocWithDoi($doiPrefix, $status = null, $registrationTs = null)
     {
         $doc   = new Document();

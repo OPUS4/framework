@@ -35,6 +35,10 @@
 
 namespace Opus\Model2;
 
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ObjectRepository;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\ModelException;
 
@@ -55,8 +59,8 @@ abstract class AbstractModel
     }
 
     /**
-     * @return \Doctrine\ORM\EntityRepository|\Doctrine\Persistence\ObjectRepository
-     * @throws \Doctrine\ORM\ORMException
+     * @return EntityRepository|ObjectRepository
+     * @throws ORMException
      */
     protected static function getRepository()
     {
@@ -71,9 +75,10 @@ abstract class AbstractModel
 
     /**
      * Persist all the models information to its database locations.
+     *
      * @return mixed
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function store()
     {
@@ -82,12 +87,13 @@ abstract class AbstractModel
 
     /**
      * Remove the model instance from the database.
+     *
      * @throws ModelException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function delete()
     {
-        return $this->getEntityManager()->delete($this);
+        $this->getEntityManager()->delete($this);
     }
 }

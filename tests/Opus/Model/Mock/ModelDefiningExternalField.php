@@ -45,6 +45,7 @@ use Opus\Model\Field;
  *
  * @category Tests
  * @package Opus\Model
+ * phpcs:disable
  */
 class ModelDefiningExternalField extends AbstractDb
 {

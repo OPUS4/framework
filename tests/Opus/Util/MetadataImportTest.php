@@ -271,7 +271,7 @@ class MetadataImportTest extends TestCase
         $this->xml = $doc->saveXML();
     }
 
-    /*
+    /**
      * Testet ob true/false und 0/1 als Wert für allowEmailContact akzeptiert wird.
      * Regressiontest für OPUSVIER-2570.
      */
@@ -323,7 +323,7 @@ class MetadataImportTest extends TestCase
         $this->assertEquals('Doe', $other[0]->getLastName());
     }
 
-    /*
+    /**
      * Testet ob true/false und 0/1 als Wert für BelongsToBibliography akzeptiert wird.
      * Regressiontest für OPUSVIER-2570 und OPUSVIER-3323.
      */

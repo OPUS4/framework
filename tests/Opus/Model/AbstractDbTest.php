@@ -54,12 +54,6 @@ use OpusTest\Model\Mock\ModelDefiningExternalField;
 use PHPUnit_Extensions_Database_DataSet_IDataSet;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 use PHPUnit_Extensions_Database_TestCase;
-use testFieldsModifiedStatusGetsClearedAfterStore;
-use testGetLinkedModelWhenQueryModel;
-use testGetMultipleLinkedModelWhenQueryModel;
-use testParentIdGetPropagatedToDependentModelsOnAdd;
-use testParentIdGetPropagatedToDependentModelsOnLoading;
-use testStoreClearsModifiedFlagOfInternalFieldsOnly;
 use Zend_Db_Table;
 use Zend_Validate_Date;
 
@@ -75,6 +69,7 @@ use function is_array;
  * @package Opus\Model
  * @category Tests
  * @group AbstractDbTest
+ * phpcs:disable
  */
 class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
 {
@@ -286,13 +281,13 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     /**
      * Test if loading a model instance from the database devlivers the expected value.
      *
-     * @param int   $testtable_id Id of dataset to load.
+     * @param int   $testtableId Id of dataset to load.
      * @param mixed $value        Expected Value.
      * @dataProvider abstractDataSetDataProvider
      */
-    public function testValueAfterLoadById($testtable_id, $value)
+    public function testValueAfterLoadById($testtableId, $value)
     {
-        $obj    = new AbstractDbMock($testtable_id);
+        $obj    = new AbstractDbMock($testtableId);
         $result = $obj->getValue();
         $this->assertEquals($value, $result, "Expected Value to be $value, got '" . $result . "'");
     }
@@ -380,7 +375,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             }
         ');
 
-        $mock = new testFieldsModifiedStatusGetsClearedAfterStore();
+        $mock = new \testFieldsModifiedStatusGetsClearedAfterStore();
         $mock->setValue('foobar');
         $mock->setExternalField1('foo');
         $mock->setExternalField2('bar');
@@ -671,7 +666,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         ');
 
         // instanciate mockup
-        $model = new testStoreClearsModifiedFlagOfInternalFieldsOnly();
+        $model = new \testStoreClearsModifiedFlagOfInternalFieldsOnly();
 
         // mock external field
         $mockFieldExternalModel = $this->getMock(
@@ -777,7 +772,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             }
         ');
 
-        $model = new testParentIdGetPropagatedToDependentModelsOnAdd(1);
+        $model = new \testParentIdGetPropagatedToDependentModelsOnAdd(1);
 
         $this->assertNotNull($model->getId());
 
@@ -808,6 +803,8 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     /**
      * Test if an registered Plugin gets called.
      *
+     * @param string $call
+     * @param mixed  $expect
      * @dataProvider pluginCallnameProvider
      */
     public function testRegisteredPluginGetsCalled($call, $expect)

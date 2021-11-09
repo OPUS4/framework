@@ -59,6 +59,9 @@ class ModelAbstractDbMock extends AbstractDb
     {
     }
 
+    /**
+     * @return int
+     */
     public function getId()
     {
         return 4711;

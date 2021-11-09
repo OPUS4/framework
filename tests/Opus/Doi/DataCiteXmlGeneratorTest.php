@@ -45,8 +45,10 @@ use Opus\Doi\DataCiteXmlGenerator;
 use Opus\File;
 use Opus\Identifier;
 use Opus\Language;
+use Opus\Model\ModelException;
 use Opus\Person;
 use Opus\Title;
+use Opus\Util\File as FileUtil;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -126,7 +128,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
     public function tearDown()
     {
-        \Opus\Util\File::deleteDirectory($this->path);
+        FileUtil::deleteDirectory($this->path);
 
         parent::tearDown();
     }
@@ -476,6 +478,10 @@ class DataCiteXmlGeneratorTest extends TestCase
         $this->assertContains("<publicationYear>$year</publicationYear>", $result);
     }
 
+    /**
+     * @return int
+     * @throws ModelException
+     */
     private function createDocWithRequiredFields()
     {
         $doc   = new Document();
@@ -686,11 +692,11 @@ class DataCiteXmlGeneratorTest extends TestCase
      */
     private function createTestFile()
     {
-        $filename_nonzero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
-        $fh               = fopen($filename_nonzero, 'w');
+        $filenameNonZero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
+        $fh              = fopen($filenameNonZero, 'w');
 
-        if ($fh===false) {
-            $this->fail("Unable to write file $filename_nonzero.");
+        if ($fh === false) {
+            $this->fail("Unable to write file $filenameNonZero.");
         }
 
         $rand = rand(1000, 100000);
@@ -700,7 +706,7 @@ class DataCiteXmlGeneratorTest extends TestCase
 
         fclose($fh);
 
-        return $filename_nonzero;
+        return $filenameNonZero;
     }
 
     /**

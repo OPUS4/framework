@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
  * @category    Framework
@@ -38,6 +38,7 @@
 namespace Opus\Db2;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 use function implode;
 use function is_array;
@@ -47,17 +48,17 @@ use function rtrim;
  * Implements the singleton pattern for table gateway classes.
  *
  * TODO nothing preventing creation of table classes directly
- *
- * phpcs:disable
  */
-abstract class TableGateway
+abstract class AbstractTableGateway
 {
     private $connection;
 
     /**
+     * Returns the database connection.
+     *
      * @return Connection
      */
-    public function getDatabaseAdapter()
+    public function getConnection()
     {
         if ($this->connection === null) {
             $this->connection = Database::getConnection();
@@ -67,13 +68,15 @@ abstract class TableGateway
     }
 
     /**
-     * TODO remove once Zend-Db has been removed from the framework
+     * Returns a new SQL query builder instance for the connection.
+     *
+     * @return QueryBuilder
      */
-    public function getDatabaseAdapterZend()
+    public function getQueryBuilder()
     {
-        $table = \Opus\Db\TableGateway::getInstance(\Opus\Db\Translations::class);
+        $conn = $this->getConnection();
 
-        return $table->getAdapter();
+        return $conn->createQueryBuilder();
     }
 
     /**
@@ -83,21 +86,23 @@ abstract class TableGateway
      * If an update occurs instead of an insert the lastInserId() function normally does not return the ID of the
      * modified row.
      *
-     * @param array $data
+     * @param string $table
+     * @param string $primary
+     * @param array  $data
      */
     public function insertIgnoreDuplicate($table, $primary, $data)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
-        $q_keys   = [];
-        $q_values = [];
-        $update   = '';
+        $quotedKeys   = [];
+        $quotedValues = [];
+        $update       = '';
 
         foreach ($data as $key => $value) {
-            $quotedKey  = $database->quoteIdentifier($key);
-            $q_keys[]   = $quotedKey;
-            $q_values[] = $database->quote($value);
-            $update    .= " $quotedKey=VALUES($quotedKey),";
+            $quotedKey      = $conn->quoteIdentifier($key);
+            $quotedKeys[]   = $quotedKey;
+            $quotedValues[] = $conn->quote($value);
+            $update        .= " $quotedKey=VALUES($quotedKey),";
         }
 
         // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
@@ -110,10 +115,10 @@ abstract class TableGateway
             $update = rtrim($update, ',');
         }
 
-        $insert = 'INSERT INTO ' . $table . ' (' . implode(', ', $q_keys) . ') '
-                . ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
+        $insert = 'INSERT INTO ' . $table . ' (' . implode(', ', $quotedKeys) . ') '
+                . ' VALUES (' . implode(', ', $quotedValues) . ") ON DUPLICATE KEY UPDATE $update";
 
-        $stmt = $database->prepare($insert);
+        $stmt = $conn->prepare($insert);
 
         $stmt->executeStatement();
     }
@@ -122,25 +127,26 @@ abstract class TableGateway
      * Delete the table row that matches the given array.  (Silently ignoring
      * deletes of non-existent entries.)
      *
-     * @param array $data
+     * @param string $table
+     * @param array  $data
      */
     public function deleteWhereArray($table, $data)
     {
-        $database = $this->getDatabaseAdapter();
+        $conn = $this->getConnection();
 
-        $q_clauses = [];
+        $queryClauses = [];
 
         foreach ($data as $key => $value) {
-            $q_key   = $database->quoteIdentifier($key);
-            $q_value = $database->quote($value);
+            $quotedKey   = $conn->quoteIdentifier($key);
+            $quotedValue = $conn->quote($value);
             if (is_array($value)) {
-                $q_clauses[] = $q_key . ' IN (' . $q_value . ')';
+                $queryClauses[] = $quotedKey . ' IN (' . $quotedValue . ')';
             } else {
-                $q_clauses[] = $q_key . " = " . $q_value;
+                $queryClauses[] = $quotedKey . " = " . $quotedValue;
             }
         }
 
-        $where = implode(" AND ", $q_clauses);
-        $database->delete($table, $where);
+        $where = implode(" AND ", $queryClauses);
+        $conn->delete($table, $where);
     }
 }

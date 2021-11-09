@@ -36,6 +36,7 @@
 namespace Opus\Model2;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\ORMException;
 
 /**
  * @ORM\Entity(repositoryClass="Opus\Db2\LanguageRepository")
@@ -47,54 +48,63 @@ class Language extends AbstractModel
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
+     *
      * @var int
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", name="part2_b", length=3, options={"fixed" = true})
+     *
      * @var string
      */
     private $part2B;
 
     /**
      * @ORM\Column(type="string", name="part2_t", length=3, options={"fixed" = true})
+     *
      * @var string
      */
     private $part2T;
 
     /**
      * @ORM\Column(type="string", length=2, options={"fixed" = true})
+     *
      * @var string
      */
     private $part1;
 
     /**
      * @ORM\Column(type="string", columnDefinition="ENUM('I','M','S')")
+     *
      * @var string
      */
     private $scope;
 
     /**
      * @ORM\Column(type="string", columnDefinition="ENUM('A','C','E','H','L','S')")
+     *
      * @var string
      */
     private $type;
 
     /**
      * @ORM\Column(type="string", name="ref_name", length=150)
+     *
      * @var string
      */
     private $refName;
 
     /**
      * @ORM\Column(type="string", length=150)
+     *
      * @var string
      */
     private $comment;
 
     /**
      * @ORM\Column(type="smallint")
+     *
      * @var int
      */
     private $active = 0;
@@ -257,7 +267,7 @@ class Language extends AbstractModel
      * Retrieve all Opus\Language instances from the database.
      *
      * @return array Array of Opus\Language objects.
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getAll()
     {
@@ -268,7 +278,7 @@ class Language extends AbstractModel
      * Get all active languages.
      *
      * @return array Array of Opus\Language objects which are active.
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getAllActive()
     {
@@ -279,7 +289,7 @@ class Language extends AbstractModel
      * Get all active languages.
      *
      * @return array Array of Opus\Language objects which are active.
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getAllActiveTable()
     {
@@ -291,7 +301,7 @@ class Language extends AbstractModel
      *
      * @param string $code ISO639-2 terminology code to retrieve properties for
      * @return array|null Array of properties or null if object not found in database
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getPropertiesByPart2T($code)
     {
@@ -303,7 +313,7 @@ class Language extends AbstractModel
      *
      * @param string $locale
      * @return null|string
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getPart2tForPart1($locale)
     {
@@ -313,10 +323,10 @@ class Language extends AbstractModel
     /**
      * Returns language code for internal language identifier.
      *
-     * @param string $language Internal language identifier (e.g. 'deu')
-     * @param null $part string Field to use for language code
+     * @param string      $language Internal language identifier (e.g. 'deu')
+     * @param null|string $part string Field to use for language code
      * @return string Language code
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getLanguageCode($language, $part = null)
     {
@@ -327,7 +337,7 @@ class Language extends AbstractModel
      * Checks if a language is being used in database.
      *
      * @return mixed
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public function isUsed()
     {
@@ -336,8 +346,9 @@ class Language extends AbstractModel
 
     /**
      * Returns all languages used in database.
+     *
      * @return mixed
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     public static function getUsedLanguages()
     {
@@ -346,7 +357,8 @@ class Language extends AbstractModel
 
     /**
      * Removes cached values.
-     * @throws \Doctrine\ORM\ORMException
+     *
+     * @throws ORMException
      */
     public static function clearCache()
     {
@@ -387,6 +399,7 @@ class Language extends AbstractModel
 
     /**
      * @param array $data
+     * @return array
      */
     public static function fromArray($data)
     {

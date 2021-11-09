@@ -47,6 +47,13 @@ use function sleep;
 
 class DeleteSubTreeTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['collections_roles', 'collections', 'documents']);
+    }
+
     public function testPreDelete()
     {
         $collectionRole = new CollectionRole();

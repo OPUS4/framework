@@ -38,6 +38,7 @@ namespace OpusTest\Model\Mock;
 
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
+use Opus\Model\ModelException;
 use Zend_Db_Table_Abstract;
 
 /**
@@ -59,6 +60,10 @@ class AbstractDbMock extends AbstractDb
      */
     protected static $tableGatewayClass = AbstractTableProvider::class;
 
+    /**
+     * @param null|int $id
+     * @throws ModelException
+     */
     public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = [])
     {
         foreach ($plugins as $plugin) {
@@ -79,6 +84,10 @@ class AbstractDbMock extends AbstractDb
         $this->addField($value);
     }
 
+    /**
+     * @throws ModelException
+     * phpcs:disable
+     */
     public function _postStore()
     {
         parent::_postStore();

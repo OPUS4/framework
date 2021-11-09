@@ -132,7 +132,6 @@ class InstanciateGatewayTest extends TestCase
      * Test if a given table gateway class can be instanciated.
      *
      * @param string $tableGateway Class name of a table gateway.
-     * @param mixed  $param        Special instanciation argument.
      * @dataProvider tableGatewayDataProvider
      */
     public function testSpawnGateway($tableGateway)
@@ -158,12 +157,12 @@ class InstanciateGatewayTest extends TestCase
             );
 
             // Test, if second call gives same TableGateway.
-            $table_2 = TableGateway::getInstance($tableGateway);
-            $this->assertNotNull($table_2);
-            $this->assertNotNull(get_class($table_2) === $tableGateway);
+            $table2 = TableGateway::getInstance($tableGateway);
+            $this->assertNotNull($table2);
+            $this->assertNotNull(get_class($table2) === $tableGateway);
 
             $this->assertTrue(
-                $table === $table_2,
+                $table === $table2,
                 'Singleton should return same object on second call'
             );
         } catch (Exception $ex) {
