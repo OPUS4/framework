@@ -212,7 +212,7 @@ class LanguageRepository extends EntityRepository
                 ->from($table)
                 ->where('language IS NOT NULL');
 
-            $rows = $conn->fetchAllAssociative($query);
+            $rows = $conn->fetchFirstColumn($query);
 
             if ($rows !== false) {
                 $languages = array_merge($languages, $rows);
