@@ -49,12 +49,17 @@ use function count;
 
 class LanguageTest extends TestCase
 {
+    public function tearDown()
+    {
+       $q = Database::getEntityManager()->createQuery("delete from ".Language::class);
+       $q->execute();
+    }
+
     public function setUp()
     {
         parent::setUp();
 
         $this->clearTables(false, [
-            'languages',
             'documents',
             'document_subjects',
             'document_files',
@@ -62,7 +67,6 @@ class LanguageTest extends TestCase
             'document_licences',
             'link_documents_licences',
         ]);
-
     }
 
     public function testStoreLanguage()
