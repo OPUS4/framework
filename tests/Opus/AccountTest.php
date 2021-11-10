@@ -34,8 +34,9 @@
 
 namespace OpusTest;
 
-use Opus\Account;
-use Opus\Security\SecurityException;
+use Opus\Db2\Database;
+use Opus\Model\DbException;
+use Opus\Model2\Account;
 use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
 
@@ -66,7 +67,9 @@ class AccountTest extends TestCase
         $account->setPassword('dummypassword');
         $account->store();
 
-        $account = new Account(null, null, 'dummy2');
+        $accountRepository = Database::getEntityManager()->getRepository(Account::class);
+        $account           = $accountRepository->findOneBy(['login' => 'dummy2']);
+
         $this->assertNotNull($account);
         $this->assertEquals('dummy2', $account->getLogin());
     }
@@ -83,8 +86,9 @@ class AccountTest extends TestCase
 
         $account = new Account();
         $account->setLogin('dummy3');
+        $account->setPassword('dummypassword');
 
-        $this->setExpectedException(SecurityException::class);
+        $this->setExpectedException(DbException::class);
         $account->store();
     }
 
@@ -93,58 +97,75 @@ class AccountTest extends TestCase
      */
     public function testDeleteAccount()
     {
-        $account = new Account(null, null, 'dummy');
-        $account->store();
+        $accountRepository = Database::getEntityManager()->getRepository(Account::class);
+        $account           = $accountRepository->findOneBy(['login' => 'dummy']);
+
+        $this->assertNotNull($account);
+
         $account->delete();
 
-        $this->setExpectedException(SecurityException::class);
-        new Account(null, null, 'dummy');
+        $account = $accountRepository->findOneBy(['login' => 'dummy']);
+
+        $this->assertNull($account);
     }
 
-    /**
-     * Test adding a role to an account.
-     */
-    public function testAddRoleToAccount()
+    // TODO: reimplement testAddRoleToAccount() & testSetRoleOfAccount() when UserRole has been converted to ORM
+//    /**
+//     * Test adding a role to an account.
+//     */
+//    public function testAddRoleToAccount()
+//    {
+//        $account = new Account(null, null, 'dummy');
+//
+//        $role = new UserRole();
+//        $role->setName('role1');
+//        $role->store();
+//
+//        $account->addRole($role);
+//        $account->store();
+//
+//        $account = new Account(null, null, 'dummy');
+//
+//        $roles = $account->getRole();
+//
+//        $this->assertNotNull($roles);
+//        $this->assertEquals('role1', $roles[0]->getName());
+//    }
+//
+//    /**
+//     * Test setting the roles of an account.
+//     */
+//    public function testSetRoleOfAccount()
+//    {
+//        $account = new Account(null, null, 'dummy');
+//
+//        $role = new UserRole();
+//        $role->setName('role1');
+//        $role->store();
+//
+//        $roles = [$role];
+//
+//        $account->setRole($roles);
+//        $account->store();
+//
+//        $account = new Account(null, null, 'dummy');
+//
+//        $roles = $account->getRole();
+//
+//        $this->assertNotNull($roles);
+//        $this->assertEquals('role1', $roles[0]->getName());
+//    }
+
+    public function testPasswordIsCorrect()
     {
-        $account = new Account(null, null, 'dummy');
-
-        $role = new UserRole();
-        $role->setName('role1');
-        $role->store();
-
-        $account->addRole($role);
+        $account = new Account();
+        $account->setLogin('dummy4');
+        $account->setPassword('dummypassword');
         $account->store();
 
-        $account = new Account(null, null, 'dummy');
+        $isPasswordCorrect = $account->isPasswordCorrect('dummypassword');
 
-        $roles = $account->getRole();
-
-        $this->assertNotNull($roles);
-        $this->assertEquals('role1', $roles[0]->getName());
-    }
-
-    /**
-     * Test setting the roles of an account.
-     */
-    public function testSetRoleOfAccount()
-    {
-        $account = new Account(null, null, 'dummy');
-
-        $role = new UserRole();
-        $role->setName('role1');
-        $role->store();
-
-        $roles = [$role];
-
-        $account->setRole($roles);
-        $account->store();
-
-        $account = new Account(null, null, 'dummy');
-
-        $roles = $account->getRole();
-
-        $this->assertNotNull($roles);
-        $this->assertEquals('role1', $roles[0]->getName());
+        $this->assertTrue($isPasswordCorrect, 'Password is not "dummypassword"');
     }
 
     public function testGetFullName()
