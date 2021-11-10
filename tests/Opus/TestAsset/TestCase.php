@@ -179,6 +179,7 @@ class TestCase extends AbstractSimpleTestCase
     protected function setUp()
     {
         parent::setUp();
+        Database::resetEntitiyManager();
     }
 
     /**

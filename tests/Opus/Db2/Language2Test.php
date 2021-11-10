@@ -54,9 +54,6 @@ class Language2Test extends TestCase
             'document_licences',
             'link_documents_licences',
         ]);
-
-        $entityManager = Database::getEntityManager();
-        $entityManager->clear();
     }
 
     public function testStoreLanguage()
@@ -68,8 +65,6 @@ class Language2Test extends TestCase
         $lang->setRefName('German');
         $lang->setComment('test comment');
         $lang->store();
-
-        $lang->extract($lang);
 
         $entityManager = Database::getEntityManager();
         $lang2         = $entityManager->find(Language::class, $lang->getId());
