@@ -63,9 +63,6 @@ class LanguageTest extends TestCase
             'link_documents_licences',
         ]);
 
-        // We also need to clear the entity manager after clearing the tables.
-        $entityManager = Database::getEntityManager();
-        $entityManager->clear();
     }
 
     public function testStoreLanguage()
@@ -184,22 +181,14 @@ class LanguageTest extends TestCase
      */
     public function testSetScopeInvalid()
     {
+        $this->setExpectedException(DbException::class);
+        $this->setExpectedExceptionRegExp(DbException::class, '/Data truncated for column \'scope\'/');
+
         $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setScope('X');
-
-        try {
-            $lang->store();
-        } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
-        }
-
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
-
-        $this->assertEquals('', $lang->getScope());
+        $lang->store();
     }
 
     public function testSetType()
@@ -239,22 +228,14 @@ class LanguageTest extends TestCase
      */
     public function testSetTypeInvalid()
     {
+        $this->setExpectedException(DbException::class);
+        $this->setExpectedExceptionRegExp(DbException::class, '/Data truncated for column \'type\'/');
+
         $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setType('X');
-
-        try {
-            $lang->store();
-        } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
-        }
-
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
-
-        $this->assertEquals('', $lang->getType());
+        $lang->store();
     }
 
     public function testGetPart2tForPart1()
