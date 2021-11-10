@@ -95,18 +95,12 @@ class LanguageRepository extends EntityRepository
      */
     public function getPropertiesByPart2T($code)
     {
-        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $query        = $queryBuilder->select()
-            ->from('languages', 'Language')
-            ->where('part2_t = ?1')
-            ->setParameter(1, $code)
-            ->getMaxResults(1);
-
-        if ($query !== null) {
-            $language = $query->getQuery()->getArrayResult();
+        $language = $this->findOneBy(['part2T' => $code]);
+        if ($language instanceof Language) {
+            return $language->toArray();
         }
 
-        return $language ?? null;
+        return null;
     }
 
     /**
@@ -146,7 +140,7 @@ class LanguageRepository extends EntityRepository
         if ($part !== null && isset($result[$part])) {
             $code = $result[$part];
         } else {
-            $code = $result['part2_b'];
+            $code = $result['Part2B'];
         }
 
         return empty($code) ? $language : $code;

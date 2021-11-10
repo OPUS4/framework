@@ -384,7 +384,7 @@ class LanguageTest extends TestCase
 
         $lang->store();
 
-        $this->assertEquals('de', Language::getLanguageCode('deu', 'part1'));
+        $this->assertEquals('de', Language::getLanguageCode('deu', 'Part1'));
     }
 
     public function testGetUsedLanguages()
