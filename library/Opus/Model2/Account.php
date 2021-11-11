@@ -215,6 +215,18 @@ class Account extends AbstractModel
     }
 
     /**
+     * Retrieves an existing Account instance by login name. Returns
+     * null if login is null *or* if nothing was found.
+     *
+     * @param  string|null $login
+     * @return self|null
+     */
+    public static function fetchByLogin($login = null)
+    {
+        return self::getRepository()->fetchByLogin($login);
+    }
+
+    /**
      * Convert array parameter into scalar.
      *
      * The FormBuilder provides an array. The setValue method can handle it, but
@@ -285,5 +297,15 @@ class Account extends AbstractModel
         $name .= $lastName;
 
         return $name;
+    }
+
+    /**
+     * Returns the relevant properties of the class
+     *
+     * @return array
+     */
+    protected static function describe()
+    {
+        return ['Login', 'Password', 'Email', 'FirstName', 'LastName'];
     }
 }

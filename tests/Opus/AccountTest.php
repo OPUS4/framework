@@ -37,8 +37,9 @@ namespace OpusTest;
 use Opus\Db2\Database;
 use Opus\Model\DbException;
 use Opus\Model2\Account;
-use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
+
+use function count;
 
 /**
  * Unit tests for Opus\Account operations.
@@ -67,8 +68,7 @@ class AccountTest extends TestCase
         $account->setPassword('dummypassword');
         $account->store();
 
-        $accountRepository = Database::getEntityManager()->getRepository(Account::class);
-        $account           = $accountRepository->findOneBy(['login' => 'dummy2']);
+        $account = Account::fetchByLogin('dummy2');
 
         $this->assertNotNull($account);
         $this->assertEquals('dummy2', $account->getLogin());
@@ -104,7 +104,7 @@ class AccountTest extends TestCase
 
         $account->delete();
 
-        $account = $accountRepository->findOneBy(['login' => 'dummy']);
+        $account = Account::fetchByLogin('dummy');
 
         $this->assertNull($account);
     }
@@ -166,6 +166,13 @@ class AccountTest extends TestCase
         $isPasswordCorrect = $account->isPasswordCorrect('dummypassword');
 
         $this->assertTrue($isPasswordCorrect, 'Password is not "dummypassword"');
+    }
+
+    public function testGetAll()
+    {
+        $allAcconts = Account::getAll();
+
+        $this->assertEquals(1, count($allAcconts));
     }
 
     public function testGetFullName()

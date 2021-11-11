@@ -51,4 +51,25 @@ class AccountRepository extends EntityRepository
     {
         return $this->findAll();
     }
+
+    /**
+     * Retrieves an existing Account instance by login name. Returns
+     * null if login is null *or* if nothing was found.
+     *
+     * @param  string|null $login
+     * @return Account|null
+     */
+    public function fetchByLogin($login = null)
+    {
+        if (false === isset($login)) {
+            return null;
+        }
+
+        $account = $this->findOneBy(['login' => $login]);
+        if (isset($account)) {
+            return $account;
+        }
+
+        return null;
+    }
 }
