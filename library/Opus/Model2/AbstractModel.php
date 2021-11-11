@@ -40,13 +40,33 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\DbException;
-use Opus\Model\ModelException;
 use Exception;
 
 abstract class AbstractModel
 {
     private static $entityManager;
     private static $repository;
+
+    /**
+     * @param int $modelId
+     * @return mixed|object|null
+     * @throws DbException
+     */
+    public static function get($modelId)
+    {
+        try {
+            return self::getRepository()->findOneBy(['id' => $modelId]);
+        } catch (Exception $e) {
+            throw new DbException($e->getMessage());
+        }
+    }
+
+    /**
+     * Returns the relevant properties of the class
+     *
+     * @return array
+     */
+    abstract protected static function describe();
 
     /**
      * @return OpusEntityManager
@@ -101,5 +121,39 @@ abstract class AbstractModel
         } catch (Exception $e) {
             throw new DbException($e->getMessage());
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $result = [];
+        foreach (static::describe() as $propertyName) {
+            $result[$propertyName] = $this->{"get" . $propertyName}();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     */
+    public function updateFromArray($data)
+    {
+        foreach (static::describe() as $propertyName) {
+            $this->{"set" . $propertyName}($data[$propertyName]);
+        }
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public static function fromArray($data)
+    {
+        $model = new static();
+        $model->updateFromArray($data);
+        return $model;
     }
 }

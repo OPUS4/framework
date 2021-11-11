@@ -365,46 +365,14 @@ class Language extends AbstractModel
         self::getRepository()->clearCache();
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return [
-            'Comment' => $this->getComment(),
-            'Part2B'  => $this->getPart2B(),
-            'Part2T'  => $this->getPart2T(),
-            'Part1'   => $this->getPart1(),
-            'Scope'   => $this->getScope(),
-            'Type'    => $this->getType(),
-            'RefName' => $this->getRefName(),
-            'Active'  => $this->getActive(),
-        ];
-    }
 
     /**
-     * @param array $data
-     */
-    public function updateFromArray($data)
-    {
-        $this->setComment($data['Comment']);
-        $this->setPart2B($data['Part2B']);
-        $this->setPart2T($data['Part2T']);
-        $this->setPart1($data['Part1']);
-        $this->setScope($data['Scope']);
-        $this->setType($data['Type']);
-        $this->setRefName($data['RefName']);
-        $this->setActive($data['Active']);
-    }
-
-    /**
-     * @param array $data
+     * Returns the relevant properties of the class
+     *
      * @return array
      */
-    public static function fromArray($data)
+    protected static function describe()
     {
-        $lang = new Language();
-        $lang->updateFromArray($data);
-        return $lang;
+        return ['Comment', 'Part2B', 'Part2T', 'Part1', 'Scope', 'Type', 'RefName', 'Active'];
     }
 }

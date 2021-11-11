@@ -51,6 +51,8 @@ class LanguageTest extends TestCase
 {
     public function tearDown()
     {
+       // Due to the lack of a refresh/reset method for the entity manager we need to clear the language table
+       // TODO: Maybe the Codeception testing framework has a solution for a better handling of database cleanup.
        $q = Database::getEntityManager()->createQuery("delete from ".Language::class);
        $q->execute();
     }
@@ -79,9 +81,7 @@ class LanguageTest extends TestCase
         $lang->setComment('test comment');
         $lang->store();
 
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertNotNull($lang);
         $this->assertEquals('ger', $lang->getPart2B());
@@ -156,9 +156,7 @@ class LanguageTest extends TestCase
         $lang->setScope('I');
         $lang->store();
 
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertEquals('I', $lang->getScope());
     }
@@ -171,9 +169,7 @@ class LanguageTest extends TestCase
         $lang->setScope(null);
         $lang->store();
 
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertNull($lang->getScope());
     }
@@ -203,9 +199,7 @@ class LanguageTest extends TestCase
         $lang->setType('H');
         $lang->store();
 
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertEquals('H', $lang->getType());
     }
@@ -218,9 +212,7 @@ class LanguageTest extends TestCase
         $lang->setType(null);
         $lang->store();
 
-        //$lang = new Language($lang->getId());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertNull($lang->getType());
     }
@@ -274,11 +266,9 @@ class LanguageTest extends TestCase
         $lang->setType('L');
         $lang->setScope('I');
         $lang->setComment('Deutsche Sprache');
-
-        //$lang = new Language($lang->store());
-        // With Doctrine ORM we can not get an entity from the database via the constructor.
         $lang->store();
-        $lang = Database::getEntityManager()->find(Language::class, $lang->getId());
+
+        $lang = Language::get($lang->getId());
 
         $data = $lang->toArray();
 
