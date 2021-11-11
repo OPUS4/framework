@@ -96,7 +96,7 @@ class LanguageRepository extends EntityRepository
     public function getPropertiesByPart2T($code)
     {
         $language = $this->findOneBy(['part2T' => $code]);
-        return ($language instanceof Language) ? $language : null;
+        return $language instanceof Language ? $language : null;
     }
 
     /**
@@ -132,7 +132,7 @@ class LanguageRepository extends EntityRepository
                 $code = $language->{"get" . $part}();
             }
 
-            if (empty($code)){
+            if (empty($code)) {
                 $code = $language->getPart2B();
             }
         }

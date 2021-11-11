@@ -39,9 +39,9 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
+use Exception;
 use Opus\Model\ModelException;
 use Opus\Model2\AbstractModel;
-use \Exception;
 
 use function get_class;
 
