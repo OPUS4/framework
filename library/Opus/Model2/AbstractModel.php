@@ -38,9 +38,11 @@ namespace Opus\Model2;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
+use Exception;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\DbException;
-use Exception;
+
+use function in_array;
 
 abstract class AbstractModel
 {
@@ -141,8 +143,12 @@ abstract class AbstractModel
      */
     public function updateFromArray($data)
     {
-        foreach (static::describe() as $propertyName) {
-            $this->{"set" . $propertyName}($data[$propertyName]);
+        $validProperties = static::describe();
+
+        foreach ($data as $propertyName => $value) {
+            if (in_array($propertyName, $validProperties)) {
+                $this->{"set" . $propertyName}($value);
+            }
         }
     }
 
