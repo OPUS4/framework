@@ -40,13 +40,26 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\DbException;
-use Opus\Model\ModelException;
 use Exception;
 
 abstract class AbstractModel
 {
     private static $entityManager;
     private static $repository;
+
+    /**
+     * @param int $modelId
+     * @return mixed|object|null
+     * @throws DbException
+     */
+    public static function get($modelId)
+    {
+        try {
+            return self::getRepository()->findOneBy(['id' => $modelId]);
+        } catch (Exception $e) {
+            throw new DbException($e->getMessage());
+        }
+    }
 
     /**
      * @return OpusEntityManager
