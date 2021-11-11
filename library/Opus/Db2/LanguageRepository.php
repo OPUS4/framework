@@ -91,16 +91,12 @@ class LanguageRepository extends EntityRepository
      * Get properties of language object as array for a specific terminology code
      *
      * @param string $code ISO639-2 terminology code to retrieve properties for
-     * @return array|null Array of properties or null if object not found in database
+     * @return Language|null Array of properties or null if object not found in database
      */
     public function getPropertiesByPart2T($code)
     {
         $language = $this->findOneBy(['part2T' => $code]);
-        if ($language instanceof Language) {
-            return $language->toArray();
-        }
-
-        return null;
+        return ($language instanceof Language) ? $language : null;
     }
 
     /**
@@ -123,27 +119,24 @@ class LanguageRepository extends EntityRepository
     /**
      * Returns language code for internal language identifier.
      *
-     * @param string      $language Internal language identifier (e.g. 'deu')
+     * @param string      $languageIdentifier Internal language identifier (e.g. 'deu')
      * @param null|string $part string Field to use for language code
      * @return string Language code
      */
-    public function getLanguageCode($language, $part = null)
+    public function getLanguageCode($languageIdentifier, $part = null)
     {
-        $result = $this->getPropertiesByPart2T($language);
+        $language = $this->getPropertiesByPart2T($languageIdentifier);
 
-        if (empty($result)) {
-            return $language;
+        if ($language instanceof Language) {
+            if ($part !== null && in_array($part, ['Part2B', 'Part2T', 'Part1'])) {
+                $code = $language->{"get" . $part}();
+            }
+
+            if (empty($code)){
+                $code = $language->getPart2B();
+            }
         }
-
-        $code = null;
-
-        if ($part !== null && isset($result[$part])) {
-            $code = $result[$part];
-        } else {
-            $code = $result['Part2B'];
-        }
-
-        return empty($code) ? $language : $code;
+        return empty($code) ? $languageIdentifier : $code;
     }
 
     /**
