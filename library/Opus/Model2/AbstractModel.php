@@ -51,7 +51,7 @@ abstract class AbstractModel
 
     /**
      * @param int $modelId
-     * @return mixed|object|null
+     * @return self|null
      * @throws DbException
      */
     public static function get($modelId)
