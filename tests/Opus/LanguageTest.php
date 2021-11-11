@@ -52,6 +52,7 @@ class LanguageTest extends TestCase
     public function tearDown()
     {
        // Due to the lack of a refresh/reset method for the entity manager we need to clear the language table
+       // TODO: Maybe the Codeception testing framework has a solution for a better handling of database cleanup.
        $q = Database::getEntityManager()->createQuery("delete from ".Language::class);
        $q->execute();
     }

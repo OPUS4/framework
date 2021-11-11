@@ -62,6 +62,13 @@ abstract class AbstractModel
     }
 
     /**
+     * Returns the relevant properties of the class
+     *
+     * @return array
+     */
+    abstract protected static function describe();
+
+    /**
      * @return OpusEntityManager
      */
     protected static function getEntityManager()
@@ -114,5 +121,39 @@ abstract class AbstractModel
         } catch (Exception $e) {
             throw new DbException($e->getMessage());
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $result = [];
+        foreach (static::describe() as $propertyName) {
+            $result[$propertyName] = $this->{"get" . $propertyName}();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     */
+    public function updateFromArray($data)
+    {
+        foreach (static::describe() as $propertyName) {
+            $this->{"set" . $propertyName}($data[$propertyName]);
+        }
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public static function fromArray($data)
+    {
+        $model = new static();
+        $model->updateFromArray($data);
+        return $model;
     }
 }
