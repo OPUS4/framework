@@ -38,7 +38,7 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\UserRole;
+use Opus\Model2\UserRole;
 use OpusTest\TestAsset\TestCase;
 use Zend_Db_Statement_Exception;
 
