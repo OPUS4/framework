@@ -35,11 +35,9 @@
 
 namespace OpusTest\TestAsset;
 
-use Doctrine\DBAL\Exception;
 use DOMDocument;
 use DOMXPath;
 use Opus\Config;
-use Zend_Db_Table;
 
 use function array_diff;
 use function is_dir;
@@ -56,26 +54,24 @@ use const DIRECTORY_SEPARATOR;
  */
 class TestCase extends AbstractSimpleTestCase
 {
-    private $tables;
+    /** @var DatabaseHelper */
+    private $databaseHelper;
+
+    /**
+     * @return DatabaseHelper
+     */
+    protected function getDatabaseHelper()
+    {
+        if ($this->databaseHelper === null) {
+            $this->databaseHelper = new DatabaseHelper();
+        }
+
+        return $this->databaseHelper;
+    }
 
     protected function resetDatabase()
     {
-        $this->clearTables(true);
-    }
-
-    /**
-     * @return array
-     * @throws Exception
-     */
-    protected function getTables()
-    {
-        if ($this->tables === null) {
-            $conn = Zend_Db_Table::getDefaultAdapter();
-
-            $this->tables = $conn->listTables();
-        }
-
-        return $this->tables;
+        $this->getDatabaseHelper()->clearTables(true);
     }
 
     /**
@@ -86,23 +82,7 @@ class TestCase extends AbstractSimpleTestCase
      */
     protected function clearTables($always = false, $tables = null)
     {
-        $conn = Zend_Db_Table::getDefaultAdapter();
-
-        $this->assertNotNull($conn);
-
-        // This is needed to workaround the constraints on the parent_id column.
-        $conn->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $conn->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
-
-        if ($tables === null) {
-            $tables = $this->getTables();
-        }
-
-        foreach ($tables as $name) {
-            self::clearTable($name, $always);
-        }
-
-        $conn->query('SET FOREIGN_KEY_CHECKS = 1;');
+        $this->getDatabaseHelper()->clearTables($always, $tables);
     }
 
     /**
@@ -114,20 +94,7 @@ class TestCase extends AbstractSimpleTestCase
      */
     protected function clearTable($tablename, $always = false)
     {
-        $conn = Zend_Db_Table::getDefaultAdapter();
-
-        $this->assertNotNull($conn);
-
-        $tablename = $conn->quoteIdentifier($tablename);
-
-        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-
-        if ($count > 0 || $always) {
-            $conn->query('TRUNCATE ' . $tablename);
-
-            $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-            $this->assertEquals(0, $count, "Table $tablename is not empty!");
-        }
+        $this->getDatabaseHelper()->clearTable($tablename, $always);
     }
 
     /**
@@ -162,8 +129,6 @@ class TestCase extends AbstractSimpleTestCase
         if ($directory !== null) {
             rmdir($directory);
         }
-
-        return;
     }
 
     /**
