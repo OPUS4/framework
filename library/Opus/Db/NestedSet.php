@@ -752,8 +752,7 @@ abstract class NestedSet extends Zend_Db_Table_Abstract
      */
     public function isRoot($data)
     {
-        return array_key_exists($this->_left, $data)
-                and ($data[$this->_left] === 1);
+        return array_key_exists($this->_left, $data) && ((int)$data[$this->_left] === 1);
     }
 
     /**
