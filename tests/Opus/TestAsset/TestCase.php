@@ -38,6 +38,7 @@ namespace OpusTest\TestAsset;
 use DOMDocument;
 use DOMXPath;
 use Opus\Config;
+use Opus\Util\DatabaseHelper;
 
 use function array_diff;
 use function is_dir;
