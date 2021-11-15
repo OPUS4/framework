@@ -1583,7 +1583,7 @@ class CollectionTest extends TestCase
 
     public function testIsRoot()
     {
-        $col = $this->object;
+        $col     = $this->object;
         $colRole = $this->roleFixture;
 
         $this->assertSame($col, $colRole->getRootCollection());
