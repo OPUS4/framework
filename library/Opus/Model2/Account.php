@@ -35,6 +35,8 @@
 
 namespace Opus\Model2;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\ORMException;
 
@@ -48,6 +50,9 @@ use function strlen;
 /**
  * @ORM\Entity(repositoryClass="Opus\Db2\AccountRepository")
  * @ORM\Table(name="accounts")
+ *
+ * TODO eventually replace the OPUS methods `getRole()`, `setRole()` & `addRole()`
+ *      with `getUserRoles()`, `setUserRoles()` and `addUserRole()` respectively?
  */
 class Account extends AbstractModel
 {
@@ -94,6 +99,22 @@ class Account extends AbstractModel
      * @var string
      */
     private $lastName;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="UserRole", inversedBy="accounts")
+     * @ORM\JoinTable(name="link_accounts_roles",
+     *      joinColumns={@ORM\JoinColumn(name="account_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
+     *      )
+     *
+     * @var Collection|UserRole[]
+     */
+    private $userRoles;
+
+    public function __construct()
+    {
+        $this->userRoles = new ArrayCollection();
+    }
 
     /**
      * @return int
@@ -201,6 +222,73 @@ class Account extends AbstractModel
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
+    }
+
+    /**
+     * @return Collection|UserRole[]
+     */
+    public function getUserRoles()
+    {
+        return $this->userRoles;
+    }
+
+    /**
+     * @param Collection|UserRole[] $userRoles
+     */
+    public function setUserRoles($userRoles)
+    {
+        $this->userRoles = $userRoles;
+    }
+
+    /**
+     * @return UserRole[]
+     */
+    public function getRole()
+    {
+        return $this->getUserRoles();
+    }
+
+    /**
+     * @param UserRole[] $roles
+     */
+    public function setRole($roles)
+    {
+        $this->setUserRoles($roles);
+    }
+
+    /**
+     * @param UserRole $userRole
+     */
+    public function addUserRole($userRole)
+    {
+        // TODO: check whether "extra lazy associations" (`fetch="EXTRA_LAZY`) should be used
+        if ($this->userRoles->contains($userRole)) {
+            return;
+        }
+
+        $this->userRoles->add($userRole);
+        $userRole->addAccount($this);
+    }
+
+    /**
+     * @param UserRole $userRole
+     */
+    public function removeUserRole($userRole)
+    {
+        if (! $this->userRoles->contains($userRole)) {
+            return;
+        }
+
+        $this->userRoles->removeElement($userRole);
+        $userRole->removeAccount($this);
+    }
+
+    /**
+     * @param UserRole $role
+     */
+    public function addRole($role)
+    {
+        $this->addUserRole($role);
     }
 
     /**

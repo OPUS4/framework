@@ -35,6 +35,8 @@
 
 namespace Opus\Model2;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\ORMException;
 
@@ -62,6 +64,18 @@ class UserRole extends AbstractModel
      * @var string
      */
     private $name;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Account", mappedBy="$userRoles")
+     *
+     * @var Collection|Account[]
+     */
+    private $accounts;
+
+    public function __construct()
+    {
+        $this->accounts = new ArrayCollection();
+    }
 
     /**
      * @return int
@@ -93,6 +107,48 @@ class UserRole extends AbstractModel
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return Collection|Account[]
+     */
+    public function getAccounts()
+    {
+        return $this->accounts;
+    }
+
+    /**
+     * @param Collection|Account[] $accounts
+     */
+    public function setAccounts($accounts)
+    {
+        $this->accounts = $accounts;
+    }
+
+    /**
+     * @param Account $account
+     */
+    public function addAccount($account)
+    {
+        if ($this->accounts->contains($account)) {
+            return;
+        }
+
+        $this->accounts->add($account);
+        $account->addUserRole($this);
+    }
+
+    /**
+     * @param Account $account
+     */
+    public function removeAccount($account)
+    {
+        if (! $this->accounts->contains($account)) {
+            return;
+        }
+
+        $this->accounts->removeElement($account);
+        $account->removeUserRole($this);
     }
 
     /**

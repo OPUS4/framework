@@ -37,6 +37,7 @@ namespace OpusTest;
 use Opus\Db2\Database;
 use Opus\Model\DbException;
 use Opus\Model2\Account;
+use Opus\Model2\UserRole;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -50,7 +51,7 @@ class AccountTest extends TestCase
     {
         parent::setUp();
 
-        $this->clearTables(true, ['accounts', 'user_roles']);
+        $this->clearTables(true, ['accounts', 'user_roles', 'link_accounts_roles']);
 
         $account = new Account();
         $account->setLogin('dummy');
@@ -170,9 +171,9 @@ class AccountTest extends TestCase
 
     public function testGetAll()
     {
-        $allAcconts = Account::getAll();
+        $allAccounts = Account::getAll();
 
-        $this->assertEquals(1, count($allAcconts));
+        $this->assertEquals(1, count($allAccounts));
     }
 
     public function testGetFullName()
@@ -206,5 +207,66 @@ class AccountTest extends TestCase
 
         $this->assertNotNull($account->getFullName());
         $this->assertEquals('', $account->getFullName());
+    }
+
+    public function testAddUserRole()
+    {
+        $userRole = new UserRole();
+        $userRole->setName('unit-test');
+        $userRole->store();
+
+        $account = new Account();
+        $account->setLogin('dummy5');
+        $account->setPassword('dummypassword');
+        $account->addUserRole($userRole);
+        $account->store();
+
+        $accountRepository = Database::getEntityManager()->getRepository(Account::class);
+        $account           = $accountRepository->findOneBy(['login' => 'dummy5']);
+        $userRoles         = $account->getUserRoles();
+
+        $this->assertEquals(1, count($userRoles));
+
+        $userRole = $userRoles->first();
+
+        $this->assertInstanceOf(UserRole::class, $userRole);
+        $this->assertEquals('unit-test', $userRole->getName());
+    }
+
+    public function testRemoveUserRole()
+    {
+        $userRole = new UserRole();
+        $userRole->setName('unit-test');
+        $userRole->store();
+
+        $userRole2 = new UserRole();
+        $userRole2->setName('unit-test2');
+        $userRole2->store();
+
+        $account = new Account();
+        $account->setLogin('dummy6');
+        $account->setPassword('dummypassword');
+        $account->addUserRole($userRole);
+        $account->addUserRole($userRole2);
+        $account->store();
+
+        $accountRepository = Database::getEntityManager()->getRepository(Account::class);
+        $account           = $accountRepository->findOneBy(['login' => 'dummy6']);
+        $userRoles         = $account->getUserRoles();
+
+        $this->assertEquals(2, count($userRoles));
+
+        $account->removeUserRole($userRole);
+        $account->store();
+
+        $accountRepository = Database::getEntityManager()->getRepository(Account::class);
+        $account           = $accountRepository->findOneBy(['login' => 'dummy6']);
+        $userRoles         = $account->getUserRoles();
+
+        $this->assertEquals(1, count($userRoles));
+
+        $userRole2 = $userRoles->first();
+
+        $this->assertEquals('unit-test2', $userRole2->getName());
     }
 }
