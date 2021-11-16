@@ -128,7 +128,10 @@ class LanguageRepository extends EntityRepository
         $language = $this->getPropertiesByPart2T($languageIdentifier);
 
         if ($language instanceof Language) {
-            if ($part !== null && in_array($part, ['Part2B', 'Part2T', 'Part1'])) {
+            if (
+                $part !== null
+                && in_array($part, [Language::PROPERTY_PART2B, Language::PROPERTY_PART2T, Language::PROPERTY_PART1])
+            ) {
                 $code = $language->{"get" . $part}();
             }
 
