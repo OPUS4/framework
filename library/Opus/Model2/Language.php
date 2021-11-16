@@ -309,12 +309,12 @@ class Language extends AbstractModel
      * Get properties of language object as array for a specific terminology code
      *
      * @param string $code ISO639-2 terminology code to retrieve properties for
-     * @return array|null Array of properties or null if object not found in database
+     * @return Language|null Language model or null if object not found in database
      * @throws ORMException
      */
-    public static function getPropertiesByPart2T($code)
+    public static function getLanguageByPart2T($code)
     {
-        return self::getRepository()->getPropertiesByPart2T($code);
+        return self::getRepository()->getLanguageByPart2T($code);
     }
 
     /**
