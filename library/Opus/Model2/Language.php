@@ -365,7 +365,6 @@ class Language extends AbstractModel
         self::getRepository()->clearCache();
     }
 
-
     /**
      * Returns the relevant properties of the class
      *
