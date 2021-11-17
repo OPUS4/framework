@@ -53,7 +53,7 @@ class Database
     private static $conn;
     private static $entityManager;
 
-    public static function resetEntitiyManager()
+    public static function resetEntityManager()
     {
         self::$entityManager = null;
     }
