@@ -111,6 +111,9 @@ class Database
             self::$conn = DriverManager::getConnection($params);
 
             self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+
+            Type::addType('opusDate', 'Opus\Db2\OpusDateType');
+            self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('VARCHAR(50)', 'opusDate');
         }
 
         return self::$conn;
@@ -148,8 +151,6 @@ class Database
 
         if (self::$entityManager === null) {
             self::$entityManager = EntityManager::create($conn, $config);
-            Type::addType('opusDate', 'Opus\Db2\OpusDateType');
-            self::$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('VARCHAR(50)', 'opusDate');
         }
 
         return self::$entityManager;
