@@ -94,6 +94,23 @@ class LanguageTest extends TestCase
         $this->assertEquals('0', $lang->getActive());
     }
 
+    public function testDeleteLanguage()
+    {
+        $lang = new Language();
+        $lang->setPart2B('ger');
+        $lang->setPart2T('deu');
+        $lang->setPart1('de');
+        $lang->setRefName('German');
+        $lang->setComment('test delete comment');
+
+        $lang->store();
+        $id = $lang->getId();
+        $lang->delete();
+        $lang2 = Language::get($id);
+
+        $this->assertNull($lang2);
+    }
+
     public function testGetAll()
     {
         $lang = new Language();
