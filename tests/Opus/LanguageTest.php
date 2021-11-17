@@ -181,7 +181,6 @@ class LanguageTest extends TestCase
      */
     public function testSetScopeInvalid()
     {
-        $this->setExpectedException(DbException::class);
         $this->setExpectedExceptionRegExp(DbException::class, '/Data truncated for column \'scope\'/');
 
         $lang = new Language();
@@ -224,7 +223,6 @@ class LanguageTest extends TestCase
      */
     public function testSetTypeInvalid()
     {
-        $this->setExpectedException(DbException::class);
         $this->setExpectedExceptionRegExp(DbException::class, '/Data truncated for column \'type\'/');
 
         $lang = new Language();
