@@ -34,6 +34,7 @@ namespace Opus\Db2;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\Setup;
@@ -147,6 +148,8 @@ class Database
 
         if (self::$entityManager === null) {
             self::$entityManager = EntityManager::create($conn, $config);
+            Type::addType('opusDate', 'Opus\Db2\OpusDateType');
+            self::$entityManager->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('VARCHAR(50)', 'opusDate');
         }
 
         return self::$entityManager;

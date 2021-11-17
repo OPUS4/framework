@@ -35,6 +35,7 @@
 
 namespace Opus\Model2;
 
+use BadMethodCallException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
@@ -44,6 +45,9 @@ use Opus\Model\DbException;
 use Opus\Model\NotFoundException;
 
 use function in_array;
+use function lcfirst;
+use function property_exists;
+use function substr;
 
 /**
  * Base class for OPUS 4 model classes.
@@ -60,6 +64,7 @@ abstract class AbstractModel
 {
     /** @var OpusEntityManager Object for accessing database connections/repositories */
     private static $entityManager;
+
 
     /**
      * @param int $modelId
