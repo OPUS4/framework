@@ -101,7 +101,7 @@ class Account extends AbstractModel
     private $lastName;
 
     /**
-     * @ORM\ManyToMany(targetEntity="UserRole", inversedBy="accounts")
+     * @ORM\ManyToMany(targetEntity="UserRole", inversedBy="accounts", cascade={"persist"})
      * @ORM\JoinTable(name="link_accounts_roles",
      *      joinColumns={@ORM\JoinColumn(name="account_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
