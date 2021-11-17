@@ -47,7 +47,6 @@ use function in_array;
 abstract class AbstractModel
 {
     private static $entityManager;
-    private static $repository;
 
     /**
      * @param int $modelId
@@ -87,10 +86,7 @@ abstract class AbstractModel
      */
     protected static function getRepository()
     {
-        if (self::$repository === null) {
-            self::$repository = self::getEntityManager()->getRepository(static::class);
-        }
-        return self::$repository;
+        return self::getEntityManager()->getRepository(static::class);
     }
 
     /** @return int */
