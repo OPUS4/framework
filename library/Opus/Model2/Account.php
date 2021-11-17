@@ -51,8 +51,7 @@ use function strlen;
  * @ORM\Entity(repositoryClass="Opus\Db2\AccountRepository")
  * @ORM\Table(name="accounts")
  *
- * TODO eventually replace the OPUS methods `getRole()`, `setRole()` & `addRole()`
- *      with `getUserRoles()`, `setUserRoles()` and `addUserRole()` respectively?
+ * TODO reintroduce field validation on model level?
  */
 class Account extends AbstractModel
 {
@@ -108,12 +107,16 @@ class Account extends AbstractModel
      *      )
      *
      * @var Collection|UserRole[]
+     *
+     * TODO OPUS deviates from the common variable naming scheme in that a singular name is used here
+     *      its getter getRole() can also accepts an index parameter, and its setter setRole() can accept
+     *      both, a single UserRole object as well as an array of UserRole objects
      */
-    private $userRoles;
+    private $role;
 
     public function __construct()
     {
-        $this->userRoles = new ArrayCollection();
+        $this->role = new ArrayCollection();
     }
 
     /**
@@ -227,60 +230,19 @@ class Account extends AbstractModel
     /**
      * @return Collection|UserRole[]
      */
-    public function getUserRoles()
-    {
-        return $this->userRoles;
-    }
-
-    /**
-     * @param Collection|UserRole[] $userRoles
-     */
-    public function setUserRoles($userRoles)
-    {
-        $this->userRoles = $userRoles;
-    }
-
-    /**
-     * @return UserRole[]
-     */
     public function getRole()
     {
-        return $this->getUserRoles();
+        // TODO getRole() must also be able to accept an index parameter, cf. Opus/Model/Field->getValue()
+        return $this->role;
     }
 
     /**
-     * @param UserRole[] $roles
+     * @param Collection|UserRole[] $roles
      */
     public function setRole($roles)
     {
-        $this->setUserRoles($roles);
-    }
-
-    /**
-     * @param UserRole $userRole
-     */
-    public function addUserRole($userRole)
-    {
-        // TODO: check whether "extra lazy associations" (`fetch="EXTRA_LAZY`) should be used
-        if ($this->userRoles->contains($userRole)) {
-            return;
-        }
-
-        $this->userRoles->add($userRole);
-        $userRole->addAccount($this);
-    }
-
-    /**
-     * @param UserRole $userRole
-     */
-    public function removeUserRole($userRole)
-    {
-        if (! $this->userRoles->contains($userRole)) {
-            return;
-        }
-
-        $this->userRoles->removeElement($userRole);
-        $userRole->removeAccount($this);
+        // TODO setRole() must also be able to accept a single UserRole object, cf. Opus/Model/Field->setValue()
+        $this->role = $roles;
     }
 
     /**
@@ -288,7 +250,27 @@ class Account extends AbstractModel
      */
     public function addRole($role)
     {
-        $this->addUserRole($role);
+        // TODO: check whether "extra lazy associations" (`fetch="EXTRA_LAZY`) should be used for $role so
+        //       that a method like contains() can be called without triggering a full load of the collection
+        if ($this->role->contains($role)) {
+            return;
+        }
+
+        $this->role->add($role);
+        $role->addAccount($this);
+    }
+
+    /**
+     * @param UserRole $role
+     */
+    public function removeRole($role)
+    {
+        if (! $this->role->contains($role)) {
+            return;
+        }
+
+        $this->role->removeElement($role);
+        $role->removeAccount($this);
     }
 
     /**

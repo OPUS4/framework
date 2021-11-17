@@ -135,7 +135,7 @@ class UserRole extends AbstractModel
         }
 
         $this->accounts->add($account);
-        $account->addUserRole($this);
+        $account->addRole($this);
     }
 
     /**
@@ -148,7 +148,7 @@ class UserRole extends AbstractModel
         }
 
         $this->accounts->removeElement($account);
-        $account->removeUserRole($this);
+        $account->removeRole($this);
     }
 
     /**
