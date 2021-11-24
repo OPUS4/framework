@@ -291,7 +291,7 @@ class Account extends AbstractModel
      * @param  string|null $login
      * @return self|null
      */
-    public static function fetchByLogin($login = null)
+    public static function fetchAccountByLogin($login = null)
     {
         return self::getRepository()->fetchByLogin($login);
     }

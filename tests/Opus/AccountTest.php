@@ -68,7 +68,7 @@ class AccountTest extends TestCase
         $account->setPassword('dummypassword');
         $account->store();
 
-        $account = Account::fetchByLogin('dummy2');
+        $account = Account::fetchAccountByLogin('dummy2');
 
         $this->assertNotNull($account);
         $this->assertEquals('dummy2', $account->getLogin());
@@ -97,13 +97,13 @@ class AccountTest extends TestCase
      */
     public function testDeleteAccount()
     {
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $this->assertNotNull($account);
 
         $account->delete();
 
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $this->assertNull($account);
     }
@@ -113,7 +113,7 @@ class AccountTest extends TestCase
      */
     public function testAddRoleToAccount()
     {
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $role = new UserRole();
         $role->setName('role1');
@@ -122,7 +122,7 @@ class AccountTest extends TestCase
         $account->addRole($role);
         $account->store();
 
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
         $roles   = $account->getRole();
 
         $this->assertNotNull($roles);
@@ -139,7 +139,7 @@ class AccountTest extends TestCase
      */
     public function testSetRoleOfAccount()
     {
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $role = new UserRole();
         $role->setName('role1');
@@ -150,7 +150,7 @@ class AccountTest extends TestCase
         $account->setRole($roles);
         $account->store();
 
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
         $roles   = $account->getRole();
 
         $this->assertNotNull($roles);
@@ -167,7 +167,7 @@ class AccountTest extends TestCase
      */
     public function testRemoveRoleFromAccount()
     {
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $role = new UserRole();
         $role->setName('role1');
@@ -181,7 +181,7 @@ class AccountTest extends TestCase
         $account->addRole($role2);
         $account->store();
 
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
         $roles   = $account->getRole();
 
         $this->assertEquals(2, count($roles));
@@ -189,7 +189,7 @@ class AccountTest extends TestCase
         $account->removeRole($role);
         $account->store();
 
-        $account = Account::fetchByLogin('dummy');
+        $account = Account::fetchAccountByLogin('dummy');
         $roles   = $account->getRole();
 
         $this->assertEquals(1, count($roles));
