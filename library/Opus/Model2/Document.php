@@ -42,6 +42,7 @@
 
 namespace Opus\Model2;
 
+use BadMethodCallException;
 use Doctrine\ORM\Mapping as ORM;
 
 use Opus\Date;
@@ -185,7 +186,7 @@ class Document extends AbstractModel
 
     /**
      * @ORM\Column(type="opusDate", name="server_date_created")
-     * @var Date|string
+     * @var Date
      */
     private $serverDateCreated;
 
@@ -197,7 +198,7 @@ class Document extends AbstractModel
 
     /**
      * @ORM\Column(type="opusDate", name="server_date_published")
-     * @var Date|string
+     * @var Date
      */
     private $serverDatePublished;
 
@@ -225,6 +226,7 @@ class Document extends AbstractModel
      */
     private $volume;
 
+    private static $defaultPlugins;
 
     /**
      * @return int
@@ -237,6 +239,11 @@ class Document extends AbstractModel
     protected static function describe()
     {
         // TODO: Implement describe() method.
+    }
+
+    public function setDefaultPlugins($plugins)
+    {
+        self::$defaultPlugins = $plugins;
     }
 
     /**
