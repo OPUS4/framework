@@ -39,6 +39,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\ORMException;
+use Opus\Log;
 
 use function array_pop;
 use function count;
@@ -177,6 +178,25 @@ class Account extends AbstractModel
     {
         $password       = $this->convertToScalar($password);
         $this->password = sha1($password);
+    }
+
+    /**
+     * The field "Password" only contains hashed passwords. This method sets
+     * the password directly without hashing it. Helpful for migration.
+     *
+     * @param string $password The new password to set.
+     */
+    public function setPasswordDirectly($password)
+    {
+        $logger = Log::get();
+        if (null !== $logger) {
+            $message = "WARNING: Setting password directly for user '" . $this->getLogin() . "'.";
+            $logger->warn(__METHOD__ . ': ' . $message);
+            $message = "WARNING: Setting password directly should only be used when migrating!";
+            $logger->warn(__METHOD__ . ': ' . $message);
+        }
+
+        $this->password = $password;
     }
 
     /**

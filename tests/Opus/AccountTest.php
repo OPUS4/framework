@@ -208,6 +208,19 @@ class AccountTest extends TestCase
         $this->assertTrue($isPasswordCorrect, 'Password is not "dummypassword"');
     }
 
+    public function testSetPasswordDirectly()
+    {
+        $account = new Account();
+        $account->setLogin('dummy5');
+        $account->setPasswordDirectly('dummypassword');
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy5');
+
+        $this->assertNotNull($account);
+        $this->assertEquals('dummypassword', $account->getPassword());
+    }
+
     public function testGetAll()
     {
         $allAccounts = Account::getAll();
