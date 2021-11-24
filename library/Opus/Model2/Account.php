@@ -109,9 +109,12 @@ class Account extends AbstractModel
      *
      * @var Collection|UserRole[]
      *
-     * TODO OPUS deviates from the common variable naming scheme in that a singular name is used here
-     *      its getter getRole() can also accepts an index parameter, and its setter setRole() can accept
-     *      both, a single UserRole object as well as an array of UserRole objects
+     * TODO OPUS deviates from the common variable naming scheme in that a singular name is used here.
+     *      Its getter getRole() can also accept an index parameter, and its setter setRole() can accept
+     *      both, a single UserRole object as well as an array of UserRole objects.
+     *
+     * TODO Double check that the use of `cascade={"persist"}` is correct here. In OPUS, persisting an
+     *      Account object would normally not persist its UserRole relations (and vice versa).
      */
     private $role;
 
