@@ -72,4 +72,46 @@ class UserRoleRepository extends EntityRepository
 
         return null;
     }
+
+    /**
+     * Get all account IDs for the role with the given ID.
+     *
+     * @param  int $roleId
+     * @return int[]
+     */
+    public function getAllAccountIds($roleId)
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder->select('a.id')
+            ->distinct()
+            ->from(UserRole::class, 'r')
+            ->innerJoin('r.accounts', 'a')
+            ->where('r.id = :roleId')
+            ->setParameter('roleId', $roleId)
+            ->getQuery();
+
+        return $query->getSingleColumnResult();
+    }
+
+    /**
+     * Get all account login names for the role with the given ID.
+     *
+     * @param  int $roleId
+     * @return string[]
+     */
+    public function getAllAccountNames($roleId)
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $query = $queryBuilder->select('a.login')
+            ->distinct()
+            ->from(UserRole::class, 'r')
+            ->innerJoin('r.accounts', 'a')
+            ->where('r.id = :roleId')
+            ->setParameter('roleId', $roleId)
+            ->getQuery();
+
+        return $query->getSingleColumnResult();
+    }
 }

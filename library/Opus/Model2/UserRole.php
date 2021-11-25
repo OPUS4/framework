@@ -186,6 +186,26 @@ class UserRole extends AbstractModel
     }
 
     /**
+     * Get a list of all account IDs for the current role instance.
+     *
+     * @return int[]
+     */
+    public function getAllAccountIds()
+    {
+        return self::getRepository()->getAllAccountIds($this->getId());
+    }
+
+    /**
+     * Get a list of all account login names for the current role instance.
+     *
+     * @return string[]
+     */
+    public function getAllAccountNames()
+    {
+        return self::getRepository()->getAllAccountNames($this->getId());
+    }
+
+    /**
      * Returns the relevant properties of the class
      *
      * @return array
