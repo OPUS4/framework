@@ -44,7 +44,6 @@ use Doctrine\ORM\ORMException;
  * @ORM\Entity(repositoryClass="Opus\Db2\UserRoleRepository")
  * @ORM\Table(name="user_roles")
  *
- * TODO implement Account relation
  * TODO decide how to handle access documents/files/modules
  */
 class UserRole extends AbstractModel
@@ -66,7 +65,7 @@ class UserRole extends AbstractModel
     private $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Account", mappedBy="$userRoles")
+     * @ORM\ManyToMany(targetEntity="Account", mappedBy="role")
      *
      * @var Collection|Account[]
      */
