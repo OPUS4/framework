@@ -44,6 +44,15 @@ use Doctrine\ORM\ORMException;
  */
 class Language extends AbstractModel
 {
+    public const PROPERTY_COMMENT = 'Comment';
+    public const PROPERTY_PART2B  = 'Part2B';
+    public const PROPERTY_PART2T  = 'Part2T';
+    public const PROPERTY_PART1   = 'Part1';
+    public const PROPERTY_SCOPE   = 'Scope';
+    public const PROPERTY_TYPE    = 'Type';
+    public const PROPERTY_REFNAME = 'RefName';
+    public const PROPERTY_ACTIVE  = 'Active';
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -300,12 +309,12 @@ class Language extends AbstractModel
      * Get properties of language object as array for a specific terminology code
      *
      * @param string $code ISO639-2 terminology code to retrieve properties for
-     * @return array|null Array of properties or null if object not found in database
+     * @return Language|null Language model or null if object not found in database
      * @throws ORMException
      */
-    public static function getPropertiesByPart2T($code)
+    public static function getLanguageByPart2T($code)
     {
-        return self::getRepository()->getPropertiesByPart2T($code);
+        return self::getRepository()->getLanguageByPart2T($code);
     }
 
     /**
@@ -372,6 +381,15 @@ class Language extends AbstractModel
      */
     protected static function describe()
     {
-        return ['Comment', 'Part2B', 'Part2T', 'Part1', 'Scope', 'Type', 'RefName', 'Active'];
+        return [
+            self::PROPERTY_COMMENT,
+            self::PROPERTY_PART2B,
+            self::PROPERTY_PART2T,
+            self::PROPERTY_PART1,
+            self::PROPERTY_SCOPE,
+            self::PROPERTY_TYPE,
+            self::PROPERTY_REFNAME,
+            self::PROPERTY_ACTIVE,
+        ];
     }
 }

@@ -91,9 +91,9 @@ class LanguageRepository extends EntityRepository
      * Get properties of language object as array for a specific terminology code
      *
      * @param string $code ISO639-2 terminology code to retrieve properties for
-     * @return Language|null Array of properties or null if object not found in database
+     * @return Language|null Language model or null if object not found in database
      */
-    public function getPropertiesByPart2T($code)
+    public function getLanguageByPart2T($code)
     {
         $language = $this->findOneBy(['part2T' => $code]);
         return $language instanceof Language ? $language : null;
@@ -125,10 +125,13 @@ class LanguageRepository extends EntityRepository
      */
     public function getLanguageCode($languageIdentifier, $part = null)
     {
-        $language = $this->getPropertiesByPart2T($languageIdentifier);
+        $language = $this->getLanguageByPart2T($languageIdentifier);
 
         if ($language instanceof Language) {
-            if ($part !== null && in_array($part, ['Part2B', 'Part2T', 'Part1'])) {
+            if (
+                $part !== null
+                && in_array($part, [Language::PROPERTY_PART2B, Language::PROPERTY_PART2T, Language::PROPERTY_PART1])
+            ) {
                 $code = $language->{"get" . $part}();
             }
 
