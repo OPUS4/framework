@@ -238,7 +238,35 @@ class Document extends AbstractModel
 
     protected static function describe()
     {
-        // TODO: Implement describe() method.
+        return [
+            'BelongsToBibliography',
+            'CompletedDate',
+            'CompletedYear',
+            'ContributingCorporation',
+            'CreatingCorporation',
+            'ThesisDateAccepted',
+            'ThesisYearAccepted',
+            'Edition',
+            'EmbargoDate',
+            'Issue',
+            'Language',
+            'PageFirst',
+            'PageLast',
+            'PageNumber',
+            'ArticleNumber',
+            'PublishedDate',
+            'PublishedYear',
+            'PublisherName',
+            'PublisherPlace',
+            'PublicationState',
+            'ServerDateCreated',
+            'ServerDateModified',
+            'ServerDatePublished',
+            'ServerDateDeleted',
+            'ServerState',
+            'Type',
+            'Volume',
+        ];
     }
 
     public function setDefaultPlugins($plugins)
