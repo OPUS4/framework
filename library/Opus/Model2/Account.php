@@ -39,6 +39,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\ORMException;
+use InvalidArgumentException;
 use Opus\Log;
 
 use function array_pop;
@@ -251,12 +252,25 @@ class Account extends AbstractModel
     }
 
     /**
-     * @return Collection|UserRole[]
+     * Returns the collection of UserRole instances related to this account, or just the role with the
+     * specified index.
+     *
+     * @param  null|int $index (Optional) The role's index in the role collection.
+     * @throws InvalidArgumentException If you try to access an index, that does not exist.
+     * @return Collection|UserRole[]|UserRole
      */
-    public function getRole()
+    public function getRole($index = null)
     {
-        // TODO getRole() must also be able to accept an index parameter, cf. Opus/Model/Field->getValue()
-        return $this->role;
+        $userRoles = $this->role;
+
+        if ($index !== null) {
+            if (! isset($userRoles[$index])) {
+                throw new InvalidArgumentException('Invalid index: ' . $index);
+            }
+            return $userRoles[$index];
+        }
+
+        return $userRoles;
     }
 
     /**

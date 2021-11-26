@@ -163,6 +163,32 @@ class AccountTest extends TestCase
     }
 
     /**
+     * Test fetching a role by index from an account.
+     */
+    public function testGetRoleByIndexFromAccount()
+    {
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $role = new UserRole();
+        $role->setName('role1');
+        $role->store();
+
+        $role2 = new UserRole();
+        $role2->setName('role2');
+        $role2->store();
+
+        $account->addRole($role);
+        $account->addRole($role2);
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy');
+        $role    = $account->getRole(1);
+
+        $this->assertInstanceOf(UserRole::class, $role);
+        $this->assertEquals('role2', $role->getName());
+    }
+
+    /**
      * Test removing a role from an account.
      */
     public function testRemoveRoleFromAccount()
