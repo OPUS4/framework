@@ -36,22 +36,23 @@
 namespace Opus\Db2;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\ORMException;
 use Opus\Model2\Language;
 
 use function array_merge;
 use function array_unique;
 use function in_array;
 
+/**
+ * Database specific class for Language functions.
+ *
+ * This class keeps the database (Doctrine) specific code out of the model class.
+ *
+ * TODO create LanguageRepositoryTest class - the tests for Language will be moved to opus4-common, so we need the tests
+ *      here
+ * TODO we probably need an interface - How would we replace this implementation with another (using MongoDB)?
+ */
 class LanguageRepository extends EntityRepository
 {
-    /**
-     * Cache used languages to reduce database queries.
-     *
-     * @var null|array
-     */
-    private static $usedLanguages;
-
     /**
      * Retrieve all Opus\Language instances from the database.
      *
@@ -143,36 +144,14 @@ class LanguageRepository extends EntityRepository
     }
 
     /**
-     * Checks if a language is being used in database.
-     *
-     * Language values are used in multiple tables:
-     * - document_licences
-     * - documents
-     * - document_files
-     * - document_subjects
-     * - document_title_abstracts
-     *
-     * @param string $language
-     * @return bool
-     * @throws ORMException
-     */
-    public function isUsed($language)
-    {
-        $languages = $this->getUsedLanguages();
-        return in_array($language, $languages);
-    }
-
-    /**
      * Returns all languages used in database.
+     *
+     * In order to check used language we need to look at multiple tables that contain a language column.
      *
      * @return array|null
      */
     public function getUsedLanguages()
     {
-        if (self::$usedLanguages !== null) {
-            return self::$usedLanguages;
-        }
-
         $tables = [
             'documents',
             'document_title_abstracts',
@@ -209,16 +188,6 @@ class LanguageRepository extends EntityRepository
             }
         }
 
-        self::$usedLanguages = array_unique($languages);
-
-        return self::$usedLanguages;
-    }
-
-    /**
-     * Removes cached values.
-     */
-    public static function clearCache()
-    {
-        self::$usedLanguages = null;
+        return array_unique($languages);
     }
 }
