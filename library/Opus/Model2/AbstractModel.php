@@ -41,24 +41,44 @@ use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\DbException;
+use Opus\Model\NotFoundException;
 
 use function in_array;
 
+/**
+ * Base class for OPUS 4 model classes.
+ *
+ * TODO define interface for basic model classes
+ * TODO toXml function
+ * TODO fromXml function
+ * TODO integrate Properties functionality, implement interface
+ * TODO move getId and $id to base class (here)
+ * TODO implement basic getDisplayName function ?
+ * TODO add new() function
+ */
 abstract class AbstractModel
 {
+    /** @var OpusEntityManager Object for accessing database connections/repositories */
     private static $entityManager;
 
     /**
      * @param int $modelId
      * @return self|null
      * @throws DbException
+     * @throws NotFoundException
      */
     public static function get($modelId)
     {
         try {
-            return self::getRepository()->findOneBy(['id' => $modelId]);
+            $model = self::getRepository()->findOneBy(['id' => $modelId]);
         } catch (Exception $e) {
             throw new DbException($e->getMessage());
+        }
+
+        if ($model === null) {
+            throw new NotFoundException('No ' . static::class . " with id $modelId in database.");
+        } else {
+            return $model;
         }
     }
 
@@ -122,6 +142,8 @@ abstract class AbstractModel
     }
 
     /**
+     * Returns a nested associative array representation of the model data.
+     *
      * @return array
      */
     public function toArray()
@@ -135,7 +157,14 @@ abstract class AbstractModel
     }
 
     /**
+     * Updates the model with the data from an array.
+     *
+     * New objects are created for values with a model class. If a link model class is specified those objects
+     * are created as well.
+     *
      * @param array $data
+     *
+     * TODO support updateFromArray for linked model objects (e.g. update Title object when updating Document)
      */
     public function updateFromArray($data)
     {
@@ -149,6 +178,8 @@ abstract class AbstractModel
     }
 
     /**
+     * Creates a new object and initializes it with data.
+     *
      * @param array $data
      * @return array
      */

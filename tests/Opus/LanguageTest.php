@@ -28,20 +28,15 @@
  *
  * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
-use Opus\Db2\Database;
 use Opus\Document;
 use Opus\File;
 use Opus\Licence;
 use Opus\Model\DbException;
+use Opus\Model\NotFoundException;
 use Opus\Model2\Language;
 use OpusTest\TestAsset\TestCase;
 
@@ -49,19 +44,12 @@ use function count;
 
 class LanguageTest extends TestCase
 {
-    public function tearDown()
-    {
-       // Due to the lack of a refresh/reset method for the entity manager we need to clear the language table
-       // TODO: Maybe the Codeception testing framework has a solution for a better handling of database cleanup.
-        $q = Database::getEntityManager()->createQuery("delete from " . Language::class);
-        $q->execute();
-    }
-
     public function setUp()
     {
         parent::setUp();
 
         $this->clearTables(false, [
+            'languages',
             'documents',
             'document_subjects',
             'document_files',
@@ -104,11 +92,15 @@ class LanguageTest extends TestCase
         $lang->setComment('test delete comment');
 
         $lang->store();
-        $id = $lang->getId();
+        $modelId = $lang->getId();
         $lang->delete();
-        $lang2 = Language::get($id);
 
-        $this->assertNull($lang2);
+        $this->setExpectedException(
+            NotFoundException::class,
+            'No ' . Language::class . " with id $modelId in database."
+        );
+
+        Language::get($modelId);
     }
 
     public function testGetAll()
