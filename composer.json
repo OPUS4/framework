@@ -18,7 +18,8 @@
     "opus4-repo/opus4-common": "dev-master",
     "opus4-repo/opus4-doi": "4.7.*",
     "doctrine/dbal": "2.13.*",
-    "doctrine/orm": "2.10.*"
+    "doctrine/orm": "2.10.*",
+    "doctrine/cache": "1.12.*"
   },
   "autoload": {
     "psr-4": {

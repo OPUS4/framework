@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Db2;
@@ -38,23 +34,54 @@ namespace Opus\Db2;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Tools\Setup;
 use Opus\Config;
 use Opus\Database as OpusDatabase;
 
+use function filter_var;
+
+use const FILTER_VALIDATE_BOOLEAN;
+
 /**
+ * This class encapsulates the code for getting objects for accessing the database.
+ *
  * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
  *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
+ *
+ * TODO should probably get an interface
+ * TODO What would happen to this class if we wanted to switch to MongoDB?
  */
 class Database
 {
     private static $conn;
 
+    /** @var EntityManager Need to cache the object, cannot ask for a new one during a process */
+    private static $entityManager;
+
     /**
-     * @return array
+     * Removes the cached EntityManager object.
+     *
+     * Used for testing.
+     *
+     * The caching is necessary within a process, a request or unit test. Apparently Doctrine doesn't cache the
+     * EntityManager, so a new EntityManager object doesn't know about the state of the previous one.
+     *
+     * This function is used to remove the old manager, when running unit tests, so each test will be independent.
+     * There doesn't seem to be a way to really "reset" the existing manager object.
+     */
+    public static function resetEntityManager()
+    {
+        self::$entityManager = null;
+    }
+
+    /**
+     * @return array Parameters for database connection
      */
     public static function getConnectionParams()
     {
-        $config = Config::get(); // TODO use function (no direkt class dependency)
+        $config = Config::get();
 
         if (isset($config->db->params)) {
             $dbConfig = $config->db->params;
@@ -81,8 +108,47 @@ class Database
             $params['pdo'] = $pdo;
 
             self::$conn = DriverManager::getConnection($params);
+
+            self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
         }
 
         return self::$conn;
+    }
+
+    /**
+     * Creates and caches an EntityManager object.
+     *
+     * During a process, the same EntityManager object should be used.
+     *
+     * @return EntityManager
+     * @throws ORMException
+     *
+     * TODO more specific than __DIR__? Why __DIR__?
+     * TODO evaluate, explain options
+     */
+    public static function getEntityManager()
+    {
+        $config = Config::get();
+
+        $isDevMode                 = filter_var($config->doctrine->devMode, FILTER_VALIDATE_BOOLEAN);
+        $proxyDir                  = null; // TODO What could go here?
+        $cache                     = null; // TODO What could go here?
+        $useSimpleAnnotationReader = false;
+
+        $config = Setup::createAnnotationMetadataConfiguration(
+            [__DIR__],
+            $isDevMode,
+            $proxyDir,
+            $cache,
+            $useSimpleAnnotationReader
+        );
+
+        $conn = self::getConnection();
+
+        if (self::$entityManager === null) {
+            self::$entityManager = EntityManager::create($conn, $config);
+        }
+
+        return self::$entityManager;
     }
 }

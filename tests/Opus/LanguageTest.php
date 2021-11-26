@@ -28,20 +28,16 @@
  *
  * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
 use Opus\Document;
 use Opus\File;
-use Opus\Language;
 use Opus\Licence;
 use Opus\Model\DbException;
+use Opus\Model\NotFoundException;
+use Opus\Model2\Language;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -73,7 +69,7 @@ class LanguageTest extends TestCase
         $lang->setComment('test comment');
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertNotNull($lang);
         $this->assertEquals('ger', $lang->getPart2B());
@@ -84,6 +80,27 @@ class LanguageTest extends TestCase
         $this->assertNull($lang->getScope());
         $this->assertNull($lang->getType());
         $this->assertEquals('0', $lang->getActive());
+    }
+
+    public function testDeleteLanguage()
+    {
+        $lang = new Language();
+        $lang->setPart2B('ger');
+        $lang->setPart2T('deu');
+        $lang->setPart1('de');
+        $lang->setRefName('German');
+        $lang->setComment('test delete comment');
+
+        $lang->store();
+        $modelId = $lang->getId();
+        $lang->delete();
+
+        $this->setExpectedException(
+            NotFoundException::class,
+            'No ' . Language::class . " with id $modelId in database."
+        );
+
+        Language::get($modelId);
     }
 
     public function testGetAll()
@@ -148,7 +165,7 @@ class LanguageTest extends TestCase
         $lang->setScope('I');
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertEquals('I', $lang->getScope());
     }
@@ -161,7 +178,7 @@ class LanguageTest extends TestCase
         $lang->setScope(null);
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertNull($lang->getScope());
     }
@@ -173,20 +190,13 @@ class LanguageTest extends TestCase
      */
     public function testSetScopeInvalid()
     {
+        $this->setExpectedExceptionRegExp(DbException::class, '/Data truncated for column \'scope\'/');
+
         $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setScope('X');
-
-        try {
-            $lang->store();
-        } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
-        }
-
-        $lang = new Language($lang->getId());
-
-        $this->assertEquals('', $lang->getScope());
+        $lang->store();
     }
 
     public function testSetType()
@@ -197,7 +207,7 @@ class LanguageTest extends TestCase
         $lang->setType('H');
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertEquals('H', $lang->getType());
     }
@@ -210,7 +220,7 @@ class LanguageTest extends TestCase
         $lang->setType(null);
         $lang->store();
 
-        $lang = new Language($lang->getId());
+        $lang = Language::get($lang->getId());
 
         $this->assertNull($lang->getType());
     }
@@ -222,20 +232,13 @@ class LanguageTest extends TestCase
      */
     public function testSetTypeInvalid()
     {
+        $this->setExpectedExceptionRegExp(DbException::class, '/Data truncated for column \'type\'/');
+
         $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setType('X');
-
-        try {
-            $lang->store();
-        } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
-        }
-
-        $lang = new Language($lang->getId());
-
-        $this->assertEquals('', $lang->getType());
+        $lang->store();
     }
 
     public function testGetPart2tForPart1()
@@ -270,34 +273,35 @@ class LanguageTest extends TestCase
         $lang->setType('L');
         $lang->setScope('I');
         $lang->setComment('Deutsche Sprache');
+        $lang->store();
 
-        $lang = new Language($lang->store());
+        $lang = Language::get($lang->getId());
 
         $data = $lang->toArray();
 
         $this->assertEquals([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
+            Language::PROPERTY_COMMENT => 'Deutsche Sprache',
+            Language::PROPERTY_PART2B  => 'ger',
+            Language::PROPERTY_PART2T  => 'deu',
+            Language::PROPERTY_PART1   => 'de',
+            Language::PROPERTY_SCOPE   => 'I',
+            Language::PROPERTY_TYPE    => 'L',
+            Language::PROPERTY_REFNAME => 'German',
+            Language::PROPERTY_ACTIVE  => 1,
         ], $data);
     }
 
     public function testFromArray()
     {
         $lang = Language::fromArray([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
+            Language::PROPERTY_COMMENT => 'Deutsche Sprache',
+            Language::PROPERTY_PART2B  => 'ger',
+            Language::PROPERTY_PART2T  => 'deu',
+            Language::PROPERTY_PART1   => 'de',
+            Language::PROPERTY_SCOPE   => 'I',
+            Language::PROPERTY_TYPE    => 'L',
+            Language::PROPERTY_REFNAME => 'German',
+            Language::PROPERTY_ACTIVE  => 1,
         ]);
 
         $this->assertNotNull($lang);
@@ -317,14 +321,14 @@ class LanguageTest extends TestCase
         $lang = new Language();
 
         $lang->updateFromArray([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
+            Language::PROPERTY_COMMENT => 'Deutsche Sprache',
+            Language::PROPERTY_PART2B  => 'ger',
+            Language::PROPERTY_PART2T  => 'deu',
+            Language::PROPERTY_PART1   => 'de',
+            Language::PROPERTY_SCOPE   => 'I',
+            Language::PROPERTY_TYPE    => 'L',
+            Language::PROPERTY_REFNAME => 'German',
+            Language::PROPERTY_ACTIVE  => 1,
         ]);
 
         $this->assertNotNull($lang);
@@ -344,14 +348,14 @@ class LanguageTest extends TestCase
         $lang = new Language();
 
         $lang->updateFromArray([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
+            Language::PROPERTY_COMMENT => 'Deutsche Sprache',
+            Language::PROPERTY_PART2B  => 'ger',
+            Language::PROPERTY_PART2T  => 'deu',
+            Language::PROPERTY_PART1   => 'de',
+            Language::PROPERTY_SCOPE   => 'I',
+            Language::PROPERTY_TYPE    => 'L',
+            Language::PROPERTY_REFNAME => 'German',
+            Language::PROPERTY_ACTIVE  => 1,
         ]);
 
         $lang->store();
@@ -365,19 +369,19 @@ class LanguageTest extends TestCase
         $lang = new Language();
 
         $lang->updateFromArray([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
+            Language::PROPERTY_COMMENT => 'Deutsche Sprache',
+            Language::PROPERTY_PART2B  => 'ger',
+            Language::PROPERTY_PART2T  => 'deu',
+            Language::PROPERTY_PART1   => 'de',
+            Language::PROPERTY_SCOPE   => 'I',
+            Language::PROPERTY_TYPE    => 'L',
+            Language::PROPERTY_REFNAME => 'German',
+            Language::PROPERTY_ACTIVE  => 1,
         ]);
 
         $lang->store();
 
-        $this->assertEquals('de', Language::getLanguageCode('deu', 'part1'));
+        $this->assertEquals('de', Language::getLanguageCode('deu', Language::PROPERTY_PART1));
     }
 
     public function testGetUsedLanguages()
@@ -515,14 +519,14 @@ class LanguageTest extends TestCase
         $lang = new Language();
 
         $lang->updateFromArray([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
+            Language::PROPERTY_COMMENT => 'Deutsche Sprache',
+            Language::PROPERTY_PART2B  => 'ger',
+            Language::PROPERTY_PART2T  => 'deu',
+            Language::PROPERTY_PART1   => 'de',
+            Language::PROPERTY_SCOPE   => 'I',
+            Language::PROPERTY_TYPE    => 'L',
+            Language::PROPERTY_REFNAME => 'German',
+            Language::PROPERTY_ACTIVE  => 1,
         ]);
 
         $lang->store();
