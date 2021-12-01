@@ -43,7 +43,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="Opus\Db2\UserRoleRepository")
  * @ORM\Table(name="user_roles")
  *
- * TODO decide how to handle access documents/files/modules
+ * TODO Decide how to handle access documents/files/modules
+ * TODO Check whether it's really necessary to specify the inverse relationship of Account->role (i.e.,
+ *      UserRole->accounts & its supporting methods getAccounts(), setAccounts(), addAccount() & removeAccount()).
  */
 class UserRole extends AbstractModel
 {
