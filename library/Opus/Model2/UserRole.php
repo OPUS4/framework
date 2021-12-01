@@ -38,7 +38,6 @@ namespace Opus\Model2;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\ORMException;
 
 /**
  * @ORM\Entity(repositoryClass="Opus\Db2\UserRoleRepository")
@@ -154,7 +153,6 @@ class UserRole extends AbstractModel
      * Retrieve all UserRole instances from the database.
      *
      * @return self[]
-     * @throws ORMException
      */
     public static function getAll()
     {
