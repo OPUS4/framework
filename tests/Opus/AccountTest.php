@@ -163,6 +163,32 @@ class AccountTest extends TestCase
     }
 
     /**
+     * Test setting the roles of an account from a single given UserRole object.
+     */
+    public function testSetRoleOfAccountFromSingleObject()
+    {
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $role = new UserRole();
+        $role->setName('role1');
+        $role->store();
+
+        $account->setRole($role);
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy');
+        $roles   = $account->getRole();
+
+        $this->assertNotNull($roles);
+        $this->assertEquals(1, count($roles));
+
+        $role = $roles->first();
+
+        $this->assertInstanceOf(UserRole::class, $role);
+        $this->assertEquals('role1', $role->getName());
+    }
+
+    /**
      * Test fetching a role by index from an account.
      */
     public function testGetRoleByIndexFromAccount()

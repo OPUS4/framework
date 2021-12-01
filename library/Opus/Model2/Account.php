@@ -273,11 +273,16 @@ class Account extends AbstractModel
     }
 
     /**
-     * @param Collection|UserRole[] $roles
+     * Sets the collection of UserRole instances related to this account. Also accepts a single UserRole object.
+     *
+     * @param Collection|UserRole[]|UserRole $roles
      */
     public function setRole($roles)
     {
-        // TODO setRole() must also be able to accept a single UserRole object, cf. Opus/Model/Field->setValue()
+        if (! is_array($roles)) {
+            $roles = [$roles];
+        }
+
         $this->role = $roles;
     }
 
