@@ -43,8 +43,12 @@
 namespace Opus\Model2;
 
 use BadMethodCallException;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
+use http\Exception\InvalidArgumentException;
 use Opus\Date;
 use Opus\Model\ModelException;
 
@@ -226,7 +230,21 @@ class Document extends AbstractModel
      */
     private $volume;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Title", mappedBy="document", cascade={"persist"})
+     * @var Collection|Title[]
+     */
+    private $titles;
+
+    // FIXME: Taken from the original document class due to a dependency on DocumentTest
     private static $defaultPlugins;
+
+    /**
+     * Document constructor.
+     */
+    public function __construct() {
+        $this->titles = new ArrayCollection();
+    }
 
     /**
      * @return int
@@ -321,5 +339,246 @@ class Document extends AbstractModel
                 throw new ModelException('Unknown accessor function: ' . $accessor);
                 break;
         }
+    }
+
+    /**
+     * Generic method for getting titles used by the specific title type methods, e.g. getTitleMain()
+     * Returns the collection of title instances related to this document, or just the title with the
+     * specified index.
+     *
+     * @param string   $type The title type: 'main','parent','abstract','sub','additional'
+     * @param null|int $index (Optional) The title's index in the title collection of the given type.
+     * @return Title|Title[]
+     */
+    private function getTitle($type, $index = null)
+    {
+        // We want only titles of the given type
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->eq("type", $type))
+            ->orderBy(["id" => Criteria::ASC])
+            ->setFirstResult(0);
+
+        $titles = $this->titles->matching($criteria);
+
+        if ($index !== null) {
+            if (! isset($titles[$index])) {
+                throw new InvalidArgumentException('Invalid index: ' . $index);
+            }
+            return $titles[$index];
+        }
+
+        return $titles->toArray();
+    }
+
+    /**
+     * Returns the collection of title instances of the type main related to this document,
+     * or just the title with the specified index.
+     *
+     * @param int|null $index
+     * @return Title|Title[]
+     */
+    public function getTitleMain($index = null)
+    {
+        return $this->getTitle(Title::TYPE_MAIN, $index);
+    }
+
+    /**
+     * Returns the collection of title instances  of the type parent related to this document,
+     * or just the title with the specified index.
+     *
+     * @param int|null $index
+     * @return Title|Title[]
+     */
+    public function getTitleParent($index = null)
+    {
+        return $this->getTitle(Title::TYPE_PARENT, $index);
+    }
+
+    /**
+     * Returns the collection of title instances  of the type sub related to this document,
+     * or just the title with the specified index
+     *
+     * @param int|null $index
+     * @return Title|Title[]
+     */
+    public function getTitleSub($index = null)
+    {
+        return $this->getTitle(Title::TYPE_SUB, $index);
+    }
+
+    /**
+     * Returns the collection of title instances  of the type additional related to this document,
+     * or just the title with the specified index.
+     *
+     * @param int|null $index
+     * @return Title[]
+     */
+    public function getTitleAdditional($index = null)
+    {
+        return $this->getTitle(Title::TYPE_ADDITIONAL, $index);
+    }
+
+    /**
+     * Returns the collection of title instances  of the type abstract related to this document,
+     * or just the title with the specified index.
+     *
+     * @param int|null $index
+     * @return Title|Title[]
+     */
+    public function getTitleAbstract($index = null)
+    {
+        return $this->getTitle(Title::TYPE_ABSTRACT, $index);
+    }
+
+    /**
+     * Generic method for adding titles used by the specific title type methods, e.g. addTitleMain()
+     *
+     * @param string $type The title type: 'main','parent','abstract','sub','additional'
+     * @param Title|null
+     * @return Title
+     */
+    private function addTitle($type, $title = null)
+    {
+        if ($title === null) {
+            $title = new Title($type);
+        }
+
+        if (!$this->titles->contains($title)) {
+            $this->titles->add($title);
+            // In doctrine we have to set the associated document explicitly
+            // TODO: Is there a better way where we do not need a setDocument method in the title class.
+            $title->setDocument($this);
+        }
+
+        return $title;
+    }
+
+    /**
+     * Adds a title of the type main
+     *
+     * @param Title|null $title
+     * @return Title
+     */
+    public function addTitleMain($title = null)
+    {
+        return $this->addTitle(Title::TYPE_MAIN, $title);
+    }
+
+    /**
+     * Adds a title of the type main
+     *
+     * @param Title|null $title
+     * @return Title
+     */
+    public function addTitleParent($title = null)
+    {
+        return $this->addTitle(Title::TYPE_PARENT, $title);
+    }
+
+    /**
+     * Adds a title of the type sub
+     *
+     * @param Title|null $title
+     * @return Title
+     */
+    public function addTitleSub($title = null)
+    {
+        return $this->addTitle(Title::TYPE_SUB, $title);
+    }
+
+    /**
+     * Adds a title of the type additional
+     *
+     * @param Title|null $title
+     * @return Title
+     */
+    public function addTitleAdditional($title = null)
+    {
+        return $this->addTitle(Title::TYPE_ADDITIONAL, $title);
+    }
+
+    /**
+     * Adds a title of the type abstract
+     *
+     * @param Title|null $title
+     * @return Title
+     */
+    public function addTitleAbstract($title = null)
+    {
+        return $this->addTitle(Title::TYPE_ABSTRACT, $title);
+    }
+
+    /**
+     * Generic method for setting titles used by the specific title type methods, e.g. setTitleMain()
+     *
+     * @param string        $type The title type: 'main','parent','abstract','sub','additional'
+     * @param Title|Title[] $title
+     */
+    protected function setTitle($type, $title)
+    {
+        $titles = $this->getTitle($type);
+
+        foreach ($titles as $element) {
+            $this->titles->removeElement($element);
+            $element->setDocument(null);
+        }
+
+        if ($title instanceof Title) {
+            $this->addTitle($type, $title);
+        } elseif (is_array($title)) {
+            foreach ($title as $newTitle) {
+                $this->addTitle($type, $newTitle);
+            }
+        }
+    }
+
+    /**
+     * Sets title/titles of the type main
+     *
+     * @param Title|Title[] $title
+     */
+    public function setTitleMain($title)
+    {
+        $this->setTitle(Title::TYPE_MAIN, $title);
+    }
+
+    /**
+     * Sets title/titles of the type parent
+     *
+     * @param Title|Title[] $title
+     */
+    public function setTitleParent($title)
+    {
+        $this->setTitle(Title::TYPE_MAIN, $title);
+    }
+
+    /**
+     * Sets title/titles of the type abstract
+     *
+     * @param Title|Title[] $title
+     */
+    public function setTitleAbstract($title)
+    {
+        $this->setTitle(Title::TYPE_MAIN, $title);
+    }
+
+    /**
+     * Sets title/titles of the type sub
+     *
+     * @param Title|Title[] $title
+     */
+    public function setTitleSub($title)
+    {
+        $this->setTitle(Title::TYPE_MAIN, $title);
+    }
+
+    /**
+     * Sets title/titles of the type additional
+     *
+     * @param Title|Title[] $title
+     */
+    public function setTitleAdditional($title)
+    {
+        $this->setTitle(Title::TYPE_MAIN, $title);
     }
 }
