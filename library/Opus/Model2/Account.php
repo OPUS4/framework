@@ -279,7 +279,7 @@ class Account extends AbstractModel
      */
     public function setRole($roles)
     {
-        if (! is_array($roles)) {
+        if ($roles instanceof UserRole) {
             $roles = [$roles];
         }
 
