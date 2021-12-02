@@ -31,11 +31,13 @@
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
+use Opus\Model\DbConstrainViolationException;
 use Opus\Model\ModelException;
 use Opus\Model2\AbstractModel;
 
@@ -72,6 +74,10 @@ class OpusEntityManager
             $entityManager->persist($entity);
             $entityManager->flush();
             $entityManager->commit();
+        } catch (UniqueConstraintViolationException $e) {
+            $entityManager->rollback();
+            // FIXME: We seem to reach this point but throwing the following exception fails.
+            throw new DbConstrainViolationException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             $entityManager->rollback();
             throw $e;

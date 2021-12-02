@@ -38,7 +38,7 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\Licence;
+use Opus\Model2\Licence;
 use Opus\Model\DbConstrainViolationException;
 use Opus\Model\Xml\Cache;
 use OpusTest\TestAsset\TestCase;
@@ -164,7 +164,7 @@ class LicenceTest extends TestCase
         $licence->setLinkLicence('link');
         $licenceId = $licence->store();
 
-        $licence = new Licence($licenceId);
+        $licence = Licence::get($licenceId);
 
         $this->assertEquals('Short name', $licence->getName());
         $this->assertEquals('Long name', $licence->getNameLong());
