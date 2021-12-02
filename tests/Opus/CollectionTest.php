@@ -43,7 +43,7 @@ use InvalidArgumentException;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Config;
-use Opus\Db\Collections;
+use Opus\Db2\Collections;
 use Opus\Document;
 use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
@@ -1235,14 +1235,12 @@ class CollectionTest extends TestCase
     {
         $table = new Collections();
 
-        $select = $table->select()->where('role_id = ?', 1)->order('left_id ASC');
-
-        $rows = $table->fetchAll($select);
+        $rows = $table->getNodesByTreeId(1);
 
         $this->assertEquals(14, count($rows));
 
-        $this->assertEquals(1, $rows[0]->left_id);
-        $this->assertEquals(28, $rows[0]->right_id);
+        $this->assertEquals(1, $rows[0]["left_id"]);
+        $this->assertEquals(28, $rows[0]["right_id"]);
 
         $validator = new NestedSetValidator($table);
 

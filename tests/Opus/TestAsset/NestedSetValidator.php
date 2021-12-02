@@ -35,7 +35,7 @@
 
 namespace OpusTest\TestAsset;
 
-use Opus\Db\NestedSet;
+use Opus\Db2\NestedSet;
 use Opus\LoggingTrait;
 use Opus\Model\ModelException;
 
@@ -81,8 +81,7 @@ class NestedSetValidator
      */
     public function validate($rootId)
     {
-        $select        = $this->table->select()->where('id = ?', $rootId);
-        $node          = $this->table->fetchRow($select);
+        $node          = $this->table->getNodeById($rootId);
         $this->counter = (int) $node['left_id'];
         return $this->validateNode($rootId); // root node
     }
@@ -97,8 +96,7 @@ class NestedSetValidator
     {
         $logger = $this->getLogger();
 
-        $select  = $this->table->select()->where('id = ?', $nodeId);
-        $node    = $this->table->fetchRow($select);
+        $node    = $this->table->getNodeById($nodeId);
         $leftId  = $node['left_id'];
         $rightId = $node['right_id'];
 
@@ -121,11 +119,7 @@ class NestedSetValidator
             // node
             if ($distance & 1) {
                 // odd; valid
-                $selectChildren = $this->table->select()->where(
-                    'parent_id  = ?',
-                    $nodeId
-                )->order('left_id ASC');
-                 $children      = $this->table->fetchAll($selectChildren);
+                $children = $this->table->getChildrenById($nodeId);
                 foreach ($children as $child) {
                     if ($this->validateNode($child['id']) === false) {
                         return false;
