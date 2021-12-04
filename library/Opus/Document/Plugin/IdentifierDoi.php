@@ -103,7 +103,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListenerI
             return;
         }
 
-        if ($doc != null && $doc->getServerState() === 'deleted') {
+        if ($doc != null && $doc->getServerState() === Document::STATE_DELETED) {
             $this->handleDeleteEvent($doc);
         }
     }
@@ -116,7 +116,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListenerI
      */
     public function serverStateChanged($document)
     {
-        if ($document != null && $document->getServerState() === 'deleted') {
+        if ($document != null && $document->getServerState() === Document::STATE_DELETED) {
             $this->handleDeleteEvent($document);
         }
     }
