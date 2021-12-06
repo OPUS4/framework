@@ -230,8 +230,8 @@ class UserRoleTest extends TestCase
         $list2 = $role2->getAllAccountIds();
         $this->assertEquals(2, count($list2));
 
-        $this->assertContains($accountId2, $list);
-        $this->assertContains($accountId3, $list);
+        $this->assertContains($accountId2, $list2);
+        $this->assertContains($accountId3, $list2);
     }
 
     public function testGetAllAccountNamesEmpty()
