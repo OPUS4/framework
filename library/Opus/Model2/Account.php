@@ -151,8 +151,6 @@ class Account extends AbstractModel
      */
     public function setLogin($login)
     {
-        $login = $this->convertToScalar($login);
-
         // TODO: validate $login
 //        $loginField = $this->getField('Login');
 //        if ($loginField->getValidator()->isValid($login) === false) {
@@ -178,7 +176,6 @@ class Account extends AbstractModel
      */
     public function setPassword($password)
     {
-        $password       = $this->convertToScalar($password);
         $this->password = sha1($password);
     }
 
@@ -335,26 +332,6 @@ class Account extends AbstractModel
     public static function fetchAccountByLogin($login = null)
     {
         return self::getRepository()->fetchByLogin($login);
-    }
-
-    /**
-     * Convert array parameter into scalar.
-     *
-     * The FormBuilder provides an array. The setValue method can handle it, but
-     * the validation and the sha1 function throw an exception.
-     *
-     * @param mixed $value
-     * @return scalar
-     */
-    protected function convertToScalar($value)
-    {
-        if (true === is_array($value) && 1 === count($value)) {
-            $value = array_pop($value);
-        } elseif (true === is_array($value) && 0 === count($value)) {
-            $value = null;
-        }
-
-        return $value;
     }
 
     /**
