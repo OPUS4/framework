@@ -111,7 +111,7 @@ class AccountTest extends TestCase
     /**
      * Test adding a role to an account.
      */
-    public function testAddRoleToAccount()
+    public function testAddRole()
     {
         $account = Account::fetchAccountByLogin('dummy');
 
@@ -137,7 +137,7 @@ class AccountTest extends TestCase
     /**
      * Test setting the roles of an account.
      */
-    public function testSetRoleOfAccount()
+    public function testSetRole()
     {
         $account = Account::fetchAccountByLogin('dummy');
 
@@ -165,7 +165,7 @@ class AccountTest extends TestCase
     /**
      * Test setting the roles of an account from a single given UserRole object.
      */
-    public function testSetRoleOfAccountFromSingleObject()
+    public function testSetRoleSingleObjectParameter()
     {
         $account = Account::fetchAccountByLogin('dummy');
 
@@ -191,7 +191,7 @@ class AccountTest extends TestCase
     /**
      * Test fetching a role by index from an account.
      */
-    public function testGetRoleByIndexFromAccount()
+    public function testGetRoleWithIndexParameter()
     {
         $account = Account::fetchAccountByLogin('dummy');
 
@@ -217,7 +217,7 @@ class AccountTest extends TestCase
     /**
      * Test removing a role from an account.
      */
-    public function testRemoveRoleFromAccount()
+    public function testRemoveRole()
     {
         $account = Account::fetchAccountByLogin('dummy');
 
@@ -248,16 +248,14 @@ class AccountTest extends TestCase
         $this->assertEquals('role2', $roles[0]->getName());
     }
 
-    public function testPasswordIsCorrect()
+    public function testIsPasswordCorrect()
     {
         $account = new Account();
         $account->setLogin('dummy4');
         $account->setPassword('dummypassword');
         $account->store();
 
-        $isPasswordCorrect = $account->isPasswordCorrect('dummypassword');
-
-        $this->assertTrue($isPasswordCorrect, 'Password is not "dummypassword"');
+        $this->assertTrue($account->isPasswordCorrect('dummypassword'));
     }
 
     public function testSetPasswordDirectly()
