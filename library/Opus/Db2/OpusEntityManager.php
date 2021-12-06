@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Db2;
@@ -45,6 +41,11 @@ use Opus\Model2\AbstractModel;
 
 use function get_class;
 
+/**
+ * This class isolates the model classes from Doctrine classes.
+ *
+ * TODO remove Opus from the name, find a better name
+ */
 class OpusEntityManager
 {
     /**
@@ -54,6 +55,9 @@ class OpusEntityManager
      * @return int
      * @throws ORMException
      * @throws OptimisticLockException
+     *
+     * TODO we need the transaction handling here or does the Doctrine EntityManager do the job? How about it
+     *      additional database operations we might want to perform as part of the same transaction?
      */
     public function store($entity)
     {
@@ -67,13 +71,11 @@ class OpusEntityManager
         try {
             $entityManager->persist($entity);
             $entityManager->flush();
+            $entityManager->commit();
         } catch (Exception $e) {
             $entityManager->rollback();
             throw $e;
         }
-
-        // commit transaction
-        $entityManager->commit();
 
         // TODO: post store?
 
@@ -119,6 +121,11 @@ class OpusEntityManager
     }
 
     /**
+     * Returns a repository object for an entity, a OPUS 4 model class.
+     *
+     * The actual repository returned depends on the configuration of the entity class. We are using custom
+     * repository implementations for some models with additional functions accessing the database.
+     *
      * @param string $entityName
      * @return ObjectRepository|EntityRepository
      * @throws ORMException

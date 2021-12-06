@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,15 +25,19 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+/**
+ * This script is used for testing purposes during the Doctine development. So far
+ * it has no purpose for production systems.
+ *
+ * TODO document purpose and usage - What can we do with this for OPUS 4?
+ */
+
 require_once "tests/Bootstrap.php";
 
-$entityManager = \Opus\Db2\Database::getEntityManager();
+$entityManager = Opus\Db2\Database::getEntityManager();
 
-return \Doctrine\ORM\Tools\Console\ConsoleRunner::createHelperSet($entityManager);
+return Doctrine\ORM\Tools\Console\ConsoleRunner::createHelperSet($entityManager);

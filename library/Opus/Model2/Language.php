@@ -27,18 +27,34 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model2;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\ORMException;
+
+use function in_array;
 
 /**
+ * Model class for languages in OPUS 4.
+ *
+ * Documents, titles and other data have language attributes. The languages stored in the OPUS 4 database are a
+ * reference for all the languages, that can be used within a OPUS 4 repository, with all there describing attributes
+ * and codes. The language entities are not linked to other object using foreign keys. Other objects use string values
+ * to specify the language used. So the stored languages are really just "configuration".
+ *
+ * TODO field Part2T is mandatory - enforcement in model? tests?
+ * TODO field RefName is mandatory - enforcement in model? tests?
+ *
+ * TODO is there a source for all the language information, so it does not need to be managed within the OPUS 4
+ *      database?
+ * TODO since Language objects are not linked to other objects using foreign keys, the list of languages could also
+ *      be managed as a configuration file.
+ *
+ * TODO disable caching ?
+ * TODO define allowed types as constants ? use full names, so the meaning becomes clear
+ * TODO define allowed scopes as constants ? use full names, so the meaning becomes clear
+ *
  * @ORM\Entity(repositoryClass="Opus\Db2\LanguageRepository")
  * @ORM\Table(name="languages")
  */
@@ -54,9 +70,22 @@ class Language extends AbstractModel
     public const PROPERTY_ACTIVE  = 'Active';
 
     /**
+     * Cache used languages to reduce database queries.
+     *
+     * This caching happens because it is assumed that the operation to determine the used languages is
+     * expensive and it might be used multiple times during a request to OPUS 4. The current implementation
+     * requires multiple database queries.
+     *
+     * @var null|array
+     */
+    private static $usedLanguages;
+
+    /**
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
+     *
+     * TODO is it possible to force an ID, not a generated value, for instance for importing the master data?
      *
      * @var int
      */
@@ -127,14 +156,6 @@ class Language extends AbstractModel
     }
 
     /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
      * @return string
      */
     public function getPart2B()
@@ -191,6 +212,8 @@ class Language extends AbstractModel
     }
 
     /**
+     * TODO throw IllegalArgumentException if invalid value?
+     *
      * @param string $scope
      */
     public function setScope($scope)
@@ -207,6 +230,8 @@ class Language extends AbstractModel
     }
 
     /**
+     * TODO throw IllegalArgumentException if invalid value?
+     *
      * @param string $type
      */
     public function setType($type)
@@ -276,7 +301,6 @@ class Language extends AbstractModel
      * Retrieve all Opus\Language instances from the database.
      *
      * @return array Array of Opus\Language objects.
-     * @throws ORMException
      */
     public static function getAll()
     {
@@ -287,7 +311,6 @@ class Language extends AbstractModel
      * Get all active languages.
      *
      * @return array Array of Opus\Language objects which are active.
-     * @throws ORMException
      */
     public static function getAllActive()
     {
@@ -298,7 +321,6 @@ class Language extends AbstractModel
      * Get all active languages.
      *
      * @return array Array of Opus\Language objects which are active.
-     * @throws ORMException
      */
     public static function getAllActiveTable()
     {
@@ -309,8 +331,7 @@ class Language extends AbstractModel
      * Get properties of language object as array for a specific terminology code
      *
      * @param string $code ISO639-2 terminology code to retrieve properties for
-     * @return Language|null Language model or null if object not found in database
-     * @throws ORMException
+     * @return self|null Language model or null if object not found in database
      */
     public static function getLanguageByPart2T($code)
     {
@@ -322,7 +343,6 @@ class Language extends AbstractModel
      *
      * @param string $locale
      * @return null|string
-     * @throws ORMException
      */
     public static function getPart2tForPart1($locale)
     {
@@ -335,7 +355,6 @@ class Language extends AbstractModel
      * @param string      $language Internal language identifier (e.g. 'deu')
      * @param null|string $part string Field to use for language code
      * @return string Language code
-     * @throws ORMException
      */
     public static function getLanguageCode($language, $part = null)
     {
@@ -345,33 +364,36 @@ class Language extends AbstractModel
     /**
      * Checks if a language is being used in database.
      *
-     * @return mixed
-     * @throws ORMException
+     * @return bool
      */
     public function isUsed()
     {
-        return self::getRepository()->isUsed($this->getPart2T());
+        $languages = $this->getUsedLanguages();
+        return in_array($this->getPart2T(), $languages);
     }
 
     /**
      * Returns all languages used in database.
      *
      * @return mixed
-     * @throws ORMException
      */
     public static function getUsedLanguages()
     {
-        return self::getRepository()->getUsedLanguages();
+        if (self::$usedLanguages === null) {
+            self::$usedLanguages = self::getRepository()->getUsedLanguages();
+        }
+
+        return self::$usedLanguages;
     }
 
     /**
-     * Removes cached values.
+     * Removes cached values for used languages.
      *
-     * @throws ORMException
+     * TODO used for testing - alternative solution? Using Reflection?
      */
     public static function clearCache()
     {
-        self::getRepository()->clearCache();
+        self::$usedLanguages = null;
     }
 
     /**

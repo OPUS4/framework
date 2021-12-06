@@ -179,6 +179,8 @@ class TestCase extends AbstractSimpleTestCase
     protected function setUp()
     {
         parent::setUp();
+
+        // Test are running in the same process, EntityManager needs to be reset to make them independent
         Database::resetEntityManager();
     }
 
