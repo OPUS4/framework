@@ -128,7 +128,7 @@ class AccountTest extends TestCase
         $this->assertNotNull($roles);
         $this->assertEquals(1, count($roles));
 
-        $role = $roles->first();
+        $role = $roles[0];
 
         $this->assertInstanceOf(UserRole::class, $role);
         $this->assertEquals('role1', $role->getName());
@@ -156,7 +156,7 @@ class AccountTest extends TestCase
         $this->assertNotNull($roles);
         $this->assertEquals(1, count($roles));
 
-        $role = $roles->first();
+        $role = $roles[0];
 
         $this->assertInstanceOf(UserRole::class, $role);
         $this->assertEquals('role1', $role->getName());
@@ -182,7 +182,7 @@ class AccountTest extends TestCase
         $this->assertNotNull($roles);
         $this->assertEquals(1, count($roles));
 
-        $role = $roles->first();
+        $role = $roles[0];
 
         $this->assertInstanceOf(UserRole::class, $role);
         $this->assertEquals('role1', $role->getName());
@@ -245,7 +245,7 @@ class AccountTest extends TestCase
         $roles   = $account->getRole();
 
         $this->assertEquals(1, count($roles));
-        $this->assertEquals('role2', $roles->first()->getName());
+        $this->assertEquals('role2', $roles[0]->getName());
     }
 
     public function testPasswordIsCorrect()

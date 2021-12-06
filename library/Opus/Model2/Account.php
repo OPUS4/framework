@@ -269,7 +269,8 @@ class Account extends AbstractModel
             return $userRoles[$index];
         }
 
-        return $userRoles;
+        // necessary to get index keys starting at 0 without gaps (not guaranteed with ArrayCollection)
+        return array_values($userRoles->toArray());
     }
 
     /**
