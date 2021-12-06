@@ -61,16 +61,11 @@ class UserRoleRepository extends EntityRepository
      */
     public function fetchByName($name = null)
     {
-        if (false === isset($name)) {
+        if ($name === null) {
             return null;
         }
 
-        $userRole = $this->findOneBy(['name' => $name]);
-        if (isset($userRole)) {
-            return $userRole;
-        }
-
-        return null;
+        return $this->findOneBy(['name' => $name]);
     }
 
     /**
