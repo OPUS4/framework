@@ -8,11 +8,12 @@
  *
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
- * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library -
- * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg University of Technology with funding from
- * the German Research Foundation and the European Regional Development Fund.
+ * Baden-Wuerttemberg, the North Rhine-Westphalian Library Service Center,
+ * the Cooperative Library Network Berlin-Brandenburg, the Saarland University
+ * and State Library, the Saxon State Library - Dresden State and University
+ * Library, the Bielefeld University Library and the University Library of
+ * Hamburg University of Technology with funding from the German Research
+ * Foundation and the European Regional Development Fund.
  *
  * LICENCE
  * OPUS is free software; you can redistribute it and/or modify it under the
@@ -27,10 +28,6 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model2;
@@ -272,6 +269,7 @@ class Account extends AbstractModel
         }
 
         // necessary to get index keys starting at 0 without gaps (not guaranteed with ArrayCollection)
+        // TODO is there a better way, so we don't have to do it every time?
         return array_values($userRoles->toArray());
     }
 
