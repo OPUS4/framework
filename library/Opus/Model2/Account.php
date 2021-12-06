@@ -41,6 +41,8 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Opus\Log;
 
+use Opus\Model\DbException;
+use Opus\Security\SecurityException;
 use function array_pop;
 use function count;
 use function is_array;
@@ -408,6 +410,32 @@ class Account extends AbstractModel
         $name .= $lastName;
 
         return $name;
+    }
+
+    /**
+     * Stores Account after extra validations.
+     *
+     * @return int|void
+     * @throws SecurityException
+     */
+    public function store()
+    {
+        // TODO check validity of model (login and password requirements)
+
+        // New object, check if login already exists
+        if ($this->getId() === null) {
+            $existingAccount = static::fetchAccountByLogin($this->getLogin());
+            if ($existingAccount !== null) {
+                throw new SecurityException('Account with login name ' . $this->getLogin() . ' already exists.');
+            }
+        }
+
+        try {
+            return parent::store();
+        }
+        catch (DbException $dbException) {
+            throw new SecurityException($dbException);
+        }
     }
 
     /**

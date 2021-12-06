@@ -34,9 +34,9 @@
 
 namespace OpusTest;
 
-use Opus\Model\DbException;
 use Opus\Model2\Account;
 use Opus\Model2\UserRole;
+use Opus\Security\SecurityException;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -86,9 +86,8 @@ class AccountTest extends TestCase
 
         $account = new Account();
         $account->setLogin('dummy3');
-        $account->setPassword('dummypassword');
 
-        $this->setExpectedException(DbException::class);
+        $this->setExpectedException(SecurityException::class, 'already exists');
         $account->store();
     }
 
