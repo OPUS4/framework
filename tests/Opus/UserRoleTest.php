@@ -200,7 +200,7 @@ class UserRoleTest extends TestCase
         $account = new Account();
         $account->setLogin('dummy-01');
         $account->setPassword('dummypassword');
-        $account->store();
+        $accountId1 = $account->store();
 
         $role->addAccount($account);
         $role->store();
@@ -212,12 +212,12 @@ class UserRoleTest extends TestCase
         $account2 = new Account();
         $account2->setLogin('dummy-02');
         $account2->setPassword('dummypassword');
-        $account2->store();
+        $accountId2 = $account2->store();
 
         $account3 = new Account();
         $account3->setLogin('dummy-03');
         $account3->setPassword('dummypassword');
-        $account3->store();
+        $accountId3 = $account3->store();
 
         $role2->addAccount($account2);
         $role2->addAccount($account3);
@@ -225,9 +225,13 @@ class UserRoleTest extends TestCase
 
         $list = $role->getAllAccountIds();
         $this->assertEquals(1, count($list));
+        $this->assertContains($accountId1, $list);
 
         $list2 = $role2->getAllAccountIds();
         $this->assertEquals(2, count($list2));
+
+        $this->assertContains($accountId2, $list);
+        $this->assertContains($accountId3, $list);
     }
 
     public function testGetAllAccountNamesEmpty()
