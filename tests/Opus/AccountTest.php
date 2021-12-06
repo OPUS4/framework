@@ -35,8 +35,8 @@
 namespace OpusTest;
 
 use Opus\Model\DbException;
-use Opus\Model2\Account;
-use Opus\Model2\UserRole;
+use Opus\Account;
+use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -311,5 +311,19 @@ class AccountTest extends TestCase
 
         $this->assertNotNull($account->getFullName());
         $this->assertEquals('', $account->getFullName());
+    }
+
+    public function testFetchAccountByLoginParameterNull()
+    {
+        $account = Account::fetchAccountByLogin(null);
+
+        $this->assertNull($account);
+    }
+
+    public function testFetchAccountByLoginUnknownLogin()
+    {
+        $account = Account::fetchAccountByLogin('LoginDoesNotExist');
+
+        $this->assertNull($account);
     }
 }
