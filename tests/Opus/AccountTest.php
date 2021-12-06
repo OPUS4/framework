@@ -35,8 +35,8 @@
 namespace OpusTest;
 
 use Opus\Model\DbException;
-use Opus\Account;
-use Opus\UserRole;
+use Opus\Model2\Account;
+use Opus\Model2\UserRole;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
