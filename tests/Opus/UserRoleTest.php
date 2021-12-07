@@ -277,4 +277,13 @@ class UserRoleTest extends TestCase
         $list2 = $role2->getAllAccountNames();
         $this->assertEquals(['dummy-02', 'dummy-03'], $list2);
     }
+
+    public function testFluentInterface()
+    {
+        $role = new UserRole();
+
+        $this->assertSame($role, $role->setName('testRole'));
+        $this->assertSame($role, $role->setAccounts(null));
+        $this->assertSame($role, $role->addAccount(null));
+    }
 }

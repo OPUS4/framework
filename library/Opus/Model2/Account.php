@@ -37,12 +37,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Opus\Log;
-
 use Opus\Model\DbException;
 use Opus\Security\SecurityException;
-use function array_pop;
-use function count;
-use function is_array;
+
+use function array_values;
 use function md5;
 use function sha1;
 use function strlen;
@@ -148,6 +146,7 @@ class Account extends AbstractModel
 
     /**
      * @param string $login Login name.
+     * @return $this
      */
     public function setLogin($login)
     {
@@ -159,6 +158,7 @@ class Account extends AbstractModel
 //        }
 
         $this->login = $login;
+        return $this;
     }
 
     /**
@@ -173,10 +173,12 @@ class Account extends AbstractModel
      * Set a new password. The password goes through the PHP sha1 hash algorithm.
      *
      * @param string $password
+     * @return $this
      */
     public function setPassword($password)
     {
         $this->password = sha1($password);
+        return $this;
     }
 
     /**
@@ -184,6 +186,7 @@ class Account extends AbstractModel
      * the password directly without hashing it. Helpful for migration.
      *
      * @param string $password The new password to set.
+     * @return $this
      */
     public function setPasswordDirectly($password)
     {
@@ -196,6 +199,8 @@ class Account extends AbstractModel
         }
 
         $this->password = $password;
+
+        return $this;
     }
 
     /**
@@ -208,10 +213,12 @@ class Account extends AbstractModel
 
     /**
      * @param string $email
+     * @return $this
      */
     public function setEmail($email)
     {
         $this->email = $email;
+        return $this;
     }
 
     /**
@@ -224,10 +231,12 @@ class Account extends AbstractModel
 
     /**
      * @param string $firstName
+     * @return $this
      */
     public function setFirstName($firstName)
     {
         $this->firstName = $firstName;
+        return $this;
     }
 
     /**
@@ -240,10 +249,12 @@ class Account extends AbstractModel
 
     /**
      * @param string $lastName
+     * @return $this
      */
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
+        return $this;
     }
 
     /**
@@ -274,6 +285,7 @@ class Account extends AbstractModel
      * Sets the collection of UserRole instances related to this account. Also accepts a single UserRole object.
      *
      * @param Collection|UserRole[]|UserRole $roles
+     * @return $this
      */
     public function setRole($roles)
     {
@@ -282,21 +294,27 @@ class Account extends AbstractModel
         }
 
         $this->role = $roles;
+
+        return $this;
     }
 
     /**
      * @param UserRole $role
+     * @return $this
      */
     public function addRole($role)
     {
         // TODO: check whether "extra lazy associations" (`fetch="EXTRA_LAZY`) should be used for $role so
         //       that a method like contains() can be called without triggering a full load of the collection
-        if ($this->role->contains($role)) {
-            return;
+        // TODO log null or throw exception?
+        if ($role === null || $this->role->contains($role)) {
+            return $this;
         }
 
         $this->role->add($role);
         $role->addAccount($this);
+
+        return $this;
     }
 
     /**
@@ -390,7 +408,7 @@ class Account extends AbstractModel
     /**
      * Stores Account after extra validations.
      *
-     * @return int|void
+     * @return int
      * @throws SecurityException
      */
     public function store()
@@ -407,8 +425,7 @@ class Account extends AbstractModel
 
         try {
             return parent::store();
-        }
-        catch (DbException $dbException) {
+        } catch (DbException $dbException) {
             throw new SecurityException($dbException);
         }
     }

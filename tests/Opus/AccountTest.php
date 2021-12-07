@@ -323,4 +323,18 @@ class AccountTest extends TestCase
 
         $this->assertNull($account);
     }
+
+    public function testFluentInterface()
+    {
+        $account = new Account();
+
+        $this->assertSame($account, $account->setLogin('testLogin'));
+        $this->assertSame($account, $account->setPassword('secret'));
+        $this->assertSame($account, $account->setEmail('email@example.org'));
+        $this->assertSame($account, $account->setFirstName('John'));
+        $this->assertSame($account, $account->setLastName('Doe'));
+        $this->assertSame($account, $account->setPasswordDirectly('password'));
+        $this->assertSame($account, $account->setRole(null));
+        $this->assertSame($account, $account->addRole(null));
+    }
 }

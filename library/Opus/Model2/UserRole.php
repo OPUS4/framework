@@ -102,10 +102,13 @@ class UserRole extends AbstractModel
 
     /**
      * @param string $name
+     * @return $this
      */
     public function setName($name)
     {
         $this->name = $name;
+
+        return $this;
     }
 
     /**
@@ -118,23 +121,30 @@ class UserRole extends AbstractModel
 
     /**
      * @param Collection|Account[] $accounts
+     * @return $this
      */
     public function setAccounts($accounts)
     {
         $this->accounts = $accounts;
+
+        return $this;
     }
 
     /**
      * @param Account $account
+     * @return $this
      */
     public function addAccount($account)
     {
-        if ($this->accounts->contains($account)) {
-            return;
+        // TODO error handling, logging, exception?
+        if ($account === null || $this->accounts->contains($account)) {
+            return $this;
         }
 
         $this->accounts->add($account);
         $account->addRole($this);
+
+        return $this;
     }
 
     /**
