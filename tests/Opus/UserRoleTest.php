@@ -99,6 +99,8 @@ class UserRoleTest extends TestCase
 
     public function testListAccessDocuments()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur        = UserRole::fetchByName('unit-test');
         $listEmpty = $ur->listAccessDocuments();
         $this->assertEquals(0, count($listEmpty));
@@ -106,6 +108,8 @@ class UserRoleTest extends TestCase
 
     public function testAppendAccessDocumentThrowsExceptionForUnknownDokument()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur = UserRole::fetchByName('unit-test');
 
         $this->setExpectedException(Zend_Db_Statement_Exception::class);
@@ -115,6 +119,8 @@ class UserRoleTest extends TestCase
 
     public function testAppendAccessDocumentAppendExistingIgnored()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur = UserRole::fetchByName('unit-test');
 
         $doc   = new Document();
@@ -133,6 +139,8 @@ class UserRoleTest extends TestCase
 
     public function testAccessDocumentsInsertRemove()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur = UserRole::fetchByName('unit-test');
 
         try {
@@ -158,6 +166,8 @@ class UserRoleTest extends TestCase
 
     public function testListAccessFiles()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur        = UserRole::fetchByName('unit-test');
         $listEmpty = $ur->listAccessFiles();
         $this->assertEquals(0, count($listEmpty));
@@ -165,6 +175,8 @@ class UserRoleTest extends TestCase
 
     public function testListAccessModules()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur        = UserRole::fetchByName('unit-test');
         $listEmpty = $ur->listAccessModules();
         $this->assertEquals(0, count($listEmpty));
@@ -172,6 +184,8 @@ class UserRoleTest extends TestCase
 
     public function testAccessModulesInsertRemove()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #183');
+
         $ur = UserRole::fetchByName('unit-test');
         $ur->appendAccessModule('oai')->store();
 
