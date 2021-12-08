@@ -120,11 +120,7 @@ abstract class AbstractModel
      */
     public function store()
     {
-        try {
-            return $this->getEntityManager()->store($this);
-        } catch (Exception $e) {
-            throw new DbException($e->getMessage());
-        }
+        return $this->getEntityManager()->store($this);
     }
 
     /**
