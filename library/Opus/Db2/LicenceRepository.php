@@ -27,9 +27,6 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
  */
 
 namespace Opus\Db2;

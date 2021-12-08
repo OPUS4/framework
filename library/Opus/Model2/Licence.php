@@ -27,9 +27,6 @@
  *
  * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
  */
 
 namespace Opus\Model2;
@@ -38,14 +35,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DocumentFinderException;
 
+use function count;
+
 /**
  * Domain model for licences in the Opus framework
  *
- * @category    Framework
- * @package     Opus
  * @uses        \Opus\Model2\AbstractModel
  *
- * TODO: phpcs:disable: Is this comment still relevant?
+ * TODO validation - Language, LinkLicence and NameLong are mandatory
  *
  * @ORM\Entity(repositoryClass="Opus\Db2\LicenceRepository")
  * @ORM\Table(name="document_licences",
@@ -53,6 +50,9 @@ use Opus\DocumentFinder\DocumentFinderException;
  *         @ORM\Index(name="name", columns={"name"}),
  *         @ORM\Index(name="name_2", columns={"name"})
  *     })
+ *
+ * @category    Framework
+ * @package     Opus
  */
 class Licence extends AbstractModel
 {
@@ -184,6 +184,7 @@ class Licence extends AbstractModel
 
     /**
      * @param bool $active
+     * @return $this
      */
     public function setActive($active)
     {
@@ -201,6 +202,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $commentInternal
+     * @return $this
      */
     public function setCommentInternal($commentInternal)
     {
@@ -218,6 +220,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $descMarkup
+     * @return $this
      */
     public function setDescMarkup($descMarkup)
     {
@@ -235,6 +238,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $descText
+     * @return $this
      */
     public function setDescText($descText)
     {
@@ -252,6 +256,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $language
+     * @return $this
      */
     public function setLanguage($language)
     {
@@ -269,6 +274,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $linkLicence
+     * @return $this
      */
     public function setLinkLicence($linkLicence)
     {
@@ -286,6 +292,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $linkLogo
+     * @return $this
      */
     public function setLinkLogo($linkLogo)
     {
@@ -303,6 +310,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $linkSign
+     * @return $this
      */
     public function setLinkSign($linkSign)
     {
@@ -320,6 +328,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $mimeType
+     * @return $this
      */
     public function setMimeType($mimeType)
     {
@@ -337,6 +346,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $name
+     * @return $this
      */
     public function setName($name)
     {
@@ -354,6 +364,7 @@ class Licence extends AbstractModel
 
     /**
      * @param string $nameLong
+     * @return $this
      */
     public function setNameLong($nameLong)
     {
@@ -371,6 +382,7 @@ class Licence extends AbstractModel
 
     /**
      * @param bool $podAllowed
+     * @return $this
      */
     public function setPodAllowed($podAllowed)
     {
@@ -388,6 +400,7 @@ class Licence extends AbstractModel
 
     /**
      * @param int $sortOrder
+     * @return $this
      */
     public function setSortOrder($sortOrder)
     {
@@ -398,7 +411,7 @@ class Licence extends AbstractModel
     /**
      * Returns long name.
      *
-     * @var string
+     * @return string
      */
     public function getDisplayName()
     {
@@ -425,7 +438,7 @@ class Licence extends AbstractModel
             'Name',
             'NameLong',
             'PodAllowed',
-            'SortOrder'
+            'SortOrder',
         ];
     }
 
@@ -442,7 +455,8 @@ class Licence extends AbstractModel
     /**
      * Fetch licence with matching name.
      *
-     * @return \Opus\Model2\Licence|null
+     * @param string $name Short name of licence
+     * @return self|null
      */
     public static function fetchByName($name)
     {
