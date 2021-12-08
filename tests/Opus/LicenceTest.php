@@ -38,9 +38,9 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\Licence;
 use Opus\Model\DbConstrainViolationException;
 use Opus\Model\Xml\Cache;
+use Opus\Model2\Licence;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -95,6 +95,8 @@ class LicenceTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
+        $this->markTestSkipped('TODO DOCTRINE caching gets new design');
+
         $lic = new Licence();
         $lic->setNameLong('MyLongName');
         $lic->setLinkLicence('http://licence.link');
@@ -117,6 +119,8 @@ class LicenceTest extends TestCase
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #203');
+
         $fields = ['SortOrder', 'CommentInternal', 'PodAllowed'];
 
         $licence   = new Licence();
@@ -164,7 +168,7 @@ class LicenceTest extends TestCase
         $licence->setLinkLicence('link');
         $licenceId = $licence->store();
 
-        $licence = new Licence($licenceId);
+        $licence = Licence::get($licenceId);
 
         $this->assertEquals('Short name', $licence->getName());
         $this->assertEquals('Long name', $licence->getNameLong());
@@ -338,6 +342,8 @@ class LicenceTest extends TestCase
 
     public function testIsUsed()
     {
+        $this->markTestSkipped('TODO DOCTRINE issue192');
+
         $licence = new Licence();
         $licence->updateFromArray([
             'NameLong'    => 'Licence',
@@ -358,6 +364,8 @@ class LicenceTest extends TestCase
 
     public function testGetDocumentCount()
     {
+        $this->markTestSkipped('TODO DOCTRINE issue192');
+
         $licence = new Licence();
         $licence->updateFromArray([
             'NameLong'    => 'Licence',

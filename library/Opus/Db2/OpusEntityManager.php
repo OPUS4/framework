@@ -31,11 +31,14 @@
 
 namespace Opus\Db2;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
+use Opus\Model\DbConstrainViolationException;
+use Opus\Model\DbException;
 use Opus\Model\ModelException;
 use Opus\Model2\AbstractModel;
 
@@ -72,9 +75,12 @@ class OpusEntityManager
             $entityManager->persist($entity);
             $entityManager->flush();
             $entityManager->commit();
+        } catch (UniqueConstraintViolationException $e) {
+            $entityManager->rollback();
+            throw new DbConstrainViolationException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             $entityManager->rollback();
-            throw $e;
+            throw new DbException($e);
         }
 
         // TODO: post store?
