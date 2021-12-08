@@ -38,7 +38,8 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\UserRole;
+use Opus\Model2\Account;
+use Opus\Model2\UserRole;
 use OpusTest\TestAsset\TestCase;
 use Zend_Db_Statement_Exception;
 
@@ -59,7 +60,7 @@ class UserRoleTest extends TestCase
     {
         parent::setUp();
 
-        $this->clearTables(false, ['user_roles', 'documents', 'access_documents']);
+        $this->clearTables(false, ['user_roles', 'accounts', 'link_accounts_roles', 'documents', 'access_documents']);
 
         $ur = new UserRole();
         $ur->setName('unit-test');
@@ -192,10 +193,97 @@ class UserRoleTest extends TestCase
         $this->assertEquals(0, count($listEmpty));
     }
 
+    public function testGetAllAccountIds()
+    {
+        $role = UserRole::fetchByName('unit-test');
+
+        $account = new Account();
+        $account->setLogin('dummy-01');
+        $account->setPassword('dummypassword');
+        $accountId1 = $account->store();
+
+        $role->addAccount($account);
+        $role->store();
+
+        $role2 = new UserRole();
+        $role2->setName('unit-test-02');
+        $role2->store();
+
+        $account2 = new Account();
+        $account2->setLogin('dummy-02');
+        $account2->setPassword('dummypassword');
+        $accountId2 = $account2->store();
+
+        $account3 = new Account();
+        $account3->setLogin('dummy-03');
+        $account3->setPassword('dummypassword');
+        $accountId3 = $account3->store();
+
+        $role2->addAccount($account2);
+        $role2->addAccount($account3);
+        $role2->store();
+
+        $list = $role->getAllAccountIds();
+        $this->assertEquals(1, count($list));
+        $this->assertContains($accountId1, $list);
+
+        $list2 = $role2->getAllAccountIds();
+        $this->assertEquals(2, count($list2));
+
+        $this->assertContains($accountId2, $list2);
+        $this->assertContains($accountId3, $list2);
+    }
+
     public function testGetAllAccountNamesEmpty()
     {
         $ur        = UserRole::fetchByName('unit-test');
         $listEmpty = $ur->getAllAccountNames();
         $this->assertEquals(0, count($listEmpty));
+    }
+
+    public function testGetAllAccountNames()
+    {
+        $role = UserRole::fetchByName('unit-test');
+
+        $account = new Account();
+        $account->setLogin('dummy-01');
+        $account->setPassword('dummypassword');
+        $account->store();
+
+        $role->addAccount($account);
+        $role->store();
+
+        $role2 = new UserRole();
+        $role2->setName('unit-test-02');
+        $role2->store();
+
+        $account2 = new Account();
+        $account2->setLogin('dummy-02');
+        $account2->setPassword('dummypassword');
+        $account2->store();
+
+        $account3 = new Account();
+        $account3->setLogin('dummy-03');
+        $account3->setPassword('dummypassword');
+        $account3->store();
+
+        $role2->addAccount($account2);
+        $role2->addAccount($account3);
+        $role2->store();
+
+        $list = $role->getAllAccountNames();
+        $this->assertEquals(['dummy-01'], $list);
+
+        $list2 = $role2->getAllAccountNames();
+        $this->assertEquals(['dummy-02', 'dummy-03'], $list2);
+    }
+
+    public function testFluentInterface()
+    {
+        $role = new UserRole();
+
+        $this->assertSame($role, $role->setName('testRole'));
+        $this->assertSame($role, $role->setAccounts(null));
+        $this->assertSame($role, $role->addAccount(null));
     }
 }

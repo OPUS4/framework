@@ -34,10 +34,12 @@
 
 namespace OpusTest;
 
-use Opus\Account;
+use Opus\Model2\Account;
+use Opus\Model2\UserRole;
 use Opus\Security\SecurityException;
-use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
+
+use function count;
 
 /**
  * Unit tests for Opus\Account operations.
@@ -48,7 +50,7 @@ class AccountTest extends TestCase
     {
         parent::setUp();
 
-        $this->clearTables(true, ['accounts', 'user_roles']);
+        $this->clearTables(true, ['accounts', 'user_roles', 'link_accounts_roles']);
 
         $account = new Account();
         $account->setLogin('dummy');
@@ -66,7 +68,8 @@ class AccountTest extends TestCase
         $account->setPassword('dummypassword');
         $account->store();
 
-        $account = new Account(null, null, 'dummy2');
+        $account = Account::fetchAccountByLogin('dummy2');
+
         $this->assertNotNull($account);
         $this->assertEquals('dummy2', $account->getLogin());
     }
@@ -84,7 +87,7 @@ class AccountTest extends TestCase
         $account = new Account();
         $account->setLogin('dummy3');
 
-        $this->setExpectedException(SecurityException::class);
+        $this->setExpectedException(SecurityException::class, 'already exists');
         $account->store();
     }
 
@@ -93,20 +96,23 @@ class AccountTest extends TestCase
      */
     public function testDeleteAccount()
     {
-        $account = new Account(null, null, 'dummy');
-        $account->store();
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $this->assertNotNull($account);
+
         $account->delete();
 
-        $this->setExpectedException(SecurityException::class);
-        new Account(null, null, 'dummy');
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $this->assertNull($account);
     }
 
     /**
      * Test adding a role to an account.
      */
-    public function testAddRoleToAccount()
+    public function testAddRole()
     {
-        $account = new Account(null, null, 'dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $role = new UserRole();
         $role->setName('role1');
@@ -115,20 +121,24 @@ class AccountTest extends TestCase
         $account->addRole($role);
         $account->store();
 
-        $account = new Account(null, null, 'dummy');
-
-        $roles = $account->getRole();
+        $account = Account::fetchAccountByLogin('dummy');
+        $roles   = $account->getRole();
 
         $this->assertNotNull($roles);
-        $this->assertEquals('role1', $roles[0]->getName());
+        $this->assertEquals(1, count($roles));
+
+        $role = $roles[0];
+
+        $this->assertInstanceOf(UserRole::class, $role);
+        $this->assertEquals('role1', $role->getName());
     }
 
     /**
      * Test setting the roles of an account.
      */
-    public function testSetRoleOfAccount()
+    public function testSetRole()
     {
-        $account = new Account(null, null, 'dummy');
+        $account = Account::fetchAccountByLogin('dummy');
 
         $role = new UserRole();
         $role->setName('role1');
@@ -139,12 +149,132 @@ class AccountTest extends TestCase
         $account->setRole($roles);
         $account->store();
 
-        $account = new Account(null, null, 'dummy');
-
-        $roles = $account->getRole();
+        $account = Account::fetchAccountByLogin('dummy');
+        $roles   = $account->getRole();
 
         $this->assertNotNull($roles);
-        $this->assertEquals('role1', $roles[0]->getName());
+        $this->assertEquals(1, count($roles));
+
+        $role = $roles[0];
+
+        $this->assertInstanceOf(UserRole::class, $role);
+        $this->assertEquals('role1', $role->getName());
+    }
+
+    /**
+     * Test setting the roles of an account from a single given UserRole object.
+     */
+    public function testSetRoleSingleObjectParameter()
+    {
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $role = new UserRole();
+        $role->setName('role1');
+        $role->store();
+
+        $account->setRole($role);
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy');
+        $roles   = $account->getRole();
+
+        $this->assertNotNull($roles);
+        $this->assertEquals(1, count($roles));
+
+        $role = $roles[0];
+
+        $this->assertInstanceOf(UserRole::class, $role);
+        $this->assertEquals('role1', $role->getName());
+    }
+
+    /**
+     * Test fetching a role by index from an account.
+     */
+    public function testGetRoleWithIndexParameter()
+    {
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $role = new UserRole();
+        $role->setName('role1');
+        $role->store();
+
+        $role2 = new UserRole();
+        $role2->setName('role2');
+        $role2->store();
+
+        $account->addRole($role);
+        $account->addRole($role2);
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy');
+        $role    = $account->getRole(1);
+
+        $this->assertInstanceOf(UserRole::class, $role);
+        $this->assertEquals('role2', $role->getName());
+    }
+
+    /**
+     * Test removing a role from an account.
+     */
+    public function testRemoveRole()
+    {
+        $account = Account::fetchAccountByLogin('dummy');
+
+        $role = new UserRole();
+        $role->setName('role1');
+        $role->store();
+
+        $role2 = new UserRole();
+        $role2->setName('role2');
+        $role2->store();
+
+        $account->addRole($role);
+        $account->addRole($role2);
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy');
+        $roles   = $account->getRole();
+
+        $this->assertEquals(2, count($roles));
+
+        $account->removeRole($role);
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy');
+        $roles   = $account->getRole();
+
+        $this->assertEquals(1, count($roles));
+        $this->assertEquals('role2', $roles[0]->getName());
+    }
+
+    public function testIsPasswordCorrect()
+    {
+        $account = new Account();
+        $account->setLogin('dummy4');
+        $account->setPassword('dummypassword');
+        $account->store();
+
+        $this->assertTrue($account->isPasswordCorrect('dummypassword'));
+    }
+
+    public function testSetPasswordDirectly()
+    {
+        $account = new Account();
+        $account->setLogin('dummy5');
+        $account->setPasswordDirectly('dummypassword');
+        $account->store();
+
+        $account = Account::fetchAccountByLogin('dummy5');
+
+        $this->assertNotNull($account);
+        $this->assertEquals('dummypassword', $account->getPassword());
+    }
+
+    public function testGetAll()
+    {
+        $allAccounts = Account::getAll();
+
+        $this->assertEquals(1, count($allAccounts));
     }
 
     public function testGetFullName()
@@ -178,5 +308,33 @@ class AccountTest extends TestCase
 
         $this->assertNotNull($account->getFullName());
         $this->assertEquals('', $account->getFullName());
+    }
+
+    public function testFetchAccountByLoginParameterNull()
+    {
+        $account = Account::fetchAccountByLogin(null);
+
+        $this->assertNull($account);
+    }
+
+    public function testFetchAccountByLoginUnknownLogin()
+    {
+        $account = Account::fetchAccountByLogin('LoginDoesNotExist');
+
+        $this->assertNull($account);
+    }
+
+    public function testFluentInterface()
+    {
+        $account = new Account();
+
+        $this->assertSame($account, $account->setLogin('testLogin'));
+        $this->assertSame($account, $account->setPassword('secret'));
+        $this->assertSame($account, $account->setEmail('email@example.org'));
+        $this->assertSame($account, $account->setFirstName('John'));
+        $this->assertSame($account, $account->setLastName('Doe'));
+        $this->assertSame($account, $account->setPasswordDirectly('password'));
+        $this->assertSame($account, $account->setRole(null));
+        $this->assertSame($account, $account->addRole(null));
     }
 }

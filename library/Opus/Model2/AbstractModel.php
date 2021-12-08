@@ -115,7 +115,7 @@ abstract class AbstractModel
     /**
      * Persist all the models information to its database locations.
      *
-     * @return int
+     * @return int ID of stored object
      * @throws DbException
      */
     public function store()
