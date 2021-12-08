@@ -39,6 +39,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
+use Opus\Date;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\DbException;
 use Opus\Model\NotFoundException;
@@ -146,7 +147,15 @@ abstract class AbstractModel
     {
         $result = [];
         foreach (static::describe() as $propertyName) {
-            $result[$propertyName] = $this->{"get" . $propertyName}();
+            $value = $this->{"get" . $propertyName}();
+
+            // TODO: Because Date was not derived from Model2/AbstractModel we need to check for Date explicitly,
+            // TODO: In the future Date should extend Model2/bstractModel or we need a more basic class/interface.
+            if ($value instanceof Date || $value instanceof AbstractModel) {
+                $result[$propertyName] = $value->toArray();
+            } else {
+                $result[$propertyName] = $value;
+            }
         }
 
         return $result;
@@ -167,7 +176,7 @@ abstract class AbstractModel
         $validProperties = static::describe();
 
         foreach ($data as $propertyName => $value) {
-            if (in_array($propertyName, $validProperties)) {
+            if (in_array($propertyName, $validProperties, true)) {
                 $this->{"set" . $propertyName}($value);
             }
         }
