@@ -61,8 +61,10 @@ abstract class AbstractModel
     /** @var OpusEntityManager Object for accessing database connections/repositories */
     private static $entityManager;
 
+    // TODO: The use of String as the type of $modelId become necessary due to the existence of models
+    // TODO: wich do not use "id" as the primary key
     /**
-     * @param int $modelId
+     * @param int|string $modelId
      * @return self|null
      * @throws DbException
      * @throws NotFoundException
@@ -109,7 +111,9 @@ abstract class AbstractModel
         return self::getEntityManager()->getRepository(static::class);
     }
 
-    /** @return int */
+    // TODO: The use of String as the return type become necessary due to the existence of models
+    // TODO: wich do not use "id" as the primary key
+    /** @return int|string */
     abstract public function getId();
 
     /**
