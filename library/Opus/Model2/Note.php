@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model2;
@@ -74,12 +69,16 @@ class Note extends AbstractModel
     /**
      * @ORM\Column(type="string", columnDefinition="ENUM('private','public')")
      *
+     * TODO DOCTRINE mandatory, validation, new Validate\NoteVisibility()
+     *
      * @var string
      */
     private $visibility = self::ACCESS_PRIVATE;
 
     /**
      * @ORM\Column(name="message", type="text")
+     *
+     * TODO DOCTRINE mandatory, validation
      *
      * @var string
      */
