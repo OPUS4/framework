@@ -36,7 +36,7 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\Subject;
+use Opus\Model2\Subject;
 use OpusTest\TestAsset\TestCase;
 
 class SubjectTest extends TestCase
