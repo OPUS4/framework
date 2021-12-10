@@ -40,13 +40,12 @@ namespace OpusTest;
 
 use Exception;
 use InvalidArgumentException;
-use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Config;
-use Opus\Db\Collections;
 use Opus\Document;
 use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
+use Opus\Model2\Collection;
 use OpusTest\Model\Plugin\AbstractPluginMock;
 use OpusTest\TestAsset\NestedSetValidator;
 use OpusTest\TestAsset\TestCase;
@@ -1233,18 +1232,14 @@ class CollectionTest extends TestCase
      */
     protected function validateNestedSet()
     {
-        $table = new Collections();
-
-        $select = $table->select()->where('role_id = ?', 1)->order('left_id ASC');
-
-        $rows = $table->fetchAll($select);
+        $rows = Collection::fetchCollectionsByRoleId(1, true);
 
         $this->assertEquals(14, count($rows));
 
-        $this->assertEquals(1, $rows[0]->left_id);
-        $this->assertEquals(28, $rows[0]->right_id);
+        $this->assertEquals(1, $rows[0]->getLeft());
+        $this->assertEquals(28, $rows[0]->getRight());
 
-        $validator = new NestedSetValidator($table);
+        $validator = new NestedSetValidator();
 
         $this->assertTrue($validator->validate(1));
     }
