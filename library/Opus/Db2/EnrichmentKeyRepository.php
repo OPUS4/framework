@@ -35,9 +35,9 @@ use Doctrine\ORM\EntityRepository;
 use Opus\Model2\EnrichmentKey;
 
 /**
- * Database specific class for Language functions.
+ * Database specific class for enrichment management functions.
  *
- * This class keeps the database (Doctrine) specific code out of the model class.
+ * This class keeps the database specific code out of the model class.
  */
 class EnrichmentKeyRepository extends EntityRepository
 {
