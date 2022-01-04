@@ -94,7 +94,7 @@ class AbstractType implements TypeInterface
      * Mappt JSON als String, das in der Datenbank gespeichert ist, oder
      * alternativ ein Array auf die internen Felder des vorliegenden Enrichment-Typs
      *
-     * @param $options entweder String oder Array
+     * @param string|array $options Entweder String oder Array
      */
     public function setOptions($options)
     {
