@@ -52,9 +52,9 @@ use Zend_Validate_NotEmpty;
  *
  * @category    Framework
  * @package     Opus
- * @method void setKeyName(string $name)
+ * @method self setKeyName(string $name)
  * @method string getKeyName()
- * @method void setValue(string $value)
+ * @method self setValue(string $value)
  * @method string getValue()
  */
 class Enrichment extends AbstractDependentModel

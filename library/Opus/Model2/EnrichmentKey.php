@@ -71,9 +71,7 @@ class EnrichmentKey extends AbstractModel
      */
     private $options;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $oldName;
 
     /**
@@ -179,11 +177,10 @@ class EnrichmentKey extends AbstractModel
     }
 
     /**
-     * ALTERNATE CONSTRUCTOR: Retrieve Opus\Model2\EnrichmentKey instance by name.  Returns
-     * null if name is null *or* nothing found.
+     * Factory function for retrieve EnrichmentKey instance by name.
      *
-     * @param null|string $name
-     * @return EnrichmentKey|null
+     * @param null|string $name Name of EnrichmentKey
+     * @return self|null Returns null if $name is null *or* nothing is found
      */
     public static function fetchByName($name = null)
     {
@@ -193,7 +190,7 @@ class EnrichmentKey extends AbstractModel
     /**
      * Returns name of an enrichmentkey.
      *
-     * @see \Opus\Model\Abstract#getDisplayName()
+     * @return string Name of enrichment key
      */
     public function getDisplayName()
     {
@@ -214,7 +211,7 @@ class EnrichmentKey extends AbstractModel
     /**
      * Returns a printable version of the current options if set, otherwise null.
      *
-     * @return
+     * @return string|null
      */
     public function getOptionsPrintable()
     {
@@ -233,7 +230,7 @@ class EnrichmentKey extends AbstractModel
      * für den Enrichment-Key kein Typ festgelegt wurde (bei Altdaten) oder der
      * Typ aus einem anderen Grund nicht geladen werden konnte.
      *
-     * @return TypeInterface
+     * @return TypeInterface|null
      */
     public function getEnrichmentType()
     {
@@ -259,8 +256,8 @@ class EnrichmentKey extends AbstractModel
      * Achtung: diese Methode ändert *nicht* den Namen des EnrichmentKeys in der
      * Tabelle enrichmentkeys.
      *
-     * @param string $newName neuer Name des EnrichmentKey
-     * @param string | null $oldName ursprünglicher Name des EnrichmentKey, wenn null, dann
+     * @param string      $newName neuer Name des EnrichmentKey
+     * @param string|null $oldName ursprünglicher Name des EnrichmentKey, wenn null, dann
      *                      wird der aktuelle Name des EnrichmentKey verwendet
      */
     public function rename($newName, $oldName = null)
@@ -290,11 +287,13 @@ class EnrichmentKey extends AbstractModel
     }
 
     /**
+     * Stores/updates EnrichmentKey in database.
+     *
      * Beim Speichern eines bestehenden EnrichmentKeys wird im Falle einer Namensänderung
      * der Name des EnrichmentKeys in allen Enrichments, die den EnrichmentKey referenzieren,
      * aktualisiert (kaskadierende Namensänderung).
      *
-     * @return mixed|void
+     * @return mixed
      * @throws ModelException
      */
     public function store()

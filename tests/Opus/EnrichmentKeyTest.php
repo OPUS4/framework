@@ -37,8 +37,8 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\Model2\EnrichmentKey;
 use Opus\Model\ModelException;
+use Opus\Model2\EnrichmentKey;
 use OpusTest\TestAsset\TestCase;
 
 use function count;

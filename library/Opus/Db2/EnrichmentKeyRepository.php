@@ -58,9 +58,9 @@ class EnrichmentKeyRepository extends EntityRepository
         // TODO: Perhaps manipulative operations on a table that do not belong
         // to this repository are not a good idea
 
-        $conn = $this->getEntityManager()->getConnection();
+        $conn         = $this->getEntityManager()->getConnection();
         $queryBuilder = $conn->createQueryBuilder();
-        $select = $queryBuilder
+        $select       = $queryBuilder
             ->delete('document_enrichments')
             ->where("key_name = :name")
             ->setParameter('name', $name);
@@ -148,9 +148,9 @@ class EnrichmentKeyRepository extends EntityRepository
         // TODO: Perhaps manipulative operations on a table that do not belong
         // to this repository are not a good idea
 
-        $conn = $this->getEntityManager()->getConnection();
+        $conn         = $this->getEntityManager()->getConnection();
         $queryBuilder = $conn->createQueryBuilder();
-        $select = $queryBuilder
+        $select       = $queryBuilder
             ->update('document_enrichments')
             ->where("key_name = :oldName")
             ->set('key_name', ':newName')
