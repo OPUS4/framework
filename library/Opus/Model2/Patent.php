@@ -37,16 +37,18 @@ namespace Opus\Model2;
 use Doctrine\ORM\Mapping as ORM;
 use Opus\Date;
 
+use function is_array;
+
 /**
  * Domain model for patents in the Opus framework
  *
  * @uses        \Opus\Model2\AbstractModel
  *
- * @category    Framework
- * @package     Opus
- *
  * @ORM\Entity
  * @ORM\Table(name="document_patents")
+ *
+ * @category    Framework
+ * @package     Opus
  */
 class Patent extends AbstractModel
 {
@@ -236,9 +238,7 @@ class Patent extends AbstractModel
             'DateGranted',
             'Number',
             'YearApplied',
-            'Application'
+            'Application',
         ];
     }
-
-
 }

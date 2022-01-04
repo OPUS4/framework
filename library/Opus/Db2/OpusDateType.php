@@ -27,47 +27,54 @@
  *
  * @copyright   Copyright (c) 2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Db2;
 
-use Opus\Date;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Type;
+use Opus\Date;
 
 /**
- * Class OpusDateType
- * To implement a custom doctrine date type that can be used for ORM mapping.
- *
- * @package Opus\Db2
- *
+ * Custom custom doctrine date type for mapping Opus\Date;
  */
 class OpusDateType extends Type
 {
     const OPUS_DATE = 'opusDate';
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return self::OPUS_DATE;
     }
 
+    /**
+     * @return string
+     */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return 'VARCHAR(50)';
     }
 
+    /**
+     * @param mixed $value
+     * @return Date
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return new Date();
     }
 
+    /**
+     * @param Date $value
+     * @return string
+     *
+     * TODO throw exception if not of type Date?
+     */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        /** @var Date $value */
         if ($value instanceof Date) {
             $value = $value->__toString();
         }
@@ -75,6 +82,9 @@ class OpusDateType extends Type
         return $value;
     }
 
+    /**
+     * @return true
+     */
     public function canRequireSQLConversion()
     {
         return true;
