@@ -55,13 +55,17 @@ class SubjectRepository extends EntityRepository
         $select       = $queryBuilder->select('s.value, s.externalKey')
             ->from(Subject::class, 's');
 
-        $select->where($queryBuilder->expr()->andX(
-            $queryBuilder->expr()->like('s.value', '?1'),
-            $queryBuilder->expr()->eq('s.type', '?2')
-        ));
+        $exprTerm = $queryBuilder->expr()->like('s.value', '?1');
+        $exprType = $queryBuilder->expr()->eq('s.type', '?2');
 
-        $select->setParameter(1, $term);
-        $select->setParameter(2, $type);
+        if ($type !== null) {
+            $select->where($queryBuilder->expr()->andX($exprTerm, $exprType));
+            $select->setParameter(2, $type);
+        } else {
+            $select->where($exprTerm);
+        }
+        $select->setParameter(1, "%$term%");
+
         $select->orderBy('s.value', 'ASC');
         $select->groupBy('s.value, s.externalKey');
 
