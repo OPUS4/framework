@@ -36,7 +36,7 @@
 namespace OpusTest;
 
 use Opus\Date;
-use Opus\Patent;
+use Opus\Model2\Patent;
 use OpusTest\TestAsset\TestCase;
 
 class PatentTest extends TestCase
