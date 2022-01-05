@@ -38,7 +38,7 @@ jobs:
         run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
 
       - name: Test
-        run: php composer.phar test
+        run: php composer.phar test tests/Opus/CollectionTest.php
 
       - name: Coding-Style
         run: php composer.phar cs-check
