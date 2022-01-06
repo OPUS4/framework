@@ -166,8 +166,7 @@ class DnbInstituteTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        // TODO: Needs the document link using the DnbInstitute model
-        $this->markTestSkipped('TODO - problem not fixed yet');
+        $this->markTestSkipped('TODO DOCTRINE Issue #202 - Needs the document link using the DnbInstitute model');
 
         $dnbInstitute = new DnbInstitute();
         $dnbId        = $dnbInstitute->setName('Test')
@@ -211,8 +210,7 @@ class DnbInstituteTest extends TestCase
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields()
     {
-        // TODO: Needs the document link using the DnbInstitute model
-        $this->markTestSkipped('TODO - problem not fixed yet');
+        $this->markTestSkipped('TODO DOCTRINE Issue #202 - Needs the document link using the DnbInstitute model');
 
         $fields = ['Address', 'City', 'Phone', 'DnbContactId'];
 
@@ -252,8 +250,7 @@ class DnbInstituteTest extends TestCase
 
     public function testModifyingIsGrantorDoesNotUpdateServerDateModified()
     {
-        // TODO: Needs the document link using the DnbInstitute model
-        $this->markTestSkipped('TODO - problem not fixed yet');
+        $this->markTestSkipped('TODO DOCTRINE Issue #202 - Needs the document link using the DnbInstitute model');
 
         $institute = new DnbInstitute();
         $institute->setName('Test')
@@ -281,8 +278,7 @@ class DnbInstituteTest extends TestCase
 
     public function testModifyingIsPublisherDoesNotUpdateServerDateModified()
     {
-        // TODO: Needs the document link using the DnbInstitute model
-        $this->markTestSkipped('TODO - problem not fixed yet');
+        $this->markTestSkipped('TODO DOCTRINE Issue #202 - Needs the document link using the DnbInstitute model');
 
         $institute = new DnbInstitute();
         $institute->setName('Test')
@@ -391,8 +387,7 @@ class DnbInstituteTest extends TestCase
 
     public function testIsUsed()
     {
-        // TODO: Needs the document link using the DnbInstitute model
-        $this->markTestSkipped('TODO - problem not fixed yet');
+        $this->markTestSkipped('TODO DOCTRINE Issue #202 - Needs the document link using the DnbInstitute model');
 
         $institute = new DnbInstitute();
 
