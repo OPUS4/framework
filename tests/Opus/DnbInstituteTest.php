@@ -35,11 +35,11 @@
 
 namespace OpusTest;
 
-use Opus\Model2\DnbInstitute;
 use Opus\Document;
 use Opus\Model\DbConstrainViolationException;
 use Opus\Model\DbException;
 use Opus\Model\Xml\Cache;
+use Opus\Model2\DnbInstitute;
 use OpusTest\TestAsset\TestCase;
 
 use function count;

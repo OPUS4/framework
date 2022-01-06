@@ -39,7 +39,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @uses  \Opus\Model2\AbstractModel
  *
  * @ORM\Entity(repositoryClass="Opus\Db2\DnbInstituteRepository")
- *
  * @ORM\Table(name="dnb_institutes",
  *     indexes={
  *         @ORM\Index(name="name", columns={"name", "department"})
@@ -58,48 +57,56 @@ class DnbInstitute extends AbstractModel
 
     /**
      * @ORM\Column(name="name", type="string", length=191)
+     *
      * @var string
      */
     private $name;
 
     /**
      * @ORM\Column(name="department", type="string", length=191, nullable=true)
+     *
      * @var string
      */
     private $department;
 
     /**
      * @ORM\Column(name="address", type="text", length=16777215, nullable=true)
+     *
      * @var string
      */
     private $address;
 
     /**
      * @ORM\Column(name="city", type="string", length=255)
+     *
      * @var string
      */
     private $city;
 
     /**
      * @ORM\Column(name="phone", type="string", length=255, nullable=true)
+     *
      * @var string
      */
     private $phone;
 
     /**
      * @ORM\Column(name="dnb_contact_id", type="string", length=255, nullable=true)
+     *
      * @var string
      */
     private $dnbContactId;
 
     /**
      * @ORM\Column(name="is_grantor", type="boolean")
+     *
      * @var bool
      */
     private $isGrantor = false;
 
     /**
      * @ORM\Column(name="is_publisher", type="boolean")
+     *
      * @var bool
      */
     private $isPublisher = false;
@@ -309,6 +316,7 @@ class DnbInstitute extends AbstractModel
      * Plugins to load
      *
      * @var array
+     * @return string[]
      */
     public function getDefaultPlugins()
     {
@@ -321,6 +329,8 @@ class DnbInstitute extends AbstractModel
      * Returns name.
      *
      * @see \Opus\Model\Abstract#getDisplayName()
+     *
+     * @return string
      */
     public function getDisplayName()
     {
@@ -330,6 +340,8 @@ class DnbInstitute extends AbstractModel
 
     /**
      * Checks if DNB institute is used by any document.
+     *
+     * @return mixed
      */
     public function isUsed()
     {
