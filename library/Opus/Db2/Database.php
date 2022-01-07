@@ -48,6 +48,13 @@ use const FILTER_VALIDATE_BOOLEAN;
 /**
  * This class encapsulates the code for getting objects for accessing the database.
  *
+ * Doctrine ORM column annotations:
+ * - suggested length values for text-type database columns
+ *   - tinytext:   255
+ *   - text:       65535
+ *   - mediumtext: 16777215
+ *   - longtext:   4294967295
+ *
  * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
  *      Klasse sollte vermutlich später mit Opus\Database verschmolzen werden.
  *

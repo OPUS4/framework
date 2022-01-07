@@ -117,6 +117,22 @@ abstract class AbstractModel
     /** @return int|string */
     abstract public function getId();
 
+    // TODO Should we again allow preStore() to return a non-null value
+    //      (in which case the storage process would be canceled)?
+    /**
+     * Perform any actions needed to provide storing.
+     */
+    protected function preStore()
+    {
+    }
+
+    /**
+     * Perform any actions needed after storing.
+     */
+    protected function postStore()
+    {
+    }
+
     /**
      * Persist all the models information to its database locations.
      *
@@ -125,7 +141,11 @@ abstract class AbstractModel
      */
     public function store()
     {
-        return $this->getEntityManager()->store($this);
+        $this->preStore();
+        $modelId = $this->getEntityManager()->store($this);
+        $this->postStore();
+
+        return $modelId;
     }
 
     /**
