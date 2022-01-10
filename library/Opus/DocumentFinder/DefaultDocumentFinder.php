@@ -214,4 +214,25 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     {
         // TODO: Implement findEmbargoDateBeforeNotModifiedAfter() method.
     }
+
+    /**
+     * @param bool $includeCount
+     * @return array
+     */
+    public function getDocumentTypes($includeCount = false)
+    {
+        if ($includeCount) {
+            return $this->finder->groupedTypesPlusCount();
+        } else {
+            return $this->finder->groupedTypes();
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getYearsPublished()
+    {
+        return $this->finder->groupedServerYearPublished();
+    }
 }
