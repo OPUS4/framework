@@ -71,7 +71,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
 
     /**
      * @param string $criteria Sort criteria
-     * @param string $direction Sort direction
+     * @param string $ascending Sort direction
      * @return $this
      *
      * TODO use constants for parameters
@@ -99,7 +99,6 @@ class DefaultDocumentFinder implements DocumentFinderInterface
         }
         return $this;
     }
-
 
     /**
      * @param string $serverState
