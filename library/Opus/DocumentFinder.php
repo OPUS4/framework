@@ -280,7 +280,7 @@ class DocumentFinder
     /**
      * Add constraints to be applied on the result set.
      *
-     * @param  string $serverStateArray
+     * @param  string[] $serverStateArray
      * @return $this Fluent interface.
      */
     public function setServerStateInList($serverStateArray)
