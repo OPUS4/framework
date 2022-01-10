@@ -70,6 +70,38 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
+     * @param string $criteria Sort criteria
+     * @param string $direction Sort direction
+     * @return $this
+     *
+     * TODO use constants for parameters
+     */
+    public function setOrder($criteria, $ascending = true)
+    {
+        switch ($criteria) {
+            case 'Id':
+                $this->finder->orderById($ascending);
+                break;
+            case 'Author':
+                $this->finder->orderByAuthorLastname($ascending);
+                break;
+            case 'Title':
+                $this->finder->orderByTitleMain($ascending);
+                break;
+            case 'Type':
+                $this->finder->orderByType($ascending);
+                break;
+            case 'ServerDatePublished':
+                $this->finder->orderByServerDatePublished($ascending);
+                break;
+            default:
+                break;
+        }
+        return $this;
+    }
+
+
+    /**
      * @param string $serverState
      * @return $this
      */
