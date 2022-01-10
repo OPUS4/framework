@@ -158,10 +158,12 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     /**
      * @param string $from
      * @param string $until
+     * @return $this
      */
     public function setServerDatePublishedRange($from, $until)
     {
-        // TODO: Implement getByServerDatePublishedRange() method.
+        $this->finder->setServerDatePublishedRange($from, $until);
+        return $this;
     }
 
     /**
