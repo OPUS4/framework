@@ -73,30 +73,38 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      * @param string $criteria Sort criteria
      * @param string $ascending Sort direction
      * @return $this
-     *
-     * TODO use constants for parameters
      */
     public function setOrder($criteria, $ascending = true)
     {
         switch ($criteria) {
-            case 'Id':
+            case self::ORDER_ID:
                 $this->finder->orderById($ascending);
                 break;
-            case 'Author':
+            case self::ORDER_AUTHOR:
                 $this->finder->orderByAuthorLastname($ascending);
                 break;
-            case 'Title':
+            case self::ORDER_TITLE:
                 $this->finder->orderByTitleMain($ascending);
                 break;
-            case 'Type':
+            case self::ORDER_DOCUMENT_TYPE:
                 $this->finder->orderByType($ascending);
                 break;
-            case 'ServerDatePublished':
+            case self::ORDER_SERVER_DATE_PUBLISHED:
                 $this->finder->orderByServerDatePublished($ascending);
                 break;
             default:
                 break;
         }
+        return $this;
+    }
+
+    /**
+     * @param int[] $documentIds
+     * @return $this
+     */
+    public function setDocumentIds($documentIds)
+    {
+        $this->finder->setIdSubset($documentIds);
         return $this;
     }
 
@@ -111,6 +119,26 @@ class DefaultDocumentFinder implements DocumentFinderInterface
         } else {
             $this->finder->setServerState($serverState);
         }
+        return $this;
+    }
+
+    /**
+     * @param bool $partOfBibliography
+     * @return $this
+     */
+    public function setBelongsToBibliography($partOfBibliography = true)
+    {
+        $this->finder->setBelongsToBibliography($partOfBibliography);
+        return $this;
+    }
+
+    /**
+     * @param int $collectionId
+     * @return $this
+     */
+    public function setCollectionId($collectionId)
+    {
+        $this->finder->setCollectionId($collectionId);
         return $this;
     }
 
@@ -146,12 +174,16 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
-     * @param string $type
+     * @param string|string[] $type
      * @return $this
      */
     public function setDocumentType($type)
     {
-        $this->finder->setType($type);
+        if (is_array($type)) {
+            $this->finder->setTypeInList($type);
+        } else {
+            $this->finder->setType($type);
+        }
         return $this;
     }
 
@@ -211,9 +243,29 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      * @param string $date
      * @return $this
      */
+    public function setServerDateModifiedAfter($date)
+    {
+        $this->finder->setServerDateModifiedAfter($date);
+        return $this;
+    }
+
+    /**
+     * @param string $date
+     * @return $this
+     */
     public function setEmbargoDateBefore($date)
     {
         $this->finder->setEmbargoDateBefore($date);
+        return $this;
+    }
+
+    /**
+     * @param string $date
+     * @return $this
+     */
+    public function setNotEmbargoedOn($date)
+    {
+        $this->finder->setNotEmbargoedOn($date);
         return $this;
     }
 
@@ -223,6 +275,15 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function setNotModifiedAfterEmbargoDate()
     {
         $this->finder->setNotModifiedAfterEmbargoDate();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setHasFilesVisibleInOai()
+    {
+        $this->finder->setFilesVisibleInOai();
         return $this;
     }
 
