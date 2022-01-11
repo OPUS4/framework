@@ -441,6 +441,12 @@ class DocumentFinder
         return $this;
     }
 
+    public function setNotModifiedAfterEmbargoDate()
+    {
+        $this->_select->where('d.server_date_modified < d.embargo_date');
+        return $this;
+    }
+
     /**
      * Add constraints to be applied on the result set.
      *

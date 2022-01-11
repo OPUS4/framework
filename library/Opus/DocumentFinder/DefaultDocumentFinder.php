@@ -208,11 +208,22 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
-     * @inheritDoc
+     * @param string $date
+     * @return $this
      */
-    public function findEmbargoDateBeforeNotModifiedAfter()
+    public function setEmbargoDateBefore($date)
     {
-        // TODO: Implement findEmbargoDateBeforeNotModifiedAfter() method.
+        $this->finder->setEmbargoDateBefore($date);
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setNotModifiedAfterEmbargoDate()
+    {
+        $this->finder->setNotModifiedAfterEmbargoDate();
+        return $this;
     }
 
     /**
