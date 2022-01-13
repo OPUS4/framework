@@ -288,6 +288,15 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
+     * @return $this
+     */
+    public function setNotInXmlCache()
+    {
+        $this->finder->setNotInXmlCache();
+        return $this;
+    }
+
+    /**
      * @param bool $includeCount
      * @return array
      */

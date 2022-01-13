@@ -785,4 +785,18 @@ class DocumentFinder
         $this->_select->order('d.server_date_published ' . ($order ? 'ASC' : 'DESC'));
         return $this;
     }
+
+    /**
+     * Find all document IDs not in XML cache.
+     * @return $this
+     */
+    public function setNotInXmlCache()
+    {
+        // get all IDs in XML cache
+        $select = $this->_db->select();
+        $select->from('document_xml_cache', 'document_id');
+
+        $this->setSubSelectNotExists($select);
+        return $this;
+    }
 }
