@@ -109,6 +109,23 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
+     * @param int|null $start
+     * @param int|null $end
+     * @return $this
+     */
+    public function setDocumentIdRange($start = null, $end = null)
+    {
+        if ($start !== null) {
+            $this->finder->setIdRangeStart($start);
+        }
+
+        if ($end !== null) {
+            $this->finder->setIdRangeEnd($end);
+        }
+        return $this;
+    }
+
+    /**
      * @param string $serverState
      * @return $this
      */
