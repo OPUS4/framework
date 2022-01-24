@@ -86,6 +86,9 @@ class Realm implements IRealm
      */
     protected $ipaddressRoles = [];
 
+    /** @var string Client IP address */
+    private $clientIp;
+
     /**
      * Set the current username.
      *
@@ -113,13 +116,26 @@ class Realm implements IRealm
      */
     public function setIp($ipaddress)
     {
+        $this->clientIp = null;
+
         // reset "old" credentials
         $this->ipaddressRoles = [];
         $this->setRoles();
 
         $this->ipaddressRoles = self::getIpaddressRoles($ipaddress);
         $this->setRoles();
+
+        $this->clientIp = $ipaddress;
+
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIp()
+    {
+        return $this->clientIp;
     }
 
     /**
