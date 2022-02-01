@@ -1,5 +1,6 @@
 # Local build files
 build
+.vagrant
 
 # Local files
 composer.phar
