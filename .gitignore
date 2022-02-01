@@ -3,6 +3,7 @@ build
 .vagrant
 
 # Local files
+bin/composer
 composer.phar
 composer.lock
 cache.properties

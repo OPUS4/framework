@@ -20,6 +20,7 @@ apt-get -yq install php7.1-fileinfo
 apt-get -yq install php7.1-json
 apt-get -yq install php7.1-curl
 apt-get -yq install php7.1-mysql
+apt-get -yq install php7.1-zip
 
 # Install Ant
 apt-get -yq install ant
@@ -40,6 +41,7 @@ ant prepare-workspace
 if test ! -f tests/config.ini; then
   ant prepare-config -DdbUserName=opus4admin -DdbUserPassword=opusadminpwd -DdbAdminName=opus4admin -DdbAdminPassword=opusadminpwd
 fi
+bin/composer update
 php db/createdb.php
 SCRIPT
 
@@ -48,7 +50,7 @@ if ! grep "cd /vagrant" /home/vagrant/.profile > /dev/null; then
   echo "cd /vagrant" >> /home/vagrant/.profile
 fi
 if ! grep "PATH=/vagrant/bin" /home/vagrant/.bashrc > /dev/null; then
-  echo "EXPORT PATH=/vagrant/bin:$PATH" >> /home/vagrant/.bashrc
+  echo "export PATH=/vagrant/bin:$PATH" >> /home/vagrant/.bashrc
 fi
 SCRIPT
 
