@@ -36,45 +36,30 @@ SCRIPT_PATH="`dirname "$SCRIPT_NAME_FULL"`"
 
 BASEDIR="`dirname "$SCRIPT_PATH"`"
 
-# get BASEDIR from first argument if present
-if [ $# -ge 1 ] ;
-then
-    BASEDIR="$1"
-fi
-
 # Don't run Composer as root - Composer itself warns against that
 if [[ $EUID -eq 0 ]]; then
     echo -e "\nERROR: This script must not be run as root.\n" 1>&2
     exit 1
 fi
 
-# create base folder on demand and qualify its pathname
-mkdir -p "$BASEDIR" || exit 1
-cd "$BASEDIR"
-BASEDIR="$(pwd)"
-
 if [ -e composer.phar ] ;
 then
-	# upgrade existing composer
-	php composer.phar selfupdate || {
-		echo "failed self-updating composer" >&2
-		exit 1
-	}
-
-	php composer.phar update || {
-		echo "failed updating dependencies" >&2
-		exit 1
-	}
-else
-	# install composer
-	curl -s http://getcomposer.org/installer | php || {
-		echo "failed getting composer" >&2
-		exit 1
-	}
-
-	# install all dependencies
-	php composer.phar install || {
-		echo "failed installing dependencies" >&2
-		exit 1
-	}
+  exit 1
 fi
+
+EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
+then
+    >&2 echo 'ERROR: Invalid installer checksum'
+    rm composer-setup.php
+    exit 1
+fi
+
+php composer-setup.php --quiet --install-dir="$BASEDIR/bin" --filename=composer
+RESULT=$?
+rm composer-setup.php
+exit $RESULT
+
