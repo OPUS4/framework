@@ -36,9 +36,9 @@
 namespace OpusTest\Model;
 
 use InvalidArgumentException;
+use Opus\Db2\Properties;
 use Opus\Document;
 use Opus\Identifier;
-use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;
 use Opus\Model\UnknownPropertyKeyException;

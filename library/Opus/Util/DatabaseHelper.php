@@ -32,8 +32,8 @@
 namespace Opus\Util;
 
 use Doctrine\DBAL\Exception;
+use Opus\Db2\Database;
 use Opus\Model\DbException;
-use Zend_Db_Table;
 
 /**
  * Superclass for all tests.  Providing maintainance tasks.
@@ -56,9 +56,16 @@ class DatabaseHelper
     public function getTables()
     {
         if ($this->tables === null) {
-            $conn = Zend_Db_Table::getDefaultAdapter();
+            $conn = Database::getConnection();
 
-            $this->tables = $conn->listTables();
+            $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+            $schema = $conn->getSchemaManager();
+
+            $this->tables = [];
+
+            foreach ($schema->listTables() as $table) {
+                $this->tables[] = $table->getName();
+            }
         }
 
         return $this->tables;
@@ -72,15 +79,11 @@ class DatabaseHelper
      */
     public function clearTables($always = false, $tables = null)
     {
-        $conn = Zend_Db_Table::getDefaultAdapter();
-
-        if ($conn === null) {
-            throw new DbException('Could not get database connection.');
-        }
-
         // This is needed to workaround the constraints on the parent_id column.
-        $conn->query('SET FOREIGN_KEY_CHECKS = 0;');
-        $conn->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+        $conn = Database::getConnection();
+
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
+        $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
         if ($tables === null) {
             $tables = $this->getTables();
@@ -90,7 +93,7 @@ class DatabaseHelper
             self::clearTable($name, $always);
         }
 
-        $conn->query('SET FOREIGN_KEY_CHECKS = 1;');
+        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     /**
@@ -102,7 +105,7 @@ class DatabaseHelper
      */
     public function clearTable($tablename, $always = false)
     {
-        $conn = Zend_Db_Table::getDefaultAdapter();
+        $conn = Database::getConnection();
 
         if ($conn === null) {
             throw new DbException('Could not get database connection.');
@@ -113,7 +116,7 @@ class DatabaseHelper
         $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
 
         if ($count > 0 || $always) {
-            $conn->query('TRUNCATE ' . $tablename);
+            $conn->executeStatement('TRUNCATE ' . $tablename);
 
             $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
 

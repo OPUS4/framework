@@ -65,9 +65,9 @@ use function is_array;
  */
 class Translations extends AbstractTableGateway implements StorageInterface
 {
-    const TABLE_TRANSLATION_KEYS = 'translationkeys';
+    public const TABLE_TRANSLATION_KEYS = 'translationkeys';
 
-    const TABLE_TRANSLATIONS = 'translations';
+    public const TABLE_TRANSLATIONS = 'translations';
 
     /**
      * @param string      $key

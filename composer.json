@@ -19,7 +19,8 @@
     "opus4-repo/opus4-doi": "4.7.*",
     "doctrine/dbal": "2.13.*",
     "doctrine/orm": "2.10.*",
-    "doctrine/cache": "1.12.*"
+    "doctrine/cache": "1.12.*",
+    "doctrine/annotations": "*"
   },
   "autoload": {
     "psr-4": {
