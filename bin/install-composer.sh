@@ -42,7 +42,7 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
-if [ -e composer.phar ] ;
+if [ -e composer ] ;
 then
   exit 1
 fi
