@@ -113,6 +113,7 @@ class Database
             self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
 
             Type::addType('opusDate', OpusDateType::class);
+
             self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('VARCHAR(50)', 'opusDate');
         }
 
