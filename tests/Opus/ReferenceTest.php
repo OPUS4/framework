@@ -27,15 +27,11 @@
  *
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
-use Opus\Reference;
+use Opus\Model2\Reference;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -52,6 +48,8 @@ class ReferenceTest extends TestCase
 
     public function testGetDefaultsForType()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #188 - Field mechanism does not exist anymore');
+
         $ref = new Reference();
 
         $defaults = $ref->getField('Type')->getDefault();
@@ -63,6 +61,8 @@ class ReferenceTest extends TestCase
 
     public function testGetDefaultsForRelation()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #188 - Field mechanism does not exist anymore');
+
         $ref = new Reference();
 
         $defaults = $ref->getField('Relation')->getDefault();
