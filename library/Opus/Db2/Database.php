@@ -38,6 +38,7 @@ use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\ORMException;
@@ -117,6 +118,10 @@ class Database
             self::$conn = DriverManager::getConnection($params);
 
             self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+
+            Type::addType('opusDate', OpusDateType::class);
+
+            self::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('VARCHAR(50)', 'opusDate');
         }
 
         return self::$conn;

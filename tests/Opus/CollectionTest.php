@@ -1557,6 +1557,7 @@ class CollectionTest extends TestCase
 
     public function testFromArrayUsingExistingIdWithMismatchedRoleId()
     {
+        $this->markTestIncomplete();
     }
 
     public function testFromArrayForNewCollectionUsingExistingRole()
@@ -1571,5 +1572,25 @@ class CollectionTest extends TestCase
             'Visible'        => 1,
             'VisiblePublish' => 1,
         ]);
+
+        $this->markTestIncomplete();
+    }
+
+    public function testIsRoot()
+    {
+        $col     = $this->object;
+        $colRole = $this->roleFixture;
+
+        $this->assertSame($col, $colRole->getRootCollection());
+
+        $this->assertTrue($col->isRoot());
+
+        $subCol = $col->addFirstChild();
+        $subCol->setName('subcol');
+        $subCol->store();
+
+        $this->assertEquals($colRole->getId(), $subCol->getRoleId());
+
+        $this->assertFalse($subCol->isRoot());
     }
 }

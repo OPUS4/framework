@@ -37,8 +37,8 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\EnrichmentKey;
 use Opus\Model\ModelException;
+use Opus\Model2\EnrichmentKey;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -90,7 +90,7 @@ class EnrichmentKeyTest extends TestCase
         $ek->setOptions('options');
         $ek->store();
 
-        $ek = new EnrichmentKey('baz');
+        $ek = EnrichmentKey::get('baz');
         $this->assertNotNull($ek);
         $this->assertEquals('baz', $ek->getName());
         $this->assertEquals('type', $ek->getType());
@@ -184,7 +184,7 @@ class EnrichmentKeyTest extends TestCase
     public function testReadEnrichmentKey()
     {
         foreach (['foo', 'bar'] as $name) {
-            $ek = new EnrichmentKey($name);
+            $ek = EnrichmentKey::get($name);
             $ek->setType('type');
             $ek->setOptions('options');
 

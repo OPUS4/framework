@@ -36,13 +36,15 @@
 namespace OpusTest;
 
 use Opus\Document;
-use Opus\Note;
+use Opus\Model2\Note;
 use OpusTest\TestAsset\TestCase;
 
 class NoteTest extends TestCase
 {
     public function testSetVisibility()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #189');
+
         $doc = new Document();
 
         $note = $doc->addNote();
@@ -67,6 +69,8 @@ class NoteTest extends TestCase
 
     public function testVisibilityDefault()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #189');
+
         $doc = new Document();
 
         $note = $doc->addNote();

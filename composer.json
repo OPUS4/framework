@@ -18,11 +18,10 @@
     "opus4-repo/opus4-common": "dev-master",
     "opus4-repo/opus4-doi": "4.7.*",
     "doctrine/dbal": "2.13.*",
-    "doctrine/orm": "^2",
+    "doctrine/orm": "2.10.*",
     "doctrine/cache": "1.12.*",
-    "doctrine/common": "^2.11",
-    "doctrine/persistence": "^1.3",
-    "gedmo/doctrine-extensions": "^2.4"
+    "doctrine/annotations": "*",
+    "gedmo/doctrine-extensions": "^3.0"
   },
   "autoload": {
     "psr-4": {
@@ -81,5 +80,10 @@
     "phploc": "phploc --log-csv build/phploc.csv src",
     "phpcpd": "phpcpd . --min-lines 3 --min-tokens 30 --log-pmd build/pmd-cpd.xml --progress || true",
     "metrics": "phpmetrics --report-html=build/metrics ."
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

@@ -35,10 +35,11 @@
 
 namespace OpusTest;
 
-use Opus\Title;
+use Opus\Model2\Title;
 use Opus\TitleAbstract;
 use OpusTest\TestAsset\TestCase;
 
+// TODO: Should be removed or replaced due to the new Model2/Title class
 class TitleAbstractTest extends TestCase
 {
     public function testConstruct()

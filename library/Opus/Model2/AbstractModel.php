@@ -25,25 +25,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2021, OPUS 4 development team
+ * @copyright   Copyright (c) 2021-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model2;
 
+use BadMethodCallException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
+use Opus\Date;
 use Opus\Db2\OpusEntityManager;
 use Opus\Model\DbException;
 use Opus\Model\NotFoundException;
 
 use function in_array;
+use function lcfirst;
+use function property_exists;
+use function substr;
 
 /**
  * Base class for OPUS 4 model classes.
@@ -61,8 +62,11 @@ abstract class AbstractModel
     /** @var OpusEntityManager Object for accessing database connections/repositories */
     private static $entityManager;
 
+    // TODO The use of String as the type of $modelId become necessary due to the existence of models
+    //      which do not use "id" as the primary key
+  
     /**
-     * @param int $modelId
+     * @param int|string $modelId
      * @return self|null
      * @throws DbException
      * @throws NotFoundException
@@ -109,7 +113,9 @@ abstract class AbstractModel
         return self::getEntityManager()->getRepository(static::class);
     }
 
-    /** @return int */
+    // TODO: The use of String as the return type become necessary due to the existence of models
+    // TODO: wich do not use "id" as the primary key
+    /** @return int|string */
     abstract public function getId();
 
     /**
@@ -146,7 +152,15 @@ abstract class AbstractModel
     {
         $result = [];
         foreach (static::describe() as $propertyName) {
-            $result[$propertyName] = $this->{"get" . $propertyName}();
+            $value = $this->{"get" . $propertyName}();
+
+            // TODO: Because Date was not derived from Model2/AbstractModel we need to check for Date explicitly,
+            // TODO: In the future Date should extend Model2/bstractModel or we need a more basic class/interface.
+            if ($value instanceof Date || $value instanceof AbstractModel) {
+                $result[$propertyName] = $value->toArray();
+            } else {
+                $result[$propertyName] = $value;
+            }
         }
 
         return $result;
@@ -167,7 +181,7 @@ abstract class AbstractModel
         $validProperties = static::describe();
 
         foreach ($data as $propertyName => $value) {
-            if (in_array($propertyName, $validProperties)) {
+            if (in_array($propertyName, $validProperties, true)) {
                 $this->{"set" . $propertyName}($value);
             }
         }
