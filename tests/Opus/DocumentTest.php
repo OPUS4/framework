@@ -49,7 +49,7 @@ use Opus\Date;
 use Opus\Db\Documents;
 use Opus\Db\TableGateway;
 use Opus\DnbInstitute;
-use Opus\Document;
+use Opus\Model2\Document;
 use Opus\Enrichment;
 use Opus\EnrichmentKey;
 use Opus\Identifier;
@@ -260,6 +260,68 @@ class DocumentTest extends TestCase
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
         $this->assertInstanceOf(Note::class, $value[0], 'Returned object is of wrong type.');
+    }
+
+    /**
+     * Test if a document, in which all simple fields have been set with valid data, can be saved.
+     *
+     * @param array $documentDataset Array with valid data of documents.
+     * @dataProvider validDocumentDataProvider
+     */
+    public function testStoreValidSimpleFields($documentDataset)
+    {
+        $document = new Document();
+
+        foreach ($documentDataset as $fieldname => $value) {
+            $callname = 'set' . $fieldname;
+            $document->$callname($value);
+        }
+
+        $document->setThesisYearAccepted('2020');
+        $document->setPublishedDate(new Date('2021-11-24'));
+        $document->setPublishedYear(2021);
+        $document->setPublisherName('noname');
+        $document->setPublisherPlace('hamburg');
+        $document->setPublicationState('draft');
+        $document->setServerDateCreated('2021-10-27');
+        $document->setServerDateModified('2021-10-28');
+        $document->setServerDatePublished('2021-10-29');
+        $document->setServerDateDeleted('2021-10-30');
+        $document->setServerState('published');
+        $document->setType('article');
+
+        $document->store();
+
+        $docuemnt2 = Document::get($document->getId());
+
+        $this->assertEquals($docuemnt2->getLanguage(), 'de');
+
+        $this->assertEquals($docuemnt2->getContributingCorporation(), 'Contributing, Inc.');
+        $this->assertEquals($docuemnt2->getCreatingCorporation(), 'Creating, Inc.');
+        $this->assertEquals($docuemnt2->getThesisDateAccepted(), '1901-01-01');
+        $this->assertEquals($docuemnt2->getEdition(), 2);
+        $this->assertEquals($docuemnt2->getIssue(), 3);
+        $this->assertEquals($docuemnt2->getVolume(), 1);
+        $this->assertEquals($docuemnt2->getPageFirst(), 1);
+        $this->assertEquals($docuemnt2->getPageLast(), 297);
+        $this->assertEquals($docuemnt2->getPageNumber(), 297);
+        $this->assertEquals($docuemnt2->getArticleNumber(), 42);
+        $this->assertEquals($docuemnt2->getCompletedYear(), 1960);
+        $this->assertEquals($docuemnt2->getCompletedDate(), '1901-01-01');
+        $this->assertEquals($docuemnt2->getBelongsToBibliography(), 1);
+        $this->assertEquals($docuemnt2->getEmbargoDate(), '1902-01-01');
+        $this->assertEquals($docuemnt2->getThesisYearAccepted(), '2020');
+        $this->assertEquals($docuemnt2->getPublishedDate(),'2021-11-24');
+        $this->assertEquals($docuemnt2->getPublishedYear(), 2021);
+        $this->assertEquals($docuemnt2->getPublisherName(), 'noname');
+        $this->assertEquals($docuemnt2->getPublisherPlace(), 'hamburg');
+        $this->assertEquals($docuemnt2->getPublicationState(), 'draft');
+        $this->assertEquals($docuemnt2->getServerDateCreated(),'2021-10-27');
+        $this->assertEquals($docuemnt2->getServerDateModified(),'2021-10-28');
+        $this->assertEquals($docuemnt2->getServerDatePublished(),'2021-10-29');
+        $this->assertEquals($docuemnt2->getServerDateDeleted(), '2021-10-30');
+        $this->assertEquals($docuemnt2->getServerState(), 'published');
+        $this->assertEquals($docuemnt2->getType(), 'article');
     }
 
     /**

@@ -25,16 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2021, OPUS 4 development team
+ * @copyright   Copyright (c) 2021-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Db2
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model2;
 
+use BadMethodCallException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
@@ -45,6 +42,9 @@ use Opus\Model\DbException;
 use Opus\Model\NotFoundException;
 
 use function in_array;
+use function lcfirst;
+use function property_exists;
+use function substr;
 
 /**
  * Base class for OPUS 4 model classes.
@@ -62,8 +62,9 @@ abstract class AbstractModel
     /** @var OpusEntityManager Object for accessing database connections/repositories */
     private static $entityManager;
 
-    // TODO: The use of String as the type of $modelId become necessary due to the existence of models
-    // TODO: wich do not use "id" as the primary key
+    // TODO The use of String as the type of $modelId become necessary due to the existence of models
+    //      which do not use "id" as the primary key
+  
     /**
      * @param int|string $modelId
      * @return self|null

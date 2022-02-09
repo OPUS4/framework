@@ -35,11 +35,11 @@
 
 namespace OpusTest\TestAsset;
 
-use Doctrine\DBAL\Exception;
 use DOMDocument;
 use DOMXPath;
 use Opus\Config;
 use Opus\Db2\Database;
+use Opus\Util\DatabaseHelper;
 
 use function array_diff;
 use function is_dir;
@@ -56,33 +56,24 @@ use const DIRECTORY_SEPARATOR;
  */
 class TestCase extends AbstractSimpleTestCase
 {
-    private $tables;
+    /** @var DatabaseHelper */
+    private $databaseHelper;
+
+    /**
+     * @return DatabaseHelper
+     */
+    protected function getDatabaseHelper()
+    {
+        if ($this->databaseHelper === null) {
+            $this->databaseHelper = new DatabaseHelper();
+        }
+
+        return $this->databaseHelper;
+    }
 
     protected function resetDatabase()
     {
-        $this->clearTables(true);
-    }
-
-    /**
-     * @return array
-     * @throws Exception
-     */
-    protected function getTables()
-    {
-        if ($this->tables === null) {
-            $conn = Database::getConnection();
-
-            $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-            $schema = $conn->getSchemaManager();
-
-            $this->tables = [];
-
-            foreach ($schema->listTables() as $table) {
-                $this->tables[] = $table->getName();
-            }
-        }
-
-        return $this->tables;
+        $this->getDatabaseHelper()->clearTables(true);
     }
 
     /**
@@ -93,23 +84,7 @@ class TestCase extends AbstractSimpleTestCase
      */
     protected function clearTables($always = false, $tables = null)
     {
-        // This is needed to workaround the constraints on the parent_id column.
-        $conn = Database::getConnection();
-
-        $this->assertNotNull($conn);
-
-        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
-        $conn->executeStatement('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
-
-        if ($tables === null) {
-            $tables = $this->getTables();
-        }
-
-        foreach ($tables as $name) {
-            self::clearTable($name, $always);
-        }
-
-        $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
+        $this->getDatabaseHelper()->clearTables($always, $tables);
     }
 
     /**
@@ -121,20 +96,7 @@ class TestCase extends AbstractSimpleTestCase
      */
     protected function clearTable($tablename, $always = false)
     {
-        $conn = Database::getConnection();
-
-        $this->assertNotNull($conn);
-
-        $tablename = $conn->quoteIdentifier($tablename);
-
-        $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-
-        if ($count > 0 || $always) {
-            $conn->executeStatement('TRUNCATE ' . $tablename);
-
-            $count = $conn->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
-            $this->assertEquals(0, $count, "Table $tablename is not empty!");
-        }
+        $this->getDatabaseHelper()->clearTable($tablename, $always);
     }
 
     /**
@@ -169,8 +131,6 @@ class TestCase extends AbstractSimpleTestCase
         if ($directory !== null) {
             rmdir($directory);
         }
-
-        return;
     }
 
     /**

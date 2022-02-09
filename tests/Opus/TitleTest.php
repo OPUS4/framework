@@ -35,7 +35,7 @@
 
 namespace OpusTest;
 
-use Opus\Title;
+use Opus\Model2\Title;
 use OpusTest\TestAsset\TestCase;
 
 class TitleTest extends TestCase

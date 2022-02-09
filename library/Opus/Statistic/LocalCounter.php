@@ -43,6 +43,7 @@ use Opus\Config;
 use Opus\Db\DocumentStatistics;
 use Opus\Db\TableGateway;
 use Opus\Model\ModelException;
+use Opus\Security\Realm;
 
 use function array_key_exists;
 use function date;
@@ -175,7 +176,7 @@ class LocalCounter
     /**
      * @param $documentId
      * @param $fileId
-     * @param $ip
+     * @param string|null $ip TODO not used
      * @param $userAgent
      * @param $redirectStatus
      * @return int new counter value for given doc_id - month -year triple or FALSE if double click or spider
@@ -189,11 +190,6 @@ class LocalCounter
         if ($type != 'frontdoor' && $type != 'files') {
             //print('type not defined');
             return 0;
-        }
-        if ($ip === null || $ip === '') {
-            if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
-                $ip = $_SERVER['REMOTE_ADDR'];
-            }
         }
         if ($userAgent === null || $userAgent === '') {
             if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
@@ -280,16 +276,17 @@ class LocalCounter
     /**
      * log click to temp file and return whether it was a double click or not
      *
-     * @param $ip ip of client
      * @param $documentId id of documents table
      * @param $fileId id of document_files table
+     * @param $time
      * @return bool is it a double click
      */
     public function logClick($documentId, $fileId, $time)
     {
         $ip = '';
-        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+        $clientIp = Realm::getInstance()->getIp();
+        if ($clientIp !== null) {
+           $ip = $clientIp;
         }
 
         $tempDir = Config::getInstance()->getTempPath();
