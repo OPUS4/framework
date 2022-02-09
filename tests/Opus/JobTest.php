@@ -27,6 +27,7 @@ namespace OpusTest;
 
 use Opus\Model2\Job;
 use OpusTest\TestAsset\TestCase;
+use ReflectionClass;
 
 use function count;
 
@@ -54,29 +55,31 @@ class JobTest extends TestCase
         $job->setData('somedata');
         $jobId = $job->store();
 
-        $sha1Id = $job->generateSha1Id();
+        $storedJob = Job::get($jobId);
 
-        $jobRow = Job::get($jobId);
+        // get raw value from private Job->sha1Id property
+        $refJob      = new ReflectionClass(Job::class);
+        $refProperty = $refJob->getProperty('sha1Id');
+        $refProperty->setAccessible(true);
+        $storedSha1Id = $refProperty->getValue($storedJob);
 
-        $this->assertEquals($sha1Id, $jobRow->getSha1Id(), 'Job SHA1 hash has not been set in database.');
+        $this->assertEquals($job->getSha1Id(), $storedSha1Id, 'Job SHA1 hash has not been set in database.');
     }
 
     /**
-     * Test if equal insitialized jobs returns same SHA1 id.
+     * Test if equal initialized jobs returns same SHA1 id.
      */
     public function testEqualJobsHaveEqualHashes()
     {
         $job1 = new Job();
         $job1->setLabel('JobTest');
         $job1->setData('somedata');
-        $sha1Id1 = $job1->generateSha1Id();
 
         $job2 = new Job();
         $job2->setLabel('JobTest');
         $job2->setData('somedata');
-        $sha1Id2 = $job2->generateSha1Id();
 
-        $this->assertEquals($sha1Id1, $sha1Id2, 'Job hash ids are different but should not.');
+        $this->assertEquals($job1->getSha1Id(), $job2->getSha1Id(), 'Job hash ids are different but should not.');
     }
 
     /**

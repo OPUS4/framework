@@ -31,7 +31,6 @@
 
 namespace Opus\Model2;
 
-use BadMethodCallException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectRepository;
@@ -42,9 +41,6 @@ use Opus\Model\DbException;
 use Opus\Model\NotFoundException;
 
 use function in_array;
-use function lcfirst;
-use function property_exists;
-use function substr;
 
 /**
  * Base class for OPUS 4 model classes.
@@ -64,7 +60,7 @@ abstract class AbstractModel
 
     // TODO The use of String as the type of $modelId become necessary due to the existence of models
     //      which do not use "id" as the primary key
-  
+
     /**
      * @param int|string $modelId
      * @return self|null
@@ -118,13 +114,14 @@ abstract class AbstractModel
     /** @return int|string */
     abstract public function getId();
 
-    // TODO Should we again allow preStore() to return a non-null value
-    //      (in which case the storage process would be canceled)?
     /**
      * Perform any actions needed to provide storing.
+     *
+     * @return mixed|null Anything else than null will cancel the storage process.
      */
     protected function preStore()
     {
+        return null;
     }
 
     /**
@@ -142,7 +139,13 @@ abstract class AbstractModel
      */
     public function store()
     {
-        $this->preStore();
+        // TODO: how to best handle storage cancellation
+        // TODO: originally, Opus\Model\AbstractDb->store() did return the non-null return value of `preStore()`
+        $pre = $this->preStore();
+        if ($pre !== null) {
+            throw new DbException("Storage process canceled by pre-store process.");
+        }
+
         $modelId = $this->getEntityManager()->store($this);
         $this->postStore();
 

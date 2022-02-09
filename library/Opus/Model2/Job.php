@@ -109,13 +109,15 @@ class Job extends AbstractModel
 
     /**
      * Set SHA1 hash column value.
+     *
+     * @return mixed|null Anything else than null will cancel the storage process.
      */
     protected function preStore()
     {
-        $sha1Id = $this->generateSha1Id();
+        $sha1Id = $this->getSha1Id();
         $this->setSha1Id($sha1Id);
 
-        parent::preStore();
+        return parent::preStore();
     }
 
     /**
@@ -139,7 +141,12 @@ class Job extends AbstractModel
      */
     public function getSha1Id()
     {
-        return $this->sha1Id;
+        $sha1Id = $this->sha1Id;
+        if ($sha1Id === null) {
+            $sha1Id = $this->generateSha1Id();
+        }
+
+        return $sha1Id;
     }
 
     /**
@@ -321,7 +328,7 @@ class Job extends AbstractModel
      */
     public function isUniqueInQueue()
     {
-        $sha1Id = $this->generateSha1Id();
+        $sha1Id = $this->getSha1Id();
         $jobs   = self::getRepository()->getJobsWithSha1Id($sha1Id);
 
         return empty($jobs);
@@ -333,7 +340,7 @@ class Job extends AbstractModel
      * @throws Exception
      * @return string SHA1 Hash.
      */
-    public function generateSha1Id()
+    protected function generateSha1Id()
     {
         $content = $this->getLabel() . serialize($this->getData());
 

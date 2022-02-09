@@ -33,7 +33,7 @@ namespace Opus\Db2;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
-use Exception;
+use InvalidArgumentException;
 use Opus\Model2\Job;
 
 use function count;
@@ -91,7 +91,7 @@ class JobRepository extends EntityRepository
     public function getJobsWithSha1Id($sha1Id)
     {
         if (! isset($sha1Id)) {
-            throw new Exception("Parameter 'sha1Id' is required.");
+            throw new InvalidArgumentException("Parameter 'sha1Id' is required.");
         }
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
