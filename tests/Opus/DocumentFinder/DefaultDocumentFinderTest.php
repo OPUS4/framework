@@ -293,8 +293,6 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testSortByAuthorLastName()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $this->prepareDocuments();
 
         // By Author
@@ -312,8 +310,6 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testSortById()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $this->prepareDocuments();
 
         // By Id
@@ -342,8 +338,6 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testSortByServerDatePublished()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $this->prepareDocuments();
 
         // By ServerDatePublished
@@ -371,8 +365,6 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testSortByTitleMain()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $this->prepareDocuments();
 
         // By TitleMain
@@ -391,8 +383,6 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testSortByType()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $this->prepareDocuments();
 
         // By DocumentType
@@ -600,8 +590,6 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testSetEmbargoDateBefore()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $doc = new Document();
         $doc->setEmbargoDate('2016-10-16');
         $doc1Id = $doc->store();
@@ -706,8 +694,6 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testSetEmbargoDateBeforeWithTime()
     {
-        //$this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $now = new Date();
         $now->setNow();
 
