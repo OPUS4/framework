@@ -55,8 +55,8 @@ echo
 echo "Database configuration"
 echo
 
-[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdbfw]: "           DBNAME
-[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4adminfw]: " DB_ADMIN
+[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdb]: "           DBNAME
+[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4admin]: " DB_ADMIN
 
 while [[ -z $DB_ADMIN_PASSWORD || "$DB_ADMIN_PASSWORD" != "$DB_ADMIN_PASSWORD_VERIFY" ]] ;
 do
@@ -70,7 +70,7 @@ do
   fi
 done
 
-[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4fw]: "       DB_USER
+[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4]: "       DB_USER
 
 while [[ -z $DB_USER_PASSWORD || "$DB_USER_PASSWORD" != "$DB_USER_PASSWORD_VERIFY" ]] ;
 do
@@ -85,9 +85,9 @@ do
 done
 
 # set defaults if values are not given
-DBNAME="${DBNAME:-opusdbfw}"
-DB_ADMIN="${DB_ADMIN:-opus4adminfw}"
-DB_USER="${DB_USER:-opus4fw}"
+DBNAME="${DBNAME:-opusdb}"
+DB_ADMIN="${DB_ADMIN:-opus4admin}"
+DB_USER="${DB_USER:-opus4}"
 
 # escape ! (for later use in sed substitute)
 DBNAME_ESC="${DBNAME//\!/\\\!}"
@@ -141,13 +141,17 @@ if ! [ -f "$OPUS_CONF" ]; then
          -e "s!@db.admin.password@!'$DB_ADMIN_PASSWORD_ESC'!" "$OPUS_CONF"
 
 else
-  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]? A backup of the current configuration will also be created. :"   OVERWRITE
+  [[ -z $OVERWRITE ]] && read -p "A configuration file already exists. Do you really want to overwrite [Y]? :"   OVERWRITE
   if [[ -z $OVERWRITE || "$OVERWRITE" == Y || "$OVERWRITE" == y ]];
   then
 
-    cp --backup=existing --suffix=.backup config.ini.template "$OPUS_CONF"
-    if [ -f config.ini.backup ]; then
-      echo "config.ini.backup created"
+    [[ -z $BACKUP ]] && read -p "Do you want to create a backup of the existing configuration [Y/N]? :" BACKUP
+    if [[ -z $BACKUP || "$BACKUP" == Y || "$BACKUP" == y ]];
+    then
+      cp -v --force --backup=numbered config.ini.template "$OPUS_CONF"
+      if [ -f config.ini.backup ]; then
+        echo "config.ini.backup created"
+      fi
     fi
 
     if [ localhost != "$MYSQLHOST" ]; then
