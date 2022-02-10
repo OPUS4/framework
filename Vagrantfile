@@ -2,10 +2,10 @@
 # vi: set ft=ruby :
 
 $software = <<SCRIPT
-# Downgrade to PHP 7.1
+# Downgrade to PHP 7.2
 apt-add-repository -y ppa:ondrej/php
 apt-get -yq update
-apt-get -yq install php7.1
+apt-get -yq install php7.2
 
 # Install MYSQL
 debconf-set-selections <<< "mysql-server mysql-server/root_password password root"
@@ -13,14 +13,14 @@ debconf-set-selections <<< "mysql-server mysql-server/root_password_again passwo
 apt-get -yq install mysql-server
 
 # Install required PHP packages
-apt-get -ya install php7.1-mbstring
-apt-get -yq install php7.1-dom
-apt-get -yq install php7.1-pdo
-apt-get -yq install php7.1-fileinfo
-apt-get -yq install php7.1-json
-apt-get -yq install php7.1-curl
-apt-get -yq install php7.1-mysql
-apt-get -yq install php7.1-zip
+apt-get -ya install php7.2-mbstring
+apt-get -yq install php7.2-dom
+apt-get -yq install php7.2-pdo
+apt-get -yq install php7.2-fileinfo
+apt-get -yq install php7.2-json
+apt-get -yq install php7.2-curl
+apt-get -yq install php7.2-mysql
+apt-get -yq install php7.2-zip
 
 # Install Ant
 apt-get -yq install ant
