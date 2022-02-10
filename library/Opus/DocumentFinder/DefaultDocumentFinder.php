@@ -31,13 +31,16 @@
 
 namespace Opus\DocumentFinder;
 
-use Opus\DocumentFinder;
+use Doctrine\DBAL\Connection;
+use Opus\Db2\Database;
 use Opus\DocumentFinderInterface;
 
+use function array_unique;
+use function count;
 use function is_array;
 
 /**
- * Wrapper implementing DocumentFinderInterface around old DocumentFinder using Zend_Db.
+ * Implementing DocumentFinderInterface using Doctrine DBAL.
  *
  * Mit diesem Zwischenschritt kann die Application von der DocumentFinder Klasse abgekoppelt werden ohne sofort einen
  * neuen DocumentFinder entwickeln zu müssen.
@@ -46,11 +49,17 @@ use function is_array;
  */
 class DefaultDocumentFinder implements DocumentFinderInterface
 {
-    private $finder;
+    /** @var Connection  */
+    private $connection;
+
+    /** @var Doctrine\DBAL\Query\QueryBuilder */
+    private $select;
 
     public function __construct()
     {
-        $this->finder = new DocumentFinder();
+        $this->connection = Database::getConnection();
+        $queryBuilder     = $this->connection->createQueryBuilder();
+        $this->select     = $queryBuilder->select('*')->from('documents', 'd');
     }
 
     /**
@@ -58,7 +67,11 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function getIds()
     {
-        return $this->finder->ids();
+        $this->select->select("d.id");
+
+        $result = $this->select->execute()->fetchFirstColumn();
+
+        return array_unique($result);
     }
 
     /**
@@ -66,7 +79,8 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function getCount()
     {
-        return $this->finder->count();
+        $this->select->select("count(d.id)")->distinct();
+        return $this->select->execute()->fetchOne();
     }
 
     /**
@@ -76,21 +90,47 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setOrder($criteria, $ascending = true)
     {
+        $order = $ascending ? 'ASC' : 'DESC';
+
         switch ($criteria) {
             case self::ORDER_ID:
-                $this->finder->orderById($ascending);
+                // Order by id
+                $this->select->orderBy('d.id', $order);
                 break;
             case self::ORDER_AUTHOR:
-                $this->finder->orderByAuthorLastname($ascending);
+                // Order by author lastname
+                $this->select
+                    ->leftJoin(
+                        'd',
+                        'link_persons_documents',
+                        'pd',
+                        'd.id = pd.document_id AND pd.role = "author"'
+                    )
+                    ->leftJoin('pd', 'persons', 'p', 'pd.person_id = p.id')
+                    ->groupBy('d.id')
+                    ->addGroupBy('p.last_name')
+                    ->orderBy('p.last_name ', $order);
                 break;
             case self::ORDER_TITLE:
-                $this->finder->orderByTitleMain($ascending);
+                // Order by title main
+                $this->select
+                    ->leftJoin(
+                        'd',
+                        'document_title_abstracts',
+                        't',
+                        't.document_id = d.id AND t.type = "main"'
+                    )
+                    ->groupBy('d.id')
+                    ->addGroupBy('t.value')
+                    ->orderBy('t.value', $order);
                 break;
             case self::ORDER_DOCUMENT_TYPE:
-                $this->finder->orderByType($ascending);
+                // Order by type
+                $this->select->orderBy('d.type ', $order);
                 break;
             case self::ORDER_SERVER_DATE_PUBLISHED:
-                $this->finder->orderByServerDatePublished($ascending);
+                // Order by server date published
+                $this->select->orderBy('d.server_date_published', $order);
                 break;
             default:
                 break;
@@ -104,7 +144,15 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setDocumentIds($documentIds)
     {
-        $this->finder->setIdSubset($documentIds);
+        // Hotfix: If $subset is empty, return empty set.
+        if (! is_array($documentIds) || count($documentIds) < 1) {
+            $this->select->andWhere('1 = 0');
+            return $this;
+        }
+
+        $this->select->andWhere('d.id IN (:setDocumentIds_documentIds)')
+            ->setParameter('setDocumentIds_documentIds', $documentIds, Connection::PARAM_STR_ARRAY);
+
         return $this;
     }
 
@@ -116,26 +164,31 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function setDocumentIdRange($start = null, $end = null)
     {
         if ($start !== null) {
-            $this->finder->setIdRangeStart($start);
+            $this->select->andWhere('d.id >= :setDocumentIdRange_start')
+                ->setParameter('setDocumentIdRange_start', $start);
         }
 
         if ($end !== null) {
-            $this->finder->setIdRangeEnd($end);
+            $this->select->andWhere('d.id <= :setDocumentIdRange_end')
+                ->setParameter('setDocumentIdRange_end', $end);
         }
         return $this;
     }
 
     /**
-     * @param string $serverState
+     * @param  string|string[] $serverState
      * @return $this
      */
     public function setServerState($serverState)
     {
         if (is_array($serverState)) {
-            $this->finder->setServerStateInList($serverState);
+            $this->select->andWhere('server_state IN (:setServerState_serverStates)', $serverState)
+                ->setParameter('setServerState_serverStates', $serverState, Connection::PARAM_STR_ARRAY);
         } else {
-            $this->finder->setServerState($serverState);
+            $this->select->andWhere('server_state = :setServerState_serverState')
+                ->setParameter('setServerState_serverState', $serverState);
         }
+
         return $this;
     }
 
@@ -145,7 +198,9 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setBelongsToBibliography($partOfBibliography = true)
     {
-        $this->finder->setBelongsToBibliography($partOfBibliography);
+        $this->select->andWhere('d.belongs_to_bibliography = :setBelongsToBibliography_partOfBibliography')
+            ->setParameter('setBelongsToBibliography_partOfBibliography', $partOfBibliography);
+
         return $this;
     }
 
@@ -155,7 +210,25 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setCollectionId($collectionId)
     {
-        $this->finder->setCollectionId($collectionId);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('l.document_id')
+            ->from('link_documents_collections', 'l')
+            ->where('l.document_id = d.id')
+            ->andWhere('l.collection_id IN (:setCollectionId_collectionId)');
+
+        $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")");
+
+        if (is_array($collectionId)) {
+            $this->select->setParameter(
+                'setCollectionId_collectionId',
+                $collectionId,
+                Connection::PARAM_STR_ARRAY
+            );
+        } else {
+            $this->select->setParameter('setCollectionId_collectionId', $collectionId);
+        }
+
         return $this;
     }
 
@@ -165,7 +238,18 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setCollectionRoleId($roleId)
     {
-        $this->finder->setCollectionRoleId($roleId);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('l.document_id')
+            ->from('collections', 'c')
+            ->from('link_documents_collections', 'l')
+            ->where('l.document_id = d.id')
+            ->andWhere('l.collection_id = c.id')
+            ->andWhere('c.role_id = :setCollectionRoleId_roleId');
+
+        $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
+            ->setParameter('setCollectionRoleId_roleId', $roleId);
+
         return $this;
     }
 
@@ -175,7 +259,16 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setIdentifierExists($name)
     {
-        $this->finder->setIdentifierTypeExists($name);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('i.id')
+            ->from('document_identifiers', 'i')
+            ->where('i.document_id = d.id')
+            ->andWhere('type = :setIdentifierExists_name');
+
+        $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
+            ->setParameter('setIdentifierExists_name', $name);
+
         return $this;
     }
 
@@ -186,7 +279,18 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setIdentifierValue($name, $value)
     {
-        $this->finder->setIdentifierTypeValue($name, $value);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('d.id')
+            ->from('document_identifiers', 'i')
+            ->where('i.document_id = d.id')
+            ->andWhere('type = :setIdentifierValue_name')
+            ->andWhere('value = :setIdentifierValue_value');
+
+        $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
+            ->setParameter('setIdentifierValue_name', $name)
+            ->setParameter('setIdentifierValue_value', $value);
+
         return $this;
     }
 
@@ -197,9 +301,11 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function setDocumentType($type)
     {
         if (is_array($type)) {
-            $this->finder->setTypeInList($type);
+            $this->select->andWhere('type IN (:setDocumentType_types)')
+                ->setParameter('setDocumentType_types', $type, Connection::PARAM_STR_ARRAY);
         } else {
-            $this->finder->setType($type);
+            $this->select->andWhere('type = :setDocumentType_type')
+                ->setParameter('setDocumentType_type', $type);
         }
         return $this;
     }
@@ -210,7 +316,16 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEnrichmentExists($name)
     {
-        $this->finder->setEnrichmentKeyExists($name);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('d.id')
+            ->from('document_enrichments', e)
+            ->where('document_id = d.id')
+            ->andWhere('key_name = :setEnrichmentExists_name');
+
+        $this->select->andWhere('EXISTS (' . $subSelect->getSQL() . ')')
+            ->setParameter('setEnrichmentExists_name', $name);
+
         return $this;
     }
 
@@ -221,7 +336,18 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEnrichmentValue($key, $value)
     {
-        $this->finder->setEnrichmentKeyValue($key, $value);
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('d.id')
+            ->from('document_enrichments', 'e')
+            ->where('document_id = d.id')
+            ->andWhere('key_name = :setEnrichmentValue_key')
+            ->andWhere('value = :setEnrichmentValue_value');
+
+        $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
+            ->setParameter('setEnrichmentValue_key', $key)
+            ->setParameter('setEnrichmentValue_value', $value);
+
         return $this;
     }
 
@@ -232,6 +358,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function setServerDatePublishedBefore($date)
     {
         $this->finder->setServerDatePublishedBefore($date);
+
+        $this->select->andWhere('d.server_date_published < :setServerDatePublishedBefore_date')
+            ->setParameter('setServerDatePublishedBefore_date', $date);
+
         return $this;
     }
 
@@ -242,7 +372,11 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDatePublishedRange($from, $until)
     {
-        $this->finder->setServerDatePublishedRange($from, $until);
+        $this->select->andWhere('d.server_date_published >= :setServerDatePublishedRange_from')
+            ->andWhere('d.server_date_published < :setServerDatePublishedRange_until')
+            ->setParameter('setServerDatePublishedRange_from', $from)
+            ->setParameter('setServerDatePublishedRange_until', $until);
+
         return $this;
     }
 
@@ -252,7 +386,8 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDateModifiedBefore($date)
     {
-        $this->finder->setServerDateModifiedBefore($date);
+        $this->select->andWhere('d.server_date_modified < :setServerDateModifiedBefore_date')
+            ->setParameter('setServerDateModifiedBefore_date', $date);
         return $this;
     }
 
@@ -262,7 +397,9 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDateModifiedAfter($date)
     {
-        $this->finder->setServerDateModifiedAfter($date);
+        $this->select->andWhere('d.server_date_modified >= :setServerDateModifiedAfter_date')
+            ->setParameter('setServerDateModifiedAfter_data', $date);
+
         return $this;
     }
 
@@ -272,7 +409,9 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEmbargoDateBefore($date)
     {
-        $this->finder->setEmbargoDateBefore($date);
+        $this->select->andWhere('d.embargo_date < :setEmbargoDateBefore_date')
+            ->setParameter('setEmbargoDateBefore_date', $date);
+
         return $this;
     }
 
@@ -282,7 +421,9 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setNotEmbargoedOn($date)
     {
-        $this->finder->setNotEmbargoedOn($date);
+        $this->select->andWhere('d.embargo_date < :setNotEmbargoedOn_date or d.embargo_date IS NULL')
+            ->setParameter('setNotEmbargoedOn_date', $date);
+
         return $this;
     }
 
@@ -291,7 +432,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setNotModifiedAfterEmbargoDate()
     {
-        $this->finder->setNotModifiedAfterEmbargoDate();
+        $this->select->andWhere('d.server_date_modified < d.embargo_date');
         return $this;
     }
 
@@ -300,7 +441,15 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setHasFilesVisibleInOai()
     {
-        $this->finder->setFilesVisibleInOai();
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        $subSelect = $queryBuilder->select('f.document_id')
+            ->from('document_files', 'f')
+            ->where('f.document_id = d.id')
+            ->andWhere('f.visible_in_oai=1');
+
+        $this->select->andWhere('d.id IN (' . $subSelect->getSQL() . ')');
+
         return $this;
     }
 
@@ -309,7 +458,14 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setNotInXmlCache()
     {
-        $this->finder->setNotInXmlCache();
+        $queryBuilder = $this->connection->createQueryBuilder();
+
+        // get all IDs in XML cache
+        $subSelect = $queryBuilder->select('dxc.document_id')
+            ->from('document_xml_cache', 'dxc');
+
+        $this->select->andWhere(' NOT d.id IN (' . $subSelect->getSQL() . ')');
+
         return $this;
     }
 
@@ -320,9 +476,12 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function getDocumentTypes($includeCount = false)
     {
         if ($includeCount) {
-            return $this->finder->groupedTypesPlusCount();
+            $this->select->select('type AS type', 'count(DISTINCT id) AS count')
+                ->groupBy('type');
+            return $this->select->execute()->fetchAllAssociative();
         } else {
-            return $this->finder->groupedTypes();
+            $this->select->select("type")->distinct();
+            return $this->select->execute()->fetchFirstColumn();
         }
     }
 
@@ -331,6 +490,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function getYearsPublished()
     {
-        return $this->finder->groupedServerYearPublished();
+        $this->select->select("substr(server_date_published, 1, 4)")->distinct();
+        return $this->select->execute()->fetchFirstColumn();
     }
 }
