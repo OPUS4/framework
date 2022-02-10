@@ -55,8 +55,8 @@ echo
 echo "Database configuration"
 echo
 
-[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdb]: "           DBNAME
-[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4admin]: " DB_ADMIN
+[[ -z $DBNAME ]] && read -p "New OPUS Database Name [opusdbfw]: "           DBNAME
+[[ -z $DB_ADMIN ]] && read -p "New OPUS Database Admin Name [opus4adminfw]: " DB_ADMIN
 
 while [[ -z $DB_ADMIN_PASSWORD || "$DB_ADMIN_PASSWORD" != "$DB_ADMIN_PASSWORD_VERIFY" ]] ;
 do
@@ -70,7 +70,7 @@ do
   fi
 done
 
-[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4]: "       DB_USER
+[[ -z $DB_USER ]] && read -p "New OPUS Database User Name [opus4fw]: "       DB_USER
 
 while [[ -z $DB_USER_PASSWORD || "$DB_USER_PASSWORD" != "$DB_USER_PASSWORD_VERIFY" ]] ;
 do
@@ -85,9 +85,9 @@ do
 done
 
 # set defaults if values are not given
-DBNAME="${DBNAME:-opusdb}"
-DB_ADMIN="${DB_ADMIN:-opus4admin}"
-DB_USER="${DB_USER:-opus4}"
+DBNAME="${DBNAME:-opusdbfw}"
+DB_ADMIN="${DB_ADMIN:-opus4adminfw}"
+DB_USER="${DB_USER:-opus4fw}"
 
 # escape ! (for later use in sed substitute)
 DBNAME_ESC="${DBNAME//\!/\\\!}"
