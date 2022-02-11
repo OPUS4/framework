@@ -40,12 +40,12 @@ namespace OpusTest;
 
 use Exception;
 use InvalidArgumentException;
-use Opus\CollectionRole;
 use Opus\Config;
 use Opus\Document;
 use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
 use Opus\Model2\Collection;
+use Opus\Model2\CollectionRole;
 use OpusTest\Model\Plugin\AbstractPluginMock;
 use OpusTest\TestAsset\NestedSetValidator;
 use OpusTest\TestAsset\TestCase;
@@ -123,7 +123,7 @@ class CollectionTest extends TestCase
         $collectionId = $this->object->getId();
         $this->object->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         Collection::get($collectionId);
     }
 
@@ -144,6 +144,8 @@ class CollectionTest extends TestCase
 
     /**
      * Test if virtual field "GetOaiName" contains the value of "OaiSubset".
+     *
+     * TODO: Is this test correct?
      */
     public function testGetOaiName()
     {
@@ -1222,7 +1224,8 @@ class CollectionTest extends TestCase
 
         $this->assertCount(7, $children);
 
-        $this->setExpectedException(InvalidArgumentException::class, 'is no child of');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('is no child of');
 
         $root->applySortOrderOfChildren([4, 11, 3, 16, 2, 8, 13]);
     }
