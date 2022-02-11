@@ -43,6 +43,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @Gedmo\Tree(type="nested")
  *
  * TODO add more properties & functions from Opus\Collection
+ * TODO properly implement methods to get & set/store the collection's theme
  * TODO implement isNewRecord()?
  */
 class Collection extends AbstractModel
@@ -148,6 +149,13 @@ class Collection extends AbstractModel
      * @var int
      */
     protected $visiblePublish = 1;
+
+    /**
+     * TODO: proper implementation
+     *
+     * @var string
+     */
+    private $theme;
 
     /**
      * @return int
@@ -328,6 +336,29 @@ class Collection extends AbstractModel
     public function setVisiblePublish($visiblePublish)
     {
         $this->visiblePublish = $visiblePublish;
+
+        return $this;
+    }
+
+    /**
+     * TODO: proper implementation
+     *
+     * @return string
+     */
+    public function getTheme()
+    {
+        return $this->theme;
+    }
+
+    /**
+     * TODO: proper implementation
+     *
+     * @param string $theme
+     * @return $this
+     */
+    public function setTheme($theme)
+    {
+        $this->theme = $theme;
 
         return $this;
     }
