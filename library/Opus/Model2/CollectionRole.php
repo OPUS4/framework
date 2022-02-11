@@ -40,6 +40,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * TODO add database property hide_empty_collections
  * TODO add more functions from Opus\CollectionRole
+ * TODO implement isNewRecord()?
  */
 class CollectionRole extends AbstractModel
 {
@@ -444,6 +445,28 @@ class CollectionRole extends AbstractModel
     public static function fetchByName($name = null)
     {
         return self::getRepository()->fetchByName($name);
+    }
+
+    /**
+     * Adds the given Collection node (or a new Collection node if none is given) as the root collection of
+     * this CollectionRole instance.
+     *
+     * @param Collection|null $root (Optional) The Collection node that shall be added as the root collection
+     * of this instance.
+     * @return Collection The root collection of this instance.
+     */
+    public function addRootCollection($root = null)
+    {
+        // TODO DOCTRINE: ensure that this function has the same effect as Opus\CollectionRole->addRootCollection()
+
+        if ($root === null) {
+            $root = new Collection();
+            $root->setRole($this);
+        }
+
+        $this->setRootCollection($root);
+
+        return $root;
     }
 
     /**
