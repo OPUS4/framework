@@ -43,6 +43,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @Gedmo\Tree(type="nested")
  *
  * TODO add more properties & functions from Opus\Collection
+ * TODO implement isNewRecord()?
  */
 class Collection extends AbstractModel
 {
@@ -377,6 +378,44 @@ class Collection extends AbstractModel
     public static function fetchChildrenByParentId($parentId, $sortResults = false)
     {
         return self::getRepository()->fetchChildrenByParentId($parentId, $sortResults);
+    }
+
+    /**
+     * Adds the given Collection node (or a new Collection node if none is given) as the first child to this
+     * Collection node.
+     *
+     * @param self|null $child (Optional) The Collection node that shall be added as the first child to this instance.
+     * @return self The child collection.
+     */
+    public function addFirstChild($child = null)
+    {
+        if ($child === null) {
+            $child = new Collection();
+            $child->setRole($this->getRole());
+        }
+
+        self::getRepository()->persistAsFirstChildOf($child, $this);
+
+        return $child;
+    }
+
+    /**
+     * Adds the given Collection node (or a new Collection node if none is given) as the last child to this
+     * Collection node.
+     *
+     * @param self|null $child (Optional) The Collection node that shall be added as the last child to this instance.
+     * @return self The child collection.
+     */
+    public function addLastChild($child = null)
+    {
+        if ($child === null) {
+            $child = new Collection();
+            $child->setRole($this->getRole());
+        }
+
+        self::getRepository()->persistAsLastChildOf($child, $this);
+
+        return $child;
     }
 
     /**
