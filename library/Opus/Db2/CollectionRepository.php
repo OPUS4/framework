@@ -32,8 +32,8 @@
 namespace Opus\Db2;
 
 use Doctrine\ORM\ORMException;
-use Exception;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
+use InvalidArgumentException;
 use Opus\Model2\Collection;
 
 class CollectionRepository extends NestedTreeRepository
@@ -60,7 +60,7 @@ class CollectionRepository extends NestedTreeRepository
     public function fetchCollectionsByRoleId($roleId, $sortResults = false)
     {
         if (! isset($roleId)) {
-            throw new Exception("Parameter 'roleId' is required.");
+            throw new InvalidArgumentException("Parameter 'roleId' is required.");
         }
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
@@ -91,11 +91,11 @@ class CollectionRepository extends NestedTreeRepository
     public function fetchCollectionsByRoleName($roleId, $name)
     {
         if (! isset($roleId)) {
-            throw new Exception("Parameter 'roleId' is required.");
+            throw new InvalidArgumentException("Parameter 'roleId' is required.");
         }
 
         if (! isset($name)) {
-            throw new Exception("Parameter 'name' is required.");
+            throw new InvalidArgumentException("Parameter 'name' is required.");
         }
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
@@ -122,7 +122,7 @@ class CollectionRepository extends NestedTreeRepository
     public function fetchChildrenByParentId($parentId, $sortResults = false)
     {
         if (! isset($parentId)) {
-            throw new Exception("Parameter 'parentId' is required.");
+            throw new InvalidArgumentException("Parameter 'parentId' is required.");
         }
 
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
