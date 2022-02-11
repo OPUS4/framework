@@ -38,7 +38,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="Opus\Db2\CollectionRoleRepository")
  * @ORM\Table(name="collections_roles")
  *
- * TODO add more properties & functions from Opus\CollectionRole
+ * TODO add database property hide_empty_collections
+ * TODO add more functions from Opus\CollectionRole
  */
 class CollectionRole extends AbstractModel
 {
@@ -57,6 +58,90 @@ class CollectionRole extends AbstractModel
      * @var string
      */
     private $name;
+
+    /**
+     * @ORM\Column(name="oai_name", type="string", length=191, unique=true)
+     *
+     * @var string
+     */
+    private $oaiName;
+
+    /**
+     * @ORM\Column(type="integer", options={"unsigned":true, "default":0})
+     *
+     * @var int
+     */
+    protected $position = 0;
+
+    /**
+     * @ORM\Column(type="smallint", options={"unsigned":true, "default":1})
+     *
+     * @var int
+     */
+    protected $visible = 1;
+
+    /**
+     * @ORM\Column(name="visible_browsing_start", type="smallint", options={"unsigned":true, "default":1})
+     *
+     * @var int
+     */
+    protected $visibleBrowsingStart = 1;
+
+    /**
+     * @ORM\Column(name="display_browsing", type="string", length=512, nullable=true)
+     *
+     * @var string
+     */
+    private $displayBrowsing;
+
+    /**
+     * @ORM\Column(name="visible_frontdoor", type="smallint", options={"unsigned":true, "default":0})
+     *
+     * @var int
+     */
+    protected $visibleFrontdoor = 0;
+
+    /**
+     * @ORM\Column(name="display_frontdoor", type="string", length=512, nullable=true)
+     *
+     * @var string
+     */
+    private $displayFrontdoor;
+
+    /**
+     * @ORM\Column(name="visible_oai", type="smallint", options={"unsigned":true, "default":0})
+     *
+     * @var int
+     */
+    protected $visibleOai = 0;
+
+    /**
+     * @ORM\Column(name="is_classification", type="smallint", options={"unsigned":true, "default":0})
+     *
+     * @var int
+     */
+    protected $isClassification = 0;
+
+    /**
+     * @ORM\Column(name="assign_root", type="smallint", options={"unsigned":true, "default":0})
+     *
+     * @var int
+     */
+    protected $assignRoot = 0;
+
+    /**
+     * @ORM\Column(name="assign_leaves_only", type="smallint", options={"unsigned":true, "default":0})
+     *
+     * @var int
+     */
+    protected $assignLeavesOnly = 0;
+
+    /**
+     * @ORM\Column(type="string", length=2, nullable=true)
+     *
+     * @var string
+     */
+    private $language;
 
     /**
      * @ORM\OneToOne(targetEntity="Collection", mappedBy="role")
@@ -88,6 +173,234 @@ class CollectionRole extends AbstractModel
     public function setName($name)
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOaiName()
+    {
+        return $this->oaiName;
+    }
+
+    /**
+     * @param string $oaiName
+     * @return $this
+     */
+    public function setOaiName($oaiName)
+    {
+        $this->oaiName = $oaiName;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param int $position
+     * @return $this
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @param int $visible
+     * @return $this
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVisibleBrowsingStart()
+    {
+        return $this->visibleBrowsingStart;
+    }
+
+    /**
+     * @param int $visibleBrowsingStart
+     * @return $this
+     */
+    public function setVisibleBrowsingStart($visibleBrowsingStart)
+    {
+        $this->visibleBrowsingStart = $visibleBrowsingStart;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDisplayBrowsing()
+    {
+        return $this->displayBrowsing;
+    }
+
+    /**
+     * @param string $displayBrowsing
+     * @return $this
+     */
+    public function setDisplayBrowsing($displayBrowsing)
+    {
+        $this->displayBrowsing = $displayBrowsing;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVisibleFrontdoor()
+    {
+        return $this->visibleFrontdoor;
+    }
+
+    /**
+     * @param int $visibleFrontdoor
+     * @return $this
+     */
+    public function setVisibleFrontdoor($visibleFrontdoor)
+    {
+        $this->visibleFrontdoor = $visibleFrontdoor;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDisplayFrontdoor()
+    {
+        return $this->displayFrontdoor;
+    }
+
+    /**
+     * @param string $displayFrontdoor
+     * @return $this
+     */
+    public function setDisplayFrontdoor($displayFrontdoor)
+    {
+        $this->displayFrontdoor = $displayFrontdoor;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVisibleOai()
+    {
+        return $this->visibleOai;
+    }
+
+    /**
+     * @param int $visibleOai
+     * @return $this
+     */
+    public function setVisibleOai($visibleOai)
+    {
+        $this->visibleOai = $visibleOai;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getIsClassification()
+    {
+        return $this->isClassification;
+    }
+
+    /**
+     * @param int $isClassification
+     * @return $this
+     */
+    public function setIsClassification($isClassification)
+    {
+        $this->isClassification = $isClassification;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAssignRoot()
+    {
+        return $this->assignRoot;
+    }
+
+    /**
+     * @param int $assignRoot
+     * @return $this
+     */
+    public function setAssignRoot($assignRoot)
+    {
+        $this->assignRoot = $assignRoot;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAssignLeavesOnly()
+    {
+        return $this->assignLeavesOnly;
+    }
+
+    /**
+     * @param int $assignLeavesOnly
+     * @return $this
+     */
+    public function setAssignLeavesOnly($assignLeavesOnly)
+    {
+        $this->assignLeavesOnly = $assignLeavesOnly;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * @param string $language
+     * @return $this
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
 
         return $this;
     }
@@ -140,6 +453,8 @@ class CollectionRole extends AbstractModel
      */
     protected static function describe()
     {
-        return ['Name'];
+        return ['Name', 'OaiName', 'Position', 'Visible', 'VisibleBrowsingStart', 'DisplayBrowsing', 'VisibleFrontdoor',
+            'DisplayFrontdoor', 'VisibleOai', 'IsClassification', 'AssignRoot', 'AssignLeavesOnly', 'Language',
+            'RootCollection'];
     }
 }
