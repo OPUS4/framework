@@ -74,7 +74,7 @@ class DefaultDocumentFinderTest extends TestCase
             'persons',
             'link_persons_documents',
             'document_title_abstracts',
-            'document_identifiers'
+            'document_identifiers',
         ]);
     }
 

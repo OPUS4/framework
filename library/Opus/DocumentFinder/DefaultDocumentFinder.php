@@ -36,7 +36,6 @@ use Opus\Db2\Database;
 use Opus\DocumentFinderInterface;
 
 use function array_unique;
-use function count;
 use function is_array;
 
 /**
@@ -49,9 +48,7 @@ use function is_array;
  */
 class DefaultDocumentFinder implements DocumentFinderInterface
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $namedParameterCounter = 0;
 
     /** @var Connection  */
@@ -164,7 +161,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function setDocumentIdRange($start = null, $end = null)
     {
         $queryParamStart = $this->createQueryParameterName('setDocumentIdRangeStart');
-        $queryParamEnd = $this->createQueryParameterName('setDocumentIdRangeEnd');
+        $queryParamEnd   = $this->createQueryParameterName('setDocumentIdRangeEnd');
 
         if ($start !== null) {
             $this->select->andWhere('d.id >= :' . $queryParamStart)
@@ -288,7 +285,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setIdentifierValue($name, $value)
     {
-        $queryParamName = $this->createQueryParameterName('setIdentifierValueName');
+        $queryParamName  = $this->createQueryParameterName('setIdentifierValueName');
         $queryParamValue = $this->createQueryParameterName('setIdentifierValue');
 
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -352,7 +349,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEnrichmentValue($key, $value)
     {
-        $queryParamKey = $this->createQueryParameterName('setEnrichmentValueKey');
+        $queryParamKey   = $this->createQueryParameterName('setEnrichmentValueKey');
         $queryParamValue = $this->createQueryParameterName('setEnrichmentValue');
 
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -393,7 +390,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDatePublishedRange($from, $until)
     {
-        $queryParamFrom = $this->createQueryParameterName('setServerDatePublishedRangeFrom');
+        $queryParamFrom  = $this->createQueryParameterName('setServerDatePublishedRangeFrom');
         $queryParamUntil = $this->createQueryParameterName('setServerDatePublishedRangeUntil');
 
         $this->select->andWhere('d.server_date_published >= :' . $queryParamFrom)
@@ -530,10 +527,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      * Creates a unique named query parameter.
      *
      * @param string $prefix
+     * @return string
      */
     protected function createQueryParameterName($prefix)
     {
         return $prefix . $this->namedParameterCounter++;
     }
-
 }
