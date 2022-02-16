@@ -223,8 +223,6 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testIdsByState()
     {
-       // $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $this->prepareDocuments();
 
         // published
@@ -726,8 +724,6 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testFindDocumentsForXMetaDissPlus()
     {
-        $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129');
-
         $today = date('Y-m-d', time());
 
         $doc = Document::new();
@@ -752,8 +748,8 @@ class DefaultDocumentFinderTest extends TestCase
 
         $docfinder = new DefaultDocumentFinder();
 
-        $docfinder->setServerStateInList('published');
-        $docfinder->setTypeInList('article');
+        $docfinder->setServerState('published');
+        $docfinder->setDocumentType('article');
         $docfinder->setNotEmbargoedOn($today);
 
         $foundIds = $docfinder->getIds();
