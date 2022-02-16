@@ -79,7 +79,7 @@ class DefaultDocumentFinderTest extends TestCase
 
     private function prepareDocuments()
     {
-        $publishedDoc1 = new Document();
+        $publishedDoc1 = Document::new();
         $publishedDoc1->setType("preprint")
                 ->setServerState('published')
                 ->store();
@@ -94,7 +94,7 @@ class DefaultDocumentFinderTest extends TestCase
 
         $publishedDoc1->store();
 
-        $publishedDoc2 = new Document();
+        $publishedDoc2 = Document::new();
         $publishedDoc2->setType("article")
                 ->setServerState('published')
                 ->store();
@@ -105,7 +105,7 @@ class DefaultDocumentFinderTest extends TestCase
 
         $publishedDoc2->store();
 
-        $unpublishedDoc1 = new Document();
+        $unpublishedDoc1 = Document::new();
         $unpublishedDoc1->setType("doctoral_thesis")
                 ->setServerState('unpublished')
                 ->store();
@@ -116,7 +116,7 @@ class DefaultDocumentFinderTest extends TestCase
 
         $unpublishedDoc1->store();
 
-        $unpublishedDoc2 = new Document();
+        $unpublishedDoc2 = Document::new();
         $unpublishedDoc2->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
@@ -131,12 +131,12 @@ class DefaultDocumentFinderTest extends TestCase
 
         $unpublishedDoc2->store();
 
-        $deletedDoc1 = new Document();
+        $deletedDoc1 = Document::new();
         $deletedDoc1->setType("article")
                 ->setServerState('deleted')
                 ->store();
 
-        $deletedDoc2 = new Document();
+        $deletedDoc2 = Document::new();
         $deletedDoc2->setType("doctoral_thesis")
                 ->setServerState('deleted')
                 ->store();
@@ -439,17 +439,17 @@ class DefaultDocumentFinderTest extends TestCase
         $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function setDependentModel() is no part of the DocumentFinderInterface');
 
         $docIds   = [];
-        $doc1     = new Document();
+        $doc1     = Document::new();
         $docIds[] = $doc1->setType("article")
                 ->setServerState('published')
                 ->store();
 
-        $doc2     = new Document();
+        $doc2     = Document::new();
         $docIds[] = $doc2->setType("article")
                 ->setServerState('unpublished')
                 ->store();
 
-        $doc3     = new Document();
+        $doc3     = Document::new();
         $docIds[] = $doc3->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
@@ -544,7 +544,7 @@ class DefaultDocumentFinderTest extends TestCase
     {
         $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function setFilesVisibleInOai() is no part of the DocumentFinderInterface');
 
-        $visibleFileDoc = new Document();
+        $visibleFileDoc = Document::new();
         $visibleFile    = new File();
 
         $visibleFile->setPathName('visible_file.txt');
@@ -552,7 +552,7 @@ class DefaultDocumentFinderTest extends TestCase
 
         $visibleFileDoc->addFile($visibleFile);
 
-        $invisibleFileDoc = new Document();
+        $invisibleFileDoc = Document::new();
         $invisibleFile    = new File();
 
         $invisibleFile->setPathName('invisible_file.txt');
@@ -563,7 +563,7 @@ class DefaultDocumentFinderTest extends TestCase
         $visibleFileDocId   = $visibleFileDoc->store();
         $invisibleFileDocId = $invisibleFileDoc->store();
 
-        $mixedFileDoc = new Document();
+        $mixedFileDoc = Document::new();
         $visibleFile  = new File();
 
         $visibleFile->setPathName('another_visible_file.txt');
@@ -590,11 +590,11 @@ class DefaultDocumentFinderTest extends TestCase
 
     public function testSetEmbargoDateBefore()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-16');
         $doc1Id = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-14');
         $doc2Id = $doc->store();
 
@@ -611,15 +611,15 @@ class DefaultDocumentFinderTest extends TestCase
     {
         $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function setEmbargoDateAfter() is no part of the DocumentFinderInterface');
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-16');
         $doc1Id = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-14');
         $doc2Id = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-15');
         $doc3Id = $doc->store();
 
@@ -637,15 +637,15 @@ class DefaultDocumentFinderTest extends TestCase
     {
         $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function setEmbargoDateRange() is no part of the DocumentFinderInterface');
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-16'); // not in range
         $doc1Id = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-13'); // not in range
         $doc2Id = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate('2016-10-14'); // in range
         $doc3Id = $doc->store();
 
@@ -671,15 +671,15 @@ class DefaultDocumentFinderTest extends TestCase
         $today            = date('Y-m-d', time());
         $yesterday        = date('Y-m-d', time() - (60 * 60 * 24));
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate($dayaftertomorrow);
         $notExpiredId = $doc->store(); // not in result - not yet expired embargo
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate($yesterday);
         $expiredUpdatedId = $doc->store(); // not in result - expired and saved after expiration
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate($tomorrow);
         $expiredNotUpdatedId = $doc->store(); // in result -  expired and saved before expiration
 
@@ -703,15 +703,15 @@ class DefaultDocumentFinderTest extends TestCase
         $future = new Date();
         $future->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('+1 hour'))));
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate($past);
         $pastId = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate($now);
         $nowId = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setEmbargoDate($future);
         $futureId = $doc->store();
 
@@ -730,23 +730,23 @@ class DefaultDocumentFinderTest extends TestCase
 
         $today = date('Y-m-d', time());
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $doc->setType('article');
         $publishedId = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $doc->setType('periodical');
         $periodicalId = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setServerState('published');
         $doc->setType('article');
         $doc->setEmbargoDate($today); // today still in embargo until tomorrow
         $embargoedId = $doc->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setServerState('unpublished');
         $unpublishedId = $doc->store();
 
