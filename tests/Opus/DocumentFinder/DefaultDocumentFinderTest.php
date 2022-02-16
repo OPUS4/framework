@@ -74,6 +74,7 @@ class DefaultDocumentFinderTest extends TestCase
             'persons',
             'link_persons_documents',
             'document_title_abstracts',
+            'document_identifiers'
         ]);
     }
 
@@ -215,6 +216,34 @@ class DefaultDocumentFinderTest extends TestCase
                ->setIdSubset(['foo']);
 
         $this->assertEquals(0, $finder->getCount());
+        $this->assertEquals(0, count($finder->getIds()));
+    }
+
+    /**
+     * Basic functionality
+     */
+    public function testDoubleConstraints()
+    {
+        $document = Document::new();
+        $document->setType("article");
+
+        $title = $document->addTitleMain();
+        $title->setValue('Title');
+        $title->setLanguage('de');
+
+        $issn1 = $document->addIdentifierIssn();
+        $issn1->setValue('1000-1000-1000');
+
+        $issn2 = $document->addIdentifierIssn();
+        $issn2->setValue('2000-2000-2000');
+
+        $id = $document->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setDocumentType('article');
+        $finder->setIdentifierValue('issn', '123-123-123');
+        $finder->setIdentifierValue('issn', '2000-2000-2000');
+
         $this->assertEquals(0, count($finder->getIds()));
     }
 

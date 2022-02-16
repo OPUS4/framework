@@ -49,6 +49,11 @@ use function is_array;
  */
 class DefaultDocumentFinder implements DocumentFinderInterface
 {
+    /**
+     * @var int
+     */
+    private $namedParameterCounter = 0;
+
     /** @var Connection  */
     private $connection;
 
@@ -67,8 +72,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function getIds()
     {
-        $this->select->select("d.id");
-
+        $this->select->select('d.id');
         $result = $this->select->execute()->fetchFirstColumn();
 
         return array_unique($result);
@@ -144,14 +148,16 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setDocumentIds($documentIds)
     {
+        $queryParam = $this->createQueryParameterName('setDocumentIdsParam');
+
         // Hotfix: If $subset is empty, return empty set.
         if (! is_array($documentIds) || count($documentIds) < 1) {
             $this->select->andWhere('1 = 0');
             return $this;
         }
 
-        $this->select->andWhere('d.id IN (:setDocumentIds_documentIds)')
-            ->setParameter('setDocumentIds_documentIds', $documentIds, Connection::PARAM_STR_ARRAY);
+        $this->select->andWhere('d.id IN (:' . $queryParam . ')')
+            ->setParameter($queryParam, $documentIds, Connection::PARAM_STR_ARRAY);
 
         return $this;
     }
@@ -163,14 +169,17 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setDocumentIdRange($start = null, $end = null)
     {
+        $queryParamStart = $this->createQueryParameterName('setDocumentIdRangeStart');
+        $queryParamEnd = $this->createQueryParameterName('setDocumentIdRangeEnd');
+
         if ($start !== null) {
-            $this->select->andWhere('d.id >= :setDocumentIdRange_start')
-                ->setParameter('setDocumentIdRange_start', $start);
+            $this->select->andWhere('d.id >= :' . $queryParamStart)
+                ->setParameter($queryParamStart, $start);
         }
 
         if ($end !== null) {
-            $this->select->andWhere('d.id <= :setDocumentIdRange_end')
-                ->setParameter('setDocumentIdRange_end', $end);
+            $this->select->andWhere('d.id <= :' . $queryParamEnd)
+                ->setParameter($queryParamEnd, $end);
         }
         return $this;
     }
@@ -181,12 +190,14 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerState($serverState)
     {
+        $queryParam = $this->createQueryParameterName('setServerStateParam');
+
         if (is_array($serverState)) {
-            $this->select->andWhere('server_state IN (:setServerState_serverStates)', $serverState)
-                ->setParameter('setServerState_serverStates', $serverState, Connection::PARAM_STR_ARRAY);
+            $this->select->andWhere('server_state IN (:' . $queryParam . ')', $serverState)
+                ->setParameter($queryParam, $serverState, Connection::PARAM_STR_ARRAY);
         } else {
-            $this->select->andWhere('server_state = :setServerState_serverState')
-                ->setParameter('setServerState_serverState', $serverState);
+            $this->select->andWhere('server_state = :' . $queryParam)
+                ->setParameter($queryParam, $serverState);
         }
 
         return $this;
@@ -198,8 +209,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setBelongsToBibliography($partOfBibliography = true)
     {
-        $this->select->andWhere('d.belongs_to_bibliography = :setBelongsToBibliography_partOfBibliography')
-            ->setParameter('setBelongsToBibliography_partOfBibliography', $partOfBibliography);
+        $queryParam = $this->createQueryParameterName('setBelongsToBibliographyParam');
+
+        $this->select->andWhere('d.belongs_to_bibliography = :' . $queryParam)
+            ->setParameter($queryParam, $partOfBibliography);
 
         return $this;
     }
@@ -210,23 +223,21 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setCollectionId($collectionId)
     {
+        $queryParam = $this->createQueryParameterName('setCollectionIdParam');
+
         $queryBuilder = $this->connection->createQueryBuilder();
 
         $subSelect = $queryBuilder->select('l.document_id')
             ->from('link_documents_collections', 'l')
             ->where('l.document_id = d.id')
-            ->andWhere('l.collection_id IN (:setCollectionId_collectionId)');
+            ->andWhere('l.collection_id IN (:' . $queryParam . ')');
 
         $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")");
 
         if (is_array($collectionId)) {
-            $this->select->setParameter(
-                'setCollectionId_collectionId',
-                $collectionId,
-                Connection::PARAM_STR_ARRAY
-            );
+            $this->select->setParameter($queryParam, $collectionId, Connection::PARAM_STR_ARRAY);
         } else {
-            $this->select->setParameter('setCollectionId_collectionId', $collectionId);
+            $this->select->setParameter($queryParam, $collectionId);
         }
 
         return $this;
@@ -238,6 +249,8 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setCollectionRoleId($roleId)
     {
+        $queryParam = $this->createQueryParameterName('setCollectionRoleIdParam');
+
         $queryBuilder = $this->connection->createQueryBuilder();
 
         $subSelect = $queryBuilder->select('l.document_id')
@@ -245,10 +258,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
             ->from('link_documents_collections', 'l')
             ->where('l.document_id = d.id')
             ->andWhere('l.collection_id = c.id')
-            ->andWhere('c.role_id = :setCollectionRoleId_roleId');
+            ->andWhere('c.role_id = :' . $queryParam);
 
         $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
-            ->setParameter('setCollectionRoleId_roleId', $roleId);
+            ->setParameter($queryParam, $roleId);
 
         return $this;
     }
@@ -259,15 +272,17 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setIdentifierExists($name)
     {
+        $queryParam = $this->createQueryParameterName('setIdentifierExistsParam');
+
         $queryBuilder = $this->connection->createQueryBuilder();
 
         $subSelect = $queryBuilder->select('i.id')
             ->from('document_identifiers', 'i')
             ->where('i.document_id = d.id')
-            ->andWhere('type = :setIdentifierExists_name');
+            ->andWhere('type = :' . $queryParam);
 
         $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
-            ->setParameter('setIdentifierExists_name', $name);
+            ->setParameter($queryParam, $name);
 
         return $this;
     }
@@ -279,17 +294,20 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setIdentifierValue($name, $value)
     {
+        $queryParamName = $this->createQueryParameterName('setIdentifierValueName');
+        $queryParamValue = $this->createQueryParameterName('setIdentifierValue');
+
         $queryBuilder = $this->connection->createQueryBuilder();
 
-        $subSelect = $queryBuilder->select('d.id')
+        $subSelect = $queryBuilder->select('id')
             ->from('document_identifiers', 'i')
             ->where('i.document_id = d.id')
-            ->andWhere('type = :setIdentifierValue_name')
-            ->andWhere('value = :setIdentifierValue_value');
+            ->andWhere('type = :' . $queryParamName)
+            ->andWhere('value = :' . $queryParamValue);
 
         $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
-            ->setParameter('setIdentifierValue_name', $name)
-            ->setParameter('setIdentifierValue_value', $value);
+            ->setParameter($queryParamName, $name)
+            ->setParameter($queryParamValue, $value);
 
         return $this;
     }
@@ -300,12 +318,14 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setDocumentType($type)
     {
+        $queryParam = $this->createQueryParameterName('setDocumentTypeParam');
+
         if (is_array($type)) {
-            $this->select->andWhere('type IN (:setDocumentType_types)')
-                ->setParameter('setDocumentType_types', $type, Connection::PARAM_STR_ARRAY);
+            $this->select->andWhere('type IN (:' . $queryParam . ')')
+                ->setParameter($queryParam, $type, Connection::PARAM_STR_ARRAY);
         } else {
-            $this->select->andWhere('type = :setDocumentType_type')
-                ->setParameter('setDocumentType_type', $type);
+            $this->select->andWhere('type = :' . $queryParam)
+                ->setParameter($queryParam, $type);
         }
         return $this;
     }
@@ -316,15 +336,17 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEnrichmentExists($name)
     {
+        $queryParam = $this->createQueryParameterName('setEnrichmentExistsParam');
+
         $queryBuilder = $this->connection->createQueryBuilder();
 
         $subSelect = $queryBuilder->select('d.id')
             ->from('document_enrichments', e)
             ->where('document_id = d.id')
-            ->andWhere('key_name = :setEnrichmentExists_name');
+            ->andWhere('key_name = :' . $queryParam);
 
         $this->select->andWhere('EXISTS (' . $subSelect->getSQL() . ')')
-            ->setParameter('setEnrichmentExists_name', $name);
+            ->setParameter($queryParam, $name);
 
         return $this;
     }
@@ -336,17 +358,20 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEnrichmentValue($key, $value)
     {
+        $queryParamKey = $this->createQueryParameterName('setEnrichmentValueKey');
+        $queryParamValue = $this->createQueryParameterName('setEnrichmentValue');
+
         $queryBuilder = $this->connection->createQueryBuilder();
 
         $subSelect = $queryBuilder->select('d.id')
             ->from('document_enrichments', 'e')
             ->where('document_id = d.id')
-            ->andWhere('key_name = :setEnrichmentValue_key')
-            ->andWhere('value = :setEnrichmentValue_value');
+            ->andWhere('key_name = :' . $queryParamKey)
+            ->andWhere('value = :' . $queryParamValue);
 
         $this->select->andWhere("EXISTS (" . $subSelect->getSQL() . ")")
-            ->setParameter('setEnrichmentValue_key', $key)
-            ->setParameter('setEnrichmentValue_value', $value);
+            ->setParameter($queryParamKey, $key)
+            ->setParameter($queryParamValue, $value);
 
         return $this;
     }
@@ -357,10 +382,12 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDatePublishedBefore($date)
     {
+        $queryParam = $this->createQueryParameterName('setServerDatePublishedBeforeParam');
+
         $this->finder->setServerDatePublishedBefore($date);
 
-        $this->select->andWhere('d.server_date_published < :setServerDatePublishedBefore_date')
-            ->setParameter('setServerDatePublishedBefore_date', $date);
+        $this->select->andWhere('d.server_date_published < :' . $queryParam)
+            ->setParameter($queryParam, $date);
 
         return $this;
     }
@@ -372,10 +399,13 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDatePublishedRange($from, $until)
     {
-        $this->select->andWhere('d.server_date_published >= :setServerDatePublishedRange_from')
-            ->andWhere('d.server_date_published < :setServerDatePublishedRange_until')
-            ->setParameter('setServerDatePublishedRange_from', $from)
-            ->setParameter('setServerDatePublishedRange_until', $until);
+        $queryParamFrom = $this->createQueryParameterName('setServerDatePublishedRangeFrom');
+        $queryParamUntil = $this->createQueryParameterName('setServerDatePublishedRangeUntil');
+
+        $this->select->andWhere('d.server_date_published >= :' . $queryParamFrom)
+            ->andWhere('d.server_date_published < :' . $queryParamUntil)
+            ->setParameter($queryParamFrom, $from)
+            ->setParameter($queryParamUntil, $until);
 
         return $this;
     }
@@ -386,8 +416,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDateModifiedBefore($date)
     {
-        $this->select->andWhere('d.server_date_modified < :setServerDateModifiedBefore_date')
-            ->setParameter('setServerDateModifiedBefore_date', $date);
+        $queryParam = $this->createQueryParameterName('setServerDateModifiedBeforeDate');
+
+        $this->select->andWhere('d.server_date_modified < :' . $queryParam)
+            ->setParameter($queryParam, $date);
         return $this;
     }
 
@@ -397,8 +429,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDateModifiedAfter($date)
     {
-        $this->select->andWhere('d.server_date_modified >= :setServerDateModifiedAfter_date')
-            ->setParameter('setServerDateModifiedAfter_data', $date);
+        $queryParam = $this->createQueryParameterName('setServerDateModifiedAfterDate');
+
+        $this->select->andWhere('d.server_date_modified >= :' . $queryParam)
+            ->setParameter($queryParam, $date);
 
         return $this;
     }
@@ -409,8 +443,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setEmbargoDateBefore($date)
     {
-        $this->select->andWhere('d.embargo_date < :setEmbargoDateBefore_date')
-            ->setParameter('setEmbargoDateBefore_date', $date);
+        $queryParam = $this->createQueryParameterName('setEmbargoDateBeforeDate');
+
+        $this->select->andWhere('d.embargo_date < :' . $queryParam)
+            ->setParameter($queryParam, $date);
 
         return $this;
     }
@@ -421,8 +457,10 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setNotEmbargoedOn($date)
     {
-        $this->select->andWhere('d.embargo_date < :setNotEmbargoedOn_date or d.embargo_date IS NULL')
-            ->setParameter('setNotEmbargoedOn_date', $date);
+        $queryParam = $this->createQueryParameterName('setNotEmbargoedOnDate');
+
+        $this->select->andWhere('d.embargo_date < :' . $queryParam . ' or d.embargo_date IS NULL')
+            ->setParameter($queryParam, $date);
 
         return $this;
     }
@@ -493,4 +531,15 @@ class DefaultDocumentFinder implements DocumentFinderInterface
         $this->select->select("substr(server_date_published, 1, 4)")->distinct();
         return $this->select->execute()->fetchFirstColumn();
     }
+
+    /**
+     * Creates a unique named query parameter.
+     *
+     * @param string $prefix
+     */
+    protected function createQueryParameterName($prefix)
+    {
+        return $prefix . $this->namedParameterCounter++;
+    }
+
 }
