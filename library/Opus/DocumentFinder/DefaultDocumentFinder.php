@@ -150,12 +150,6 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     {
         $queryParam = $this->createQueryParameterName('setDocumentIdsParam');
 
-        // Hotfix: If $subset is empty, return empty set.
-        if (! is_array($documentIds) || count($documentIds) < 1) {
-            $this->select->andWhere('1 = 0');
-            return $this;
-        }
-
         $this->select->andWhere('d.id IN (:' . $queryParam . ')')
             ->setParameter($queryParam, $documentIds, Connection::PARAM_STR_ARRAY);
 
