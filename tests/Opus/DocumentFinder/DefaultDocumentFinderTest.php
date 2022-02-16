@@ -78,6 +78,14 @@ class DefaultDocumentFinderTest extends TestCase
         ]);
     }
 
+    /**
+     * @return DefaultDocumentFinder
+     */
+    private function createDocumentFinder()
+    {
+        return new DefaultDocumentFinder();
+    }
+
     private function prepareDocuments()
     {
         $publishedDoc1 = Document::new();
@@ -161,7 +169,7 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testCountOnEmptyDb()
     {
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $this->assertEquals(0, $finder->getCount());
     }
 
@@ -170,7 +178,7 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testIdsOnEmptyDb()
     {
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $this->assertEquals([], $finder->getIds());
     }
 
@@ -182,7 +190,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // published
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $this->assertEquals(6, $finder->getCount());
         $this->assertEquals(6, count($finder->getIds()));
     }
@@ -195,7 +203,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Does this test even make sense?');
 
         // published
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setEnrichmentKeyExists('foobar')
                ->setEnrichmentKeyValue('foo', 'bar')
                ->setIdRange(1, 2)
@@ -239,7 +247,7 @@ class DefaultDocumentFinderTest extends TestCase
 
         $id = $document->store();
 
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setDocumentType('article');
         $finder->setIdentifierValue('issn', '123-123-123');
         $finder->setIdentifierValue('issn', '2000-2000-2000');
@@ -255,7 +263,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // published
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerState('published');
         $this->assertEquals(2, $finder->getCount());
 
@@ -264,7 +272,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->checkServerState($publishedDocs, 'published');
 
         // unpublished
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerState('unpublished');
         $this->assertEquals(2, count($finder->getIds()));
 
@@ -273,7 +281,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->checkServerState($unpublishedDocs, 'unpublished');
 
         // deleted
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerState('deleted');
         $this->assertEquals(2, count($finder->getIds()));
 
@@ -290,24 +298,24 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // all
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $types  = $finder->getDocumentTypes();
         $this->assertEquals(3, count($types));
 
         // published
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerState('published');
         $types = $finder->getDocumentTypes();
         $this->assertEquals(2, count($types));
 
         // unpublished
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerState('unpublished');
         $types = $finder->getDocumentTypes();
         $this->assertEquals(2, count($types));
 
         // deleted
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerState('deleted');
         $types = $finder->getDocumentTypes();
         $this->assertEquals(2, count($types));
@@ -321,7 +329,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // By Author
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
 
         $finder->setOrder(DocumentFinderInterface::ORDER_AUTHOR);
 
@@ -338,7 +346,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // By Id
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
 
         $finder->setOrder(DocumentFinderInterface::ORDER_ID);
 
@@ -366,7 +374,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // By ServerDatePublished
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
 
         $finder->setOrder(DocumentFinderInterface::ORDER_SERVER_DATE_PUBLISHED);
 
@@ -393,7 +401,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // By TitleMain
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
 
         $finder->setOrder(DocumentFinderInterface::ORDER_TITLE);
 
@@ -411,7 +419,7 @@ class DefaultDocumentFinderTest extends TestCase
         $this->prepareDocuments();
 
         // By DocumentType
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
 
         $finder->setOrder(DocumentFinderInterface::ORDER_DOCUMENT_TYPE);
 
@@ -444,17 +452,17 @@ class DefaultDocumentFinderTest extends TestCase
         $date->setDay(date('d') - 1);
         $date->setHour(date('H') - 1);
 
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $this->assertEquals(6, $finder->getCount());
         $finder->setServerDateCreatedAfter(date("Y-m-d", time() + (60 * 60 * 24)));
         $this->assertEquals(0, $finder->getCount());
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerDateCreatedAfter(date("Y-m-d", time() - (60 * 60 * 24)));
         $this->assertEquals(6, $finder->getCount());
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerDateCreatedBefore(date("Y-m-d", time() - (60 * 60 * 24)));
         $this->assertEquals(0, $finder->getCount());
-        $finder = new DefaultDocumentFinder();
+        $finder = $this->createDocumentFinder();
         $finder->setServerDateCreatedBefore(date("Y-m-d", time() + (60 * 60 * 24)));
         $this->assertEquals(6, $finder->getCount());
     }
@@ -486,7 +494,7 @@ class DefaultDocumentFinderTest extends TestCase
         $titleId = $title->store();
 
         $title        = new Title($titleId);
-        $docfinder    = new DefaultDocumentFinder();
+        $docfinder    = $this->createDocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($title)->getIds();
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
         $this->assertTrue(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID in result set');
@@ -504,7 +512,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc2->addPersonAuthor($author);
         $doc2->store();
 
-        $docfinder    = new DefaultDocumentFinder();
+        $docfinder    = $this->createDocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($author)->getIds();
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
         $this->assertTrue(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID in result set');
@@ -520,7 +528,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc1->store();
 
         $licence      = new Licence($licenceId);
-        $docfinder    = new DefaultDocumentFinder();
+        $docfinder    = $this->createDocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($licence)->getIds();
 
         $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
@@ -556,7 +564,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc3->store();
 
         $collection   = new Collection($collectionId);
-        $docfinder    = new DefaultDocumentFinder();
+        $docfinder    = $this->createDocumentFinder();
         $resultDocIds = $docfinder->setDependentModel($collection)->getIds();
 
         $this->assertEquals(2, count($resultDocIds), 'Excpected 2 IDs in result');
@@ -602,7 +610,7 @@ class DefaultDocumentFinderTest extends TestCase
 
         $mixedFileDocId = $mixedFileDoc->store();
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
         $docfinder->setHasFilesVisibleInOai();
         $foundIds = $docfinder->getIds();
 
@@ -621,7 +629,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc->setEmbargoDate('2016-10-14');
         $doc2Id = $doc->store();
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
         $docfinder->setEmbargoDateBefore('2016-10-15');
         $foundIds = $docfinder->getIds();
 
@@ -646,7 +654,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc->setEmbargoDate('2016-10-15');
         $doc3Id = $doc->store();
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
         $docfinder->setEmbargoDateAfter('2016-10-15');
         $foundIds = $docfinder->getIds();
 
@@ -672,7 +680,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc->setEmbargoDate('2016-10-14'); // in range
         $doc3Id = $doc->store();
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
         $docfinder->setEmbargoDateRange('2016-10-14', '2016-10-16');
         $foundIds = $docfinder->getIds();
 
@@ -704,7 +712,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc->setEmbargoDate($tomorrow);
         $expiredNotUpdatedId = $doc->store(); // in result -  expired and saved before expiration
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
         $docfinder->setEmbargoDateBefore($dayaftertomorrow);
         $docfinder->setNotModifiedAfterEmbargoDate();
         $foundIds = $docfinder->getIds();
@@ -737,7 +745,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc->setEmbargoDate($future);
         $futureId = $doc->store();
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
         $docfinder->setEmbargoDateBefore($now);
         $foundIds = $docfinder->getIds();
 
@@ -770,7 +778,7 @@ class DefaultDocumentFinderTest extends TestCase
         $doc->setServerState('unpublished');
         $unpublishedId = $doc->store();
 
-        $docfinder = new DefaultDocumentFinder();
+        $docfinder = $this->createDocumentFinder();
 
         $docfinder->setServerState('published');
         $docfinder->setDocumentType('article');
