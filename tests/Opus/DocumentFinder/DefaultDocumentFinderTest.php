@@ -258,31 +258,29 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testGroupedDocumentTypes()
     {
-        $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function groupedTypes() is no part of the DocumentFinderInterface');
-
         $this->prepareDocuments();
 
         // all
         $finder = new DefaultDocumentFinder();
-        $types  = $finder->groupedTypes();
+        $types  = $finder->getDocumentTypes();
         $this->assertEquals(3, count($types));
 
         // published
         $finder = new DefaultDocumentFinder();
         $finder->setServerState('published');
-        $types = $finder->groupedTypes();
+        $types = $finder->getDocumentTypes();
         $this->assertEquals(2, count($types));
 
         // unpublished
         $finder = new DefaultDocumentFinder();
         $finder->setServerState('unpublished');
-        $types = $finder->groupedTypes();
+        $types = $finder->getDocumentTypes();
         $this->assertEquals(2, count($types));
 
         // deleted
         $finder = new DefaultDocumentFinder();
         $finder->setServerState('deleted');
-        $types = $finder->groupedTypes();
+        $types = $finder->getDocumentTypes();
         $this->assertEquals(2, count($types));
     }
 
@@ -538,10 +536,8 @@ class DefaultDocumentFinderTest extends TestCase
         $this->assertTrue(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID in result set');
     }
 
-    public function testSetFilesVisibleInOai()
+    public function testSetHasFilesVisibleInOai()
     {
-        $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function setFilesVisibleInOai() is no part of the DocumentFinderInterface');
-
         $visibleFileDoc = Document::new();
         $visibleFile    = new File();
 
@@ -578,7 +574,7 @@ class DefaultDocumentFinderTest extends TestCase
         $mixedFileDocId = $mixedFileDoc->store();
 
         $docfinder = new DefaultDocumentFinder();
-        $docfinder->setFilesVisibleInOai();
+        $docfinder->setHasFilesVisibleInOai();
         $foundIds = $docfinder->getIds();
 
         $this->assertTrue(in_array($visibleFileDocId, $foundIds), 'Expected id of Document with visible file in OAI');
@@ -662,8 +658,6 @@ class DefaultDocumentFinderTest extends TestCase
      */
     public function testFindDocumentsWithExpiredEmbargoDateForUpdatingServerDateModified()
     {
-        $this->markTestSkipped('TODO DOCTRINE DBAL Issue #129: Function setEmbargoDateBeforeNotModifiedAfter() is no part of the DocumentFinderInterface');
-
         $tomorrow         = date('Y-m-d', time() + (60 * 60 * 24));
         $dayaftertomorrow = date('Y-m-d', time() + (2 * 60 * 60 * 24));
         $today            = date('Y-m-d', time());
@@ -682,7 +676,8 @@ class DefaultDocumentFinderTest extends TestCase
         $expiredNotUpdatedId = $doc->store(); // in result -  expired and saved before expiration
 
         $docfinder = new DefaultDocumentFinder();
-        $docfinder->setEmbargoDateBeforeNotModifiedAfter($dayaftertomorrow);
+        $docfinder->setEmbargoDateBefore($dayaftertomorrow);
+        $docfinder->setNotModifiedAfterEmbargoDate();
         $foundIds = $docfinder->getIds();
 
         $this->assertContains($expiredNotUpdatedId, $foundIds);
