@@ -183,9 +183,6 @@ class CollectionTest extends TestCase
         $child1 = $root->addLastChild();
         $root->store();
 
-        // FIXME: We have to reload model to get correct results!
-        $root = Collection::get($root->getId());
-
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
 
@@ -195,8 +192,6 @@ class CollectionTest extends TestCase
         $child1->addFirstChild();
         $child1->store();
 
-        // FIXME: We have to reload model to get correct results!
-        $root = Collection::get($root->getId());
 
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(2, count($root->getChildren()), 'Root collection should have two children.');
