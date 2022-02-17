@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,19 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Enrichment
+ * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
-class Opus_Enrichment_TextTypeTest extends TestCase
-{
+namespace OpusTest\Enrichment;
 
+use Opus\Enrichment\TextType;
+use OpusTest\TestAsset\TestCase;
+
+class TextTypeTest extends TestCase
+{
     public function testSetOptionsFromString()
     {
-        $textType = new Opus_Enrichment_TextType();
+        $textType = new TextType();
         $textType->setOptionsFromString("foo");
 
         $this->assertNull($textType->getOptions());
@@ -46,31 +52,31 @@ class Opus_Enrichment_TextTypeTest extends TestCase
 
     public function testGetDescription()
     {
-        $textType = new Opus_Enrichment_TextType();
+        $textType = new TextType();
         $this->assertEquals('admin_enrichmenttype_texttype_description', $textType->getDescription());
     }
 
     public function testGetName()
     {
-        $textType = new Opus_Enrichment_TextType();
+        $textType = new TextType();
         $this->assertEquals('TextType', $textType->getName());
     }
 
     public function testGetAllEnrichmentTypesRaw()
     {
-        $resultArr = Opus_Enrichment_TextType::getAllEnrichmentTypes(true);
+        $resultArr = TextType::getAllEnrichmentTypes(true);
         $this->assertNotEmpty($resultArr);
     }
 
     public function testGetAllEnrichmentTypes()
     {
-        $resultArr = Opus_Enrichment_TextType::getAllEnrichmentTypes();
+        $resultArr = TextType::getAllEnrichmentTypes();
         $this->assertNotEmpty($resultArr);
     }
 
     public function testRobustnessOfSetOptions()
     {
-        $textType = new Opus_Enrichment_TextType();
+        $textType = new TextType();
 
         $textType->setOptions(null);
 

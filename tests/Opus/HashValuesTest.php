@@ -26,18 +26,23 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_HashValuesTest extends TestCase
+namespace OpusTest;
+
+use Opus\HashValues;
+use OpusTest\TestAsset\TestCase;
+
+class HashValuesTest extends TestCase
 {
     /**
-     * @var    Opus_HashValues
+     * @var    HashValues
      * @access protected
      */
     protected $object;
@@ -50,7 +55,7 @@ class Opus_HashValuesTest extends TestCase
      */
     protected function setUp()
     {
-        $this->object = new Opus_HashValues;
+        $this->object = new HashValues();
     }
 
     /**

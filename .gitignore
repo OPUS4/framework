@@ -1,7 +1,9 @@
 # Local build files
 build
+.vagrant
 
 # Local files
+bin/composer
 composer.phar
 composer.lock
 cache.properties
@@ -13,7 +15,7 @@ vendor
 # Local test files
 tests/build
 tests/config.ini
-tests/workspace
+tests/config.ini.backup
 
 # IntelliJ IDEA files
 .idea

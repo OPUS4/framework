@@ -25,45 +25,58 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_CollectionRole
- * @author      Edouard Simon (edouard.simon@zib.de)
  * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @category    Tests
+ * @package     Opus\CollectionRole
+ * @author      Edouard Simon (edouard.simon@zib.de)
  */
 
-/**
- *
- */
-class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase
+namespace OpusTest\CollectionRole\Plugin;
+
+use Opus\Collection;
+use Opus\CollectionRole;
+use Opus\CollectionRole\Plugin\DeleteTree;
+use Opus\Document;
+use Opus\Model\Xml\Cache;
+use OpusTest\TestAsset\TestCase;
+
+use function sleep;
+
+class DeleteTreeTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['collections_roles', 'collections']);
+    }
 
     public function testPreDelete()
     {
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->setName('testRole');
         $collectionRole->setOaiName('testRole');
         $collectionRole->setVisible(1);
         $collectionRole->setVisibleBrowsingStart(1);
         $collectionRole->store();
 
-        $root = $collectionRole->addRootCollection();
+        $root       = $collectionRole->addRootCollection();
         $collection = $root->addLastChild();
         $collectionRole->store();
 
-
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
         $d->addCollection($collection);
         $docId = $d->store();
 
         $serverDateModifiedBeforeDelete = $d->getServerDateModified();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
 
-        $plugin = new Opus_CollectionRole_Plugin_DeleteTree();
+        $plugin = new DeleteTree();
 
         sleep(1);
 
@@ -71,7 +84,7 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase
 
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
-        $d = new Opus_Document($docId);
+        $d                       = new Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue(
             $serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(),
@@ -84,20 +97,18 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase
      */
     public function testDeletingOfCollectionRoleUsesCorrectIdForRootCollection()
     {
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->setName('ColRole1Name');
         $collectionRole->setOaiName('ColRole1OaiName');
         $colRole1Id = $collectionRole->store(); // ID = 1
 
-        $this->assertEquals('1', $colRole1Id, "Unexpected ID");
-
-        $root = $collectionRole->addRootCollection();
+        $root       = $collectionRole->addRootCollection();
         $collection = $root->addLastChild();
         $collectionRole->store();
 
         $collectionId = $collection->getId();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $doc->addCollection($collection); // associate document with Collection 2 of CollectionRole 1
 
@@ -107,22 +118,20 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase
 
         sleep(2);
 
-        $this->assertEquals('2', $collectionId);
-
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->setName('ColRole2Name');
         $collectionRole->setOaiName('ColRole2OaiName');
         $colRole2Id = $collectionRole->store();
 
-        $this->assertEquals('2', $colRole2Id);
+        $this->assertNotEquals($colRole1Id, $colRole2Id);
 
         $collectionRole->delete(); // deleting CollectionRole 2 should not affect document
 
         // make sure collection 2 still exists
-        $collection = new Opus_Collection($collectionId);
+        new Collection($collectionId);
 
         // make sure document ServerDateModified wasn't changed
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertEquals(
             $serverDateModified,

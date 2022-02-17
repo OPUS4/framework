@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,23 +25,38 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
+
+namespace Opus\File\Plugin;
+
+use Opus\Config;
+use Opus\File;
+use Opus\LoggingTrait;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractPlugin;
+use Opus\UserRole;
+
+use function strlen;
+use function trim;
 
 /**
  * Plugin for adding "default" privileges to a file.
  *
+ * @uses        \Opus\Model\AbstractModel
+ *
+ * TODO NAMESPACE rename class
+ *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
  */
-class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
+class DefaultAccess extends AbstractPlugin
 {
-
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Post-store hook will be called right after the document has been stored
@@ -48,32 +64,32 @@ class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
      *
      * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus\Model\ModelInterface $model)
+    public function postStore(ModelInterface $model)
     {
-        // only index Opus_File instances
-        if (false === ($model instanceof Opus_File)) {
-            $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus_File');
+        // only index Opus\File instances
+        if (false === $model instanceof File) {
+            $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus\File');
             return;
         }
 
-        // only new Opus_File instances
+        // only new Opus\File instances
         if (true !== $model->isNewRecord()) {
             return;
         }
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
-        if (! is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
+        if ($config !== null && isset($config->securityPolicy->files->defaultAccessRole)) {
             $roleName = $config->securityPolicy->files->defaultAccessRole;
 
             // Empty name -> don't set any role for access
             if (strlen(trim($roleName)) > 0) {
-                $accessRole = Opus_UserRole::fetchByName($roleName);
+                $accessRole = UserRole::fetchByName($roleName);
 
-                if (is_null($accessRole)) {
+                if ($accessRole === null) {
                     $this->getLogger()->err(
-                        __METHOD__ . ": Failed to add role '$roleName' to file " .
-                        $model->getId() . "; '$roleName' role does not exist!"
+                        __METHOD__ . ": Failed to add role '$roleName' to file "
+                        . $model->getId() . "; '$roleName' role does not exist!"
                     );
                     return;
                 }

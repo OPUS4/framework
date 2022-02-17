@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,20 +25,25 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Model
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Model
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-class Opus_Model_UnixTimestampField extends Opus_Model_DateField
-{
+namespace Opus\Model;
 
+/**
+ * phpcs:disable
+ */
+class UnixTimestampField extends DateField
+{
     /**
-     * Returns UNIX timestamp for Opus_Date, but does not allow setting value.
+     * Returns UNIX timestamp for Opus\Date, but does not allow setting value.
      *
-     * Only return a timestamp if the Opus_Date object is including a time and a timezone. If it is just a date return
+     * Only return a timestamp if the Opus\Date object is including a time and a timezone. If it is just a date return
      * null.
      *
      * @param null $index
@@ -46,7 +52,7 @@ class Opus_Model_UnixTimestampField extends Opus_Model_DateField
     public function getValue($index = null)
     {
         $timestamp = $this->parent->getTimestamp();
-        if (! is_null($timestamp) and $timestamp > 0) {
+        if ($timestamp !== null && $timestamp > 0) {
             return $timestamp;
         } else {
             return null;
@@ -61,7 +67,7 @@ class Opus_Model_UnixTimestampField extends Opus_Model_DateField
      * from an Array the field UnixTimestamp cannot be set anymore.
      *
      * @param $value
-     * @return Opus_Model_Field|void
+     * @return Field|void
      */
     public function setValue($value)
     {

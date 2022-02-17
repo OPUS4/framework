@@ -25,26 +25,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Security
- * @author      Julian Heise <heise@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @category    Framework
+ * @package     Opus\Security
+ * @author      Julian Heise <heise@zib.de>
  */
+
+namespace Opus\Security;
 
 /**
  * Interface for classes providing security implementation.
+ *
+ * phpcs:disable
  */
-interface Opus_Security_IRealm
+interface IRealm
 {
-
     /**
      * Set the current username.
      *
      * @param string username username to be set.
-     * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
-     * @return Opus_Security_Realm Fluent interface.
+     * @throws SecurityException Thrown if the supplied identity could not be found.
+     * @return Realm Fluent interface.
      */
     public function setUser($username);
 
@@ -52,32 +55,32 @@ interface Opus_Security_IRealm
      * Set the current ip address.
      *
      * @param string ipaddress ip address to be set.
-     * @throws Opus_Security_Exception Thrown if the supplied ip address is not a valid ip address.
-     * @return Opus_Security_Realm Fluent interface.
+     * @throws SecurityException Thrown if the supplied ip address is not a valid ip address.
+     * @return Realm Fluent interface.
      */
     public function setIp($ipaddress);
 
     /**
      * Checks, if the logged user is allowed to access (document_id).
      *
-     * @param string $document_id ID of the document to check
-     * @return boolean  Returns true only if access is granted.
+     * @param null|string $document_id ID of the document to check
+     * @return bool Returns true only if access is granted.
      */
     public function checkDocument($document_id = null);
 
     /**
      * Checks, if the logged user is allowed to access (file_id).
      *
-     * @param string $file_id ID of the file to check
-     * @return boolean  Returns true only if access is granted.
+     * @param null|string $file_id ID of the file to check
+     * @return bool Returns true only if access is granted.
      */
     public function checkFile($file_id = null);
 
     /**
      * Checks, if the logged user is allowed to access (module_name).
      *
-     * @param string $module_name Name of the module to check
-     * @return boolean  Returns true only if access is granted.
+     * @param null|string $module_name Name of the module to check
+     * @return bool Returns true only if access is granted.
      */
     public function checkModule($module_name = null);
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,48 +25,60 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @copyright   Copyright (c) 2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2010-2020 OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
  */
+
+namespace Opus\Document\Plugin;
+
+use Opus\Document;
+use Opus\LoggingTrait;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractPlugin;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Cache;
+use Opus\Model\Xml\Version1;
+
+use function floor;
 
 /**
  * Plugin creating and deleting xml cache entries.
  *
+ * @uses        \Opus\Model\Plugin\AbstractPlugin
+ *
  * @category    Framework
- * @package     Opus_Document_Plugin
- * @uses        Opus\Model\Plugin\Abstract
+ * @package     Opus\Document\Plugin
  */
-class Opus_Document_Plugin_XmlCache extends Opus\Model\Plugin\AbstractPlugin
+class XmlCache extends AbstractPlugin
 {
-
-    use Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Function is only called if document was modified.
      *
-     * @see {Opus\Model\Plugin\PluginInterface::postStore}
+     * @see PluginInterface::postStore
      */
-    public function postStore(Opus\Model\ModelInterface $model)
+    public function postStore(ModelInterface $model)
     {
         $logger = $this->getLogger();
-        $logger->debug('Opus_Document_Plugin_XmlCache::postStore() with id ' . $model->getId());
+        $logger->debug(__METHOD__ . ' with id ' . $model->getId());
 
         // TODO can that be eleminated? why is it necessary?
-        $model = new Opus_Document($model->getId());
+        $model = Document::get($model->getId());
 
-        $cache = new Opus_Model_Xml_Cache(false);
+        $cache = new Cache(false);
 
         // remove document from cache. This can always be done, because postStore is only called if model was modified.
         $cache->remove($model->getId());
 
         // refresh cache (TODO does it make sense?)
-        $omx = new Opus_Model_Xml();
-        $omx->setStrategy(new Opus_Model_Xml_Version1())
+        $omx = new Xml();
+        $omx->setStrategy(new Version1())
             ->excludeEmptyFields()
             ->setModel($model)
             ->setXmlCache($cache);
@@ -73,15 +86,17 @@ class Opus_Document_Plugin_XmlCache extends Opus\Model\Plugin\AbstractPlugin
     }
 
     /**
-     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
+     * @see PluginInterface::postDelete
+     *
+     * @param int $modelId Model ID
      */
     public function postDelete($modelId)
     {
-        $cache = new Opus_Model_Xml_Cache(false);
-        $omx = new Opus_Model_Xml;
+        $cache = new Cache(false);
+        $omx   = new Xml();
 
         // xml version 1
-        $omx->setStrategy(new Opus_Model_Xml_Version1());
+        $omx->setStrategy(new Version1());
 
         $cache->remove($modelId, floor($omx->getStrategyVersion()));
     }

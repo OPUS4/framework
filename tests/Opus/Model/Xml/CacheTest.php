@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENCE
  * This code is free software: you can redistribute it and/or modify
@@ -11,55 +12,83 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * @category    Framework
- * @package     Opus_Model_Xml
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @copyright   Copyright (c) 2009-2019
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Model\Xml
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  */
+
+namespace OpusTest\Model\Xml;
+
+use DOMDocument;
+use Opus\Db\DocumentXmlCache;
+use Opus\Document;
+use Opus\Licence;
+use Opus\Model\ModelException;
+use Opus\Model\Xml\Cache;
+use Opus\Person;
+use Opus\TitleAbstract;
+use OpusTest\TestAsset\TestCase;
+use Zend_Date;
+
+use function array_key_exists;
+use function count;
+use function fclose;
+use function filesize;
+use function fopen;
+use function fread;
+use function libxml_use_internal_errors;
+use function mt_rand;
+use function rand;
 
 /**
  * Search Hit model class.
  *
  * @category    Framework
- * @package     Opus_Model_Xml
+ * @package     Opus\Model\Xml
  */
-class Opus_Model_Xml_CacheTest extends TestCase
+class CacheTest extends TestCase
 {
-
     /**
      * Holds generated cache entries for verifying.
      *
      * @var array
      */
-    private $_allEntries = [];
+    private $allEntries = [];
 
     /**
      * Defines how many cache entries should be genereated and / or available
      *
      * @var int
      */
-    private $_maxEntries = 5;
+    private $maxEntries = 5;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['document_xml_cache', 'documents', 'document_title_abstracts']);
+    }
 
     /**
      * Fill cache with some "random" data
-     *
-     * @return void
      */
-    private function _fillCache()
+    private function fillCache()
     {
         // initial test setup
-        $table = new Opus_Db_DocumentXmlCache;
-        for ($i = 0; $i < $this->_maxEntries; $i++) {
-            $data = [
-                'document_id' => $i + 1,
+        $table = new DocumentXmlCache();
+        for ($i = 0; $i < $this->maxEntries; $i++) {
+            $data               = [
+                'document_id'          => $i + 1,
                 'server_date_modified' => Zend_Date::now()->addSecond(rand(1, 59))->getIso(),
-                'xml_version' => $i % 2 ? 1 : 2,
-                'xml_data' => '<Opus><Opus_Document><Foo/></Opus_Document></Opus>',
+                'xml_version'          => $i % 2 ? 1 : 2,
+                'xml_data'             => '<Opus><Opus_Document><Foo/></Opus_Document></Opus>',
             ];
-            $this->_allEntries[] = $data;
+            $this->allEntries[] = $data;
             $table->insert($data);
         }
     }
@@ -69,24 +98,21 @@ class Opus_Model_Xml_CacheTest extends TestCase
      *
      * @return array
      */
-    private function _getRandomDataSet()
+    private function getRandomDataSet()
     {
         do {
-            $testId = mt_rand(0, $this->_maxEntries);
-        } while (false === array_key_exists($testId, $this->_allEntries));
+            $testId = mt_rand(0, $this->maxEntries);
+        } while (false === array_key_exists($testId, $this->allEntries));
 
-        $dataSet = $this->_allEntries[$testId];
-        return $dataSet;
+        return $this->allEntries[$testId];
     }
 
     /**
      * Test if an empty cache is empty.
-     *
-     * @return void
      */
     public function testCacheInitiallyEmpty()
     {
-        $cache = new Opus_Model_Xml_Cache();
+        $cache        = new Cache();
         $cacheEntries = $cache->getAllEntries();
 
         $this->assertEquals([], $cacheEntries, 'Xml cache is not empty.');
@@ -94,33 +120,26 @@ class Opus_Model_Xml_CacheTest extends TestCase
 
     /**
      * Test if a given set of data are properly returned.
-     *
-     * @return void
      */
     public function testGetAllEntriesReturnsAllCacheEntries()
     {
         // initial test setup
-        $this->_fillCache();
+        $this->fillCache();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache        = new Cache();
         $cacheEntries = $cache->getAllEntries();
 
-        $this->assertEquals($this->_maxEntries, count($cacheEntries), 'Expecting ' . $this->_maxEntries . ' inside cache.');
-        $this->assertEquals($this->_allEntries, $cacheEntries, 'Getting unexpected cache entries.');
+        $this->assertEquals($this->maxEntries, count($cacheEntries), 'Expecting ' . $this->maxEntries . ' inside cache.');
+        $this->assertEquals($this->allEntries, $cacheEntries, 'Getting unexpected cache entries.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testHasValidEntryReturnsTrueOnCacheHit()
     {
         // initial test setup
-        $this->_fillCache();
-        $dataSet = $this->_getRandomDataSet();
+        $this->fillCache();
+        $dataSet = $this->getRandomDataSet();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache      = new Cache();
         $validEntry = $cache->hasValidEntry(
             $dataSet['document_id'],
             $dataSet['xml_version'],
@@ -130,49 +149,33 @@ class Opus_Model_Xml_CacheTest extends TestCase
         $this->assertTrue($validEntry, 'Expecting a cache hit.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testHasValidEntryReturnsFalseOnMissedCacheHitWithEmptyCache()
     {
-
-        $cache = new Opus_Model_Xml_Cache;
+        $cache        = new Cache();
         $invalidEntry = $cache->hasValidEntry(0, 2, Zend_Date::now()->getIso());
 
         $this->assertFalse($invalidEntry, 'Expecting not a cache hit.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testHasValidEntryReturnsFalseOnMissedCacheHitWithFilledCache()
     {
         // initial test setup
-        $this->_fillCache();
+        $this->fillCache();
 
-        $cache = new Opus_Model_Xml_Cache;
-        $maxEntries = $this->_maxEntries;
+        $cache        = new Cache();
+        $maxEntries   = $this->maxEntries;
         $invalidEntry = $cache->hasValidEntry($maxEntries++, 2, Zend_Date::now()->getIso());
 
         $this->assertFalse($invalidEntry, 'Expecting not a cache hit.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testGetReturnsXmlDataByValidDocumentIdAndValidXmlVersion()
     {
         // initial test setup
-        $this->_fillCache();
-        $dataSet = $this->_getRandomDataSet();
+        $this->fillCache();
+        $dataSet = $this->getRandomDataSet();
 
-        $cache = new Opus_Model_Xml_Cache;
+        $cache     = new Cache();
         $cachedDom = $cache->get($dataSet['document_id'], $dataSet['xml_version']);
 
         $this->assertNotNull($cachedDom, 'Expecting a not empty DOMDocument');
@@ -181,8 +184,6 @@ class Opus_Model_Xml_CacheTest extends TestCase
     }
 
     /**
-     *
-     *
      * @return array
      */
     public function invalidCombinationOfIdAndVersion()
@@ -195,54 +196,49 @@ class Opus_Model_Xml_CacheTest extends TestCase
     }
 
     /**
-     *
-     *
+     * @param array $dataSet
      * @dataProvider invalidCombinationOfIdAndVersion
-     * @return void
      */
     public function testGetReturnsEmptyXmlByInvalidDataOnEmptyCache($dataSet)
     {
-
-        $cache = new Opus_Model_Xml_Cache;
+        $cache  = new Cache();
         $result = $cache->get($dataSet['document_id'], $dataSet['xml_version']);
 
-        $expectedXML = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
-        $this->assertEquals($expectedXML, $result->saveXML(), 'Expecting empty DOMDocument.');
+        $expectedXml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
+        $this->assertEquals($expectedXml, $result->saveXML(), 'Expecting empty DOMDocument.');
     }
 
     /**
-     *
-     *
+     * @param array $dataSet
      * @dataProvider invalidCombinationOfIdAndVersion
-     * @return void
      */
     public function testGetReturnsEmptyXmlByInvalidDataOnFilledCache($dataSet)
     {
         // initial test setup
-        $this->_fillCache();
+        $this->fillCache();
 
-        $cache = new Opus_Model_Xml_Cache;
+        $cache  = new Cache();
         $result = $cache->get($dataSet['document_id'], $dataSet['xml_version']);
 
-        $expectedXML = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
-        $this->assertEquals($expectedXML, $result->saveXML(), 'Expecting empty DOMDocument.');
+        $expectedXml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
+        $this->assertEquals($expectedXml, $result->saveXML(), 'Expecting empty DOMDocument.');
     }
 
     public function testGetWithValidXML()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
-        $cache = new Opus_Model_Xml_Cache;
-        $dom = $cache->get($doc->getId(), '1.0');
+        $cache = new Cache();
+        $dom   = $cache->get($doc->getId(), '1.0');
         $this->assertNotNull($dom);
     }
 
     public function testGetWithInvalidXML()
     {
-        $doc = new Opus_Document();
-        $abstract = new Opus_TitleAbstract();
+        $doc      = new Document();
+        $abstract = new TitleAbstract();
         $abstract->setLanguage('eng');
-        $handle = fopen(APPLICATION_PATH . '/tests/fulltexts/bad_abstract.txt', "rb");
+        $handle   = fopen(APPLICATION_PATH . '/tests/fulltexts/bad_abstract.txt', "rb");
         $contents = fread($handle, filesize(APPLICATION_PATH . '/tests/fulltexts/bad_abstract.txt'));
         $abstract->setValue($contents);
         fclose($handle);
@@ -252,11 +248,11 @@ class Opus_Model_Xml_CacheTest extends TestCase
         // need to be set: otherwise PHPUnit will throw an error
         $tmp = libxml_use_internal_errors(true);
 
-        $cache = new Opus_Model_Xml_Cache;
-        $dom = null;
+        $cache = new Cache();
+        $dom   = null;
         try {
             $dom = $cache->get($doc->getId(), '1.0');
-        } catch (Opus\Model\Exception $e) {
+        } catch (ModelException $e) {
             $this->assertNotNull($e);
             return;
         }
@@ -266,27 +262,21 @@ class Opus_Model_Xml_CacheTest extends TestCase
         libxml_use_internal_errors($tmp);
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testPuttingDataInCache()
     {
-
-        $documentId = 1;
-        $xmlVersion = 2;
+        $documentId         = 1;
+        $xmlVersion         = 2;
         $serverDateModified = Zend_Date::now()->getIso();
-        $dom = new DOMDocument('1.0', 'utf-8');
-        $opus = $dom->createElement('Opus');
+        $dom                = new DOMDocument('1.0', 'utf-8');
+        $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
         $opusDocument = $dom->createElement('Opus_Document');
         $opus->appendChild($opusDocument);
 
-        $table = new Opus_Db_DocumentXmlCache();
+        $table       = new DocumentXmlCache();
         $beforeInput = $table->fetchAll()->count();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $cache->put(
             $documentId,
             $xmlVersion,
@@ -300,24 +290,18 @@ class Opus_Model_Xml_CacheTest extends TestCase
         $this->assertEquals($dom->saveXML(), $cache->get($documentId, $xmlVersion)->saveXML(), 'Cached xml data differ from given data.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testRemoveCacheEntry()
     {
-
-        $this->_fillCache();
-        $dataSet = $this->_getRandomDataSet();
-        $documentId = $dataSet['document_id'];
-        $xmlVersion = $dataSet['xml_version'];
+        $this->fillCache();
+        $dataSet            = $this->getRandomDataSet();
+        $documentId         = $dataSet['document_id'];
+        $xmlVersion         = $dataSet['xml_version'];
         $serverDateModified = $dataSet['server_date_modified'];
 
-        $table = new Opus_Db_DocumentXmlCache();
+        $table        = new DocumentXmlCache();
         $beforeRemove = $table->fetchAll()->count();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache  = new Cache();
         $result = $cache->remove($documentId, $xmlVersion);
 
         $afterRemove = $table->fetchAll()->count();
@@ -332,36 +316,30 @@ class Opus_Model_Xml_CacheTest extends TestCase
      */
     public function testClearCache()
     {
-        $this->_fillCache();
-        $cache = new Opus_Model_Xml_Cache();
-        $table = new Opus_Db_DocumentXmlCache();
+        $this->fillCache();
+        $cache = new Cache();
+        $table = new DocumentXmlCache();
 
         $beforeRemove = $table->fetchAll()->count();
         $cache->clear();
         $afterRemove = $table->fetchAll()->count();
 
-        $this->assertEquals($this->_maxEntries, $beforeRemove);
+        $this->assertEquals($this->maxEntries, $beforeRemove);
         $this->assertEquals(0, $afterRemove);
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testRemoveAllEntriesWhereDocumentId()
     {
-
-        $this->_fillCache();
-        $dataSet = $this->_getRandomDataSet();
-        $documentId = $dataSet['document_id'];
-        $xmlVersion = $dataSet['xml_version'];
+        $this->fillCache();
+        $dataSet            = $this->getRandomDataSet();
+        $documentId         = $dataSet['document_id'];
+        $xmlVersion         = $dataSet['xml_version'];
         $serverDateModified = $dataSet['server_date_modified'];
 
-        $table = new Opus_Db_DocumentXmlCache();
+        $table        = new DocumentXmlCache();
         $beforeRemove = $table->fetchAll()->count();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $cache->remove($documentId);
 
         $afterRemove = $table->fetchAll()->count();
@@ -381,57 +359,39 @@ class Opus_Model_Xml_CacheTest extends TestCase
         );
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testIfADocumentIsCached()
     {
-
-        $this->_fillCache();
-        $dataSet = $this->_getRandomDataSet();
+        $this->fillCache();
+        $dataSet    = $this->getRandomDataSet();
         $documentId = $dataSet['document_id'];
         $xmlVersion = $dataSet['xml_version'];
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
 
         $this->assertTrue($cache->hasCacheEntry($documentId, $xmlVersion), 'Expected cache entry.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testIfADocumentIsNotCached()
     {
-
         $documentId = mt_rand(1, 100);
         $xmlVersion = mt_rand(1, 2);
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $this->assertFalse($cache->hasCacheEntry($documentId, $xmlVersion), 'Expected no cache entry.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testPuttingSameDataSecondTimeDoesNotChangeCache()
     {
-
-        $documentId = 1;
-        $xmlVersion = 2;
+        $documentId         = 1;
+        $xmlVersion         = 2;
         $serverDateModified = Zend_Date::now()->getIso();
-        $dom = new DOMDocument('1.0', 'utf-8');
-        $opus = $dom->createElement('Opus');
+        $dom                = new DOMDocument('1.0', 'utf-8');
+        $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
         $opusDocument = $dom->createElement('Opus_Document');
         $opus->appendChild($opusDocument);
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $cache->put(
             $documentId,
             $xmlVersion,
@@ -439,10 +399,10 @@ class Opus_Model_Xml_CacheTest extends TestCase
             $dom
         );
 
-        $table = new Opus_Db_DocumentXmlCache();
+        $table           = new DocumentXmlCache();
         $beforeSecondPut = $table->fetchAll()->count();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $cache->put(
             $documentId,
             $xmlVersion,
@@ -455,24 +415,18 @@ class Opus_Model_Xml_CacheTest extends TestCase
         $this->assertEquals($beforeSecondPut, $afterSecondPut, 'Expecting no new cache entry.');
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testPuttingSDataSecondTimeDoesChangeCache()
     {
-
-        $documentId = 1;
-        $xmlVersion = 2;
+        $documentId         = 1;
+        $xmlVersion         = 2;
         $serverDateModified = Zend_Date::now()->getIso();
-        $dom = new DOMDocument('1.0', 'utf-8');
-        $opus = $dom->createElement('Opus');
+        $dom                = new DOMDocument('1.0', 'utf-8');
+        $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
         $opusDocument = $dom->createElement('Opus_Document');
         $opus->appendChild($opusDocument);
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $cache->put(
             $documentId,
             $xmlVersion,
@@ -480,13 +434,13 @@ class Opus_Model_Xml_CacheTest extends TestCase
             $dom
         );
 
-        $table = new Opus_Db_DocumentXmlCache();
+        $table           = new DocumentXmlCache();
         $beforeSecondPut = $table->fetchAll()->count();
 
         $serverDateModified = Zend_Date::now()->addSecond(mt_rand(1, 59))->getIso();
-        $subElement = $dom->createElement('SubElement');
+        $subElement         = $dom->createElement('SubElement');
         $opusDocument->appendChild($subElement);
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
         $cache->put(
             $documentId,
             $xmlVersion,
@@ -508,7 +462,7 @@ class Opus_Model_Xml_CacheTest extends TestCase
      */
     public function testCacheUpdatedForAddingPersonRightAfterStore()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType('doctoral_thesis');
         $doc->setLanguage('deu');
         $doc->setServerState('published');
@@ -522,17 +476,17 @@ class Opus_Model_Xml_CacheTest extends TestCase
 
         // sleep(1); // works with sleep
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('John');
         $person->setLastName('Doe');
         $doc->addPersonAuthor($person);
 
         $doc->store();
 
-        $table = new Opus_Db_DocumentXmlCache();
-        $rows = $table->fetchAll();
+        $table = new DocumentXmlCache();
+        $rows  = $table->fetchAll();
 
         $this->assertEquals(1, count($rows));
 
@@ -545,18 +499,18 @@ class Opus_Model_Xml_CacheTest extends TestCase
 
     public function testRemoveAllEntriesForDependentModel()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setNameLong('Test Licence');
         $licence->setLinkLicence('http://www.example.org');
         $licence->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType('article');
         $doc->setLanguage('deu');
         $doc->addLicence($licence);
         $docId = $doc->store();
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Cache();
 
         $this->assertNotNull($cache->getData($docId, '1.0'));
 

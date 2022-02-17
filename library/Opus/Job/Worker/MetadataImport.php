@@ -26,24 +26,31 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
+*/
+
+namespace Opus\Job\Worker;
+
+use Opus\Job;
+use Opus\Util\MetadataImport as MetadataImportHelper;
+use Zend_Log;
+
+use function is_object;
 
 /**
  * Worker for importing metadata
  */
-class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract
+class MetadataImport extends AbstractWorker
 {
-
     const LABEL = 'opus-metadata-import';
 
     /**
      * Constructs worker.
-     * @param Zend_Log $logger
+     *
+     * @param null|Zend_Log $logger
      */
     public function __construct($logger = null)
     {
@@ -60,31 +67,28 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract
         return self::LABEL;
     }
 
-
     /**
      * Perfom work.
      *
-     * @param Opus_Job $job Job description and attached data.
-     * @return array Array of Jobs to be newly created.
+     * @param Job $job Job description and attached data.
      */
-    public function work(Opus_Job $job)
+    public function work(Job $job)
     {
-
-        if ($job->getLabel() != $this->getActivationLabel()) {
-            throw new Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
+        if ($job->getLabel() !== $this->getActivationLabel()) {
+            throw new InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
         $data = $job->getData();
 
-        if (! (is_object($data) && isset($data->xml) && ! is_null($data->xml))) {
-             throw new Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
+        if (! (is_object($data) && isset($data->xml) && $data->xml !== null)) {
+             throw new InvalidJobException("Incomplete or missing data.");
         }
 
-        if (null !== $this->_logger) {
-            $this->_logger->debug("Importing Metadata:\n" . $data->xml);
+        if (null !== $this->logger) {
+            $this->logger->debug("Importing Metadata:\n" . $data->xml);
         }
 
-        $importer = new Opus_Util_MetadataImport($data->xml);
+        $importer = new MetadataImportHelper($data->xml);
         $importer->run();
     }
 }

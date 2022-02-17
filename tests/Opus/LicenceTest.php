@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,54 +25,67 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use Opus\Document;
+use Opus\Licence;
+use Opus\Model\DbConstrainViolationException;
+use Opus\Model\Xml\Cache;
+use OpusTest\TestAsset\TestCase;
+
+use function count;
+use function sleep;
+
 /**
- * Test cases for class Opus_Licence.
+ * Test cases for class Opus\Licence.
  *
  * @package Opus
  * @category Tests
- *
  * @group LicenceTest
  */
-class Opus_LicenceTest extends TestCase
+class LicenceTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, ['document_licences', 'link_documents_licences']);
+    }
 
     /**
      * Test if a set of licences can be retrieved by getAll().
-     *
-     * @return void
      */
     public function testRetrieveAllLicences()
     {
-        $lics[] = new Opus_Licence();
-        $lics[] = new Opus_Licence();
-        $lics[] = new Opus_Licence();
+        $lics[] = new Licence();
+        $lics[] = new Licence();
+        $lics[] = new Licence();
 
         foreach ($lics as $lic) {
             $lic->setNameLong('LongName');
             $lic->setLinkLicence('http://long.org/licence');
             $lic->store();
         }
-        $result = Opus_Licence::getAll();
+        $result = Licence::getAll();
         $this->assertEquals(count($lics), count($result), 'Wrong number of objects retrieved.');
     }
 
     /**
      * Test if the licences display name matches its long name.
-     *
-     * @return void
      */
     public function testDisplayNameMatchesLongName()
     {
-        $lic = new Opus_Licence();
+        $lic = new Licence();
         $lic->setNameLong('MyLongName');
         $this->assertEquals($lic->getNameLong(), $lic->getDisplayName(), 'Displayname does not match long name.');
     }
@@ -81,23 +95,22 @@ class Opus_LicenceTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $lic = new Opus_Licence();
+        $lic = new Licence();
         $lic->setNameLong('MyLongName');
         $lic->setLinkLicence('http://licence.link');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setLicence($lic);
         $docId = $doc->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
         $lic->setNameLong('EvenLongerName');
         $lic->store();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
-
 
     /**
      * Regression Test for OPUSVIER-3114
@@ -106,13 +119,13 @@ class Opus_LicenceTest extends TestCase
     {
         $fields = ['SortOrder', 'CommentInternal', 'PodAllowed'];
 
-        $licence = new Opus_Licence();
+        $licence   = new Licence();
         $licenceId = $licence
                 ->setNameLong('Test')
                 ->setLinkLicence('http://test')
                         ->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setLicence($licence);
@@ -122,7 +135,7 @@ class Opus_LicenceTest extends TestCase
 
         sleep(1);
 
-        $licence = new Opus_Licence($licenceId);
+        $licence = new Licence($licenceId);
         foreach ($fields as $fieldName) {
             $oldValue = $licence->{'get' . $fieldName}();
             $licence->{'set' . $fieldName}(1);
@@ -134,24 +147,24 @@ class Opus_LicenceTest extends TestCase
         }
 
         $licence->store();
-        $docReloaded = new Opus_Document($docId);
+        $docReloaded = new Document($docId);
 
         $this->assertEquals(
-            (string)$serverDateModified,
-            (string)$docReloaded->getServerDateModified(),
+            (string) $serverDateModified,
+            (string) $docReloaded->getServerDateModified(),
             'Expected no difference in server date modified.'
         );
     }
 
     public function testStoreName()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('Short name');
         $licence->setNameLong('Long name');
         $licence->setLinkLicence('link');
         $licenceId = $licence->store();
 
-        $licence = new Opus_Licence($licenceId);
+        $licence = new Licence($licenceId);
 
         $this->assertEquals('Short name', $licence->getName());
         $this->assertEquals('Long name', $licence->getNameLong());
@@ -159,47 +172,46 @@ class Opus_LicenceTest extends TestCase
 
     public function testFetchByName()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = Opus_Licence::fetchByName('CC BY 4.0');
+        $licence = Licence::fetchByName('CC BY 4.0');
 
         $this->assertNotNull($licence);
-        $this->assertInstanceOf('Opus_Licence', $licence);
+        $this->assertInstanceOf(Licence::class, $licence);
     }
 
     public function testFetchByNameUnknown()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = Opus_Licence::fetchByName('CC BY 3.0');
+        $licence = Licence::fetchByName('CC BY 3.0');
 
         $this->assertNull($licence);
     }
 
-    /**
-     * @expectedException Opus_Model_DbConstrainViolationException
-     * @expectedExceptionMessage Duplicate entry
-     */
     public function testNameUnique()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('CC BY 4.0');
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
         $licence->setLinkLicence('link 2');
+
+        $this->setExpectedException(DbConstrainViolationException::class, 'Duplicate entry');
+
         $licence->store();
     }
 
@@ -208,12 +220,12 @@ class Opus_LicenceTest extends TestCase
      */
     public function testNameNullNotUnique()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
         $licence->setLinkLicence('link 2');
         $licence->store();
@@ -221,7 +233,7 @@ class Opus_LicenceTest extends TestCase
 
     public function testToArray()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
 
         $licence->setActive(1);
         $licence->setCommentInternal('A comment about this licence.');
@@ -240,38 +252,38 @@ class Opus_LicenceTest extends TestCase
         $data = $licence->toArray();
 
         $this->assertEquals([
-            'Active' => 1,
+            'Active'          => 1,
             'CommentInternal' => 'A comment about this licence.',
-            'DescMarkup' => '<b>Licence Description Markup</b>',
-            'DescText' => 'Licence Description',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence',
-            'LinkLogo' => 'http://www.example.org/licence/logo',
-            'LinkSign' => 'http://www.example.org/licence/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'L',
-            'NameLong' => 'Licence',
-            'SortOrder' => 2,
-            'PodAllowed' => 1
+            'DescMarkup'      => '<b>Licence Description Markup</b>',
+            'DescText'        => 'Licence Description',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence',
+            'LinkLogo'        => 'http://www.example.org/licence/logo',
+            'LinkSign'        => 'http://www.example.org/licence/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'L',
+            'NameLong'        => 'Licence',
+            'SortOrder'       => 2,
+            'PodAllowed'      => 1,
         ], $data);
     }
 
     public function testFromArray()
     {
-        $licence = Opus_Licence::fromArray([
-            'Active' => 1,
+        $licence = Licence::fromArray([
+            'Active'          => 1,
             'CommentInternal' => 'A comment about this licence.',
-            'DescMarkup' => '<b>Licence Description Markup</b>',
-            'DescText' => 'Licence Description',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence',
-            'LinkLogo' => 'http://www.example.org/licence/logo',
-            'LinkSign' => 'http://www.example.org/licence/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'L',
-            'NameLong' => 'Licence',
-            'SortOrder' => 2,
-            'PodAllowed' => 1
+            'DescMarkup'      => '<b>Licence Description Markup</b>',
+            'DescText'        => 'Licence Description',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence',
+            'LinkLogo'        => 'http://www.example.org/licence/logo',
+            'LinkSign'        => 'http://www.example.org/licence/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'L',
+            'NameLong'        => 'Licence',
+            'SortOrder'       => 2,
+            'PodAllowed'      => 1,
         ]);
 
         $this->assertEquals(1, $licence->getActive());
@@ -291,22 +303,22 @@ class Opus_LicenceTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
 
         $licence->updateFromArray([
-            'Active' => 1,
+            'Active'          => 1,
             'CommentInternal' => 'A comment about this licence.',
-            'DescMarkup' => '<b>Licence Description Markup</b>',
-            'DescText' => 'Licence Description',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence',
-            'LinkLogo' => 'http://www.example.org/licence/logo',
-            'LinkSign' => 'http://www.example.org/licence/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'L',
-            'NameLong' => 'Licence',
-            'SortOrder' => 2,
-            'PodAllowed' => 1
+            'DescMarkup'      => '<b>Licence Description Markup</b>',
+            'DescText'        => 'Licence Description',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence',
+            'LinkLogo'        => 'http://www.example.org/licence/logo',
+            'LinkSign'        => 'http://www.example.org/licence/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'L',
+            'NameLong'        => 'Licence',
+            'SortOrder'       => 2,
+            'PodAllowed'      => 1,
         ]);
 
         $this->assertEquals(1, $licence->getActive());
@@ -326,18 +338,18 @@ class Opus_LicenceTest extends TestCase
 
     public function testIsUsed()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->updateFromArray([
-            'NameLong' => 'Licence',
-            'Name' => 'L',
-            'LinkLicence' => 'http://www.example.org/licence'
+            'NameLong'    => 'Licence',
+            'Name'        => 'L',
+            'LinkLicence' => 'http://www.example.org/licence',
         ]);
 
         $licence->store();
 
         $this->assertFalse($licence->isUsed());
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addLicence($licence);
         $doc->store();
 
@@ -346,24 +358,24 @@ class Opus_LicenceTest extends TestCase
 
     public function testGetDocumentCount()
     {
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->updateFromArray([
-            'NameLong' => 'Licence',
-            'Name' => 'L',
-            'LinkLicence' => 'http://www.example.org/licence'
+            'NameLong'    => 'Licence',
+            'Name'        => 'L',
+            'LinkLicence' => 'http://www.example.org/licence',
         ]);
 
         $licence->store();
 
         $this->assertEquals(0, $licence->getDocumentCount());
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addLicence($licence);
         $doc->store();
 
         $this->assertEquals(1, $licence->getDocumentCount());
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addLicence($licence);
         $doc->store();
 

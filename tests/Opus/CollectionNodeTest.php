@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,73 +25,70 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Collection
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
-
-
-/**
- * Test cases for class Opus_CollectionNode.
  *
  * @category    Tests
- * @package     Opus_Collection
- *
- * @group       CollectionTests
- *
+ * @package     Opus\Collection
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
-class Opus_CollectionNodeTest extends TestCase
+
+namespace OpusTest;
+
+use OpusTest\TestAsset\TestCase;
+
+use function rand;
+
+/**
+ * Test cases for class Opus\CollectionNode.
+ *
+ * @category    Tests
+ * @package     Opus\Collection
+ * @group       CollectionTests
+ */
+class CollectionNodeTest extends TestCase
 {
+    /** @var Opus\CollectionRole */
+    protected $roleFixture;
+    protected $roleName    = "";
+    protected $roleOaiName = "";
 
-    /**
-     * @var Opus_CollectionRole
-     */
-    protected $role_fixture;
-    protected $_role_name     = "";
-    protected $_role_oai_name = "";
-
-    /**
-     * @var Opus_CollectionNode
-     */
+    /** @var Opus\CollectionNode */
     protected $fixture;
-
 
     public function setUp()
     {
-        $this->markTestSkipped("deprecated");
-
         parent::setUp();
 
-        $this->_role_name     = "role-name-" . rand();
-        $this->_role_oai_name = "role-oainame-" . rand();
+        $this->markTestSkipped("deprecated");
 
-        $this->role_fixture = new Opus_CollectionRole();
-        $this->role_fixture->setName($this->_role_name);
-        $this->role_fixture->setOaiName($this->_role_oai_name);
-        $this->role_fixture->setVisible(1);
-        $this->role_fixture->setVisibleBrowsingStart(1);
+        $this->roleName    = "role-name-" . rand();
+        $this->roleOaiName = "role-oainame-" . rand();
 
-        $this->fixture = $this->role_fixture->addRootNode();
+        $this->roleFixture = new CollectionRole();
+        $this->roleFixture->setName($this->roleName);
+        $this->roleFixture->setOaiName($this->roleOaiName);
+        $this->roleFixture->setVisible(1);
+        $this->roleFixture->setVisibleBrowsingStart(1);
 
-        $this->role_fixture->store();
-        $role_id = $this->role_fixture->getId();
+        $this->fixture = $this->roleFixture->addRootNode();
+
+        $this->roleFixture->store();
+        $this->roleFixture->getId();
     }
 
     public function testNodeConstructor()
     {
-        $this->assertFalse(is_null($this->fixture->getId()), 'CollectionNode storing failed: should have an Id.');
-        $this->assertFalse(is_null($this->fixture->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
+        $this->assertNotNull($this->fixture->getId(), 'CollectionNode storing failed: should have an Id.');
+        $this->assertNotNull($this->fixture->getRoleId(), 'CollectionNode storing failed: should have an RoleId.');
 
         // Check, if we can create the object for this Id.
-        $node_id = $this->fixture->getId();
-        $node = new Opus_CollectionNode($node_id);
+        $nodeId = $this->fixture->getId();
+        $node   = new Opus_CollectionNode($nodeId);
 
-        $this->assertFalse(is_null($node), 'CollectionNode construction failed: collection is null.');
-        $this->assertFalse(is_null($node->getId()), 'CollectionNode storing failed: should have an Id.');
-        $this->assertFalse(is_null($node->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
+        $this->assertNotNull($node, 'CollectionNode construction failed: collection is null.');
+        $this->assertNotNull($node->getId(), 'CollectionNode storing failed: should have an Id.');
+        $this->assertNotNull($node->getRoleId(), 'CollectionNode storing failed: should have an RoleId.');
     }
 
     public function testNodeDelete()

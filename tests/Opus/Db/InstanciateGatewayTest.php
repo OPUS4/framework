@@ -25,32 +25,67 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace OpusTest\Db;
+
+use Exception;
+use Opus\Db\Accounts;
+use Opus\Db\Collections;
+use Opus\Db\CollectionsEnrichments;
+use Opus\Db\CollectionsRoles;
+use Opus\Db\DnbInstitutes;
+use Opus\Db\DocumentEnrichments;
+use Opus\Db\DocumentFiles;
+use Opus\Db\DocumentIdentifiers;
+use Opus\Db\DocumentLicences;
+use Opus\Db\DocumentNotes;
+use Opus\Db\DocumentPatents;
+use Opus\Db\DocumentReferences;
+use Opus\Db\Documents;
+use Opus\Db\DocumentStatistics;
+use Opus\Db\DocumentSubjects;
+use Opus\Db\DocumentTitleAbstracts;
+use Opus\Db\FileHashvalues;
+use Opus\Db\Ipranges;
+use Opus\Db\Languages;
+use Opus\Db\LinkAccountsRoles;
+use Opus\Db\LinkDocumentsCollections;
+use Opus\Db\LinkDocumentsDnbInstitutes;
+use Opus\Db\LinkDocumentsLicences;
+use Opus\Db\LinkIprangesRoles;
+use Opus\Db\LinkPersonsDocuments;
+use Opus\Db\Persons;
+use Opus\Db\TableGateway;
+use Opus\Db\UserRoles;
+use OpusTest\TestAsset\TestCase;
+
+use function get_class;
+use function is_array;
 
 /**
  * Test cases for instanciation of table gateway classes.
  *
  * @category    Tests
- * @package     Opus_Db
- *
+ * @package     Opus\Db
  * @group       InstanciateGatewayTest
  */
-class Opus_Db_InstanciateGatewayTest extends TestCase
+class InstanciateGatewayTest extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
@@ -63,33 +98,33 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
     public function tableGatewayDataProvider()
     {
         return [
-            ['Opus_Db_Accounts'],
-            ['Opus_Db_CollectionsRoles'],
-            ['Opus_Db_Collections'],
-            ['Opus_Db_CollectionsEnrichments'],
-            ['Opus_Db_DnbInstitutes'],
-            ['Opus_Db_DocumentEnrichments'],
-            ['Opus_Db_DocumentFiles'],
-            ['Opus_Db_DocumentIdentifiers'],
-            ['Opus_Db_DocumentLicences'],
-            ['Opus_Db_DocumentNotes'],
-            ['Opus_Db_DocumentPatents'],
-            ['Opus_Db_DocumentReferences'],
-            ['Opus_Db_Documents'],
-            ['Opus_Db_DocumentStatistics'],
-            ['Opus_Db_DocumentSubjects'],
-            ['Opus_Db_DocumentTitleAbstracts'],
-            ['Opus_Db_FileHashvalues'],
-            ['Opus_Db_Ipranges'],
-            ['Opus_Db_Languages'],
-            ['Opus_Db_LinkAccountsRoles'],
-            ['Opus_Db_LinkDocumentsCollections'],
-            ['Opus_Db_LinkDocumentsDnbInstitutes'],
-            ['Opus_Db_LinkDocumentsLicences'],
-            ['Opus_Db_LinkIprangesRoles'],
-            ['Opus_Db_LinkPersonsDocuments'],
-            ['Opus_Db_Persons'],
-            ['Opus_Db_UserRoles'],
+            [Accounts::class],
+            [CollectionsRoles::class],
+            [Collections::class],
+            [CollectionsEnrichments::class],
+            [DnbInstitutes::class],
+            [DocumentEnrichments::class],
+            [DocumentFiles::class],
+            [DocumentIdentifiers::class],
+            [DocumentLicences::class],
+            [DocumentNotes::class],
+            [DocumentPatents::class],
+            [DocumentReferences::class],
+            [Documents::class],
+            [DocumentStatistics::class],
+            [DocumentSubjects::class],
+            [DocumentTitleAbstracts::class],
+            [FileHashvalues::class],
+            [Ipranges::class],
+            [Languages::class],
+            [LinkAccountsRoles::class],
+            [LinkDocumentsCollections::class],
+            [LinkDocumentsDnbInstitutes::class],
+            [LinkDocumentsLicences::class],
+            [LinkIprangesRoles::class],
+            [LinkPersonsDocuments::class],
+            [Persons::class],
+            [UserRoles::class],
         ];
     }
 
@@ -97,23 +132,20 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
      * Test if a given table gateway class can be instanciated.
      *
      * @param string $tableGateway Class name of a table gateway.
-     * @param mixed  $param        Special instanciation argument.
-     * @return void
-     *
      * @dataProvider tableGatewayDataProvider
      */
     public function testSpawnGateway($tableGateway)
     {
         try {
             // Test, if creating instance works.
-            $table = Opus_Db_TableGateway::getInstance($tableGateway);
+            $table = TableGateway::getInstance($tableGateway);
             $this->assertNotNull($table);
             $this->assertNotNull(get_class($table) === $tableGateway);
 
             $exampleRow = $table->createRow();
 
             // Test, if instance exists in instances array afterwards.
-            $instances = Opus_Db_TableGateway::getAllInstances();
+            $instances = TableGateway::getAllInstances();
             $this->assertTrue(
                 is_array($instances),
                 'Instances should be array.'
@@ -125,12 +157,12 @@ class Opus_Db_InstanciateGatewayTest extends TestCase
             );
 
             // Test, if second call gives same TableGateway.
-            $table_2 = Opus_Db_TableGateway::getInstance($tableGateway);
-            $this->assertNotNull($table_2);
-            $this->assertNotNull(get_class($table_2) === $tableGateway);
+            $table2 = TableGateway::getInstance($tableGateway);
+            $this->assertNotNull($table2);
+            $this->assertNotNull(get_class($table2) === $tableGateway);
 
             $this->assertTrue(
-                $table === $table_2,
+                $table === $table2,
                 'Singleton should return same object on second call'
             );
         } catch (Exception $ex) {

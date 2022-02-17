@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,27 +25,32 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Collection
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Collection
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-class Opus_ConfigTest extends TestCase
-{
+namespace OpusTest;
 
+use Opus\Config;
+use OpusTest\TestAsset\TestCase;
+
+class ConfigTest extends TestCase
+{
     /**
      * Checks if the configuration has been parsed properly.
      *
      * In some rare situations with additional single or double quotes, an INI file is not parsed properly. In that
      * case the last property 'syntaxCheck' will not be set properly.
      *
-     * @throws Zend_Exception
+     * @throws\Zend_Exception
      */
     public function testConfigValid()
     {
-        $config = Opus_Config::get();
+        $config = Config::get();
 
         $this->assertEquals(
             APPLICATION_ENV,

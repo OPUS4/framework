@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,50 +25,56 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Document_Plugin
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Document\Plugin
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
-class Opus_Document_Plugin_SequenceNumberTest extends TestCase
-{
+namespace OpusTest\Document\Plugin;
 
+use Opus\Config;
+use Opus\Document;
+use Opus\Document\Plugin\SequenceNumber;
+use Opus\Identifier;
+use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function count;
+
+class SequenceNumberTest extends TestCase
+{
     protected function setUp()
     {
         parent::setUp();
-        $config = Zend_Registry::get('Zend_Config');
-        $config = new Zend_Config($config->toArray(), 1);
-        $config = $config->merge(new Zend_Config([
+        Config::get()->merge(new Zend_Config([
             'sequence' => [
                 'identifier_type' => 'serial',
             ],
         ]));
-        Zend_Registry::set('Zend_Config', $config);
     }
 
     public function testExceptionOnInvalidModel()
     {
-        $config = new Zend_Config([]);
-        Zend_Registry::set('Zend_Config', $config);
+        Config::set(new Zend_Config([]));
 
-        $model = new Opus_Identifier;
-        $plugin = new Opus_Document_Plugin_SequenceNumber();
+        $model  = new Identifier();
+        $plugin = new SequenceNumber();
 
-        $this->setExpectedException('Opus_Document_Exception');
+        $this->setExpectedException(Document\DocumentException::class);
         $plugin->postStoreInternal($model);
     }
 
     public function testDontGenerateIdIfConfigNotSet()
     {
-        $config = new Zend_Config([]);
-        Zend_Registry::set('Zend_Config', $config);
+        Config::set(new Zend_Config([]));
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('published');
 
-        $plugin = new Opus_Document_Plugin_SequenceNumber();
+        $plugin = new SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
@@ -80,7 +87,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
 
     public function testDontGenerateIdOnUnpublishedDocument()
     {
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('unpublished');
 
         $this->assertEquals(
@@ -89,7 +96,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
             'List of identifiers should be empty *before* test.'
         );
 
-        $plugin = new Opus_Document_Plugin_SequenceNumber();
+        $plugin = new SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
@@ -102,7 +109,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
 
     public function testGenerateIdOnPublishedDocument()
     {
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('published');
 
         $this->assertEquals(
@@ -111,7 +118,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
             'List of identifiers should be empty *before* test.'
         );
 
-        $plugin = new Opus_Document_Plugin_SequenceNumber();
+        $plugin = new SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
@@ -133,7 +140,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
 
     public function testGenerateIdOnlyOnceOnPublishedDocument()
     {
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('published');
 
         $this->assertEquals(
@@ -142,12 +149,12 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
             'List of identifiers should be empty *before* test.'
         );
 
-        $plugin = new Opus_Document_Plugin_SequenceNumber();
+        $plugin = new SequenceNumber();
 
         // create ID in first run
         $plugin->postStoreInternal($model);
         $identifiers = $model->getIdentifier();
-        $id_first_run = $identifiers[0]->getValue();
+        $idFirstRun  = $identifiers[0]->getValue();
 
         // check IDs after second run
         $plugin->postStoreInternal($model);
@@ -159,7 +166,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
             'List of identifiers should contain only one new identifier.'
         );
         $this->assertEquals(
-            $id_first_run,
+            $idFirstRun,
             $identifiers[0]->getValue(),
             'The one-and-only identifiers should not change.'
         );
@@ -167,14 +174,14 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
 
     public function testGenerateIdOnPublishedDocumentWithExistingSequence()
     {
-        $existing_model = new Opus_Document();
-        $existing_model->setServerState('published');
-        $existing_model->addIdentifier()
+        $existingModel = new Document();
+        $existingModel->setServerState('published');
+        $existingModel->addIdentifier()
                 ->setType('serial')
                 ->setValue(10);
-        $existing_model->store();
+        $existingModel->store();
 
-        $model = new Opus_Document();
+        $model = new Document();
         $model->setServerState('published');
 
         $this->assertEquals(
@@ -183,7 +190,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
             'List of identifiers should be empty *before* test.'
         );
 
-        $plugin = new Opus_Document_Plugin_SequenceNumber();
+        $plugin = new SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
@@ -199,6 +206,6 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         );
         $this->assertEquals(11, $identifiers[0]->getValue());
 
-        $existing_model->deletePermanent();
+        $existingModel->delete();
     }
 }

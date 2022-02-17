@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,21 +25,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Enrichment
+ * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
-class Opus_Enrichment_RegexTypeTest extends TestCase
-{
+namespace OpusTest\Enrichment;
 
+use Opus\Enrichment\RegexType;
+use OpusTest\TestAsset\TestCase;
+
+class RegexTypeTest extends TestCase
+{
     public function testSetOptionsFromStringWithValidRegex()
     {
         $regex = "^.*$";
 
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
         $regexType->setOptionsFromString($regex);
 
         $json = $regexType->getOptions();
@@ -53,7 +59,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
     {
         $regex = "^.*$";
 
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
         $regexType->setOptionsFromString(['options' => $regex, 'validation' => '1']);
 
         $json = $regexType->getOptions();
@@ -70,7 +76,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
     {
         $regex = "^.*$";
 
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
         $regexType->setOptionsFromString(['options' => $regex, 'validation' => '0']);
 
         $json = $regexType->getOptions();
@@ -88,7 +94,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
         // this regex is intentionally invalid
         $regex = "[";
 
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
         $regexType->setOptionsFromString($regex);
 
         $this->assertNull($regexType->getOptions());
@@ -100,7 +106,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
     public function testSetOptionsFromStringWithNullArgument()
     {
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
         $regexType->setOptionsFromString(null);
 
         $this->assertNull($regexType->getOptions());
@@ -112,7 +118,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
     public function testSetOptions()
     {
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
 
         $regexAsJson = '{"regex":"^foo.*$","validation":"none"}';
 
@@ -124,7 +130,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
     public function testSetOptionsWithStrictValidation()
     {
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
 
         $regexAsJson = '{"regex":"^foo.*$","validation":"strict"}';
 
@@ -136,7 +142,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
     public function testGetOptions()
     {
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
 
         $json = $regexType->getOptions();
         $this->assertNull($json);
@@ -148,14 +154,14 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
 
     public function testGetOptionProperties()
     {
-        $regexType = new Opus_Enrichment_RegexType();
-        $props = $regexType->getOptionProperties();
+        $regexType = new RegexType();
+        $props     = $regexType->getOptionProperties();
         $this->assertEquals(['regex', 'validation'], $props);
     }
 
     public function testGetFormElementName()
     {
-        $regexType = new Opus_Enrichment_RegexType();
+        $regexType = new RegexType();
         $this->assertEquals('Text', $regexType->getFormElementName());
     }
 }

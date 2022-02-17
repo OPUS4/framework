@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,20 +26,20 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Db;
+
 /**
  * Table gateway class to table 'dnb_institutes'.
  *
- * @category    Framework
- * @package     Opus_Db
- *
+ * phpcs:disable
  */
-class Opus_Db_DnbInstitutes extends Opus_Db_TableGateway
+class DnbInstitutes extends TableGateway
 {
     /**
      * Table schema name.
@@ -48,10 +49,10 @@ class Opus_Db_DnbInstitutes extends Opus_Db_TableGateway
     protected $_name = 'dnb_institutes';
 
         /**
-     * All dependant Tables,
-     * i.e. those that contain a role_id as a foreign key.
-     *
-     * @var array $_dependantTables
-     */
-    protected $_dependentTables = ['Opus_Db_LinkDocumentsDnbInstitutes'];
+         * All dependant Tables,
+         * i.e. those that contain a role_id as a foreign key.
+         *
+         * @var array
+         */
+    protected $_dependentTables = [LinkDocumentsDnbInstitutes::class];
 }

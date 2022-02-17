@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,81 +25,75 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
- * @package     Opus_Db
+ * @package     Opus\Db
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace OpusTest\Db\Adapter\Pdo;
+
+use Exception;
+use Opus\Config;
+use OpusTest\TestAsset\TestCase;
+use Zend_Db;
+use Zend_Db_Table;
 
 /**
  * Test cases for Site entity.
  *
  * @category    Tests
- * @package     Opus_Db
- *
+ * @package     Opus\Db
  * @group       Mysqlutf8Test
  */
-class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase
+class Mysqlutf8Test extends TestCase
 {
-
-    /**
-     * @var Zend_Db_Adapter_Abstract
-     */
-    protected $dba_backup;
+    /** @var\Zend_Db_Adapter_Abstract */
+    protected $dbaBackup;
 
     /** Ensure a clean database table.
-     *
-     * @return void
      */
     public function setUp()
     {
         parent::setUp();
 
         // Clean setup of default database adapter
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         // Backup existing adapter
-        $this->dba_backup = Zend_Db_Table::getDefaultAdapter();
+        $this->dbaBackup = Zend_Db_Table::getDefaultAdapter();
 
-        // Use Zend_Db factory to create a database adapter and make it default.
-        if (is_null($config) or is_null($config->db)) {
+        // Use\Zend_Db factory to create a database adapter and make it default.
+        if ($config === null || $config->db === null) {
             throw new Exception("Config does not exist.");
         }
         $db = Zend_Db::factory($config->db);
         Zend_Db_Table::setDefaultAdapter($db);
-
-        // Register the adapter within Zend_Registry.
-        Zend_Registry::getInstance()->set('db_adapter', $db);
     }
 
     /**
      * Tear down database changed.
-     *
-     * @return void
      */
     public function tearDown()
     {
         // Close connection for clean transaction state.
         $dba = Zend_Db_Table::getDefaultAdapter();
-        if (! is_null($dba)) {
+        if ($dba !== null) {
             $dba->closeConnection();
         }
 
         // Restore existing adapter
-        Zend_Db_Table::setDefaultAdapter($this->dba_backup);
-        Zend_Registry::getInstance()->set('db_adapter', $this->dba_backup);
+        Zend_Db_Table::setDefaultAdapter($this->dbaBackup);
 
         parent::tearDown();
     }
 
     /**
      * Test if starting nested transactions gets handeld by the adapter.
-     *
-     * @return void
      */
     public function testStartNestingTransactions()
     {
@@ -113,8 +108,6 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase
 
     /**
      * Test if all opened transactions can be committed.
-     *
-     * @return void
      */
     public function testCommitNestedTransactions()
     {
@@ -135,13 +128,10 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase
         $this->fail('Commit without transaction goes ok.');
     }
 
-
     /**
      * Test if all opened transactions can be ended by rollback.
      *
      * FIXME: design fault: on rollback should abort all enclosing transactions!
-     *
-     * @return void
      */
     public function testRollbackNestedTransactions()
     {

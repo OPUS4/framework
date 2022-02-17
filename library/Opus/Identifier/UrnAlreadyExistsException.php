@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,20 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Identifier
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2012, OPUS 4 development team
+ * @copyright   Copyright (c) 2012-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @category    Framework
+ * @package     Opus\Identifier
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
+
+namespace Opus\Identifier;
+
+use Opus\Model\ModelException;
 
 /**
  * Extends default Exception class.
  *
  * @category    Framework
- * @package     Opus_Identifier
+ * @package     Opus\Identifier
  */
-class Opus_Identifier_UrnAlreadyExistsException extends Opus\Model\Exception
+class UrnAlreadyExistsException extends ModelException
 {
 }

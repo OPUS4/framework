@@ -25,24 +25,40 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Util_MetadataImportXmlValidation
-{
+namespace Opus\Util;
 
+use DOMDocument;
+
+use function libxml_clear_errors;
+use function libxml_get_errors;
+use function libxml_use_internal_errors;
+use function trim;
+
+use const DIRECTORY_SEPARATOR;
+use const LIBXML_ERR_ERROR;
+use const LIBXML_ERR_FATAL;
+use const LIBXML_ERR_WARNING;
+
+class MetadataImportXmlValidation
+{
+    /** @var mixed|null */
     private $xml;
 
-
+    /**
+     * @param null|DOMDocument $xml
+     */
     public function __construct($xml = null)
     {
         $this->xml = $xml;
     }
-
 
     public function checkValidXml()
     {
@@ -51,13 +67,15 @@ class Opus_Util_MetadataImportXmlValidation
         $useInternalErrors = libxml_use_internal_errors(true);
 
         if (! $this->xml->schemaValidate(__DIR__ . DIRECTORY_SEPARATOR . 'opus_import.xsd')) {
-            throw new Opus_Util_MetadataImportInvalidXmlException(self::getErrorMessage());
+            throw new MetadataImportInvalidXmlException(self::getErrorMessage());
         }
         libxml_use_internal_errors($useInternalErrors);
         libxml_clear_errors();
     }
 
-
+    /**
+     * @return string
+     */
     public static function getErrorMessage()
     {
         $errorMsg = '';

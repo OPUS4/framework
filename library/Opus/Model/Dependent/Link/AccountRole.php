@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,78 +25,79 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Model\Dependent\Link;
+
+use Opus\Db\LinkAccountsRoles;
+use Opus\UserRole;
 
 /**
  * Abstract class to linkt model account with model role in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  */
-class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Abstract
+class AccountRole extends AbstractLinkModel
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkAccountsRoles';
+    protected static $tableGatewayClass = LinkAccountsRoles::class;
 
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'account_id';
+    protected $parentColumn = 'account_id';
 
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_UserRole';
+    protected $modelClass = UserRole::class;
 
     /**
      * The name of the field containing an identifying string.
      *
      * @var string
      */
-    protected $_displayAttributeName = 'Name';
+    protected $displayAttributeName = 'Name';
 
     /**
      * Initialize model with the following values:
      * - Role
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_UserRole($this->_primaryTableRow->role_id));
+        if ($this->getId() !== null) {
+            $this->setModel(new UserRole($this->primaryTableRow->role_id));
         } else {
-            $this->setModel(new Opus_UserRole);
+            $this->setModel(new UserRole());
         }
     }
 
     /**
      * Persist foreign model & link.
-     *
-     * @return void
      */
     public function store()
     {
-        $this->_primaryTableRow->role_id = $this->_model->store();
+        $this->primaryTableRow->role_id = $this->model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->role_id) {
+        if ($this->getId() !== $this->primaryTableRow->role_id) {
             parent::store();
         }
     }

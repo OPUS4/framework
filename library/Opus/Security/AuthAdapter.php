@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,24 +25,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Security
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
- */
-
-/**
- * A simple authentication adapter using the Opus_Account mechanism.
  *
  * @category    Framework
- * @package     Opus_Security
+ * @package     Opus\Security
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
-class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
-{
 
+namespace Opus\Security;
+
+use Opus\Account;
+use Zend_Auth_Adapter_Exception;
+use Zend_Auth_Adapter_Interface;
+use Zend_Auth_Result;
+
+use function is_string;
+
+/**
+ * A simple authentication adapter using the Opus\Account mechanism.
+ *
+ * phpcs:disable
+ */
+class AuthAdapter implements Zend_Auth_Adapter_Interface
+{
     /**
      * Holds the login name.
      *
@@ -57,11 +65,11 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
     protected $_password;
 
     /**
-     * Holds an actual Opus_Account implementation.
+     * Holds an actual Opus\Account implementation.
      *
-     * @var Opus_Account
+     * @var Account
      */
-    protected $_account = null;
+    protected $_account;
 
     /**
      * Set the credential values for authentication.
@@ -69,7 +77,7 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
      * @param string $login    Login or account name .
      * @param string $password Account password.
      * @throws Zend_Auth_Adapter_Exception If given credentials are invalid.
-     * @return Opus_Security_AuthAdapter Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setCredentials($login, $password)
     {
@@ -82,7 +90,7 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
         if (empty($password) === true) {
             throw new Zend_Auth_Adapter_Exception('No password given.');
         }
-        $this->_login = $login;
+        $this->_login    = $login;
         $this->_password = $password;
         return $this;
     }
@@ -95,11 +103,10 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
      */
     public function authenticate()
     {
-
         // Try to get the account information
         try {
-            $account = new Opus_Account(null, null, $this->_login);
-        } catch (Exception $ex) {
+            $account = new Account(null, null, $this->_login);
+        } catch (SecurityException $ex) {
             return new Zend_Auth_Result(
                 Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND,
                 $this->_login,
@@ -110,9 +117,9 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
         // Check if password is correcct, but for old hashes.  Neede for
         // migrating md5-hashed passwords to SHA1-hashes.
         if ($account->isPasswordCorrectOldHash($this->_password) === true) {
-            Zend_Registry::get('Zend_Log')->warn('Migrating old password-hash for user: ' . $this->_login);
+            Log::get()->warn('Migrating old password-hash for user: ' . $this->_login);
             $account->setPassword($this->_password)->store();
-            $account = new Opus_Account(null, null, $this->_login);
+            $account = new Account(null, null, $this->_login);
         }
 
         // Check the password

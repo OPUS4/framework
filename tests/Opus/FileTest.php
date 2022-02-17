@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,49 +25,83 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use Exception;
+use Opus\Config;
+use Opus\Date;
+use Opus\Document;
+use Opus\File;
+use Opus\HashValues;
+use Opus\Model\ModelException;
+use Opus\Model\Xml\Cache;
+use Opus\Util\File as FileUtil;
+use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+
+use function array_key_exists;
+use function basename;
+use function chmod;
+use function dirname;
+use function fclose;
+use function file_exists;
+use function fopen;
+use function fwrite;
+use function in_array;
+use function is_dir;
+use function is_readable;
+use function mime_content_type;
+use function mkdir;
+use function rand;
+use function realpath;
+use function sleep;
+use function touch;
+use function uniqid;
+use function unlink;
+
+use const DIRECTORY_SEPARATOR;
+
 /**
- * Test cases for class Opus_File.
+ * Test cases for class Opus\File.
  *
  * @group FileTest
  */
-class Opus_FileTest extends TestCase
+class FileTest extends TestCase
 {
+    protected $srcPath = '';
 
-    protected $_src_path = '';
-
-    protected $_dest_path = '';
+    protected $destPath = '';
 
     /**
      * Clear test tables and establish directories
      * for filesystem tests in /tmp.
-     *
-     * @return void
      */
     public function setUp()
     {
         parent::setUp();
 
-        $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
+        $config = Config::get();
+        $path   = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
-        $this->_src_path = $path . DIRECTORY_SEPARATOR . 'src';
-        mkdir($this->_src_path, 0777, true);
+        $this->srcPath = $path . DIRECTORY_SEPARATOR . 'src';
+        mkdir($this->srcPath, 0777, true);
 
-        $this->_dest_path = $path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
-        mkdir($this->_dest_path, 0777, true);
-        mkdir($this->_dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
+        $this->destPath = $path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
+        mkdir($this->destPath, 0777, true);
+        mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
         $config->merge(new Zend_Config([
-            'workspacePath' => $this->_dest_path,
-            'checksum' => [
+            'workspacePath' => $this->destPath,
+            'checksum'      => [
                 'maxVerificationSize' => 1,
             ],
         ]));
@@ -76,28 +111,25 @@ class Opus_FileTest extends TestCase
      * Clear test tables and remove filesystem test directories.
      *
      * Roll back global configuration changes.
-     *
-     * @return void
      */
     public function tearDown()
     {
-        Opus_Util_File::deleteDirectory($this->_src_path);
-        Opus_Util_File::deleteDirectory($this->_dest_path);
+        FileUtil::deleteDirectory($this->srcPath);
+        FileUtil::deleteDirectory($this->destPath);
 
         parent::tearDown();
     }
 
     /**
-     *
      * @param string $filename
-     * @return Opus_Document
+     * @return Document
      */
-    private function _createDocumentWithFile($filename)
+    private function createDocumentWithFile($filename)
     {
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
         touch($filepath);
 
-        $doc = new Opus_Document;
+        $doc  = new Document();
         $file = $doc->addFile();
 
         $file->setTempFile($filepath);
@@ -108,13 +140,11 @@ class Opus_FileTest extends TestCase
     }
 
     /**
-     * Test if a valid Opus_File instance gets validated to be correct.
-     *
-     * @return void
+     * Test if a valid Opus\File instance gets validated to be correct.
      */
     public function testValidationIsCorrect()
     {
-        $file = new Opus_File;
+        $file = new File();
         $file->setPathName('23423432-3244.pdf');
         $file->setLabel('Volltextdokument (PDF)');
 
@@ -123,16 +153,14 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if validation failes when the files hash value is invalid.
-     *
-     * @return void
      */
     public function testValidationFailesOnInvalidHashValueModel()
     {
-        $hash = new Opus_HashValues;
+        $hash = new HashValues();
         $hash->setType('md5');
         $this->assertFalse($hash->isValid(), 'Hash model should validate to false.');
 
-        $file = new Opus_File;
+        $file = new File();
         $file->setPathName('23423432-3244.pdf');
         $file->setHashValue($hash);
 
@@ -148,15 +176,12 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if added files with tempory path get moved to destination path target filename.
-     *
-     * @return void
      */
     public function testFilesStoreDependent()
     {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
         $this->assertNotNull($file->getId(), "Storing file did not work out.");
         $this->assertEquals(
@@ -165,10 +190,10 @@ class Opus_FileTest extends TestCase
             "ParentId does not match parent model."
         );
 
-        $doc = new Opus_Document($id);
+        $doc  = new Document($id);
         $file = $doc->getFile(0);
 
-        $this->assertInstanceOf('Opus_File', $file, "getFile has wrong type."); // TODO should use assertInstanceOf
+        $this->assertInstanceOf(File::class, $file, "getFile has wrong type."); // TODO should use assertInstanceOf
         $this->assertEquals(
             $doc->getId(),
             $file->getParentId(),
@@ -184,34 +209,30 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if added files with tempory path get moved to destination path target filename.
-     *
-     * @return void
      */
     public function testFilesTemporaryAbsoluteSource()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $file->setTempFile($this->_src_path . DIRECTORY_SEPARATOR . 'foobar.pdf');
+        $file->setTempFile($this->srcPath . DIRECTORY_SEPARATOR . 'foobar.pdf');
         $id = $doc->store();
 
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has not been copied.'
         );
     }
 
     /**
      * Test if added files with tempory path get moved to destination path target filename.
-     *
-     * @return void
      */
     public function testFilesTemporaryRelativeSource()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
-        $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
+        $expectedPath = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -219,16 +240,14 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if added files with tempory path get moved to destination path target filename.
-     *
-     * @return void
      */
     public function testFilesExistsAfterDelete()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
-        $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
+        $expectedPath = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -239,16 +258,14 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if added files with tempory path get moved to destination path target filename.
-     *
-     * @return void
      */
     public function testDoDeleteReallyDeletesFileAndWorkingDirectory()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
-        $workingDir = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id;
+        $workingDir   = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id;
         $expectedPath = $workingDir . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
 
         $this->assertFileExists($expectedPath, 'File has not been copied.');
@@ -266,50 +283,46 @@ class Opus_FileTest extends TestCase
     }
 
     /**
-     * Test if DeletionToken implementation as defined in Opus_Model_Dependent_Abstract
-     * is provided by Opus_File.
-     *
-     * @return void
+     * Test if DeletionToken implementation as defined in Opus\Model\Dependent\AbstractDependentModel
+     * is provided by Opus\File.
      */
     public function testDeleteCallReturnsDeletionTokenAndNotActuallyRemovesAFile()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
         $token = $file->delete();
 
         $this->assertNotNull($token, 'No deletion token returned.');
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has been deleted.'
         );
     }
 
     /**
-     * Test if file and Opus_File model can be deleted by setting the containing Opus_Document field to null.
-     *
-     * @return void
+     * Test if file and Opus\File model can be deleted by setting the containing Opus\Document field to null.
      */
     public function testFileGetsDeletedThroughDocumentModel()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
-        // Reload Opus_Document and Opus_File.
-        $doc = new Opus_Document($id);
+        // Reload Opus\Document and Opus\File.
+        $doc  = new Document($id);
         $file = $doc->getFile(0);
 
         $doc->setFile(null);
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id .  DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has been deleted before the model has been stored.'
         );
 
         $doc->store();
         $this->assertFileNotExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has not been deleted after storing the model.'
         );
     }
@@ -317,21 +330,19 @@ class Opus_FileTest extends TestCase
     /**
      * Test if path settings for source and destination are loaded from the
      * application configuration.
-     *
-     * @return void
      */
     public function testIfPathSettingsGetLoadedFromConfiguration()
     {
-        $this->markTestSkipped('Fix test for our Opus_File.');
+        $this->markTestSkipped('Fix test for our Opus\File.');
 
-        $file = new Opus_File;
+        $file = new File();
         $this->assertEquals(
-            $this->_src_path,
+            $this->srcPath,
             realpath($file->getSourcePath()),
             'Wrong source path loaded from configuration.'
         );
         $this->assertEquals(
-            $this->_dest_path,
+            $this->destPath,
             realpath($file->getDestinationPath()),
             'Wrong destination path loaded from configuration.'
         );
@@ -339,14 +350,11 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if MimeType field is set withmime type of actual file
-     * after storing the Opus_File model.
-     *
-     * @return void
+     * after storing the Opus\File model.
      */
     public function testMimeTypeIsSetAfterStore()
     {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
@@ -364,24 +372,22 @@ class Opus_FileTest extends TestCase
 
     /**
      * Test if a changed path name results to a rename of the file.
-     *
-     * @return void
      */
     public function testChangingPathNameRenamesFile()
     {
-        $fileNameWrong = 'wrongName.pdf';
+        $fileNameWrong   = 'wrongName.pdf';
         $fileNameCorrect = 'correctName.pdf';
 
-        $doc = $this->_createDocumentWithFile($fileNameWrong);
-        $file = $doc->getFile(0);
+        $doc   = $this->createDocumentWithFile($fileNameWrong);
+        $file  = $doc->getFile(0);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc  = new Document($docId);
         $file = $doc->getFile(0); // get first file
         $file->setPathName($fileNameCorrect);
         $doc->store();
 
-        $path = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
+        $path = $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
         $this->assertFileExists(
             $path . $fileNameCorrect,
             'Expecting file renamed properly.'
@@ -393,19 +399,17 @@ class Opus_FileTest extends TestCase
     /**
      * Test if a failed renaming attempt throws an exception
      * and not altered any data
-     *
-     * @return void
      */
     public function testIfRenamingFailedExceptionIsThrownAndNoDataIsChanged()
     {
-        $fileNameWrong = 'wrongName.pdf';
+        $fileNameWrong   = 'wrongName.pdf';
         $fileNameCorrect = 'correctName.pdf';
 
-        $doc = $this->_createDocumentWithFile($fileNameWrong);
-        $file = $doc->getFile(0);
+        $doc   = $this->createDocumentWithFile($fileNameWrong);
+        $file  = $doc->getFile(0);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc  = new Document($docId);
         $file = $doc->getFile(0); // get first file
         $file->setPathName($fileNameCorrect);
 
@@ -416,53 +420,44 @@ class Opus_FileTest extends TestCase
             @chmod($path, 0777);
 
             $this->fail('Expected exception not thrown.');
-        } catch (Opus\Model\Exception $e) {
+        } catch (ModelException $e) {
             @chmod($path, 0777);
             $expectedMessage = 'Could not rename file from';
             $this->assertStringStartsWith($expectedMessage, $e->getMessage(), 'Caught wrong exception!');
         }
     }
 
-    /**
-     *
-     *
-     * @return void
-     */
     public function testUpdateFileObjectDoesNotDeleteStoredFile()
     {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $id = $doc->store();
+        $id   = $doc->store();
 
-        $file2 = new Opus_File($file->getId());
+        $file2 = new File($file->getId());
         $file2->setPathName('copied-foobar.pdf');
         $file2->setLabel('Volltextdokument (PDF) 2');
 
-        $doc = new Opus_Document($id);
+        $doc = new Document($id);
         $doc->setFile($file2);
         $doc->store();
 
         $this->assertFileExists(
-            $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+            $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File should not be deleted.'
         );
     }
 
     /**
      * Test if MimeType field is set withmime type of actual file
-     * after storing the Opus_File model.
-     *
-     * @return void
+     * after storing the Opus\File model.
      */
     public function testFileSizeIsSetAfterStore()
     {
-
         // Create zero file.
-        $filename = $this->_src_path . DIRECTORY_SEPARATOR . 'foobar.txt';
+        $filename = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar.txt';
         touch($filename);
 
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
@@ -473,11 +468,11 @@ class Opus_FileTest extends TestCase
         );
 
         // Create random-sized file.
-        $filename_nonzero = $this->_src_path . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
-        $fh = fopen($filename_nonzero, 'w');
+        $filenameNonZero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
+        $fh              = fopen($filenameNonZero, 'w');
 
-        if ($fh == false) {
-            $this->fail("Unable to write file $filename_nonzero.");
+        if ($fh === false) {
+            $this->fail("Unable to write file $filenameNonZero.");
         }
 
         $rand = rand(1, 100);
@@ -487,11 +482,10 @@ class Opus_FileTest extends TestCase
 
         fclose($fh);
 
-
-        $doc = new Opus_Document;
+        $doc  = new Document();
         $file = $doc->addFile();
 
-        $file->setTempFile($filename_nonzero);
+        $file->setTempFile($filenameNonZero);
         $file->setPathName('copied-foobar-nonzero.txt');
 
         $doc->store();
@@ -507,134 +501,119 @@ class Opus_FileTest extends TestCase
         );
     }
 
-
     /**
      * Test if md5 hash value of empty file matches expected value.
-     *
-     * @return void
      */
     public function testHashValueOfEmptyFileAfterStore()
     {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
-        $actual_hash = $file->getRealHash('md5');
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
-        $this->assertEquals($expected_hash, $actual_hash);
+        $actualHash   = $file->getRealHash('md5');
+        $expectedHash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertEquals($expectedHash, $actualHash);
 
         $this->assertTrue($file->canVerify());
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
     }
 
     /**
      * Test if md5 hash value of empty file matches expected value.
-     *
-     * @return void
      */
     public function testHashValueOfModifiedFileAfterStore()
     {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $expectedHash = 'd41d8cd98f00b204e9800998ecf8427e';
         $this->assertTrue($file->canVerify());
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
 
         $fh = fopen($file->getPath(), 'w');
-        if ($fh == false) {
+        if ($fh === false) {
             $this->fail("Unable to write file " . $file->getPath());
         }
 
         fwrite($fh, "foo");
         fclose($fh);
 
-        // need new object because Opus_File caches calculated hash values
-        $file = new Opus_File($file->getId());
+        // need new object because Opus\File caches calculated hash values
+        $file = new File($file->getId());
 
-        $this->assertFalse($file->verify('md5', $expected_hash));
+        $this->assertFalse($file->verify('md5', $expectedHash));
         $this->assertFalse($file->verifyAll());
     }
 
     public function testHashValueCachedOnceCalculated()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $expectedHash = 'd41d8cd98f00b204e9800998ecf8427e';
         $this->assertTrue($file->canVerify());
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
 
         $fh = fopen($file->getPath(), 'w');
-        if ($fh == false) {
+        if ($fh === false) {
             $this->fail("Unable to write file " . $file->getPath());
         }
 
         fwrite($fh, "foo");
         fclose($fh);
 
-        // file has been changed, but it is still the same Opus_File object and values have been cached
-        $this->assertTrue($file->verify('md5', $expected_hash));
+        // file has been changed, but it is still the same Opus\File object and values have been cached
+        $this->assertTrue($file->verify('md5', $expectedHash));
         $this->assertTrue($file->verifyAll());
     }
 
     /**
      * Test if md5 hash value of empty file matches expected value.
      *
-     * @return void
+     *
      * TODO Ist der Test komplett?
      */
     public function testInvalidHashAlgorithmAfterStore()
     {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
         $this->setExpectedException('Exception'); // TODO broken for PHPunit 3.6
-        $actual_hash = $file->getRealHash('md23');
+        $file->getRealHash('md23');
     }
 
     /**
      * Test if md5 hash value of empty file matches expected value.
-     *
-     * @return void
      */
     public function testDisabledVerifyInConfig()
     {
+        Config::get()->merge(new Zend_Config([
+            'workspacePath' => $this->destPath,
+            'checksum'      => [
+                'maxVerificationSize' => 0,
+            ],
+        ]));
 
-        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
-            new Zend_Config([
-                'workspacePath' => $this->_dest_path,
-                'checksum' => [
-                    'maxVerificationSize' => 0,
-                ],
-            ])
-        ));
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
         $this->assertFalse($file->canVerify());
 
-        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
-            new Zend_Config([
-                'workspacePath' => $this->_dest_path,
-                'checksum' => [
-                    'maxVerificationSize' => -1,
-                ],
-            ])
-        ));
+        Config::get()->merge(new Zend_Config([
+            'workspacePath' => $this->destPath,
+            'checksum'      => [
+                'maxVerificationSize' => -1,
+            ],
+        ]));
 
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
@@ -642,31 +621,29 @@ class Opus_FileTest extends TestCase
     }
 
     /**
-     * Test exists() function for Opus_File.
+     * Test exists() function for Opus\File.
      */
     public function testFileExists()
     {
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $doc  = $this->createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
         $fileId = $doc->getFile(0)->getId();
         $this->assertNotNull($fileId);
-        $file = new Opus_File($fileId);
+        $file = new File($fileId);
         $this->assertTrue($file->exists());
     }
 
     /**
      * Test if added files with tempory path get moved to destination path target filename.
-     *
-     * @return void
      */
     public function testAddFilesTwiceDoesNotOverwrite()
     {
         $filename = 'foobar.pdf';
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
         touch($filepath);
 
-        $doc = new Opus_Document;
+        $doc = new Document();
 
         $file = $doc->addFile();
         $file->setTempFile($filepath);
@@ -678,7 +655,7 @@ class Opus_FileTest extends TestCase
         $file->setPathName('copied-' . $filename);
         $file->setLabel('Volltextdokument-2 (PDF)');
 
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException(ModelException::class);
         $doc->store();
 
         // This code is not reached if the expected exception is thrown
@@ -688,16 +665,16 @@ class Opus_FileTest extends TestCase
     }
 
     /**
-     * Testing if ParentId will be set for Opus_Model_Dependant_Abstract.
+     * Testing if ParentId will be set for Opus\Model\Dependant\AbstractDependentModel.
      */
     public function testSettingParentId()
     {
-        $doc = new Opus_Document;
+        $doc = new Document();
         $doc->store();
         $this->assertNotNull($doc->getId());
 
         $filename = "foobar.pdf";
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
         touch($filepath);
 
         $file = $doc->addFile();
@@ -716,22 +693,22 @@ class Opus_FileTest extends TestCase
     public function testInvalidateDocumentCache()
     {
         $filename = "foobar.pdf";
-        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        $filepath = $this->srcPath . DIRECTORY_SEPARATOR . $filename;
 
         touch($filepath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article");
         $file = $doc->addFile();
         $file->setTempFile($filepath);
         $file->setPathName('copied-' . $filename);
         $file->setLabel('Volltextdokument (PDF)');
 
-        $docId = $doc->store();
-        $files = $doc->getFile();
-        $fileId = $files[0]->getId();
-        $file = new Opus_File($fileId);
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $docId    = $doc->store();
+        $files    = $doc->getFile();
+        $fileId   = $files[0]->getId();
+        $file     = new File($fileId);
+        $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
         $file->setLabel('Volltextdokument (geändert)');
         $file->store();
@@ -746,20 +723,20 @@ class Opus_FileTest extends TestCase
     public function testServerDateSubmittedSetForNewFiles()
     {
         $filepath = $this->createTestFile('foo.pdf');
-        $file = new Opus_File();
+        $file     = new File();
         $file->setPathName(basename($filepath));
         $file->setTempFile($filepath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addFile($file);
 
         $docId = $doc->store();
 
-        $dateNow = new Opus_Date();
+        $dateNow = new Date();
         $dateNow->setNow();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
 
         $file = $files[0];
@@ -782,24 +759,24 @@ class Opus_FileTest extends TestCase
     public function testServerDateSubmittedNotChangedOnStore()
     {
         $filepath = $this->createTestFile('test.file');
-        $file = new Opus_File();
+        $file     = new File();
         $file->setPathName(basename($filepath));
         $file->setTempFile($filepath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addFile($file);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
-        $files = $doc->getFile();
+        $doc         = new Document($docId);
+        $files       = $doc->getFile();
         $earlierDate = $files[0]->getServerDateSubmitted()->__toString();
 
         sleep(2);
         $files[0]->setComment(rand());
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
         $this->assertEquals($files[0]->getServerDateSubmitted()->__toString(), $earlierDate);
     }
@@ -807,16 +784,16 @@ class Opus_FileTest extends TestCase
     public function testServerDateSubmittedNotSetForOldFiles()
     {
         $filepath = $this->createTestFile('test.file');
-        $file = new Opus_File();
+        $file     = new File();
         $file->setPathName(basename($filepath));
         $file->setTempFile($filepath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addFile($file);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
 
         $this->assertNotNull($files[0]->getServerDateSubmitted());
@@ -824,7 +801,7 @@ class Opus_FileTest extends TestCase
         $files[0]->setServerDateSubmitted(null);
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
         $this->assertNull($files[0]->getServerDateSubmitted(), 'ServerDateSubmitted should not be set for old files.');
     }
@@ -832,26 +809,31 @@ class Opus_FileTest extends TestCase
     public function testSortOrderField()
     {
         $filepath = $this->createTestFile('foo.pdf');
-        $file = new Opus_File();
+        $file     = new File();
         $file->setPathName(basename($filepath));
         $file->setTempFile($filepath);
         $file->setSortOrder(1);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->addFile($file);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
 
         $this->assertEquals($files[0]->getSortOrder(), 1);
     }
 
+    /**
+     * @param string $filename
+     * @return string
+     * @throws Exception
+     */
     private function createTestFile($filename)
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
         if (! isset($config->workspacePath)) {
             throw new Exception("config key 'workspacePath' not defined in config file");
         }
@@ -868,12 +850,12 @@ class Opus_FileTest extends TestCase
     {
         $filePath = $this->createTestFile('test.txt');
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setPathName(basename($filePath));
         $file->setVisibleInOai(false);
         $file->setTempFile($filePath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->addFile($file);
 
         $docId = $doc->store();
@@ -889,11 +871,11 @@ class Opus_FileTest extends TestCase
     {
         $filePath = $this->createTestFile('test.txt');
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setPathName(basename($filePath));
         $file->setTempFile($filePath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $file->setVisibleInOai(0);
         $this->assertEquals(0, $file->getVisibleInOai());
@@ -908,13 +890,12 @@ class Opus_FileTest extends TestCase
         $doc->addFile($file);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $files = $doc->getFile();
-        $file = $files[0];
+        $file  = $files[0];
 
-        if ($file->getVisibleInOai()) {
-        } else {
+        if (! $file->getVisibleInOai()) {
             $this->fail('Did not recognize value true.');
         }
 
@@ -927,10 +908,10 @@ class Opus_FileTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $files = $doc->getFile();
-        $file = $files[0];
+        $file  = $files[0];
 
         if ($file->getVisibleInOai()) {
             $this->fail('Did not recognize value false.');
@@ -945,63 +926,69 @@ class Opus_FileTest extends TestCase
     {
         $filePath = $this->createTestFile('test.txt');
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setPathName(basename($filePath));
         $file->setTempFile($filePath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $doc->addFile($file);
-        $doc = new Opus_Document($doc->store()); // reload stored document
+        $doc = new Document($doc->store()); // reload stored document
 
         $file = $doc->getFile(0);
 
-        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertInstanceOf(File::class, $file);
         $this->assertEquals(1, $file->getVisibleInOai());
     }
 
     public function testVisibleInOaiDefaultConfigurable()
     {
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
-            'files' => ['visibleInOaiDefault' => 0]
+        Config::get()->merge(new Zend_Config([
+            'files' => ['visibleInOaiDefault' => 0],
         ]));
 
         $filePath = $this->createTestFile('test.txt');
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setPathName(basename($filePath));
         $file->setTempFile($filePath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $doc->addFile($file);
 
-        $doc = new Opus_Document($doc->store()); // reload stored document
+        $doc = new Document($doc->store()); // reload stored document
 
         $file = $doc->getFile(0);
 
-        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertInstanceOf(File::class, $file);
         $this->assertEquals(0, $file->getVisibleInOai());
 
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
-            'files' => ['visibleInOaiDefault' => 1]
+        Config::get()->merge(new Zend_Config([
+            'files' => ['visibleInOaiDefault' => 1],
         ]));
 
         $filePath = $this->createTestFile('test.txt');
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setPathName(basename($filePath));
         $file->setTempFile($filePath);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $doc->addFile($file);
 
-        $doc = new Opus_Document($doc->store()); // reload stored document
+        $doc = new Document($doc->store()); // reload stored document
 
         $file = $doc->getFile(0);
 
-        $this->assertInstanceOf('Opus_File', $file);
+        $this->assertInstanceOf(File::class, $file);
         $this->assertEquals(1, $file->getVisibleInOai());
+    }
+
+    public function testGetModelType()
+    {
+        $file = new File();
+        $this->assertEquals('file', $file->getModelType());
     }
 }

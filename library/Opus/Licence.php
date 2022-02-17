@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,93 +25,93 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\DocumentFinder\DocumentFinderException;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
+
+use function count;
 
 /**
  * Domain model for licences in the Opus framework
  *
+ * @uses        \Opus\Model\Abstract
+ *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
- *
  * @method void setActive(boolean $active)
  * @method boolean getActive()
- *
  * @method void setCommentInternal(string $comment)
  * @method string getCommentInternal
- *
  * @method void setDescMarkup(string $markup)
  * @method string getDescMarkup()
- *
  * @method void setDescText(string $description)
  * @method string getDescText()
- *
  * @method void setLanguage(string $lang)
  * @method string getLanguage()
- *
  * @method void setLinkLicence(string $url)
  * @method string getLinkLicence()
- *
  * @method void setLinkLogo(string $url)
  * @method string getLinkLogo()
- *
  * @method void setLinkSign(string $url)
  * @method string getLinkSign()
- *
  * @method void setMimeType(string $mimeType)
  * @method string getMimeType()
- *
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setNameLong(string $longName)
  * @method string getNameLong()
- *
  * @method void setSortOrder(integer $position)
  * @method integer getSortOrder()
- *
  * @method void setPodAllowed(boolean $allowed)
  * @method boolean getPodAllowed()
  *
+ * phpcs:disable
  */
-class Opus_Licence extends Opus_Model_AbstractDb
+class Licence extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentLicences';
+    protected static $tableGatewayClass = Db\DocumentLicences::class;
 
     /**
-     * Retrieve all Opus_Licence instances from the database.
+     * Retrieve all Opus\Licence instances from the database.
      *
-     * @return array Array of Opus_Licence objects.
+     * @return array Array of Opus\Licence objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_Licence', 'Opus_Db_DocumentLicences', null, 'sort_order');
+        return self::getAllFrom(self::class, Db\DocumentLicences::class, null, 'sort_order');
     }
 
     /**
      * Fetch licence with matching name.
-     * @return Opus_Licence
+     *
+     * @return Licence
      */
     public static function fetchByName($name)
     {
-        $licences = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $licences->select()->where('name = ?', $name);
-        $row = $licences->fetchRow($select);
+        $licences = TableGateway::getInstance(self::$tableGatewayClass);
+        $select   = $licences->select()->where('name = ?', $name);
+        $row      = $licences->fetchRow($select);
 
         if (isset($row)) {
-            return new Opus_Licence($row);
+            return new Licence($row);
         }
 
         return null;
@@ -124,7 +125,7 @@ class Opus_Licence extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
@@ -143,46 +144,45 @@ class Opus_Licence extends Opus_Model_AbstractDb
      * - NameLong
      * - PodAllowed
      * - SortOrder
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $active = new Opus_Model_Field('Active');
+        $active = new Field('Active');
         $active->setCheckbox(true);
 
-        $commentInternal = new Opus_Model_Field('CommentInternal');
+        $commentInternal = new Field('CommentInternal');
         $commentInternal->setTextarea(true);
 
-        $descMarkup = new Opus_Model_Field('DescMarkup');
+        $descMarkup = new Field('DescMarkup');
         $descMarkup->setTextarea(true);
-        $descText = new Opus_Model_Field('DescText');
+        $descText = new Field('DescText');
         $descText->setTextarea(true);
 
-        $licenceLanguage = new Opus_Model_Field('Language');
-        if (Zend_Registry::isRegistered('Available_Languages') === true) {
-            $licenceLanguage->setDefault(Zend_Registry::get('Available_Languages'));
+        $licenceLanguage    = new Field('Language');
+        $availableLanguages = Config::getInstance()->getAvailableLanguages();
+        if ($availableLanguages !== null) {
+            $licenceLanguage->setDefault($availableLanguages);
         }
         $licenceLanguage->setSelection(true);
         $licenceLanguage->setMandatory(true);
 
-        $linkLicence = new Opus_Model_Field('LinkLicence');
+        $linkLicence = new Field('LinkLicence');
         $linkLicence->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $linkLogo = new Opus_Model_Field('LinkLogo');
-        $linkSign = new Opus_Model_Field('LinkSign');
-        $mimeType = new Opus_Model_Field('MimeType');
+        $linkLogo = new Field('LinkLogo');
+        $linkSign = new Field('LinkSign');
+        $mimeType = new Field('MimeType');
 
-        $name = new Opus_Model_Field('Name');
+        $name = new Field('Name');
 
-        $nameLong = new Opus_Model_Field('NameLong');
+        $nameLong = new Field('NameLong');
         $nameLong->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $sortOrder = new Opus_Model_Field('SortOrder');
+        $sortOrder = new Field('SortOrder');
 
-        $podAllowed = new Opus_Model_Field('PodAllowed');
+        $podAllowed = new Field('PodAllowed');
         $podAllowed->setCheckbox(true);
 
         $this->addField($active)
@@ -203,7 +203,7 @@ class Opus_Licence extends Opus_Model_AbstractDb
     /**
      * Returns long name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {
@@ -212,21 +212,23 @@ class Opus_Licence extends Opus_Model_AbstractDb
 
     /**
      * Checks if licence is used by documents.
+     *
      * @return bool true if licence is used, false if not
      */
     public function isUsed()
     {
-        return ($this->getDocumentCount() > 0);
+        return $this->getDocumentCount() > 0;
     }
 
     /**
      * Determines number of documents using this licence.
+     *
      * @return int Number of documents
-     * @throws Opus_DocumentFinder_Exception
+     * @throws DocumentFinderException
      */
     public function getDocumentCount()
     {
-        $finder = new Opus_DocumentFinder();
+        $finder = new DocumentFinder();
         $finder->setDependentModel($this);
         return count($finder->ids());
     }

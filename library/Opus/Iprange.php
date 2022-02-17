@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,55 +25,67 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Zend_Validate_Hostname;
+use Zend_Validate_NotEmpty;
+
+use function ip2long;
+use function long2ip;
+use function sprintf;
 
 /**
  * Domain model for iprange in the Opus framework
  *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\Abstract
+ *
+ * phpcs:disable
  */
-class Opus_Iprange extends Opus_Model_AbstractDb
+class Iprange extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Ipranges';
+    protected static $tableGatewayClass = Db\Ipranges::class;
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
-     * Opus_Db_Account table gateway.
+     * Opus\Db\Account table gateway.
+     *
+     * @see \Opus\Model\Abstract::$_externalFields
      *
      * @var array
-     * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = [
-            'Role' => [
-                'model' => 'Opus_UserRole',
-                'through' => 'Opus_Model_Dependent_Link_IprangeRole',
-                'fetch' => 'lazy'
-            ],
+    protected $externalFields = [
+        'Role' => [
+            'model'   => UserRole::class,
+            'through' => Model\Dependent\Link\IprangeRole::class,
+            'fetch'   => 'lazy',
+        ],
     ];
 
     /**
-     * Retrieve all Opus_Iprange instances from the database.
+     * Retrieve all Opus\Iprange instances from the database.
      *
-     * @return array Array of Opus_Iprange objects.
+     * @return array Array of Opus\Iprange objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_Iprange', 'Opus_Db_Ipranges');
+        return self::getAllFrom(self::class, Db\Ipranges::class);
     }
 
     /**
@@ -80,15 +93,13 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      * - staringip
      * - endingip
      * - Name
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $startingip = new Opus_Model_Field('Startingip');
-        $endingip = new Opus_Model_Field('Endingip');
-        $name = new Opus_Model_Field('Name');
-        $role = new Opus_Model_Field('Role');
+        $startingip = new Field('Startingip');
+        $endingip   = new Field('Endingip');
+        $name       = new Field('Name');
+        $role       = new Field('Role');
 
         $startingip->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
@@ -111,9 +122,9 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected function _storeStartingip()
     {
-        // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
-        if ($this->_fields['Startingip']->getValue() !== null) {
-            $this->_primaryTableRow->startingip = sprintf("%u", ip2long($this->_fields['Startingip']->getValue()));
+        // \Zend_Validate_NotEmpty ensures that this field can not be stored without value.
+        if ($this->fields['Startingip']->getValue() !== null) {
+            $this->primaryTableRow->startingip = sprintf("%u", ip2long($this->fields['Startingip']->getValue()));
         }
     }
 
@@ -124,9 +135,9 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected function _storeEndingip()
     {
-        // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
-        if ($this->_fields['Endingip']->getValue() !== null) {
-            $this->_primaryTableRow->endingip = sprintf("%u", ip2long($this->_fields['Endingip']->getValue()));
+        // \Zend_Validate_NotEmpty ensures that this field can not be stored without value.
+        if ($this->fields['Endingip']->getValue() !== null) {
+            $this->primaryTableRow->endingip = sprintf("%u", ip2long($this->fields['Endingip']->getValue()));
         }
     }
 
@@ -137,10 +148,10 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected function _fetchStartingip()
     {
-        if (empty($this->_primaryTableRow->startingip) === false) {
-            $result = long2ip($this->_primaryTableRow->startingip);
+        if (empty($this->primaryTableRow->startingip) === false) {
+            $result = long2ip($this->primaryTableRow->startingip);
         } else {
-            // FIXME: may conflict with Zend_Validate_NotEmpty?
+            // FIXME: may conflict with \Zend_Validate_NotEmpty?
             $result = null;
         }
         return $result;
@@ -153,10 +164,10 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected function _fetchEndingip()
     {
-        if (empty($this->_primaryTableRow->endingip) === false) {
-            $result = long2ip($this->_primaryTableRow->endingip);
+        if (empty($this->primaryTableRow->endingip) === false) {
+            $result = long2ip($this->primaryTableRow->endingip);
         } else {
-            // FIXME: may conflict with Zend_Validate_NotEmpty?
+            // FIXME: may conflict with \Zend_Validate_NotEmpty?
             $result = null;
         }
         return $result;
@@ -165,7 +176,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb
     /**
      * Returns long name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {

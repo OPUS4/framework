@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,19 +26,46 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_LanguageTest extends TestCase
+
+namespace OpusTest;
+
+use Opus\Document;
+use Opus\File;
+use Opus\Language;
+use Opus\Licence;
+use Opus\Model\DbException;
+use OpusTest\TestAsset\TestCase;
+
+use function count;
+
+class LanguageTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'languages',
+            'documents',
+            'document_subjects',
+            'document_files',
+            'document_title_abstracts',
+            'document_licences',
+            'link_documents_licences',
+        ]);
+    }
 
     public function testStoreLanguage()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2B('ger');
         $lang->setPart2T('deu');
         $lang->setPart1('de');
@@ -45,7 +73,7 @@ class Opus_LanguageTest extends TestCase
         $lang->setComment('test comment');
         $lang->store();
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertNotNull($lang);
         $this->assertEquals('ger', $lang->getPart2B());
@@ -60,19 +88,19 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetAll()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setActive(1);
         $lang->store();
 
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('deu');
         $lang->setRefName('German');
         $lang->setActive(0);
         $lang->store();
 
-        $languages = Opus_Language::getAll();
+        $languages = Language::getAll();
 
         $this->assertEquals(2, count($languages));
 
@@ -82,19 +110,19 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetAllActive()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setActive(1);
         $lang->store();
 
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('deu');
         $lang->setRefName('German');
         $lang->setActive(0);
         $lang->store();
 
-        $languages = Opus_Language::getAllActive();
+        $languages = Language::getAllActive();
 
         $this->assertEquals(1, count($languages));
 
@@ -103,7 +131,7 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetDisplayName()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('RefNameEnglish');
         $lang->setActive(1);
@@ -114,126 +142,126 @@ class Opus_LanguageTest extends TestCase
 
     public function testSetScope()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setScope('I');
         $lang->store();
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertEquals('I', $lang->getScope());
     }
 
     public function testSetScopeNull()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setScope(null);
         $lang->store();
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertNull($lang->getScope());
     }
 
     /**
      * TODO No exceptions without STRICT mode for MySQL
-     * TODO expectedException Opus_Model_DbException
+     * TODO expectedException Opus\Model\DbException
      * TODO expectedExceptionMessage Data truncated for column 'scope'
      */
     public function testSetScopeInvalid()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setScope('X');
 
         try {
             $lang->store();
-        } catch (Opus_Model_DbException $omde) {
+        } catch (DbException $omde) {
             $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
         }
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertEquals('', $lang->getScope());
     }
 
     public function testSetType()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setType('H');
         $lang->store();
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertEquals('H', $lang->getType());
     }
 
     public function testSetTypeNull()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setType(null);
         $lang->store();
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertNull($lang->getType());
     }
 
     /**
      * TODO No exceptions without STRICT mode for MySQL
-     * TODO expectedException Opus_Model_DbException
+     * TODO expectedException Opus\Model\DbException
      * TODO expectedExceptionMessage Data truncated for column 'type'
      */
     public function testSetTypeInvalid()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setType('X');
 
         try {
             $lang->store();
-        } catch (Opus_Model_DbException $omde) {
+        } catch (DbException $omde) {
             $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
         }
 
-        $lang = new Opus_Language($lang->getId());
+        $lang = new Language($lang->getId());
 
         $this->assertEquals('', $lang->getType());
     }
 
     public function testGetPart2tForPart1()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('deu');
         $lang->setRefName('German');
         $lang->setPart1('de');
         $lang->setType(null);
         $lang->store();
 
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setPart2T('eng');
         $lang->setRefName('English');
         $lang->setPart1('en');
         $lang->setType(null);
         $lang->store();
 
-        $this->assertEquals('deu', Opus_Language::getPart2tForPart1('de'));
-        $this->assertEquals('eng', Opus_Language::getPart2tForPart1('en'));
-        $this->assertNull(Opus_Language::getPart2tForPart1('ch'));
+        $this->assertEquals('deu', Language::getPart2tForPart1('de'));
+        $this->assertEquals('eng', Language::getPart2tForPart1('en'));
+        $this->assertNull(Language::getPart2tForPart1('ch'));
     }
 
     public function testToArray()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
         $lang->setActive(1);
         $lang->setPart2B('ger');
         $lang->setPart2T('deu');
@@ -243,37 +271,37 @@ class Opus_LanguageTest extends TestCase
         $lang->setScope('I');
         $lang->setComment('Deutsche Sprache');
 
-        $lang = new Opus_Language($lang->store());
+        $lang = new Language($lang->store());
 
         $data = $lang->toArray();
 
         $this->assertEquals([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ], $data);
     }
 
     public function testFromArray()
     {
-        $lang = Opus_Language::fromArray([
+        $lang = Language::fromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $this->assertNotNull($lang);
-        $this->assertInstanceOf('Opus_Language', $lang);
+        $this->assertInstanceOf(Language::class, $lang);
         $this->assertEquals('Deutsche Sprache', $lang->getComment());
         $this->assertEquals('ger', $lang->getPart2B());
         $this->assertEquals('deu', $lang->getPart2T());
@@ -286,21 +314,21 @@ class Opus_LanguageTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $this->assertNotNull($lang);
-        $this->assertInstanceOf('Opus_Language', $lang);
+        $this->assertInstanceOf(Language::class, $lang);
         $this->assertEquals('Deutsche Sprache', $lang->getComment());
         $this->assertEquals('ger', $lang->getPart2B());
         $this->assertEquals('deu', $lang->getPart2T());
@@ -313,59 +341,59 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetLanguageCode()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $lang->store();
 
-        $this->assertEquals('ger', Opus_Language::getLanguageCode('ger'));
-        $this->assertEquals('ger', Opus_Language::getLanguageCode('deu'));
+        $this->assertEquals('ger', Language::getLanguageCode('ger'));
+        $this->assertEquals('ger', Language::getLanguageCode('deu'));
     }
 
     public function testGetLanguageCodeFromPart1()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $lang->store();
 
-        $this->assertEquals('de', Opus_Language::getLanguageCode('deu', 'part1'));
+        $this->assertEquals('de', Language::getLanguageCode('deu', 'part1'));
     }
 
     public function testGetUsedLanguages()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setLanguage('deu');
         $title = $document->addTitleMain();
         $title->setValue('Main Title');
         $title->setLanguage('eng');
         $document->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setLanguage('eng');
         $document->store();
 
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
         $this->assertCount(2, $languages);
@@ -374,19 +402,19 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesIncludesLicences()
     {
-        Opus_Language::clearCache();
-        $languages = Opus_Language::getUsedLanguages();
+        Language::clearCache();
+        $languages = Language::getUsedLanguages();
         $this->assertEmpty($languages);
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('TL');
         $licence->setNameLong('Test Licence');
         $licence->setLinkLicence('http://www.example.org');
         $licence->setLanguage('fra');
         $licence->store();
 
-        Opus_Language::clearCache();
-        $languages = Opus_Language::getUsedLanguages();
+        Language::clearCache();
+        $languages = Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
         $this->assertCount(1, $languages);
@@ -395,21 +423,21 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesIncludesFiles()
     {
-        Opus_Language::clearCache();
-        $languages = Opus_Language::getUsedLanguages();
+        Language::clearCache();
+        $languages = Language::getUsedLanguages();
         $this->assertEmpty($languages);
 
-        $document = new Opus_Document();
+        $document = new Document();
 
-        $file = new Opus_File();
+        $file = new File();
         $file->setLanguage('spa');
         $file->setPathName('test.txt');
         $document->addFile($file);
         $document->store();
 
-        Opus_Language::clearCache();
+        Language::clearCache();
 
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
         $this->assertCount(1, $languages);
@@ -418,20 +446,20 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesIncludesSubjects()
     {
-        Opus_Language::clearCache();
-        $languages = Opus_Language::getUsedLanguages();
+        Language::clearCache();
+        $languages = Language::getUsedLanguages();
         $this->assertEmpty($languages);
 
-        $document = new Opus_Document();
-        $subject = $document->addSubject();
+        $document = new Document();
+        $subject  = $document->addSubject();
         $subject->setLanguage('rus');
         $subject->setValue('Keyword');
         $subject->setType('SWD');
         $document->store();
 
-        Opus_Language::clearCache();
+        Language::clearCache();
 
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
         $this->assertCount(1, $languages);
@@ -440,24 +468,24 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesWithoutDuplicates()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setLanguage('fra');
         $document->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setLanguage('fra');
         $document->store();
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setName('TL');
         $licence->setNameLong('Test Licence');
         $licence->setLinkLicence('http://www.example.org');
         $licence->setLanguage('fra');
         $licence->store();
 
-        Opus_Language::clearCache();
+        Language::clearCache();
 
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
         $this->assertCount(1, $languages);
@@ -466,16 +494,16 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesWithoutNull()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setLanguage('fra');
         $document->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->store();
 
-        Opus_Language::clearCache();
+        Language::clearCache();
 
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
         $this->assertCount(1, $languages);
@@ -484,26 +512,26 @@ class Opus_LanguageTest extends TestCase
 
     public function testIsUsed()
     {
-        $lang = new Opus_Language();
+        $lang = new Language();
 
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
-            'Part2B' => 'ger',
-            'Part2T' => 'deu',
-            'Part1' => 'de',
-            'Scope' => 'I',
-            'Type' => 'L',
+            'Part2B'  => 'ger',
+            'Part2T'  => 'deu',
+            'Part1'   => 'de',
+            'Scope'   => 'I',
+            'Type'    => 'L',
             'RefName' => 'German',
-            'Active' => 1
+            'Active'  => 1,
         ]);
 
         $lang->store();
 
         $this->assertFalse($lang->isUsed());
 
-        Opus_Language::clearCache();
+        Language::clearCache();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setLanguage('deu');
         $document->store();
 

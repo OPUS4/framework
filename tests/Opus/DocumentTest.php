@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,6 +25,9 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
@@ -32,41 +36,107 @@
  * @author      Michael Lang <lang@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace OpusTest;
+
+use DateTime;
+use InvalidArgumentException;
+use Opus\Collection;
+use Opus\CollectionRole;
+use Opus\Config;
+use Opus\Date;
+use Opus\Db\Documents;
+use Opus\Db\TableGateway;
+use Opus\DnbInstitute;
+use Opus\Document;
+use Opus\Enrichment;
+use Opus\EnrichmentKey;
+use Opus\Identifier;
+use Opus\Identifier\Urn;
+use Opus\Licence;
+use Opus\Model\DbException;
+use Opus\Model\Dependent\Link\AbstractLinkModel;
+use Opus\Model\Dependent\Link\DocumentDnbInstitute;
+use Opus\Model\Dependent\Link\DocumentLicence;
+use Opus\Model\Dependent\Link\DocumentPerson;
+use Opus\Model\Field;
+use Opus\Model\Filter;
+use Opus\Model\ModelException;
+use Opus\Model\NotFoundException;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Cache;
+use Opus\Model\Xml\Version1;
+use Opus\Note;
+use Opus\Patent;
+use Opus\Person;
+use Opus\Series;
+use Opus\Subject;
+use Opus\SubjectSwd;
+use Opus\Title;
+use OpusTest\Model\Mock\ModelWithNonAbstractExtendingClassField;
+use OpusTest\TestAsset\TestCase;
+use Zend_Config;
+use Zend_Locale;
+
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_pop;
+use function array_reverse;
+use function array_shift;
+use function array_unique;
+use function count;
+use function date_format;
+use function is_array;
+use function is_file;
+use function is_int;
+use function ob_clean;
+use function ob_get_clean;
+use function ob_start;
+use function preg_match;
+use function rand;
+use function serialize;
+use function shuffle;
+use function sleep;
+use function sprintf;
+use function str_repeat;
+use function str_replace;
+use function substr;
+use function touch;
+use function ucfirst;
+use function ucwords;
+use function uniqid;
+use function unlink;
+use function unserialize;
+use function var_dump;
+
 /**
- * Test cases for class Opus_Document.
+ * Test cases for class Opus\Document.
  *
  * @package Opus
  * @category Tests
- *
  * @group DocumentTest
- *
  */
-class Opus_DocumentTest extends TestCase
+class DocumentTest extends TestCase
 {
-
-    private $testFiles;
-
     /**
      * Set up test fixture.
-     *
-     * @return void
      */
     public function setUp()
     {
         // Set up a mock language list.
         $list = ['de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch'];
-        Zend_Registry::set('Available_Languages', $list);
+        Config::getInstance()->setAvailableLanguages($list);
 
         parent::setUp();
+
+        $this->clearTables(false);
     }
 
     public function tearDown()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setDefaultPlugins(null);
 
         parent::tearDown();
@@ -74,28 +144,27 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if a Document instance can be serialized.
-     *
-     * @return void
      */
     public function testSerializing()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $ser = serialize($doc);
 
         $this->assertNotNull($ser, 'Serializing returned NULL.');
-        $match_result = preg_match('/"Opus_Document"/', $ser);
-        $this->assertTrue(is_int($match_result) && $match_result > 0, 'Serialized string does not contain Opus_Document as string.');
+        $matchResult = preg_match('/"Opus\\\\Document"/', $ser); // four backslashes necessary to match one '\'
+        $this->assertTrue(
+            is_int($matchResult) && $matchResult > 0,
+            'Serialized string does not contain Opus\Document as string.'
+        );
     }
 
     /**
      * Test if a serialized Document instance can be deserialized.
-     *
-     * @return void
      */
     public function testDeserializing()
     {
-        $doc1 = new Opus_Document();
-        $ser = serialize($doc1);
+        $doc1 = new Document();
+        $ser  = serialize($doc1);
         $doc2 = unserialize($ser);
         $this->assertEquals($doc1, $doc2, 'Deserializing unsuccesful.');
     }
@@ -106,23 +175,27 @@ class Opus_DocumentTest extends TestCase
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
      * associative array that represents valid document data.
      */
-    protected static $_validDocumentData = [[[
-        'Language' => 'de',
-        'ContributingCorporation' => 'Contributing, Inc.',
-        'CreatingCorporation' => 'Creating, Inc.',
-        'ThesisDateAccepted' => '1901-01-01',
-        'Edition' => 2,
-        'Issue' => 3,
-        'Volume' => 1,
-        'PageFirst' => 1,
-        'PageLast' => 297,
-        'PageNumber' => 297,
-        'ArticleNumber' => 42,
-        'CompletedYear' => 1960,
-        'CompletedDate' => '1901-01-01',
-        'BelongsToBibliography' => 1,
-        'EmbargoDate' => '1902-01-01',
-    ]]];
+    protected static $validDocumentData = [
+        [
+            [
+                'Language'                => 'de',
+                'ContributingCorporation' => 'Contributing, Inc.',
+                'CreatingCorporation'     => 'Creating, Inc.',
+                'ThesisDateAccepted'      => '1901-01-01',
+                'Edition'                 => 2,
+                'Issue'                   => 3,
+                'Volume'                  => 1,
+                'PageFirst'               => 1,
+                'PageLast'                => 297,
+                'PageNumber'              => 297,
+                'ArticleNumber'           => 42,
+                'CompletedYear'           => 1960,
+                'CompletedDate'           => '1901-01-01',
+                'BelongsToBibliography'   => 1,
+                'EmbargoDate'             => '1902-01-01',
+            ],
+        ],
+    ];
 
     /**
      * Valid document data provider
@@ -131,21 +204,19 @@ class Opus_DocumentTest extends TestCase
      */
     public static function validDocumentDataProvider()
     {
-        return self::$_validDocumentData;
+        return self::$validDocumentData;
     }
 
     /**
      * Test if tunneling setter calls through a n:m link model reaches
      * the target model instance.
-     *
-     * @return void
      */
     public function testTunnelingSetterCallsInManyToManyLinks()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $doc->addLicence($licence);
         $doc->getLicence(0)->setSortOrder(47);
         $value = $doc->getLicence(0)->getSortOrder();
@@ -155,33 +226,29 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if adding an many-to-many models works.
-     *
-     * @return void
      */
     public function testAddingModelInManyToManyLink()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
 
-        $doc->addLicence(new Opus_Licence());
+        $doc->addLicence(new Licence());
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
+        $this->assertInstanceOf(DocumentLicence::class, $value[0], 'Returned object is of wrong type.');
     }
 
     /**
      * Test if adding an one-to-many model works.
-     *
-     * @return void
      */
     public function testAddingModelInOneToManyLink()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
         $value = $doc->getNote();
@@ -192,22 +259,19 @@ class Opus_DocumentTest extends TestCase
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertInstanceOf('Opus_Note', $value[0], 'Returned object is of wrong type.');
+        $this->assertInstanceOf(Note::class, $value[0], 'Returned object is of wrong type.');
     }
 
     /**
      * Test if storing a document wich has a linked model doesnt throw
-     * an Opus\Model\Exception.
-     *
-     * @return void
-     *
+     * an Opus\Model\ModelException.
      */
     public function testStoreWithLinkToIndependentModel()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $doc->addPersonAuthor($author);
@@ -217,13 +281,11 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if adding a value to a single-value field that is already populated
-     * throws an InvalidArgumentException.
-     *
-     * @return void
+     * throws an \InvalidArgumentException.
      */
     public function testAddingValuesToPopulatedSingleValueFieldThrowsException()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
         $doc->addPageFirst(10);
@@ -233,15 +295,13 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if an exception is thrown when using a model in a field that does
-     * not extend Opus_Model_Abstract and for which no custom _fetch method
+     * not extend Opus\Model\AbstractModel and for which no custom _fetch method
      * is defined.
-     *
-     * @return void
      */
     public function testUndefinedFetchMethodForFieldValueClassNotExtendingAbstractModelThrowsException()
     {
-        $this->setExpectedException('Opus\Model\Exception');
-        $document = new Opus_Model_ModelWithNonAbstractExtendingClassField;
+        $this->setExpectedException(ModelException::class);
+        $document = new ModelWithNonAbstractExtendingClassField();
     }
 
     /**
@@ -250,13 +310,11 @@ class Opus_DocumentTest extends TestCase
      * Test if a document's fields come out of the database as they went in.
      *
      * @param array $documentDataset Array with valid data of documents.
-     * @return void
-     *
      * @dataProvider validDocumentDataProvider
      */
     public function testDocumentFieldsPersistDatabaseStorage(array $documentDataset)
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType("article");
 
         foreach ($documentDataset as $fieldname => $value) {
@@ -290,7 +348,7 @@ class Opus_DocumentTest extends TestCase
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
 
-        $enrichmentkey = new Opus_EnrichmentKey();
+        $enrichmentkey = new EnrichmentKey();
         $enrichmentkey->setName('foo');
         $enrichmentkey->store();
 
@@ -298,21 +356,21 @@ class Opus_DocumentTest extends TestCase
         $enrichment->setKeyName('foo');
         $enrichment->setValue('Poor enrichment.');
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1889-04-26');
         $author->setPlaceOfBirth('Wien');
         $document->addPersonAuthor($author);
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('Ferdinand');
         $author->setLastName('de Saussure');
         $author->setDateOfBirth('1857-11-26');
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 
-        $licence = new Opus_Licence;
+        $licence = new Licence();
         $licence->setActive(1);
         $licence->setLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');
@@ -322,7 +380,7 @@ class Opus_DocumentTest extends TestCase
         $licence->setSortOrder(0);
         $document->addLicence($licence);
 
-        $dnbInstitute = new Opus_DnbInstitute();
+        $dnbInstitute = new DnbInstitute();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
         $dnbInstitute->setCity('Calisota');
         $dnbInstitute->setIsGrantor(1);
@@ -330,19 +388,19 @@ class Opus_DocumentTest extends TestCase
         $document->addThesisGrantor($dnbInstitute);
 
         // Save document, modify, and save again.
-        $id = $document->store();
-        $document = new Opus_Document($id);
-        $title = $document->addTitleMain();
+        $id       = $document->store();
+        $document = new Document($id);
+        $title    = $document->addTitleMain();
         $title->setValue('Title Two');
         $title->setLanguage('en');
-        $id = $document->store();
-        $document = new Opus_Document($id);
+        $id       = $document->store();
+        $document = new Document($id);
 
         foreach ($documentDataset as $fieldname => $value) {
             $field = $document->{'get' . $fieldname}();
 
-            // Special handling for Opus_Date fields...
-            if ($field instanceof Opus_Date) {
+            // Special handling for Opus\Date fields...
+            if ($field instanceof Date) {
                 $field = substr($field->__toString(), 0, 10);
             }
 
@@ -390,45 +448,39 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if corresponding deleting documents works.
-     *
-     * @return void
      */
-    public function testDelete()
+    public function testDeleteDocument()
     {
-        $doc = new Opus_Document();
-        $docid = $doc->store();
-        $doc->delete();
+        $doc   = Document::new();
+        $docId = $doc->store();
+        $doc->deleteDocument();
 
-        $doc = new Opus_Document($docid);
+        $doc = Document::get($docId);
         $this->assertEquals('deleted', $doc->getServerState(), "Server state should be set to 'deleted' now.");
     }
 
     /**
      * Test if corresponding permanently deleting documents works.
-     *
-     * @return void
      */
-    public function testDeletePermanent()
+    public function testDelete()
     {
-        $doc = new Opus_Document();
-        $docid = $doc->store();
-        $doc->deletePermanent();
+        $doc   = Document::new();
+        $docId = $doc->store();
+        $doc->delete();
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $doc = new Opus_Document($docid);
+        $this->setExpectedException(NotFoundException::class);
+        Document::get($docId);
     }
 
     /**
      * Test if document with author can be deleted permanently.
-     *
-     * @return void
      */
     public function testDeleteDocumentWithAuthorPermanently()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType('doctoral_thesis');
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('M.');
         $author->setLastName('Gandi');
 
@@ -437,10 +489,10 @@ class Opus_DocumentTest extends TestCase
 
         $linkId = $doc->getPersonAuthor(0)->getId();
 
-        $doc->deletePermanent();
+        $doc->delete();
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $doc = new Opus_Document($modelId);
+        $this->setExpectedException(NotFoundException::class);
+        Document::get($modelId);
     }
 
     /**
@@ -448,12 +500,12 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDeleteDocumentWithMissingFile()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType('doctoral_thesis');
 
         $modelId = $doc->store();
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config   = Config::get();
         $tempFile = $config->workspacePath . '/' . uniqid();
         touch($tempFile);
 
@@ -464,7 +516,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($modelId);
+        $doc = Document::get($modelId);
 
         $file = $doc->getFile(0);
 
@@ -478,140 +530,136 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertFalse(is_file($filePath)); // file is gone
 
-        $doc->deletePermanent(); // delete document with missing file
+        $doc->delete(); // delete document with missing file
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $doc = new Opus_Document($modelId);
+        $this->setExpectedException(NotFoundException::class);
+        Document::get($modelId);
     }
 
     /**
      * Test if corresponding links to persons are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesPersonLinks()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('M.');
         $author->setLastName('Gandi');
 
         $doc->addPersonAuthor($author);
-        $modelId = $doc->store();
+        $doc->store();
 
         $linkId = $doc->getPersonAuthor(0)->getId();
 
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $link = new Opus_Model_Dependent_Link_DocumentPerson($linkId);
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new DocumentPerson($linkId);
     }
 
     /**
      * Test if corresponding links to dnb_institutes are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesDnbInstituteLink()
     {
-        $doc = new Opus_Document();
-        $dnbInstitute = new Opus_DnbInstitute();
+        $doc          = Document::new();
+        $dnbInstitute = new DnbInstitute();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
         $dnbInstitute->setCity('Calisota');
 
         $doc->addThesisPublisher($dnbInstitute);
         $doc->store();
         $linkid = $doc->getThesisPublisher(0)->getId();
-        $doc->deletePermanent();
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $link = new Opus_Model_Dependent_Link_DocumentDnbInstitute($linkid);
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new DocumentDnbInstitute($linkid);
 
         $this->fail("Document delete has not been cascaded.");
     }
 
     /**
      * Test if corresponding links to licences are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesLicenceLink()
     {
-        $doc = new Opus_Document();
-        $licence = new Opus_Licence();
+        $doc = Document::new();
+
+        $licence = new Licence();
         $licence->setNameLong('LongName');
         $licence->setLinkLicence('http://long.org/licence');
 
         $doc->addLicence($licence);
         $doc->store();
         $linkid = $doc->getLicence(0)->getId();
-        $doc->deletePermanent();
 
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $link = new Opus_Model_Dependent_Link_DocumentLicence($linkid);
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new DocumentLicence($linkid);
 
         $this->fail("Document delete has not been cascaded.");
     }
 
     /**
      * Test if corresponding enrichments are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesEnrichments()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $enrichmentkey = new Opus_EnrichmentKey();
+        $enrichmentkey = new EnrichmentKey();
         $enrichmentkey->setName('foo');
         $enrichmentkey->store();
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName('foo');
         $enrichment->setValue('Poor enrichment.');
 
         $doc->addEnrichment($enrichment);
         $doc->store();
         $id = $doc->getEnrichment(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $enrichment = new Opus_Enrichment($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Enrichment($id);
     }
 
     /**
      * Test if corresponding identifiers are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesIdentifiers()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $isbn = new Opus_Identifier();
+        $isbn = new Identifier();
         $isbn->setValue('ISBN');
 
         $doc->addIdentifierIsbn($isbn);
         $doc->store();
         $id = $doc->getIdentifierIsbn(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $isbn = new Opus_Identifier($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Identifier($id);
     }
 
     /**
      * Test if corresponding patents are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesPatents()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $patent = new Opus_Patent();
+        $patent = new Patent();
         $patent->setCountries('Germany');
         $patent->setNumber('X0815');
         $patent->setDateGranted('2001-01-01');
@@ -620,113 +668,113 @@ class Opus_DocumentTest extends TestCase
         $doc->addPatent($patent);
         $doc->store();
         $id = $doc->getPatent(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $patent = new Opus_Patent($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Patent($id);
     }
 
     /**
      * Test if corresponding notes are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesNotes()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $note = new Opus_Note();
+        $note = new Note();
         $note->setMessage('A note!');
 
         $doc->addNote($note);
         $doc->store();
         $id = $doc->getNote(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $note = new Opus_Note($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Note($id);
     }
 
     /**
      * Test if corresponding subjects are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesSubjects()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $subject = new Opus_SubjectSwd();
+        $subject = new SubjectSwd();
         $subject->setValue('Schlagwort');
 
         $doc->addSubject($subject);
         $doc->store();
         $id = $doc->getSubject(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $subject = new Opus_Subject($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Subject($id);
     }
 
     /**
      * Test if corresponding titles are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesTitles()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setValue('Title of a document');
         $title->setLanguage('eng');
 
         $doc->addTitleMain($title);
         $doc->store();
         $id = $doc->getTitleMain(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $title = new Opus_Title($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Title($id);
     }
 
     /**
      * Test if corresponding abstracts are removed when deleting a document.
-     *
-     * @return void
      */
     public function testDeleteDocumentCascadesAbstracts()
     {
-        $doc = new Opus_Document();
+        $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $abstract = new Opus_Title();
+        $abstract = new Title();
         $abstract->setValue('It is necessary to give an abstract.');
         $abstract->setLanguage('eng');
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
         $id = $doc->getTitleAbstract(0)->getId();
-        $doc->deletePermanent();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $abstract = new Opus_Title($id);
+
+        $doc->delete();
+
+        $this->setExpectedException(NotFoundException::class);
+        new Title($id);
     }
 
     /**
      * Test if a set of documents can be retrieved by getAll().
-     *
-     * @return void
      */
     public function testRetrieveAllDocuments()
     {
-        $max_docs = 5;
-        for ($i = 0; $i < $max_docs; $i++) {
-            $doc = new Opus_Document();
+        $maxDocs = 5;
+        for ($i = 0; $i < $maxDocs; $i++) {
+            $doc = Document::new();
             $doc->setType("doctoral_thesis");
             $doc->store();
         }
 
-        $result = Opus_Document::getAll();
-        $this->assertEquals($max_docs, count($result), 'Wrong number of objects retrieved.');
+        $result = Document::getAll();
+        $this->assertEquals($maxDocs, count($result), 'Wrong number of objects retrieved.');
     }
 
     /**
@@ -734,22 +782,20 @@ class Opus_DocumentTest extends TestCase
      * field value to the corresponding dependent link model.
      *
      * TODO: This test should be moved to AbstractTest.
-     *
-     * @return void
      */
     public function testAddLinkModel()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $licence = new Opus_Licence;
+        $licence = new Licence();
         $document->addLicence($licence);
 
         $licence = $document->getField('Licence')->getValue();
-        $this->assertTrue($licence[0] instanceof Opus_Model_Dependent_Link_Abstract, 'Adding to a field containing a link model failed (getField).');
+        $this->assertTrue($licence[0] instanceof AbstractLinkModel, 'Adding to a field containing a link model failed (getField).');
 
         $licence = $document->getLicence();
-        $this->assertTrue($licence[0] instanceof Opus_Model_Dependent_Link_Abstract, 'Adding to a field containing a link model failed (getLicence).');
+        $this->assertTrue($licence[0] instanceof AbstractLinkModel, 'Adding to a field containing a link model failed (getLicence).');
     }
 
     /**
@@ -757,22 +803,20 @@ class Opus_DocumentTest extends TestCase
      * field value to the corresponding dependent link model.
      *
      * TODO: This test should be moved to AbstractTest.
-     *
-     * @return void
      */
     public function testSetLinkModel()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $licence = new Opus_Licence;
+        $licence = new Licence();
         $document->setLicence($licence);
 
         $licence = $document->getField('Licence')->getValue();
-        $this->assertTrue($licence[0] instanceof Opus_Model_Dependent_Link_Abstract, 'Setting a field containing a link model failed (getField).');
+        $this->assertTrue($licence[0] instanceof AbstractLinkModel, 'Setting a field containing a link model failed (getField).');
 
         $licence = $document->getLicence();
-        $this->assertTrue($licence[0] instanceof Opus_Model_Dependent_Link_Abstract, 'Setting a field containing a link model failed (getLicence).');
+        $this->assertTrue($licence[0] instanceof AbstractLinkModel, 'Setting a field containing a link model failed (getLicence).');
     }
 
     /**
@@ -780,32 +824,28 @@ class Opus_DocumentTest extends TestCase
      * field value to the corresponding dependent link model.
      *
      * TODO: This test should be moved to AbstractTest.
-     *
-     * @return void
      */
     public function testGetLinkModel()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $licence = new Opus_Licence;
+        $licence = new Licence();
         $document->setLicence($licence);
 
         $licence = $document->getField('Licence')->getValue();
-        $this->assertTrue($licence[0] instanceof Opus_Model_Dependent_Link_Abstract, 'Getting a field value containing a link model failed (getField).');
+        $this->assertTrue($licence[0] instanceof AbstractLinkModel, 'Getting a field value containing a link model failed (getField).');
 
         $licence = $document->getLicence();
-        $this->assertTrue($licence[0] instanceof Opus_Model_Dependent_Link_Abstract, 'Getting a field value containing a link model failed (getLicence).');
+        $this->assertTrue($licence[0] instanceof AbstractLinkModel, 'Getting a field value containing a link model failed (getLicence).');
     }
 
     /**
      * Test if title informations delivered back properly with toArray().
-     *
-     * @return void
      */
     public function testToArrayReturnsCorrectValuesForTitleMain()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
         $title = $doc->addTitleMain();
@@ -813,13 +853,13 @@ class Opus_DocumentTest extends TestCase
         $title->setValue('Ein deutscher Titel');
         $id = $doc->store();
 
-        $loaded_document = new Opus_Document($id);
-        $iterim_result = $loaded_document->toArray();
-        $result = $iterim_result['TitleMain'][0];
-        $expected = [
+        $loadedDocument = new Document($id);
+        $iterimResult   = $loadedDocument->toArray();
+        $result         = $iterimResult['TitleMain'][0];
+        $expected       = [
             'Language' => 'de',
-            'Value' => 'Ein deutscher Titel',
-            'Type' => 'main'
+            'Value'    => 'Ein deutscher Titel',
+            'Type'     => 'main',
 //            'SortOrder' => null
         ];
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
@@ -828,64 +868,58 @@ class Opus_DocumentTest extends TestCase
     /**
      * Test if multiple languages are (re)stored properly.
      *
-     * @return void
-     *
      * TODO analyse usage of addLanguage function
-     *
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Cannot add multiple values to Language
      */
     public function testMultipleLanguageStorage()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
         $doc->addLanguage('de');
+
+        $this->setExpectedException(InvalidArgumentException::class, 'Cannot add multiple values to Language');
+
         $doc->addLanguage('en');
     }
 
     /**
      * Test storing of a urn.
-     *
-     * @return void
      */
     public function testStoringOfOneIdentifierUrn()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
-        $doc->addIdentifierUrn(new Opus_Identifier());
+        $doc->addIdentifierUrn(new Identifier());
         $id = $doc->store();
 
-        $doc2 = new Opus_Document($id);
+        $doc2 = new Document($id);
 
         $this->assertNotNull($doc2->getIdentifierUrn(0));
-        $urn_value = $doc2->getIdentifierUrn(0)->getValue();
+        $urnValue = $doc2->getIdentifierUrn(0)->getValue();
 
-        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
-        $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
+        $urn = new Urn('nbn', 'de:kobv:test-opus');
+        $this->assertEquals($urn->getUrn($id), $urnValue, 'Stored and expected URN value did not match.');
     }
 
     /**
      * Test saving of empty multiple urn fields.
-     *
-     * @return void
      */
     public function testStoringOfMultipleIdentifierUrnField()
     {
-        $doc = new Opus_Document();
-        $doc->addIdentifierUrn(new Opus_Identifier());
-        $doc->addIdentifierUrn(new Opus_Identifier());
+        $doc = new Document();
+        $doc->addIdentifierUrn(new Identifier());
+        $doc->addIdentifierUrn(new Identifier());
         $doc->setType("doctoral_thesis");
 
         $this->assertCount(2, $doc->getIdentifier());
 
-        $id = $doc->store();
-        $doc2 = new Opus_Document($id);
+        $id   = $doc->store();
+        $doc2 = new Document($id);
 
-        $urn_value = $doc2->getIdentifierUrn(0)->getValue();
+        $urnValue = $doc2->getIdentifierUrn(0)->getValue();
 
-        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
-        $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
+        $urn = new Urn('nbn', 'de:kobv:test-opus');
+        $this->assertEquals($urn->getUrn($id), $urnValue, 'Stored and expected URN value did not match.');
         $this->assertCount(1, $doc2->getIdentifier());
         $this->assertEquals(
             1,
@@ -935,101 +969,91 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Ensure that existing urn values not overriden.
-     *
-     * @return void
      */
     public function testNotOverrideExistingUrn()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $urn_value = 'urn:nbn:de:swb:14-opus-5548';
-        $urn_model = $doc->addIdentifierUrn();
-        $urn_model->setValue($urn_value);
+        $urnValue = 'urn:nbn:de:swb:14-opus-5548';
+        $urnModel = $doc->addIdentifierUrn();
+        $urnModel->setValue($urnValue);
 
-        $id = $doc->store();
-        $doc2 = new Opus_Document($id);
+        $id   = $doc->store();
+        $doc2 = new Document($id);
 
-        $this->assertEquals($urn_value, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urnValue, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
     }
 
     /**
      * Test storing document with empty identifier urn model create a urn.
-     *
-     * @return void
      */
     public function testStoreUrnWithEmptyModel()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $urn_model = new Opus_Identifier();
-        $doc->setIdentifierUrn($urn_model);
+        $urnModel = new Identifier();
+        $doc->setIdentifierUrn($urnModel);
         $id = $doc->store();
 
-        $doc2 = new Opus_Document($id);
+        $doc2 = new Document($id);
         $this->assertNotNull($doc2->getIdentifierUrn(0)->getValue(), 'URN value should not be empty.');
 
-        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
+        $urn = new Urn('nbn', 'de:kobv:test-opus');
         $this->assertEquals($urn->getUrn($id), $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
     }
 
     /**
      * Test if multiple existing URN values does not overriden.
-     *
-     * @return void
      */
     public function testNotOverrideExistingMultipleUrn()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $urn_value_1 = 'urn:nbn:de:swb:14-opus-5548';
-        $urn_model = $doc->addIdentifierUrn();
-        $urn_model->setValue($urn_value_1);
+        $urnValue1 = 'urn:nbn:de:swb:14-opus-5548';
+        $urnModel  = $doc->addIdentifierUrn();
+        $urnModel->setValue($urnValue1);
 
-        $urn_value_2 = 'urn:nbn:de:swb:14-opus-5598';
-        $urn_model = $doc->addIdentifierUrn();
-        $urn_model->setValue($urn_value_2);
-        $id = $doc->store();
-        $doc2 = new Opus_Document($id);
+        $urnValue2 = 'urn:nbn:de:swb:14-opus-5598';
+        $urnModel  = $doc->addIdentifierUrn();
+        $urnModel->setValue($urnValue2);
+        $id   = $doc->store();
+        $doc2 = new Document($id);
 
-        $this->assertEquals($urn_value_1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
-        $this->assertEquals($urn_value_2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urnValue1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urnValue2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
     }
 
     /**
      * Test if at least one value inside a multiple urn values does not create a new urn.
-     *
-     * @return void
      */
     public function testNotOverridePartialExistingMultipleUrn()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $urn_value_1 = 'urn:nbn:de:swb:14-opus-5548';
-        $urn_model = $doc->addIdentifierUrn();
-        $urn_model->setValue($urn_value_1);
+        $urnValue1 = 'urn:nbn:de:swb:14-opus-5548';
+        $urnModel  = $doc->addIdentifierUrn();
+        $urnModel->setValue($urnValue1);
 
-        $urn_value_2 = 'urn:nbn:de:swb:14-opus-2345';
-        $urn_model = $doc->addIdentifierUrn();
-        $urn_model->setValue($urn_value_2);
-        $id = $doc->store();
-        $doc2 = new Opus_Document($id);
+        $urnValue2 = 'urn:nbn:de:swb:14-opus-2345';
+        $urnModel  = $doc->addIdentifierUrn();
+        $urnModel->setValue($urnValue2);
+        $id   = $doc->store();
+        $doc2 = new Document($id);
 
-        $this->assertEquals($urn_value_1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
-        $this->assertEquals($urn_value_2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urnValue1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urnValue2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
     }
 
     /**
      * Test if after creation of a document leaves the fields marked unmodified.
-     *
-     * @return void
      */
     public function testNewlyCreatedDocumentsHaveNoModifiedFields()
     {
-        $newdoc = new Opus_Document();
+        $newdoc = new Document();
 
         $fieldnames = $newdoc->describe();
         foreach ($fieldnames as $fieldname) {
@@ -1040,44 +1064,42 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test retrieving a document list based on server (publication) states.
-     *
-     * @return void
      */
     public function testGetByServerStateReturnsCorrectDocuments()
     {
-        $publishedDoc1 = new Opus_Document();
+        $publishedDoc1 = new Document();
         $publishedDoc1->setType("doctoral_thesis")
             ->setServerState('published')
             ->store();
 
-        $publishedDoc2 = new Opus_Document();
+        $publishedDoc2 = new Document();
         $publishedDoc2->setType("doctoral_thesis")
             ->setServerState('published')
             ->store();
 
-        $unpublishedDoc1 = new Opus_Document();
+        $unpublishedDoc1 = new Document();
         $unpublishedDoc1->setType("doctoral_thesis")
             ->setServerState('unpublished')
             ->store();
 
-        $unpublishedDoc2 = new Opus_Document();
+        $unpublishedDoc2 = new Document();
         $unpublishedDoc2->setType("doctoral_thesis")
             ->setServerState('unpublished')
             ->store();
 
-        $deletedDoc1 = new Opus_Document();
+        $deletedDoc1 = new Document();
         $deletedDoc1->setType("doctoral_thesis")
             ->setServerState('deleted')
             ->store();
 
-        $deletedDoc2 = new Opus_Document();
+        $deletedDoc2 = new Document();
         $deletedDoc2->setType("doctoral_thesis")
             ->setServerState('deleted')
             ->store();
 
-        $publishedDocs = Opus_Document::getAllByState('published');
-        $unpublishedDocs = Opus_Document::getAllByState('unpublished');
-        $deletedDocs = Opus_Document::getAllByState('deleted');
+        $publishedDocs   = Document::getAllByState('published');
+        $unpublishedDocs = Document::getAllByState('unpublished');
+        $deletedDocs     = Document::getAllByState('deleted');
 
         $this->assertEquals(2, count($publishedDocs));
         $this->assertEquals(2, count($unpublishedDocs));
@@ -1086,23 +1108,21 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test setting and getting date values on different ways and fields.
-     *
-     * @return void
      */
     public function testSettingAndGettingDateValues()
     {
         $locale = new Zend_Locale('de_DE');
-        $doc = new Opus_Document();
+        $doc    = new Document();
 
         $doc->setPublishedDate('2008-10-05');
 
-        $personAuthor = new Opus_Person();
+        $personAuthor = new Person();
         $personAuthor->setFirstName('Real');
         $personAuthor->setLastName('Tester');
         $personAuthor->setDateOfBirth('1965-06-23');
         $doc->addPersonAuthor($personAuthor);
 
-        $patent = new Opus_Patent();
+        $patent = new Patent();
         $patent->setNumber('08 15');
         $patent->setDateGranted('2008-07-07');
         $patent->setCountries('Germany');
@@ -1111,10 +1131,10 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc           = new Document($docId);
         $publishedDate = $doc->getPublishedDate();
-        $personAuthor = $doc->getPersonAuthor(0);
-        $patent = $doc->getPatent(0);
+        $personAuthor  = $doc->getPersonAuthor(0);
+        $patent        = $doc->getPatent(0);
 
         $formatDate = 'd.m.Y';
         $this->assertEquals('05.10.2008', $publishedDate->getDateTime()->format($formatDate), 'Setting a date through string does not work.');
@@ -1124,37 +1144,35 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Test if ServerState becomes value unpublished if not set and document is stored.
-     *
-     * @return void
      */
     public function testCheckIfDefaultServerStateValueIsSetCorrectAfterStoringModel()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
 
         $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');
     }
 
     /**
-     * Test for Issue in Opus_Model_Xml_Version1.  The field ServerDatePublished
+     * Test for Issue in Opus\Model\Xml\Version1.  The field ServerDatePublished
      * disappeared from the XML-DOM-Tree after storing.
      */
     public function testExistenceOfServerDatePublished()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->setServerDatePublished('2011-11-11T11:11:11+01:00');
         $doc->store();
 
-        $filter = new Opus_Model_Filter;
+        $filter = new Filter();
         $filter->setModel($doc);
 
-        $docXml = $doc->toXml([], new Opus_Model_Xml_Version1());
+        $docXml                 = $doc->toXml([], new Version1());
         $serverDatePublElements = $docXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'document xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'document xml field "ServerDatePublished" should have attributes');
 
-        $modelXml = $filter->toXml([], new Opus_Model_Xml_Version1());
+        $modelXml               = $filter->toXml([], new Version1());
         $serverDatePublElements = $modelXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'model xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'model xml field "ServerDatePublished" should have attributes');
@@ -1162,15 +1180,13 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Tests initialization of ServerDate-Fields.
-     *
-     * @return void
      */
     public function testInitializationOfServerDateFields()
     {
-        $d = new Opus_Document();
+        $d  = new Document();
         $id = $d->store();
 
-        $d = new Opus_Document($id);
+        $d = new Document($id);
         $this->assertNotNull($d->getServerDateCreated(), 'ServerDateCreated should *not* be NULL');
         $this->assertNotNull($d->getServerDateModified(), 'ServerDateModified should *not* be NULL');
         $this->assertNull($d->getServerDatePublished(), 'ServerDatePublished *should* be NULL');
@@ -1178,12 +1194,10 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Tests initialization of ServerDatePublished field.
-     *
-     * @return void
      */
     public function testSetServerDatePublished()
     {
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
         $id = $d->store();
 
@@ -1192,14 +1206,12 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Tests initialization of ServerDatePublished field.
-     *
-     * @return void
      */
     public function testDontChangeUserSpecifiedServerDatePublished()
     {
-        $examplePublishedDate = new Opus_Date('2010-05-09T18:20:17+02:00');
+        $examplePublishedDate = new Date('2010-05-09T18:20:17+02:00');
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerDatePublished($examplePublishedDate);
         $d->setServerState('published');
         $id = $d->store();
@@ -1212,11 +1224,11 @@ class Opus_DocumentTest extends TestCase
 
         $testStates = ['unpublished', 'published', 'published', 'unpublished'];
         foreach ($testStates as $state) {
-            $d = new Opus_Document($id);
+            $d = new Document($id);
             $d->setServerState($state);
             $d->store();
 
-            $d = new Opus_Document($id);
+            $d = new Document($id);
             $this->assertNotNull($d->getServerDatePublished());
             $this->assertEquals(
                 $examplePublishedDate->__toString(),
@@ -1228,18 +1240,16 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Tests initialization of ServerDatePublished field.
-     *
-     * @return void
      */
     public function testSetServerDatePublishedOnlyAfterPublish()
     {
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('unpublished');
         $id = $d->store();
 
         $this->assertNull($d->getServerDatePublished(), 'published date should be NULL after store()');
 
-        $d = new Opus_Document($id);
+        $d = new Document($id);
         $this->assertNull($d->getServerDatePublished(), 'published date should be NULL after store() and reload');
 
         $d->setServerState('published');
@@ -1250,20 +1260,18 @@ class Opus_DocumentTest extends TestCase
 
     /**
      * Tests overriding the initialization of ServerDate-Fields.
-     *
-     * @return void
      */
     public function testInitializationOfServerDateFieldsOverride()
     {
-        $exampleCreateDate = '2010-05-11T18:20:17+02:00';
+        $exampleCreateDate    = '2010-05-11T18:20:17+02:00';
         $examplePublishedDate = '2010-05-09T18:20:17+02:00';
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerDateCreated($exampleCreateDate);
         $d->setServerDatePublished($examplePublishedDate);
         $id = $d->store();
 
-        $d = new Opus_Document($id);
+        $d = new Document($id);
         $this->assertEquals($exampleCreateDate, $d->getServerDateCreated()->__toString());
         $this->assertNotNull($d->getServerDatePublished());
         $this->assertEquals($examplePublishedDate, $d->getServerDatePublished()->__toString());
@@ -1274,7 +1282,7 @@ class Opus_DocumentTest extends TestCase
      */
     public function testStoreDocumentWithCollectionsTest()
     {
-        $role = new Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('foobar-' . rand());
         $role->setOaiName('foobar-oai-' . rand());
         $role->store();
@@ -1288,7 +1296,7 @@ class Opus_DocumentTest extends TestCase
         $collection2 = $root->addLastChild();
         $root->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType('test');
         $document->addCollection($collection1);
         $document->addCollection($collection2);
@@ -1296,7 +1304,7 @@ class Opus_DocumentTest extends TestCase
         $document->store();
         $this->assertEquals(2, count($document->getCollection()), 'After storing: document should have 2 collections.');
 
-        $document = new Opus_Document($document->getId());
+        $document = new Document($document->getId());
         $this->assertEquals(2, count($document->getCollection()), 'After storing: document should have 2 collections.');
     }
 
@@ -1305,7 +1313,7 @@ class Opus_DocumentTest extends TestCase
      */
     public function testStoreDocumentWithDuplicateCollectionsTest()
     {
-        $role = new Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('foobar-' . rand());
         $role->setOaiName('foobar-oai-' . rand());
         $role->store();
@@ -1316,13 +1324,13 @@ class Opus_DocumentTest extends TestCase
         $collection1 = $root->addFirstChild();
         $root->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType('test');
         $document->addCollection($collection1);
         $document->addCollection($collection1);
         $document->store();
 
-        $document = new Opus_Document($document->getId());
+        $document = new Document($document->getId());
         $this->assertEquals(1, count($document->getCollection()), 'After storing: document should have 1 collections.');
     }
 
@@ -1332,153 +1340,153 @@ class Opus_DocumentTest extends TestCase
      */
     public function testStoreDocumentDoesNotDeleteCollectionTest()
     {
-        $role = new Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('foobar-' . rand());
         $role->setOaiName('foobar-oai-' . rand());
 
-        $root = $role->addRootCollection();
+        $root       = $role->addRootCollection();
         $collection = $root->addFirstChild();
         $role->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType('test');
         $document->addCollection($collection);
         $docId = $document->store();
 
         // Check if we created what we're expecting later.
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $this->assertEquals(1, count($document->getCollection()), 'After storing: document should have 1 collection.');
 
         // Storing
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $document->store();
 
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $this->assertEquals(1, count($document->getCollection()), 'After 2nd store(): document should still have 1 collection.');
 
         // Storing
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $document->setType('test');
         $document->store();
 
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $this->assertEquals(1, count($document->getCollection()), 'After 3rd store(): document should still have 1 collection.');
 
         // Storing
-        $document = new Opus_Document($docId);
-        $c = $document->getCollection();
+        $document = new Document($docId);
+        $c        = $document->getCollection();
         $document->store();
 
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $this->assertEquals(1, count($document->getCollection()), 'After 4th store(): document should still have 1 collection.');
     }
 
     public function testGetAllDocumentsByAuthorsReturnsDocumentsWithoutAuthor()
     {
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
-        $published_id = $d->store();
+        $publishedId = $d->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('unpublished');
-        $unpublished_id = $d->store();
+        $unpublishedId = $d->store();
 
-        $docs = Opus_Document::getAllDocumentsByAuthors();
-        $this->assertContains($published_id, $docs, 'all should contain "published"');
-        $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
+        $docs = Document::getAllDocumentsByAuthors();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
 
-        $docs = Opus_Document::getAllDocumentsByAuthorsByState('published');
-        $this->assertContains($published_id, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
+        $docs = Document::getAllDocumentsByAuthorsByState('published');
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByAuthorsByState('published', 0);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
+        $docs = Document::getAllDocumentsByAuthorsByState('published', 0);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByAuthorsByState('published', 1);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
+        $docs = Document::getAllDocumentsByAuthorsByState('published', 1);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
     }
 
     public function testGetAllDocumentsByTitleReturnsDocumentsWithoutTitle()
     {
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
-        $published_id = $d->store();
+        $publishedId = $d->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('unpublished');
-        $unpublished_id = $d->store();
+        $unpublishedId = $d->store();
 
-        $docs = Opus_Document::getAllDocumentsByTitles();
-        $this->assertContains($published_id, $docs, 'all should contain "published"');
-        $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
+        $docs = Document::getAllDocumentsByTitles();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
 
-        $docs = Opus_Document::getAllDocumentsByTitlesByState('published');
-        $this->assertContains($published_id, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
+        $docs = Document::getAllDocumentsByTitlesByState('published');
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByTitlesByState('published', 0);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
+        $docs = Document::getAllDocumentsByTitlesByState('published', 0);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByTitlesByState('published', 1);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
+        $docs = Document::getAllDocumentsByTitlesByState('published', 1);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
     }
 
     public function testGetAllDocumentsByDoctype()
     {
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
-        $published_id = $d->store();
+        $publishedId = $d->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('unpublished');
-        $unpublished_id = $d->store();
+        $unpublishedId = $d->store();
 
-        $docs = Opus_Document::getAllDocumentsByDoctype();
-        $this->assertContains($published_id, $docs, 'all should contain "published"');
-        $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
+        $docs = Document::getAllDocumentsByDoctype();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
 
-        $docs = Opus_Document::getAllDocumentsByDoctypeByState('published');
-        $this->assertContains($published_id, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
+        $docs = Document::getAllDocumentsByDoctypeByState('published');
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByDoctypeByState('published', 0);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
+        $docs = Document::getAllDocumentsByDoctypeByState('published', 0);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByDoctypeByState('published', 1);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
+        $docs = Document::getAllDocumentsByDoctypeByState('published', 1);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
     }
 
     public function testGetAllDocumentsByPubDate()
     {
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('published');
-        $published_id = $d->store();
+        $publishedId = $d->store();
 
-        $d = new Opus_Document();
+        $d = new Document();
         $d->setServerState('unpublished');
-        $unpublished_id = $d->store();
+        $unpublishedId = $d->store();
 
-        $docs = Opus_Document::getAllDocumentsByPubDate();
-        $this->assertContains($published_id, $docs, 'all should contain "published"');
-        $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
+        $docs = Document::getAllDocumentsByPubDate();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
 
-        $docs = Opus_Document::getAllDocumentsByPubDateByState('published');
-        $this->assertContains($published_id, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
+        $docs = Document::getAllDocumentsByPubDateByState('published');
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByPubDateByState('published', 0);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
+        $docs = Document::getAllDocumentsByPubDateByState('published', 0);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
 
-        $docs = Opus_Document::getAllDocumentsByPubDateByState('published', 1);
-        $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
+        $docs = Document::getAllDocumentsByPubDateByState('published', 1);
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
     }
 
     /**
@@ -1487,84 +1495,84 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDocumentCacheContainsFileWithOutdatedData()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config   = Config::get();
         $filename = $config->workspacePath;
         touch($filename);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType('test');
         $doc->setServerState('published');
         $file = $doc->addFile();
         $file->setPathName($filename);
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc  = new Document($doc->getId());
         $file = $doc->getFile(0);
 
         $this->assertEquals('1', $file->getVisibleInFrontdoor());
         $this->assertEquals('1', $file->getVisibleInOai());
 
-        $cache = new Opus_Model_Xml_Cache();
-        $xmlVersion1 = new Opus_Model_Xml_Version1();
+        $cache       = new Cache();
+        $xmlVersion1 = new Version1();
 
-        $xmlModel = new Opus_Model_Xml;
+        $xmlModel = new Xml();
         $xmlModel->setModel($doc);
         $xmlModel->setStrategy($xmlVersion1);
         $xmlModel->setXmlCache($cache);
 
-        $xml_file = $xmlModel->getDomDocument()->getElementsByTagName('File')->item(0);
-        $this->assertInstanceOf('DOMNode', $xml_file);
+        $xmlFile = $xmlModel->getDomDocument()->getElementsByTagName('File')->item(0);
+        $this->assertInstanceOf('DOMNode', $xmlFile);
 
-        $expected_visible_field = $file->getVisibleInFrontdoor();
-        $actual_visible_field = $xml_file->getAttribute('VisibleInFrontdoor');
-        $this->assertEquals($expected_visible_field, $actual_visible_field);
+        $expectedVisibleField = $file->getVisibleInFrontdoor();
+        $actualVisibleField   = $xmlFile->getAttribute('VisibleInFrontdoor');
+        $this->assertEquals($expectedVisibleField, $actualVisibleField);
 
-        $expected_visible_field = $file->getVisibleInOai();
-        $actual_visible_field = $xml_file->getAttribute('VisibleInOai');
-        $this->assertEquals($expected_visible_field, $actual_visible_field);
+        $expectedVisibleField = $file->getVisibleInOai();
+        $actualVisibleField   = $xmlFile->getAttribute('VisibleInOai');
+        $this->assertEquals($expectedVisibleField, $actualVisibleField);
     }
 
     public function testAddDnbInstitute()
     {
-        $dnb_institute = new Opus_DnbInstitute();
-        $dnb_institute->setName('Forschungsinstitut für Code Coverage')
+        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute->setName('Forschungsinstitut für Code Coverage')
             ->setAddress('Musterstr. 23 - 12345 Entenhausen - Calisota')
             ->setCity('Calisota')
             ->setPhone('+1 234 56789')
             ->setDnbContactId('F1111-1111')
             ->setIsGrantor('1');
         // store
-        $id = $dnb_institute->store();
+        $id = $dnbInstitute->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->store();
 
-        $document->addThesisGrantor($dnb_institute);
+        $document->addThesisGrantor($dnbInstitute);
         $docId = $document->store();
 
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $this->assertEquals(1, count($document->getThesisGrantor()));
     }
 
     public function testSetDnbInstitute()
     {
-        $dnb_institute = new Opus_DnbInstitute();
-        $dnb_institute->setName('Forschungsinstitut für Code Coverage')
+        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute->setName('Forschungsinstitut für Code Coverage')
             ->setAddress('Musterstr. 23 - 12345 Entenhausen - Calisota')
             ->setCity('Calisota')
             ->setPhone('+1 234 56789')
             ->setDnbContactId('F1111-1111')
             ->setIsGrantor('1');
         // store
-        $id = $dnb_institute->store();
+        $id = $dnbInstitute->store();
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->store();
 
-        $document->setThesisGrantor($dnb_institute);
+        $document->setThesisGrantor($dnbInstitute);
         $docId = $document->store();
 
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
         $this->assertEquals(1, count($document->getThesisGrantor()));
     }
 
@@ -1573,7 +1581,7 @@ class Opus_DocumentTest extends TestCase
      */
     public function testStoringPageFieldsAsAlnumStrings()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setPageFirst('III');
         $document->setPageLast('IV');
         $document->setPageNumber('II');
@@ -1583,7 +1591,7 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $document->getId();
 
-        $document = new Opus_Document($docId);
+        $document = new Document($docId);
 
         $this->assertEquals('III', $document->getPageFirst());
         $this->assertEquals('IV', $document->getPageLast());
@@ -1593,12 +1601,12 @@ class Opus_DocumentTest extends TestCase
 
     public function testSortOrderForAddPersonAuthors()
     {
-        $document = $this->_createDocumentWithPersonAuthors(16);
-        $docId = $document->store();
+        $document = $this->createDocumentWithPersonAuthors(16);
+        $docId    = $document->store();
 
         // Reload document; sanity check of SortOrder...
-        $document = new Opus_Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $document = new Document($docId);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // First check, if everybody is in place.
         $authors = $document->getPersonAuthor();
@@ -1610,16 +1618,16 @@ class Opus_DocumentTest extends TestCase
 
     public function testSortOrderForSetPersonAuthorReverse()
     {
-        $document = $this->_createDocumentWithPersonAuthors(16);
-        $docId = $document->store();
+        $document = $this->createDocumentWithPersonAuthors(16);
+        $docId    = $document->store();
 
         // Reload document; sanity check of SortOrder...
-        $document = new Opus_Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $document = new Document($docId);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // Do something with authors: reverse
-        $authors = $document->getPersonAuthor();
-        $new_authors = array_reverse($authors);
+        $authors    = $document->getPersonAuthor();
+        $newAuthors = array_reverse($authors);
 
         $index = 1;
 
@@ -1628,70 +1636,74 @@ class Opus_DocumentTest extends TestCase
             $index++;
         }
 
-        $document->setPersonAuthor($new_authors);
+        $document->setPersonAuthor($newAuthors);
         $document->store();
 
         // Reload document; sanity check of SortOrder...
-        $document = new Opus_Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $document = new Document($docId);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // First check, if everybody is in place.
         $authors = $document->getPersonAuthor();
         $this->assertTrue(is_array($authors));
-        $this->assertTrue(is_array($new_authors));
-        $this->assertEquals(count($new_authors), count($authors));
+        $this->assertTrue(is_array($newAuthors));
+        $this->assertEquals(count($newAuthors), count($authors));
 
-        for ($i = 0; $i < count($new_authors); $i++) {
-            $this->assertEquals($new_authors[$i]->getFirstName(), $authors[$i]->getFirstName());
-            $this->assertEquals($new_authors[$i]->getLastName(), $authors[$i]->getLastName());
+        for ($i = 0; $i < count($newAuthors); $i++) {
+            $this->assertEquals($newAuthors[$i]->getFirstName(), $authors[$i]->getFirstName());
+            $this->assertEquals($newAuthors[$i]->getLastName(), $authors[$i]->getLastName());
         }
     }
 
     public function testSortOrderForSetPersonAuthorShuffleDeleteAdd()
     {
-        $document = $this->_createDocumentWithPersonAuthors(16);
-        $docId = $document->store();
+        $document = $this->createDocumentWithPersonAuthors(16);
+        $docId    = $document->store();
 
         // Reload document; sanity check of SortOrder...
-        $document = new Opus_Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $document = new Document($docId);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // Do something with authors: shuffle, remove some, add one...
-        $authors = $document->getPersonAuthor();
-        $new_authors = $authors;
+        $authors    = $document->getPersonAuthor();
+        $newAuthors = $authors;
 
-        shuffle($new_authors);
-        array_pop($new_authors);
-        array_shift($new_authors);
+        shuffle($newAuthors);
+        array_pop($newAuthors);
+        array_shift($newAuthors);
 
-        $new_authors[] = $document->addPersonAuthor(new Opus_Person)
+        $newAuthors[] = $document->addPersonAuthor(new Person())
             ->setFirstName("new")
             ->setLastName("new");
 
-        $document->setPersonAuthor($new_authors);
+        $document->setPersonAuthor($newAuthors);
         $document->store();
 
         // Reload document; sanity check of SortOrder...
-        $document = new Opus_Document($docId);
-        $this->_checkPersonAuthorSortOrderForDocument($document);
+        $document = new Document($docId);
+        $this->checkPersonAuthorSortOrderForDocument($document);
 
         // First check, if everybody is in place.
         $authors = $document->getPersonAuthor();
         $this->assertTrue(is_array($authors));
-        $this->assertTrue(is_array($new_authors));
-        $this->assertEquals(count($new_authors), count($authors));
+        $this->assertTrue(is_array($newAuthors));
+        $this->assertEquals(count($newAuthors), count($authors));
 
-        for ($i = 0; $i < count($new_authors); $i++) {
-            $this->assertEquals($new_authors[$i]->getFirstName(), $authors[$i]->getFirstName());
-            $this->assertEquals($new_authors[$i]->getLastName(), $authors[$i]->getLastName());
+        for ($i = 0; $i < count($newAuthors); $i++) {
+            $this->assertEquals($newAuthors[$i]->getFirstName(), $authors[$i]->getFirstName());
+            $this->assertEquals($newAuthors[$i]->getLastName(), $authors[$i]->getLastName());
         }
     }
 
-    private function _createDocumentWithPersonAuthors($author_count)
+    /**
+     * @param int $authorCount
+     * @return Document
+     */
+    private function createDocumentWithPersonAuthors($authorCount)
     {
-        $document = new Opus_Document();
-        for ($i = 0; $i < $author_count; $i++) {
-            $person = new Opus_Person();
+        $document = new Document();
+        for ($i = 0; $i < $authorCount; $i++) {
+            $person = new Person();
             $person->setFirstName('firstname-$i=' . $i);
             $person->setLastName('lastname-$i=' . $i);
 
@@ -1700,7 +1712,10 @@ class Opus_DocumentTest extends TestCase
         return $document;
     }
 
-    private function _checkPersonAuthorSortOrderForDocument($document)
+    /**
+     * @param Document $document
+     */
+    private function checkPersonAuthorSortOrderForDocument($document)
     {
         $authors = $document->getPersonAuthor();
         $numbers = [];
@@ -1710,32 +1725,32 @@ class Opus_DocumentTest extends TestCase
         }
 
         // Check if all numbers are unique
-        $unique_numbers = array_unique($numbers);
-        $this->assertEquals(count($authors), count($unique_numbers));
+        $uniqueNumbers = array_unique($numbers);
+        $this->assertEquals(count($authors), count($uniqueNumbers));
     }
 
     public function testGetEarliestPublicationDate()
     {
-        $nullDate = Opus_Document::getEarliestPublicationDate();
+        $nullDate = Document::getEarliestPublicationDate();
         $this->assertNull($nullDate, "Expected NULL on empty database.");
 
         // Insert valid entry through framework.
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setServerDatePublished('2011-06-01T00:00:00Z');
         $document->store();
-        $validDate = Opus_Document::getEarliestPublicationDate();
+        $validDate = Document::getEarliestPublicationDate();
         $this->assertEquals('2011-06-01', $validDate);
 
         // Insert invalid entry into database...
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
+        $table = TableGateway::getInstance(Documents::class);
         $table->insert(['server_date_published' => '1234', 'server_date_created' => '1234']);
-        $invalidDate = Opus_Document::getEarliestPublicationDate();
+        $invalidDate = Document::getEarliestPublicationDate();
         $this->assertNull($invalidDate, "Expected NULL on invalid date.");
     }
 
     public function testGetDefaultsForPublicationState()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $values = $doc->getField('PublicationState')->getDefault();
 
@@ -1743,14 +1758,9 @@ class Opus_DocumentTest extends TestCase
         $this->assertContains('draft', $values);
     }
 
-    /**
-     * Regression test for OPUSVIER-2111
-     * @expectedException Opus_Model_DbException
-     * @expectedExceptionMessage truncated
-     */
     public function testTruncateExceptionIsThrownFor26Chars()
     {
-        $d = new Opus_Document();
+        $d                 = new Document();
         $stringWith26Chars = '';
         for ($i = 0; $i <= 255; $i++) {
             $stringWith26Chars .= 'x';
@@ -1758,17 +1768,18 @@ class Opus_DocumentTest extends TestCase
         $d->setEdition($stringWith26Chars);
         $d->setIssue($stringWith26Chars);
         $d->setVolume($stringWith26Chars);
+
+        $this->setExpectedException(DbException::class, 'truncated');
+
         $d->store();
     }
 
     /**
      * Regression test for OPUSVIER-2111
-     * @expectedException Opus_Model_DbException
-     * @expectedExceptionMessage truncated
      */
     public function testTruncateExceptionIsThrownFor256Chars()
     {
-        $d = new Opus_Document();
+        $d                  = new Document();
         $stringWith256Chars = '';
         for ($i = 0; $i <= 255; $i++) {
             $stringWith256Chars .= 'x';
@@ -1776,6 +1787,9 @@ class Opus_DocumentTest extends TestCase
         $d->setPublisherPlace($stringWith256Chars);
         $d->setPublisherName($stringWith256Chars);
         $d->setLanguage($stringWith256Chars);
+
+        $this->setExpectedException(DbException::class, 'truncated');
+
         $d->store();
     }
 
@@ -1784,7 +1798,7 @@ class Opus_DocumentTest extends TestCase
      */
     public function testTruncateExceptionIsNotThrown()
     {
-        $d = new Opus_Document();
+        $d                 = new Document();
         $stringWith25Chars = '';
         for ($i = 0; $i < 25; $i++) {
             $stringWith25Chars .= 'x';
@@ -1809,9 +1823,9 @@ class Opus_DocumentTest extends TestCase
      */
     public function testStoringTwiceWithSeriesModications()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $series = new Opus_Series();
+        $series = new Series();
         $series->setTitle('testseries');
         $series->store();
 
@@ -1820,7 +1834,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $assignedSeries = $doc->getSeries();
 
@@ -1835,7 +1849,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $assignedSeries = $doc->getSeries();
 
@@ -1847,9 +1861,9 @@ class Opus_DocumentTest extends TestCase
      */
     public function testStoringTwiceWithPersonModications()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('John');
         $person->setLastName('Doe');
         $person->store();
@@ -1859,7 +1873,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $persons = $doc->getPerson();
 
@@ -1874,7 +1888,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $persons = $doc->getPerson();
 
@@ -1884,28 +1898,28 @@ class Opus_DocumentTest extends TestCase
     public function testChangingRoleOfPerson()
     {
         $this->markTestIncomplete('Knallt. Soll das so sein? Was ist falsch?');
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $person->store(); // notwendig?
 
         $doc->setPersonAuthor([$person]);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $this->assertEquals(1, count($doc->getPerson()));
         $this->assertEquals(1, count($doc->getPersonAuthor()));
 
         $persons = $doc->getPersonAuthor();
-        $person = $persons[0];
+        $person  = $persons[0];
 
         $person->setRole('submitter');
 
         $doc->setPersonAuthor([]);
         $doc->setPersonSubmitter([$person]);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $this->assertEquals(1, count($doc->getPerson()));
         $this->assertEquals(1, count($doc->getPersonSubmitter()));
@@ -1916,13 +1930,13 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDocumentIsNotModifiedAfterGetPersonZero()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
         $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->assertTrue(count($doc->getPerson()) == 0, 'testcase changed?');
+        $this->assertTrue(count($doc->getPerson()) === 0, 'testcase changed?');
         $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
@@ -1931,10 +1945,10 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDocumentIsNotModifiedAfterGetFieldPersonZero()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
         $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
@@ -1946,9 +1960,9 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDocumentIsNotModifiedAfterGetPersonOne()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('John');
         $person->setLastName('Doe');
         $person->store();
@@ -1958,7 +1972,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
         $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $person = $doc->getPerson(0);
@@ -1982,9 +1996,9 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDocumentIsNotModifiedAfterGetFieldPersonOne()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('John');
         $person->setLastName('Doe');
         $person->store();
@@ -1994,7 +2008,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
         $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
@@ -2007,9 +2021,9 @@ class Opus_DocumentTest extends TestCase
      */
     public function testPlinkIsModifiedAfterFixingSortOrder()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('John');
         $person->setLastName('Doe');
         $person->store();
@@ -2025,7 +2039,7 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertFalse($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified');
 
-        $newField = new Opus_Model_Field('test');
+        $newField = new Field('test');
         $newField->setSortFieldName('SortOrder');
         $newField->setValue([$plink]);
 
@@ -2036,16 +2050,16 @@ class Opus_DocumentTest extends TestCase
     public function testChangeTitleType()
     {
         $this->markTestSkipped('Does not work (see OPUSVIER-2318).');
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $titleParent = new Opus_Title();
+        $titleParent = new Title();
         $titleParent->setLanguage('deu');
         $titleParent->setValue('Title Parent');
 
         $doc->addTitleParent($titleParent);
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(0, count($doc->getTitleMain()));
         $this->assertEquals(1, count($doc->getTitleParent()));
@@ -2055,7 +2069,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(1, count($doc->getTitleMain()), 'Should have 1 TitleMain.');
         $this->assertEquals(0, count($doc->getTitleParent()), 'Should have 0 TitleParent.');
@@ -2063,24 +2077,24 @@ class Opus_DocumentTest extends TestCase
 
     public function testChangeTitleTypeAlternateWay()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $titleParent = new Opus_Title();
+        $titleParent = new Title();
         $titleParent->setLanguage('deu');
         $titleParent->setValue('Title Parent');
 
         $doc->addTitleParent($titleParent);
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(0, count($doc->getTitleMain()));
         $this->assertEquals(1, count($doc->getTitleParent()));
 
         // remove title
         $titleParent = $doc->getTitleParent();
-        $title = $titleParent[0];
-        $movedTitle = new Opus_Title();
+        $title       = $titleParent[0];
+        $movedTitle  = new Title();
         $movedTitle->setLanguage($title->getLanguage());
         $movedTitle->setValue($title->getValue());
         unset($titleParent[0]);
@@ -2088,11 +2102,11 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         // add title
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
         $doc->addTitleMain($movedTitle);
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(1, count($doc->getTitleMain()), 'Should have 1 TitleMain.');
         $this->assertEquals(0, count($doc->getTitleParent()), 'Should have 0 TitleParent.');
@@ -2100,59 +2114,58 @@ class Opus_DocumentTest extends TestCase
 
     public function testRegression2916StoreModifiesServerDataModifiedForOtherDocs()
     {
-        $doc1 = new Opus_Document();
-        $doc1Id = $doc1->store();
+        $doc1                   = new Document();
+        $doc1Id                 = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
 
         sleep(2);
 
-        $doc2 = new Opus_Document();
-        $title = new Opus_Title();
+        $doc2  = new Document();
+        $title = new Title();
         $title->setLanguage('eng');
         $title->setValue('Test Titel');
         $doc2->addTitleMain($title);
         $doc2->store();
 
-        $doc1 = new Opus_Document($doc1Id);
+        $doc1 = new Document($doc1Id);
 
         $this->assertEquals($doc1ServerDateModified, $doc1->getServerDateModified()->getUnixTimestamp(), 'ServerDateModified was modified by store on a differnet document.');
     }
 
     public function testRegression2982StoreWithInstituteModifiesServerDateModifiedForOtherDocs()
     {
-        $institute = new Opus_DnbInstitute();
+        $institute = new DnbInstitute();
         $institute->setName('Test Institut');
         $institute->setCity('Berlin');
         $institute->setIsGrantor(true);
         $institute->setIsPublisher(true);
         $instituteId = $institute->store();
 
-        $doc1 = new Opus_Document();
-        $institute = new Opus_DnbInstitute($instituteId);
+        $doc1      = new Document();
+        $institute = new DnbInstitute($instituteId);
         $doc1->setThesisGrantor([$institute]);
-        $doc1id = $doc1->store();
+        $doc1id                 = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
 
         sleep(2);
 
-        $doc2 = new Opus_Document();
-        $institute = new Opus_DnbInstitute($instituteId);
+        $doc2      = new Document();
+        $institute = new DnbInstitute($instituteId);
         $doc2->setThesisGrantor([$institute]);
         $doc2->store();
 
-        $doc1 = new Opus_Document($doc1id);
+        $doc1 = new Document($doc1id);
 
         $this->assertEquals($doc1ServerDateModified, $doc1->getServerDateModified()->getUnixTimestamp(), 'ServerDateModified was modified by store on a differnet document.');
     }
 
     public function testHasPlugins()
     {
-        $doc = new Opus_Document();
-        // $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered'); // TODO OPUSVIER-3871 plugin not part of framework anymore
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
-        $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_SequenceNumber'), 'Opus_Document_Plugin_SequenceNumber is registered');
+        $doc = new Document();
+        $this->assertTrue($doc->hasPlugin(Document\Plugin\XmlCache::class), 'Opus\Document\Plugin\XmlCache is not registered');
+        $this->assertTrue($doc->hasPlugin(Document\Plugin\IdentifierUrn::class), 'Opus\Document\Plugin\IdentifierUrn is registered');
+        $this->assertTrue($doc->hasPlugin(Document\Plugin\IdentifierDoi::class), 'Opus\Document\Plugin\IdentifierDoi is registered');
+        $this->assertFalse($doc->hasPlugin(Document\Plugin\SequenceNumber::class), 'Opus\Document\Plugin\SequenceNumber is registered');
     }
 
     /**
@@ -2160,20 +2173,19 @@ class Opus_DocumentTest extends TestCase
      */
     public function testDeleteFields()
     {
-
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setValue('Blah Blah');
         $title->setLanguage('deu');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setTitleMain($title);
         $docid = $doc->store();
 
-        $redoc = new Opus_Document($docid);
+        $redoc = new Document($docid);
         $redoc->deleteFields(['TitleMain']);
         $redoc->store();
 
-        $retitle = new Opus_Title();
+        $retitle = new Title();
         $retitle->setValue('Blah Blah Blah');
         $retitle->setLanguage('deu');
 
@@ -2181,25 +2193,25 @@ class Opus_DocumentTest extends TestCase
 
         try {
             $redoc->store();
-        } catch (Opus\Model\Exception $ome) {
+        } catch (ModelException $ome) {
             $this->fail($ome->getMessage());
         }
     }
 
     public function testUpdateServerDateModifiedAfterDeleteFields()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setEdition('Test Edition');
-        $docId = $doc->store();
+        $docId                 = $doc->store();
         $docServerDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
         sleep(2);
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $doc->deleteFields(['Edition']);
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertNotEquals(
             $docServerDateModified,
@@ -2213,11 +2225,11 @@ class Opus_DocumentTest extends TestCase
      */
     public function testGetFileSortOrder()
     {
-        $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . '/' . uniqid();
+        $config = Config::get();
+        $path   = $config->workspacePath . '/' . uniqid();
         touch($path);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $file1 = $doc->addFile();
         $file1->setPathName('testC.txt');
@@ -2233,7 +2245,7 @@ class Opus_DocumentTest extends TestCase
         $file3->setTempFile($path);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
 
         unlink($file1->getPath());
@@ -2252,11 +2264,11 @@ class Opus_DocumentTest extends TestCase
     {
         $this->markTestSkipped('TODO noch nicht gefixt, aber langfristig evtl. auch nicht notwendig');
 
-        $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . '/' . uniqid();
+        $config = Config::get();
+        $path   = $config->workspacePath . '/' . uniqid();
         touch($path);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $file1 = $doc->addFile();
         $file1->setPathName('testC.txt');
@@ -2272,7 +2284,7 @@ class Opus_DocumentTest extends TestCase
         $file3->setTempFile($path);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $field = $doc->getField('File');
         $files = $field->getValue();
 
@@ -2290,11 +2302,11 @@ class Opus_DocumentTest extends TestCase
      */
     public function testGetFileSortingWithEqualSortOrder()
     {
-        $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . '/' . uniqid();
+        $config = Config::get();
+        $path   = $config->workspacePath . '/' . uniqid();
         touch($path);
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $file1 = $doc->addFile();
         $file1->setPathName('testC.txt');
@@ -2310,7 +2322,7 @@ class Opus_DocumentTest extends TestCase
         $file3->setTempFile($path);
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc   = new Document($docId);
         $files = $doc->getFile();
 
         unlink($file1->getPath());
@@ -2327,10 +2339,10 @@ class Opus_DocumentTest extends TestCase
      */
     public function testHasEmbargoDatePassedFalse()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setEmbargoDate('2100-10-13');
 
-        $now = new Opus_Date('2014-06-18');
+        $now = new Date('2014-06-18');
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
         $this->assertFalse($doc->hasEmbargoPassed(), 'OPUS has been developed for way too long. :-)');
@@ -2338,35 +2350,35 @@ class Opus_DocumentTest extends TestCase
 
     public function testHasEmbargoDatePassedTrue()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setEmbargoDate('2000-10-12');
         $this->assertTrue($doc->hasEmbargoPassed());
 
-        $now = new Opus_Date('2000-11-10');
+        $now = new Date('2000-11-10');
         $this->assertTrue($doc->hasEmbargoPassed($now));
     }
 
     public function testHasEmbargoDatePassedSameDay()
     {
-        $now = new Opus_Date('2014-06-18');
+        $now = new Date('2014-06-18');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setEmbargoDate('2014-06-18');
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
-        $now = new Opus_Date("2014-06-18T12:00:00Z");
+        $now = new Date("2014-06-18T12:00:00Z");
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
-        $now = new Opus_Date("2014-06-18T23:59:59Z");
+        $now = new Date("2014-06-18T23:59:59Z");
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
-        $now = new Opus_Date("2014-06-19");
+        $now = new Date("2014-06-19");
         $this->assertTrue($doc->hasEmbargoPassed($now));
     }
 
     public function testIsNewRecord()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $this->assertTrue($doc->isNewRecord());
 
@@ -2377,37 +2389,35 @@ class Opus_DocumentTest extends TestCase
 
     public function testSetServerDateModifiedByIds()
     {
-        $doc = new Opus_Document();
+        $doc    = new Document();
         $doc1Id = $doc->store();
 
-        $doc = new Opus_Document();
+        $doc    = new Document();
         $doc2Id = $doc->store();
 
-        $doc = new Opus_Document();
+        $doc    = new Document();
         $doc3Id = $doc->store();
 
-        $date = new Opus_Date('2016-05-10');
+        $date = new Date('2016-05-10');
 
-        Opus_Document::setServerDateModifiedByIds($date, [1, 3]);
+        Document::setServerDateModifiedByIds($date, [1, 3]);
 
-        $doc = new Opus_Document($doc1Id);
+        $doc = new Document($doc1Id);
         $this->assertEquals('2016-05-10', $doc->getServerDateModified());
 
-        $doc = new Opus_Document($doc2Id);
+        $doc = new Document($doc2Id);
         $this->assertNotEquals('2016-05-10', $doc->getServerDateModified());
 
-        $doc = new Opus_Document($doc3Id);
+        $doc = new Document($doc3Id);
         $this->assertEquals('2016-05-10', $doc->getServerDateModified());
     }
 
-    /**
-     * @expectedException Opus_Model_DbException
-     * @expectedExceptionMessage truncated
-     */
     public function testSetServerStateInvalidValue()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('unknown');
+
+        $this->setExpectedException(DbException::class, 'truncated');
         $doc->store();
     }
 
@@ -2422,16 +2432,20 @@ class Opus_DocumentTest extends TestCase
     {
         $this->markTestIncomplete('Requires way of counting calls to indexing adapter');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('published');
         $doc->store();
 
         // check indexing operations
     }
 
+    /**
+     * @return int
+     * @throws ModelException
+     */
     protected function setupDocumentWithMultipleTitles()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
 
         $title = $doc->addTitleMain();
@@ -2453,13 +2467,13 @@ class Opus_DocumentTest extends TestCase
     {
         $docId = $this->setupDocumentWithMultipleTitles();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertCount(3, $doc->getTitleMain());
 
         $title = $doc->getMainTitle();
 
-        $this->assertInstanceOf('Opus_Title', $title);
+        $this->assertInstanceOf(Title::class, $title);
         $this->assertEquals('Deutsch', $title->getValue());
         $this->assertEquals('deu', $title->getLanguage());
     }
@@ -2468,7 +2482,7 @@ class Opus_DocumentTest extends TestCase
     {
         $docId = $this->setupDocumentWithMultipleTitles();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $title = $doc->getMainTitle('fre');
 
@@ -2485,7 +2499,7 @@ class Opus_DocumentTest extends TestCase
     {
         $docId = $this->setupDocumentWithMultipleTitles();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $title = $doc->getMainTitle('rus');
 
@@ -2498,12 +2512,12 @@ class Opus_DocumentTest extends TestCase
     {
         $docId = $this->setupDocumentWithMultipleTitles();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $doc->setLanguage(null);
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertNull($doc->getLanguage());
 
@@ -2516,11 +2530,11 @@ class Opus_DocumentTest extends TestCase
 
     public function testGetMainTitleForNoTitles()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $title = $doc->getMainTitle();
 
@@ -2529,9 +2543,9 @@ class Opus_DocumentTest extends TestCase
 
     public function testHasFulltext()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config   = Config::get();
         $tempFile = $config->workspacePath . '/tmp/' . uniqid();
 
         touch($tempFile);
@@ -2543,7 +2557,7 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $files = $doc->getFile();
 
@@ -2551,7 +2565,7 @@ class Opus_DocumentTest extends TestCase
 
         $files[0]->setVisibleInFrontdoor(0);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $this->assertFalse($doc->hasFulltext());
 
@@ -2560,28 +2574,28 @@ class Opus_DocumentTest extends TestCase
 
     public function testIsOpenAccess()
     {
-        $role = new Opus_CollectionRole();
+        $role = new CollectionRole();
         $role->setName('open_access');
         $role->setOaiName('open_access');
         $role->store();
 
         $root = $role->addRootCollection();
 
-        $col = new Opus_Collection();
+        $col = new Collection();
         $col->setName('open_access');
         $col->setOaiSubset('open_access');
 
         $root->addFirstChild($col);
         $role->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType('article');
         $doc->addCollection($col);
         $docId = $doc->store();
 
         $this->assertTrue($col->holdsDocumentById($docId));
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertTrue($doc->isOpenAccess());
 
@@ -2594,22 +2608,22 @@ class Opus_DocumentTest extends TestCase
     public function testRemoveAllPersons()
     {
         // create document with one person
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType('article');
 
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setLanguage('eng');
         $title->setValue('Test document');
         $doc->addTitleMain($title);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Testy');
         $doc->addPersonAuthor($person);
 
         $docId = $doc->store();
 
         // add second person
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $persons = $doc->getPerson();
 
@@ -2617,13 +2631,13 @@ class Opus_DocumentTest extends TestCase
         $this->assertInternalType('array', $persons);
         $this->assertCount(1, $persons);
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setLastName('Tester2');
         $doc->addPersonReferee($person);
 
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $persons = $doc->getPerson();
 
@@ -2635,7 +2649,7 @@ class Opus_DocumentTest extends TestCase
         $doc->setPerson(null);
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $persons = $doc->getPerson();
 
@@ -2649,12 +2663,12 @@ class Opus_DocumentTest extends TestCase
      */
     public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
-        $id = new Opus_Identifier();
+        $id = new Identifier();
         $id->setType('doi');
         $id->setValue('someVal');
-        $ids = $doc->getIdentifier();
+        $ids   = $doc->getIdentifier();
         $ids[] = $id;
         $doc->setIdentifier($ids);
 
@@ -2669,21 +2683,21 @@ class Opus_DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
         $doc->addEnrichment($enrichment);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $enrichment = $doc->getEnrichment();
 
@@ -2694,13 +2708,13 @@ class Opus_DocumentTest extends TestCase
 
         $enrichment = $doc->getEnrichment(0);
 
-        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertInstanceOf(Enrichment::class, $enrichment);
         $this->assertEquals($keyName, $enrichment->getKeyName());
         $this->assertEquals('test-value', $enrichment->getValue());
 
         $enrichment = $doc->getEnrichment($keyName);
 
-        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertInstanceOf(Enrichment::class, $enrichment);
         $this->assertEquals($keyName, $enrichment->getKeyName());
         $this->assertEquals('test-value', $enrichment->getValue());
     }
@@ -2709,34 +2723,34 @@ class Opus_DocumentTest extends TestCase
     {
         $keyName = "test.key1";
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName('anotherKey');
         $enrichmentKey->store();
 
-        $enrichment1 = new Opus_Enrichment();
+        $enrichment1 = new Enrichment();
         $enrichment1->setKeyName('anotherKey');
         $enrichment1->setValue('another-value');
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
         $doc->addEnrichment($enrichment1);
         $doc->addEnrichment($enrichment);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $enrichment = $doc->getEnrichment($keyName);
 
-        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertInstanceOf(Enrichment::class, $enrichment);
         $this->assertEquals($keyName, $enrichment->getKeyName());
         $this->assertEquals('test-value', $enrichment->getValue());
     }
@@ -2745,21 +2759,21 @@ class Opus_DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
         $doc->addEnrichment($enrichment);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $enrichment = $doc->getEnrichment('unknownkey');
 
@@ -2770,50 +2784,48 @@ class Opus_DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
         $doc->addEnrichment($enrichment);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $value = $doc->getEnrichmentValue($keyName);
 
         $this->assertEquals('test-value', $value);
     }
 
-    /**
-     * @expectedException Opus\Model\Exception
-     * @expectedExceptionMessage unknown enrichment key
-     */
     public function testGetEnrichmentValueBadKey()
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
         $doc->addEnrichment($enrichment);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
+
+        $this->setExpectedException(ModelException::class, 'unknown enrichment key');
 
         $doc->getEnrichmentValue('unknownkey');
     }
@@ -2822,30 +2834,30 @@ class Opus_DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName('otherkey');
         $enrichmentKey->store();
 
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setLanguage('deu');
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value');
 
         $doc->addEnrichment($enrichment);
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName($keyName);
         $enrichment->setValue('test-value-2');
 
         $doc->addEnrichment($enrichment);
 
-        $enrichment = new Opus_Enrichment();
+        $enrichment = new Enrichment();
         $enrichment->setKeyName('otherkey');
         $enrichment->setValue('test-value-other');
 
@@ -2853,7 +2865,7 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $enrichments = $doc->getEnrichment();
 
@@ -2891,7 +2903,7 @@ class Opus_DocumentTest extends TestCase
     public function testStoreAsNew()
     {
         $this->markTestIncomplete('Storing as new document not implemented yet.');
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $title = $doc->addTitleMain();
         $title->setValue('Title');
@@ -2899,14 +2911,14 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc    = new Document($docId);
         $titles = $doc->getTitleMain();
 
         $this->assertCount(1, $titles);
 
         $docId2 = $doc->storeAsNew();
 
-        $doc2 = new Opus_Document($docId2);
+        $doc2 = new Document($docId2);
 
         $this->assertNotEquals($docId, $docId2);
 
@@ -2917,7 +2929,7 @@ class Opus_DocumentTest extends TestCase
     {
         $this->markTestIncomplete('Getting a copy/clone of a document not implemented yet.');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $title = $doc->addTitleMain();
         $title->setValue('Original Title');
@@ -2925,7 +2937,7 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $copy = $doc->getCopy();
 
@@ -2934,7 +2946,7 @@ class Opus_DocumentTest extends TestCase
 
     public function testToArray()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $bibliography = 1;
         $doc->setBelongsToBibliography($bibliography);
@@ -2975,17 +2987,17 @@ class Opus_DocumentTest extends TestCase
         $publicationState = 'draft';
         $doc->setPublicationState($publicationState);
 
-        $now = Opus_Date::getNow();
+        $now = Date::getNow();
 
         $nowArray = [
-            'Year' => $now->getYear(),
-            'Month' => $now->getMonth(),
-            'Day' => $now->getDay(),
-            'Hour' => $now->getHour(),
-            'Minute' => $now->getMinute(),
-            'Second' => $now->getSecond(),
-            'Timezone' => $now->getTimezone(),
-            'UnixTimestamp' => $now->getUnixTimestamp()
+            'Year'          => $now->getYear(),
+            'Month'         => $now->getMonth(),
+            'Day'           => $now->getDay(),
+            'Hour'          => $now->getHour(),
+            'Minute'        => $now->getMinute(),
+            'Second'        => $now->getSecond(),
+            'Timezone'      => $now->getTimezone(),
+            'UnixTimestamp' => $now->getUnixTimestamp(),
         ];
 
         $doc->setCompletedDate($now);
@@ -3052,11 +3064,11 @@ class Opus_DocumentTest extends TestCase
 
         $note = $doc->addNote();
         $note->setMessage('A private note');
-        $note->setVisibility(Opus_Note::ACCESS_PRIVATE);
+        $note->setVisibility(Note::ACCESS_PRIVATE);
 
         $note = $doc->addNote();
         $note->setMessage('A public note');
-        $note->setVisibility(Opus_Note::ACCESS_PUBLIC);
+        $note->setVisibility(Note::ACCESS_PUBLIC);
 
         $patent = $doc->addPatent();
         $patent->setCountries('Germany');
@@ -3072,7 +3084,7 @@ class Opus_DocumentTest extends TestCase
         $patent->setYearApplied(2018);
         $patent->setApplication('Another invention');
 
-        $licence1 = new Opus_Licence();
+        $licence1 = new Licence();
         $licence1->setActive(0);
         $licence1->setCommentInternal('first licence');
         $licence1->setDescMarkup('<b>Main Licence</b>');
@@ -3088,7 +3100,7 @@ class Opus_DocumentTest extends TestCase
         $licence1->setSortOrder(2);
         $doc->addLicence($licence1);
 
-        $licence2 = new Opus_Licence();
+        $licence2 = new Licence();
         $licence2->setActive(1);
         $licence2->setCommentInternal('second licence');
         $licence2->setDescMarkup('<b>Second Licence</b>');
@@ -3110,12 +3122,12 @@ class Opus_DocumentTest extends TestCase
         $keyword->setType('uncontrolled');
         $keyword->setExternalKey('ext:keyword:key'); // not a real example
 
-        $keyword = new Opus_SubjectSwd();
+        $keyword = new SubjectSwd();
         $keyword->setValue('Schlagwort');
         $keyword->setExternalKey('gnd:Schlagwort'); // not a real example
         $doc->addSubject($keyword);
 
-        $grantor = new Opus_DnbInstitute();
+        $grantor = new DnbInstitute();
         $grantor->setAddress('Grantor Str. 18');
         $grantor->setCity('Berlin');
         $grantor->setDepartment('The department');
@@ -3126,7 +3138,7 @@ class Opus_DocumentTest extends TestCase
         $grantor->setPhone('555 1234');
         $doc->addThesisGrantor($grantor);
 
-        $grantor = new Opus_DnbInstitute();
+        $grantor = new DnbInstitute();
         $grantor->setAddress('Grantor Str. 19');
         $grantor->setCity('Berlin');
         $grantor->setDepartment('The department 2');
@@ -3137,7 +3149,7 @@ class Opus_DocumentTest extends TestCase
         $grantor->setPhone('555 5678');
         $doc->addThesisGrantor($grantor);
 
-        $publisher = new Opus_DnbInstitute();
+        $publisher = new DnbInstitute();
         $publisher->setAddress('Publishing Str. 18');
         $publisher->setCity('Berlin');
         $publisher->setDepartment('The other department');
@@ -3148,7 +3160,7 @@ class Opus_DocumentTest extends TestCase
         $publisher->setPhone('555 4321');
         $doc->addThesisPublisher($publisher);
 
-        $publisher = new Opus_DnbInstitute();
+        $publisher = new DnbInstitute();
         $publisher->setAddress('Publishing Str. 19');
         $publisher->setCity('London');
         $publisher->setDepartment('The other department 2');
@@ -3159,11 +3171,11 @@ class Opus_DocumentTest extends TestCase
         $publisher->setPhone('555 8765');
         $doc->addThesisPublisher($publisher);
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName('enkey1');
         $enrichmentKey->store();
 
-        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey = new EnrichmentKey();
         $enrichmentKey->setName('enkey2');
         $enrichmentKey->store();
 
@@ -3179,13 +3191,13 @@ class Opus_DocumentTest extends TestCase
         $enrichment->setKeyName('enkey1');
         $enrichment->setValue('another enrichment value');
 
-        $collectionRole = new Opus_CollectionRole();
+        $collectionRole = new CollectionRole();
         $collectionRole->setName('ColRole1');
         $collectionRole->setOaiName('oaiColRole1');
         $collectionRole->addRootCollection();
         $collectionRole->store();
 
-        $collection = new Opus_Collection();
+        $collection = new Collection();
         $collection->setName('col1');
         $collection->setNumber('colnum1');
         $collection->setOaiSubset('oaicol1');
@@ -3195,13 +3207,13 @@ class Opus_DocumentTest extends TestCase
         $collection->store();
         $doc->addCollection($collection);
 
-        $collectionRole2 = new Opus_CollectionRole();
+        $collectionRole2 = new CollectionRole();
         $collectionRole2->setName('ColRole2');
         $collectionRole2->setOaiName('oaiColRole2');
         $collectionRole2->addRootCollection();
         $collectionRole2->store();
 
-        $collection2 = new Opus_Collection();
+        $collection2 = new Collection();
         $collection2->setName('col2');
         $collection2->setNumber('colnum2');
         $collection2->setOaiSubset('oaicol2');
@@ -3211,14 +3223,14 @@ class Opus_DocumentTest extends TestCase
         $collection2->store();
         $doc->addCollection($collection2);
 
-        $series = new Opus_Series();
+        $series = new Series();
         $series->setTitle('Series1');
         $series->setInfobox('Series1 description');
         $series->setVisible(1);
         $series->setSortOrder(2);
         $series->store();
 
-        $series2 = new Opus_Series();
+        $series2 = new Series();
         $series2->setTitle('Series2');
         $series2->setInfobox('Series2 description');
         $series2->setVisible(0);
@@ -3249,11 +3261,11 @@ class Opus_DocumentTest extends TestCase
         $ref->setLabel('Previous version');
         $ref->setRelation('updates');
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setFirstName('John');
         $person->setLastName('Doe');
         $person->setAcademicTitle('Prof.');
-        $person->setDateOfBirth(new Opus_Date('1995-04-01'));
+        $person->setDateOfBirth(new Date('1995-04-01'));
         $person->setEmail('john@example.org');
         $person->setOpusId(1);
         $person->setIdentifierOrcid('0000-0000-0000-0001');
@@ -3269,7 +3281,7 @@ class Opus_DocumentTest extends TestCase
         // store document and retrieve it again
         // TODO does it also work without storing (especially identifier and other redundant fields)
         // TODO IMPORTANT it does not work without storing - figure out why and fix it
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         // create array and verify it
 
@@ -3322,15 +3334,15 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $titles);
 
         $this->assertEquals([
-            'Value' => 'Original Title',
+            'Value'    => 'Original Title',
             'Language' => 'eng',
-            'Type' => 'main'
+            'Type'     => 'main',
         ], $titles[0]);
 
         $this->assertEquals([
-            'Value' => 'Deutscher Titel',
+            'Value'    => 'Deutscher Titel',
             'Language' => 'deu',
-            'Type' => 'main'
+            'Type'     => 'main',
         ], $titles[1]);
 
         // check abstracts
@@ -3342,15 +3354,15 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $titles);
 
         $this->assertEquals([
-            'Value' => 'English abstract',
+            'Value'    => 'English abstract',
             'Language' => 'eng',
-            'Type' => 'abstract'
+            'Type'     => 'abstract',
         ], $titles[0]);
 
         $this->assertEquals([
-            'Value' => 'Zusammenfassung',
+            'Value'    => 'Zusammenfassung',
             'Language' => 'deu',
-            'Type' => 'abstract'
+            'Type'     => 'abstract',
         ], $titles[1]);
 
         // check parent titles
@@ -3362,15 +3374,15 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $titles);
 
         $this->assertEquals([
-            'Value' => 'Parent title',
+            'Value'    => 'Parent title',
             'Language' => 'eng',
-            'Type' => 'parent'
+            'Type'     => 'parent',
         ], $titles[0]);
 
         $this->assertEquals([
-            'Value' => 'Übergeordneter Titel',
+            'Value'    => 'Übergeordneter Titel',
             'Language' => 'deu',
-            'Type' => 'parent'
+            'Type'     => 'parent',
         ], $titles[1]);
 
         // check sub titles
@@ -3382,15 +3394,15 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $titles);
 
         $this->assertEquals([
-            'Value' => 'subtitle',
+            'Value'    => 'subtitle',
             'Language' => 'eng',
-            'Type' => 'sub'
+            'Type'     => 'sub',
         ], $titles[0]);
 
         $this->assertEquals([
-            'Value' => 'Untertitel',
+            'Value'    => 'Untertitel',
             'Language' => 'deu',
-            'Type' => 'sub'
+            'Type'     => 'sub',
         ], $titles[1]);
 
         // check additional titles
@@ -3402,15 +3414,15 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $titles);
 
         $this->assertEquals([
-            'Value' => 'Another title',
+            'Value'    => 'Another title',
             'Language' => 'eng',
-            'Type' => 'additional'
+            'Type'     => 'additional',
         ], $titles[0]);
 
         $this->assertEquals([
-            'Value' => 'Weiterer Titel',
+            'Value'    => 'Weiterer Titel',
             'Language' => 'deu',
-            'Type' => 'additional'
+            'Type'     => 'additional',
         ], $titles[1]);
 
         // check notes
@@ -3422,12 +3434,12 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $notes);
 
         $this->assertEquals([
-            'Message' => 'A private note',
+            'Message'    => 'A private note',
             'Visibility' => 'private',
         ], $notes[0]);
 
         $this->assertEquals([
-            'Message' => 'A public note',
+            'Message'    => 'A public note',
             'Visibility' => 'public',
         ], $notes[1]);
 
@@ -3440,19 +3452,19 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $patents);
 
         $this->assertEquals([
-            'Countries' => 'Germany',
+            'Countries'   => 'Germany',
             'DateGranted' => $nowArray,
-            'Number' => '123',
+            'Number'      => '123',
             'YearApplied' => 2017,
-            'Application' => 'Invention'
+            'Application' => 'Invention',
         ], $patents[0]);
 
         $this->assertEquals([
-            'Countries' => 'France',
+            'Countries'   => 'France',
             'DateGranted' => $nowArray,
-            'Number' => '456',
+            'Number'      => '456',
             'YearApplied' => 2018,
-            'Application' => 'Another invention'
+            'Application' => 'Another invention',
         ], $patents[1]);
 
         // check licences
@@ -3464,35 +3476,35 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $licences);
 
         $this->assertEquals([
-            'Active' => 0,
+            'Active'          => 0,
             'CommentInternal' => 'first licence',
-            'DescMarkup' => '<b>Main Licence</b>',
-            'DescText' => 'Main licence',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence1',
-            'LinkLogo' => 'http://www.example.org/licence1/logo',
-            'LinkSign' => 'http://www.example.org/licence1/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'MLN',
-            'NameLong' => 'Main Licence Name',
-            'PodAllowed' => 1,
-            'SortOrder' => 2
+            'DescMarkup'      => '<b>Main Licence</b>',
+            'DescText'        => 'Main licence',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence1',
+            'LinkLogo'        => 'http://www.example.org/licence1/logo',
+            'LinkSign'        => 'http://www.example.org/licence1/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'MLN',
+            'NameLong'        => 'Main Licence Name',
+            'PodAllowed'      => 1,
+            'SortOrder'       => 2,
         ], $licences[0]);
 
         $this->assertEquals([
-            'Active' => 1,
+            'Active'          => 1,
             'CommentInternal' => 'second licence',
-            'DescMarkup' => '<b>Second Licence</b>',
-            'DescText' => 'Second licence',
-            'Language' => 'eng',
-            'LinkLicence' => 'http://www.example.org/licence2',
-            'LinkLogo' => 'http://www.example.org/licence2/logo',
-            'LinkSign' => 'http://www.example.org/licence2/sign',
-            'MimeType' => 'text/plain',
-            'Name' => 'SLN',
-            'NameLong' => 'Second Licence Name',
-            'PodAllowed' => 0,
-            'SortOrder' => 1
+            'DescMarkup'      => '<b>Second Licence</b>',
+            'DescText'        => 'Second licence',
+            'Language'        => 'eng',
+            'LinkLicence'     => 'http://www.example.org/licence2',
+            'LinkLogo'        => 'http://www.example.org/licence2/logo',
+            'LinkSign'        => 'http://www.example.org/licence2/sign',
+            'MimeType'        => 'text/plain',
+            'Name'            => 'SLN',
+            'NameLong'        => 'Second Licence Name',
+            'PodAllowed'      => 0,
+            'SortOrder'       => 1,
         ], $licences[1]);
 
         // check keywords
@@ -3502,17 +3514,17 @@ class Opus_DocumentTest extends TestCase
         unset($data['Subject']);
 
         $this->assertEquals([
-            'Language' => 'eng',
-            'Type' => 'uncontrolled',
-            'Value' => 'A keyword',
-            'ExternalKey' => 'ext:keyword:key'
+            'Language'    => 'eng',
+            'Type'        => 'uncontrolled',
+            'Value'       => 'A keyword',
+            'ExternalKey' => 'ext:keyword:key',
         ], $subjects[0]);
 
         $this->assertEquals([
-            'Language' => 'deu',
-            'Type' => 'swd',
-            'Value' => 'Schlagwort',
-            'ExternalKey' => 'gnd:Schlagwort'
+            'Language'    => 'deu',
+            'Type'        => 'swd',
+            'Value'       => 'Schlagwort',
+            'ExternalKey' => 'gnd:Schlagwort',
         ], $subjects[1]);
 
         // check thesis grantors
@@ -3522,27 +3534,27 @@ class Opus_DocumentTest extends TestCase
         unset($data['ThesisGrantor']);
 
         $this->assertEquals([
-            'Address' => 'Grantor Str. 18',
-            'City' => 'Berlin',
-            'Department' => 'The department',
+            'Address'      => 'Grantor Str. 18',
+            'City'         => 'Berlin',
+            'Department'   => 'The department',
             'DnbContactId' => '123',
-            'IsGrantor' => '1', // TODO why strings here?
-            'IsPublisher' => '0', // TODO why strings here?
-            'Name' => 'Big Granting',
-            'Phone' => '555 1234',
-            'Role' => 'grantor'
+            'IsGrantor'    => '1', // TODO why strings here?
+            'IsPublisher'  => '0', // TODO why strings here?
+            'Name'         => 'Big Granting',
+            'Phone'        => '555 1234',
+            'Role'         => 'grantor',
         ], $grantors[0]);
 
         $this->assertEquals([
-            'Address' => 'Grantor Str. 19',
-            'City' => 'Berlin',
-            'Department' => 'The department 2',
+            'Address'      => 'Grantor Str. 19',
+            'City'         => 'Berlin',
+            'Department'   => 'The department 2',
             'DnbContactId' => '456',
-            'IsGrantor' => '1',
-            'IsPublisher' => '1',
-            'Name' => 'Big Granting 2',
-            'Phone' => '555 5678',
-            'Role' => 'grantor'
+            'IsGrantor'    => '1',
+            'IsPublisher'  => '1',
+            'Name'         => 'Big Granting 2',
+            'Phone'        => '555 5678',
+            'Role'         => 'grantor',
         ], $grantors[1]);
 
         // check thesis publishers
@@ -3552,27 +3564,27 @@ class Opus_DocumentTest extends TestCase
         unset($data['ThesisPublisher']);
 
         $this->assertEquals([
-            'Address' => 'Publishing Str. 18',
-            'City' => 'Berlin',
-            'Department' => 'The other department',
+            'Address'      => 'Publishing Str. 18',
+            'City'         => 'Berlin',
+            'Department'   => 'The other department',
             'DnbContactId' => '321',
-            'IsGrantor' => '0', // TODO why strings here?
-            'IsPublisher' => '1', // TODO why strings here?
-            'Name' => 'Big Publishing',
-            'Phone' => '555 4321',
-            'Role' => 'publisher'
+            'IsGrantor'    => '0', // TODO why strings here?
+            'IsPublisher'  => '1', // TODO why strings here?
+            'Name'         => 'Big Publishing',
+            'Phone'        => '555 4321',
+            'Role'         => 'publisher',
         ], $publishers[0]);
 
         $this->assertEquals([
-            'Address' => 'Publishing Str. 19',
-            'City' => 'London',
-            'Department' => 'The other department 2',
+            'Address'      => 'Publishing Str. 19',
+            'City'         => 'London',
+            'Department'   => 'The other department 2',
             'DnbContactId' => '234',
-            'IsGrantor' => '1',
-            'IsPublisher' => '1',
-            'Name' => 'Big Publishing 2',
-            'Phone' => '555 8765',
-            'Role' => 'publisher'
+            'IsGrantor'    => '1',
+            'IsPublisher'  => '1',
+            'Name'         => 'Big Publishing 2',
+            'Phone'        => '555 8765',
+            'Role'         => 'publisher',
         ], $publishers[1]);
 
         // check enrichments
@@ -3583,17 +3595,17 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertEquals([
             'KeyName' => 'enkey1',
-            'Value' => 'enrichment1'
+            'Value'   => 'enrichment1',
         ], $enrichments[0]);
 
         $this->assertEquals([
             'KeyName' => 'enkey2',
-            'Value' => 'enrichment2'
+            'Value'   => 'enrichment2',
         ], $enrichments[1]);
 
         $this->assertEquals([
             'KeyName' => 'enkey1',
-            'Value' => 'another enrichment value'
+            'Value'   => 'another enrichment value',
         ], $enrichments[2]);
 
         // TODO check collections (big problem because collections have very incomplete arrays)
@@ -3606,21 +3618,21 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $series);
 
         $this->assertEquals([
-            'Title' => 'Series1',
-            'Infobox' => 'Series1 description',
-            'SortOrder' => '2',
-            'Number' => '3',
+            'Title'        => 'Series1',
+            'Infobox'      => 'Series1 description',
+            'SortOrder'    => '2',
+            'Number'       => '3',
             'DocSortOrder' => '0',
-            'Visible' => '1'
+            'Visible'      => '1',
         ], $series[0]);
 
         $this->assertEquals([
-            'Title' => 'Series2',
-            'Infobox' => 'Series2 description',
-            'SortOrder' => '1',
-            'Number' => '7',
+            'Title'        => 'Series2',
+            'Infobox'      => 'Series2 description',
+            'SortOrder'    => '1',
+            'Number'       => '7',
             'DocSortOrder' => '0',
-            'Visible' => '0'
+            'Visible'      => '0',
         ], $series[1]);
 
         // check identifiers
@@ -3631,17 +3643,17 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $identifiers);
 
         $this->assertEquals([
-            'Value' => '123',
-            'Type' => 'isbn',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
+            'Value'          => '123',
+            'Type'           => 'isbn',
+            'Status'         => 'registered',
+            'RegistrationTs' => '2018-10-12 13:45:21',
         ], $identifiers[0]);
 
         $this->assertEquals([
-            'Value' => 'abc',
-            'Type' => 'doi',
-            'Status' => 'registered',
-            'RegistrationTs' => '2018-10-12 13:45:21'
+            'Value'          => 'abc',
+            'Type'           => 'doi',
+            'Status'         => 'registered',
+            'RegistrationTs' => '2018-10-12 13:45:21',
         ], $identifiers[1]);
 
         // check references
@@ -3652,10 +3664,10 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(1, $references);
 
         $this->assertEquals([
-            'Value' => '146',
-            'Type' => 'opus4-id',
+            'Value'    => '146',
+            'Type'     => 'opus4-id',
             'Relation' => 'updates',
-            'Label' => 'Previous version'
+            'Label'    => 'Previous version',
         ], $references[0]);
 
         $this->assertArrayHasKey('ReferenceOpus4', $data);
@@ -3664,14 +3676,22 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(1, $references);
 
         $this->assertEquals([
-            'Value' => '146',
-            'Type' => 'opus4-id',
+            'Value'    => '146',
+            'Type'     => 'opus4-id',
             'Relation' => 'updates',
-            'Label' => 'Previous version'
+            'Label'    => 'Previous version',
         ], $references[0]);
 
         $referenceTypes = [
-            'Isbn', 'Urn', 'Doi', 'Handle', 'Url', 'Issn', 'StdDoi', 'CrisLink', 'SplashUrl'
+            'Isbn',
+            'Urn',
+            'Doi',
+            'Handle',
+            'Url',
+            'Issn',
+            'StdDoi',
+            'CrisLink',
+            'SplashUrl',
         ];
 
         foreach ($referenceTypes as $type) {
@@ -3690,28 +3710,28 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(1, $persons);
 
         $this->assertEquals([
-            'AcademicTitle' => 'Prof.',
-            'FirstName' => 'John',
-            'LastName' => 'Doe',
-            'DateOfBirth' => [
-                'Year' => '1995',
-                'Month' => '04',
-                'Day' => '01',
-                'Hour' => null,
-                'Minute' => null,
-                'Second' => null,
-                'Timezone' => null,
+            'AcademicTitle'     => 'Prof.',
+            'FirstName'         => 'John',
+            'LastName'          => 'Doe',
+            'DateOfBirth'       => [
+                'Year'          => '1995',
+                'Month'         => '04',
+                'Day'           => '01',
+                'Hour'          => null,
+                'Minute'        => null,
+                'Second'        => null,
+                'Timezone'      => null,
                 'UnixTimestamp' => 796694400,
             ],
-            'Email' => 'john@example.org',
-            'OpusId' => '1',
-            'IdentifierOrcid' => '0000-0000-0000-0001',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'opus2',
-            'PlaceOfBirth' => 'Berlin',
-            'Role' => 'author',
+            'Email'             => 'john@example.org',
+            'OpusId'            => '1',
+            'IdentifierOrcid'   => '0000-0000-0000-0001',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'opus2',
+            'PlaceOfBirth'      => 'Berlin',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 1
+            'SortOrder'         => 1,
         ], $persons[0]);
 
         $this->assertArrayHasKey('PersonAuthor', $data);
@@ -3720,28 +3740,28 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(1, $persons);
 
         $this->assertEquals([
-            'AcademicTitle' => 'Prof.',
-            'FirstName' => 'John',
-            'LastName' => 'Doe',
-            'DateOfBirth' => [
-                'Year' => '1995',
-                'Month' => '04',
-                'Day' => '01',
-                'Hour' => null,
-                'Minute' => null,
-                'Second' => null,
-                'Timezone' => null,
+            'AcademicTitle'     => 'Prof.',
+            'FirstName'         => 'John',
+            'LastName'          => 'Doe',
+            'DateOfBirth'       => [
+                'Year'          => '1995',
+                'Month'         => '04',
+                'Day'           => '01',
+                'Hour'          => null,
+                'Minute'        => null,
+                'Second'        => null,
+                'Timezone'      => null,
                 'UnixTimestamp' => 796694400,
             ],
-            'Email' => 'john@example.org',
-            'OpusId' => '1',
-            'IdentifierOrcid' => '0000-0000-0000-0001',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'opus2',
-            'PlaceOfBirth' => 'Berlin',
-            'Role' => 'author',
+            'Email'             => 'john@example.org',
+            'OpusId'            => '1',
+            'IdentifierOrcid'   => '0000-0000-0000-0001',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'opus2',
+            'PlaceOfBirth'      => 'Berlin',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 1
+            'SortOrder'         => 1,
         ], $persons[0]);
 
         $personRoles = ['Contributor', 'Referee', 'Advisor', 'Editor', 'Translator', 'Other', 'Submitter'];
@@ -3779,9 +3799,9 @@ class Opus_DocumentTest extends TestCase
      * Removes the key from the array in order to check at the end if all keys have been
      * tested.
      *
-     * @param $key
-     * @param $value
-     * @param $array
+     * @param string   $key
+     * @param string   $value
+     * @param string[] $array
      */
     protected function checkArrayEntry($key, $value, &$array)
     {
@@ -3800,25 +3820,25 @@ class Opus_DocumentTest extends TestCase
     public function testFromArray()
     {
         $data = [
-            'Type' => 'article',
+            'Type'      => 'article',
             'TitleMain' => [
                 [
-                    'Type' => 'Main',
+                    'Type'     => 'Main',
                     'Language' => 'eng',
-                    'Value' => 'Test Title'
+                    'Value'    => 'Test Title',
                 ],
                 [
-                    'Type' => 'Main',
+                    'Type'     => 'Main',
                     'Language' => 'deu',
-                    'Value' => 'Testtitel'
-                ]
-            ]
+                    'Value'    => 'Testtitel',
+                ],
+            ],
         ];
 
-        $document = Opus_Document::fromArray($data);
+        $document = Document::fromArray($data);
 
         $this->assertNotNull($document);
-        $this->assertInstanceOf('Opus_Document', $document);
+        $this->assertInstanceOf(Document::class, $document);
         $this->assertEquals('article', $document->getType());
 
         $titles = $document->getTitleMain();
@@ -3830,15 +3850,15 @@ class Opus_DocumentTest extends TestCase
     {
         $this->markTestIncomplete('Not implemented yet.');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $title = $doc->addTitleMain();
         $title->setValue('Original Title');
         $title->setLanguage('en');
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
-        $copy = new Opus_Document();
+        $copy = new Document();
 
         $copy->updateFrom($doc);
 
@@ -3846,7 +3866,7 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertCount(1, $titles);
 
-        $copy = new Opus_Document($copy->store());
+        $copy = new Document($copy->store());
 
         $this->assertCount(1, $copy->getTitleMain());
     }
@@ -3855,10 +3875,10 @@ class Opus_DocumentTest extends TestCase
     {
         $this->markTestIncomplete('Not implemented yet.');
 
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $data = [
-            'Type' => 'article'
+            'Type' => 'article',
         ];
 
         $doc->updateFromArray($data);
@@ -3870,19 +3890,19 @@ class Opus_DocumentTest extends TestCase
      * In the database the date is stored as a single value.
      *
      * It used to be, when the value is read the unix timestamp is set to the correct value. Now the setting of the
-     * UNIX timestamp actually changes the date and time in the Opus_Date object.
+     * UNIX timestamp actually changes the date and time in the Opus\Date object.
      */
     public function testStoringDateWithConflictingUnixTimestamp()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $date = new Opus_Date();
+        $date = new Date();
         $date->setFromString('2011-10-24'); // 1319414400
         $date->setUnixTimestamp(1322694000); // Field UnixTimestamp is read-only now
 
         $doc->setCompletedDate($date);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $date = $doc->getCompletedDate();
 
@@ -3899,15 +3919,15 @@ class Opus_DocumentTest extends TestCase
 
     public function testDateSettingUnixTimestamp()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $date = new Opus_Date();
+        $date = new Date();
 
         $date->setTimestamp(1322694000);
 
         $doc->setCompletedDate($date);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $date = $doc->getCompletedDate();
 
@@ -3918,27 +3938,27 @@ class Opus_DocumentTest extends TestCase
 
     public function testGetSubjectOrderAsAdded()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $keyword = new Opus_Subject();
-        $keyword->setType(Opus_Subject::SWD);
+        $keyword = new Subject();
+        $keyword->setType(Subject::SWD);
         $keyword->setValue('Berlin');
 
         $doc->addSubject($keyword);
 
-        $keyword = new Opus_Subject();
-        $keyword->setType(Opus_Subject::SWD);
+        $keyword = new Subject();
+        $keyword->setType(Subject::SWD);
         $keyword->setValue('Antonplatz');
 
         $doc->addSubject($keyword);
 
-        $keyword = new Opus_Subject();
-        $keyword->setType(Opus_Subject::SWD);
+        $keyword = new Subject();
+        $keyword->setType(Subject::SWD);
         $keyword->setValue('Checkpoint');
 
         $doc->addSubject($keyword);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $subjects = $doc->getSubject();
 
@@ -3950,41 +3970,41 @@ class Opus_DocumentTest extends TestCase
 
     public function testGetDefaultPlugins()
     {
-        $document = new Opus_Document();
+        $document = new Document();
 
         $this->assertEquals([
-            'Opus_Document_Plugin_XmlCache',
-            'Opus_Document_Plugin_IdentifierUrn',
-            'Opus_Document_Plugin_IdentifierDoi'
+            Document\Plugin\XmlCache::class,
+            Document\Plugin\IdentifierUrn::class,
+            Document\Plugin\IdentifierDoi::class,
         ], $document->getDefaultPlugins());
     }
 
     public function testGetDefaultPluginsConfigured()
     {
-        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+        Config::get()->merge(new Zend_Config([
             'model' => [
                 'plugins' => [
                     'document' => [
-                        'Opus_Document_Plugin_SequenceNumber'
-                    ]
-                ]
-            ]
+                        Document\Plugin\SequenceNumber::class,
+                    ],
+                ],
+            ],
         ]));
 
-        $document = new Opus_Document();
+        $document = new Document();
 
         $document->setDefaultPlugins(null);
 
         $this->assertEquals([
-            'Opus_Document_Plugin_SequenceNumber',
+            Document\Plugin\SequenceNumber::class,
         ], $document->getDefaultPlugins());
 
-        $this->assertTrue($document->hasPlugin('Opus_Document_Plugin_SequenceNumber'));
+        $this->assertTrue($document->hasPlugin(Document\Plugin\SequenceNumber::class));
     }
 
     public function testServerStateChanged()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $this->assertFalse($doc->getServerStateChanged());
 
         $doc->setServerState('unpublished');
@@ -3992,7 +4012,7 @@ class Opus_DocumentTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
         $this->assertFalse($doc->getServerStateChanged());
 
         $doc->setServerState('published');
@@ -4003,7 +4023,7 @@ class Opus_DocumentTest extends TestCase
 
         $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $doc->setServerState('unpublished');
         $this->assertFalse($doc->getServerStateChanged());
@@ -4015,32 +4035,34 @@ class Opus_DocumentTest extends TestCase
     /**
      * This test threw the following exception.
      *
-     * "Opus_Model_DbException : Opus_Document:  Opus_Document: Database column 'edition' has been truncated by
+     * "Opus\Model\DbException : Opus\Document:  Opus\Document: Database column 'edition' has been truncated by
      * 1 characters!"
      *
      * This is caused by the truncate check after saving an object. The function deletePermanent calls delete first.
      * Delete is a status change, so it is an update operation for the database. After an update the truncate check
-     * verifies that all the values have been stored completelly. The framework only stores changed values. The check
+     * verifies that all the values have been stored completely. The framework only stores changed values. The check
      * verifies all values. The old longer value has not been changed and therefore is not stored when delete is called.
      * The database contains the shorter value so the truncation check fails.
+     *
+     * TODO review this test - is it still valid after deletePermanent was removed?
      */
     public function testNoTruncateExceptionDeletingDocumentUsingOutOfDateObject()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setEdition('0123456789');
         $docId = $doc->store();
 
-        $newObj = new Opus_Document($docId);
+        $newObj = new Document($docId);
         $newObj->setEdition('012345678');
         $newObj->store();
 
-        $doc->deletePermanent();
+        $doc->delete();
     }
 
     /**
      * Old truncation check code caused this test to fail with an exception.
      *
-     * "Opus_Model_DbException : Opus_Patent:  Opus_Patent: Database column 'number' has been truncated by
+     * "Opus\Model\DbException : Opus\Patent:  Opus\Patent: Database column 'number' has been truncated by
      * 1 characters!"
      *
      * The reason is that the delete function a save triggers, because it is actually a status change. After the saving
@@ -4050,23 +4072,23 @@ class Opus_DocumentTest extends TestCase
      */
     public function testNoTruncateExceptionDeletingDocumentWithPatentUsingOutOfDateObject()
     {
-        $doc = new Opus_Document();
-        $patent = new Opus_Patent();
+        $doc    = new Document();
+        $patent = new Patent();
         $patent->setNumber('0123456789');
         $patent->setCountries('Germany');
         $patent->setApplication('Application');
         $doc->addPatent($patent);
         $docId = $doc->store();
 
-        $newObj = new Opus_Document($docId);
+        $newObj  = new Document($docId);
         $patents = $newObj->getPatent();
         $patents[0]->setNumber('012345678');
         $newObj->store();
 
         $patent->setCountries('France');
-        $doc->delete();
+        $doc->deleteDocument();
 
-        $doc = new Opus_Document($docId);
+        $doc     = new Document($docId);
         $patents = $doc->getPatent();
 
         // old, longer value '0123456789' does not get stored, because it is not modified (anymore)
@@ -4074,16 +4096,13 @@ class Opus_DocumentTest extends TestCase
     }
 
     /**
-     * @expectedException  Opus_Model_DbException
-     * @expectedExceptionMessage Data too long
-     *
      * TODO originally tested problem during deletePermanent (which triggered a store in delete function)
      */
     public function testTruncateExceptionForTooLongValue()
     {
-        $doc = new Opus_Document();
-        $patent = new Opus_Patent();
-        $value = str_repeat('0123456789', 25);
+        $doc    = new Document();
+        $patent = new Patent();
+        $value  = str_repeat('0123456789', 25);
         $patent->setNumber($value);
         $patent->setCountries('Germany');
         $patent->setApplication('Application');
@@ -4091,29 +4110,36 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $patent->setNumber(str_repeat('0123456789', 26));
+
+        $this->setExpectedException(DbException::class, 'Data too long');
+
         $doc->store();
     }
 
     public function testDeleteSavesChanges()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setServerState('unpublished');
         $doc->setEdition('1st');
         $docId = $doc->store();
 
         $doc->setEdition('2nd');
 
-        $doc->delete();
+        $doc->deleteDocument();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $this->assertEquals('deleted', $doc->getServerState());
         $this->assertEquals('2nd', $doc->getEdition());
     }
 
+    /**
+     * @return string[]
+     * @throws ModelException
+     */
     public function getIdentifierTypes()
     {
-        $identifier = new Opus_Identifier();
+        $identifier = new Identifier();
 
         $types = array_keys($identifier->getField('Type')->getDefault());
 
@@ -4125,18 +4151,19 @@ class Opus_DocumentTest extends TestCase
     }
 
     /**
+     * @param string $type
      * @dataProvider getIdentifierTypes
      */
     public function testGetIdentifierDiffersFromGetIdentiferForType($type)
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
 
-        $id = new Opus_Identifier();
+        $id = new Identifier();
         $id->setType($type);
         $id->setValue('someVal');
 
-        $ids = $doc->getIdentifier();
+        $ids   = $doc->getIdentifier();
         $ids[] = $id;
         $doc->setIdentifier($ids);
 
@@ -4150,7 +4177,7 @@ class Opus_DocumentTest extends TestCase
 
         $funcName = 'getIdentifier' . ucfirst($typeName);
 
-        $identifiers = $doc->getIdentifier();
+        $identifiers        = $doc->getIdentifier();
         $identifiersForType = $doc->$funcName();
 
         $this->assertEquals($identifiers, $identifiersForType);
@@ -4158,10 +4185,10 @@ class Opus_DocumentTest extends TestCase
 
     public function testSettingIdentifierDoiChangesIdentifier()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->store();
 
-        $id = new Opus_Identifier();
+        $id = new Identifier();
         $id->setType('doi');
         $id->setValue('someVal');
 
@@ -4177,23 +4204,23 @@ class Opus_DocumentTest extends TestCase
 
     public function testGetIdentifierByType()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $id = new Opus_Identifier();
+        $id = new Identifier();
         $id->setType('doi');
         $id->setValue('someVal');
 
-        $id2 = new Opus_Identifier();
+        $id2 = new Identifier();
         $id2->setType('doi');
         $id2->setValue('someVal2');
 
-        $id3 = new Opus_Identifier();
+        $id3 = new Identifier();
         $id3->setType('issn');
         $id3->setValue('someVal3');
 
         $doc->setIdentifier([$id, $id3, $id2]);
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $values = $doc->getIdentifierByType('doi');
 
@@ -4206,13 +4233,13 @@ class Opus_DocumentTest extends TestCase
 
     public function testGetIdentifierByTypeWithIndex()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $id = new Opus_Identifier();
+        $id = new Identifier();
         $id->setType('doi');
         $id->setValue('someVal');
 
-        $id2 = new Opus_Identifier();
+        $id2 = new Identifier();
         $id2->setType('doi');
         $id2->setValue('someVal2');
 
@@ -4226,43 +4253,43 @@ class Opus_DocumentTest extends TestCase
 
     public function testAddIdentifierForType()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $identifier = $doc->addIdentifierForType('doi');
 
         $this->assertNotNull($identifier);
-        $this->assertInstanceOf('Opus_Identifier', $identifier);
+        $this->assertInstanceOf(Identifier::class, $identifier);
         $this->assertEquals('doi', $identifier->getType());
     }
 
     public function testAddIdentifierDoi()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $identifier = $doc->addIdentifierDoi();
 
         $this->assertNotNull($identifier);
-        $this->assertInstanceOf('Opus_Identifier', $identifier);
+        $this->assertInstanceOf(Identifier::class, $identifier);
         $this->assertEquals('doi', $identifier->getType());
     }
 
     public function testSetIdentifiersForType()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $ident = new Opus_Identifier();
+        $ident = new Identifier();
         $ident->setType('doi');
         $ident->setValue('doi-value1');
 
         $doc->addIdentifier($ident);
 
-        $ident = new Opus_Identifier();
+        $ident = new Identifier();
         $ident->setType('issn');
         $ident->setValue('issn-value1');
 
         $doc->addIdentifier($ident);
 
-        $ident = new Opus_Identifier();
+        $ident = new Identifier();
         $ident->setType('doi');
         $ident->setValue('doi-value2');
 
@@ -4295,21 +4322,138 @@ class Opus_DocumentTest extends TestCase
 
     public function testSortingMoreThan255Authors()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
         $authorsCount = 300;
 
         for ($index = 1; $index <= $authorsCount; $index++) {
-            $author = new Opus_Person();
+            $author   = new Person();
             $lastName = sprintf('author%1$03d', $index);
             $author->setLastName($lastName);
             $doc->addPersonAuthor($author);
         }
 
-        $doc = new Opus_Document($doc->store());
+        $doc = new Document($doc->store());
 
         $authors = $doc->getPersonAuthor();
 
         $this->assertCount($authorsCount, $authors);
+    }
+
+    public function testGetModelType()
+    {
+        $doc = new Document();
+        $this->assertEquals('document', $doc->getModelType());
+    }
+
+    public function testNew()
+    {
+        $doc = Document::new();
+
+        $this->assertInstanceOf(Document::class, $doc);
+    }
+
+    public function testGet()
+    {
+        $doc   = Document::new();
+        $docId = $doc->store();
+
+        $doc = Document::get($docId);
+
+        $this->assertInstanceOf(Document::class, $doc);
+        $this->assertEquals($docId, $doc->getId());
+    }
+
+    public function testGetEnrichmentValues()
+    {
+        $doc = Document::new();
+
+        $this->assertEquals([], $doc->getEnrichmentValues());
+
+        $enrichment = new Enrichment();
+        $enrichment->setKeyName('City');
+        $enrichment->setValue('Berlin');
+        $doc->addEnrichment($enrichment);
+
+        $values = $doc->getEnrichmentValues();
+
+        $this->assertEquals([
+            'City' => 'Berlin',
+        ], $values);
+
+        $enrichment = new Enrichment();
+        $enrichment->setKeyName('import.filename');
+        $enrichment->setValue('testimport1.zip');
+        $doc->addEnrichment($enrichment);
+
+        $values = $doc->getEnrichmentValues();
+
+        $this->assertEquals([
+            'City'            => 'Berlin',
+            'import.filename' => 'testimport1.zip',
+        ], $values);
+    }
+
+    public function testDeleteDocumentWithFile()
+    {
+        $doc = Document::new();
+        $doc->setType('article');
+
+        $docId = $doc->store();
+
+        $config   = Config::get();
+        $tempFile = $config->workspacePath . '/' . uniqid();
+        touch($tempFile);
+
+        $file = $doc->addFile();
+        $file->setPathName('test.txt');
+        $file->setMimeType('text/plain');
+        $file->setTempFile($tempFile);
+
+        $doc->store();
+
+        $doc = Document::get($docId);
+
+        $files = $doc->getFile();
+
+        $this->assertCount(1, $files);
+
+        $file = $files[0];
+
+        $this->assertTrue($file->exists());
+
+        $doc->delete();
+
+        $this->assertFalse($file->exists());
+
+        $this->setExpectedException(NotFoundException::class);
+
+        Document::get($docId);
+    }
+
+    public function testDetectStateChange()
+    {
+        $doc = Document::new();
+        $doc = Document::get($doc->store());
+
+        $field = $doc->getField('ServerState');
+
+        $this->assertFalse($field->isModified());
+
+        $doc->setServerState(Document::STATE_DELETED);
+
+        $this->assertTrue($field->isModified());
+
+        $doc = Document::get($doc->store());
+
+        $field = $doc->getField('ServerState');
+
+        $this->assertFalse($field->isModified());
+        $this->assertEquals(Document::STATE_DELETED, $doc->getServerState());
+        $this->assertEquals(Document::STATE_DELETED, $field->getValue());
+
+        $doc->setServerState(Document::STATE_DELETED);
+
+        $this->assertFalse($field->isModified());
     }
 }

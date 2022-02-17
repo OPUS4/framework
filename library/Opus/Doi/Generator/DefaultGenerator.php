@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,21 +25,33 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Doi
- * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Doi
+ * @author      Sascha Szott <szott@zib.de>
  */
 
-class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGeneratorInterface
-{
+namespace Opus\Doi\Generator;
 
+use Opus\Config;
+
+use function rtrim;
+use function strlen;
+use function substr;
+use function trim;
+
+/**
+ * phpcs:disable
+ */
+class DefaultGenerator implements DoiGeneratorInterface
+{
     private $config;
 
     public function __construct()
     {
-        $this->config = Zend_Registry::get('Zend_Config');
+        $this->config = Config::get();
     }
 
     /**
@@ -58,45 +71,42 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
      * Der Konfigurationsparameter doi.suffixFormat wird von dieser DOI-Generierungsklasse NICHT berücksichtigt.
      * Er ist fest auf {docId} gesetzt.
      *
-     * @throws Opus_Doi_Generator_DoiGeneratorException
+     * @throws DoiGeneratorException
      */
     public function generate($document)
     {
         $prefix = $this->getPrefix();
 
-        $generatedDOI = $prefix . $document->getId();
-        return $generatedDOI;
+        return $prefix . $document->getId();
     }
 
     /**
      * Liefert true zurück, wenn die übergebene DOI als lokale DOI zu betrachten ist.
      * Im Falle der vorliegenden Implementierungsklasse muss eine lokale DOI folgenden
      * Präfix haben: '{doi.prefix}/{doi.localPrefix}-'
-     *
      */
     public function isLocal($doiValue)
     {
         try {
             $prefix = $this->getPrefix();
-        } catch (Opus_Doi_Generator_DoiGeneratorException $odgd) {
+        } catch (DoiGeneratorException $odgd) {
             // if no local prefix is configured, no DOI is local
             return false;
         }
 
-        $result = substr($doiValue, 0, strlen($prefix)) == $prefix;
-
-        return $result;
+        return substr($doiValue, 0, strlen($prefix)) === $prefix;
     }
 
     /**
      * Returns compound prefix for DOIs.
+     *
      * @return string
-     * @throws Opus_Doi_Generator_DoiGeneratorException
+     * @throws DoiGeneratorException
      */
     public function getPrefix()
     {
         if (! isset($this->config->doi->prefix) or strlen(trim($this->config->doi->prefix)) === 0) {
-            throw new Opus_Doi_Generator_DoiGeneratorException(
+            throw new DoiGeneratorException(
                 'configuration setting doi.prefix is missing - DOI cannot be generated'
             );
         }
@@ -104,7 +114,7 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
         // Schrägstrich als Trennzeichen, wenn Präfix nicht bereits einen Schrägstrich als Suffix besitzt
         $prefix = rtrim($this->config->doi->prefix, '/') . '/';
 
-        if (isset($this->config->doi->localPrefix) and $this->config->doi->localPrefix != '') {
+        if (isset($this->config->doi->localPrefix) && ! empty($this->config->doi->localPrefix)) {
             $prefix .= $this->config->doi->localPrefix;
 
             // DocID wird als Suffix mit Bindestrich an das Präfix angefügt (füge Bindestrich hinzu, wenn erforderlich)

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,20 +26,30 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Translate
+ * @package     Opus\Translate
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2021, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_Translate_DatabaseAdapterTest extends TestCase
-{
 
+namespace OpusTest\Translate;
+
+use Opus\Translate\Dao;
+use Opus\Translate\DatabaseAdapter;
+use OpusTest\TestAsset\TestCase;
+use Zend_Translate;
+
+class DatabaseAdapterTest extends TestCase
+{
     private $cache;
+
+    private $translations;
 
     public function setUp()
     {
         parent::setUp();
-        $this->cache = Zend_Translate::getCache();
+        $this->cache        = Zend_Translate::getCache();
+        $this->translations = new Dao();
     }
 
     public function tearDown()
@@ -49,23 +60,25 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
     public function testUsingAdapter()
     {
+        $this->resetDatabase();
+
         Zend_Translate::clearCache();
 
-        $database = new Opus_Translate_Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Administration',
-            'de' => 'Verwaltung'
+                'en' => 'Administration',
+                'de' => 'Verwaltung',
             ]
         );
 
         $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -78,19 +91,19 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
     /**
      * Cache is setup during the bootstrapping of the tests.
      *
-     * @throws Zend_Translate_Exception
+     * @throws\Zend_Translate_Exception
      *
      * TODO setup cache explicitly in this test, do not rely on bootstrap or check at least
      */
     public function testUpdatingTranslation()
     {
-        $database = new Opus_Translate_Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Administration',
-            'de' => 'Verwaltung'
+                'en' => 'Administration',
+                'de' => 'Verwaltung',
             ]
         );
 
@@ -98,9 +111,9 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -113,21 +126,21 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Edited',
-            'de' => 'Editiert'
+                'en' => 'Edited',
+                'de' => 'Editiert',
             ]
         );
 
         // create new translation object will not update cache
         $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
-        // translations are cached in memory independent of Zend_Cache
+        // translations are cached in memory independent of\Zend_Cache
         $this->assertEquals('Administration', $translate->translate('admin'));
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
@@ -136,9 +149,9 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -146,26 +159,25 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $this->assertEquals('Editiert', $translate->translate('admin', 'de'));
     }
 
-    // check behaviour with cache
     public function testUsingAdapterWithoutCache()
     {
         Zend_Translate::clearCache();
 
-        $database = new Opus_Translate_Dao();
+        $database = $this->translations;
 
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Administration',
-            'de' => 'Verwaltung'
+                'en' => 'Administration',
+                'de' => 'Verwaltung',
             ]
         );
 
         $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 
@@ -182,21 +194,21 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $database->setTranslation(
             'admin',
             [
-            'en' => 'Edited',
-            'de' => 'Editiert'
+                'en' => 'Edited',
+                'de' => 'Editiert',
             ]
         );
 
-        // check translations in old Zend_Translate object that has already loaded from database
+        // check translations in old\Zend_Translate object that has already loaded from database
         $this->assertEquals('Administration', $translate->translate('admin'));
         $this->assertEquals('Verwaltung', $translate->translate('admin', 'de'));
 
-        // create new Zend_Translate object so translation will be read again
+        // create new \Zend_Translate object so translation will be read again
         $translate = new Zend_Translate(
             [
-                'adapter' => 'Opus_Translate_DatabaseAdapter',
+                'adapter' => DatabaseAdapter::class,
                 'content' => 'default',
-                'locale'  => 'en'
+                'locale'  => 'en',
             ]
         );
 

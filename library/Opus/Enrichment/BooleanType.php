@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,23 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @package     Opus_Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Application
+ * @package     Opus\Enrichment
+ * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
-class Opus_Enrichment_BooleanType extends Opus_Enrichment_AbstractType
-{
+namespace Opus\Enrichment;
 
+use Admin_Form_Document_Enrichment;
+
+/**
+ * phpcs:disable
+ */
+class BooleanType extends AbstractType
+{
     public function getFormElementName()
     {
         return 'Checkbox';
@@ -41,12 +49,12 @@ class Opus_Enrichment_BooleanType extends Opus_Enrichment_AbstractType
 
     public function getFormElement($value = null)
     {
-        $form = new Admin_Form_Document_Enrichment();
+        $form    = new Admin_Form_Document_Enrichment();
         $options = ['required' => true]; // FIXME überhaupt erforderlich?
         $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
         $element->removeDecorator('Label'); // kein Label anzeigen
 
-        if (! is_null($value)) {
+        if ($value !== null) {
             $element->setValue($value);
         }
 

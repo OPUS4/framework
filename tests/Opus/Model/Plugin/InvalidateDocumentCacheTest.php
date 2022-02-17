@@ -25,44 +25,72 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2017
+ * @copyright   Copyright (c) 2010-2020
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
+
+namespace OpusTest\Model\Plugin;
+
+use DOMXPath;
+use Opus\CollectionRole;
+use Opus\Document;
+use Opus\Document\Plugin\XmlCache;
+use Opus\Licence;
+use Opus\Model\ModelException;
+use Opus\Model\Plugin\InvalidateDocumentCache;
+use Opus\Model\Xml\Cache;
+use Opus\Patent;
+use Opus\Person;
+use Opus\Series;
+use OpusTest\TestAsset\TestCase;
+
+use function count;
+use function rand;
+use function sleep;
 
 /**
  * Plugin creating and deleting xml cache entries.
  *
- * @category    Framework
- * @package     Opus_Document_Plugin
  * @uses        Opus\Model\Plugin\AbstractPlugin
+ *
+ * @category    Framework
+ * @package     Opus\Document\Plugin
  */
-class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
+class InvalidateDocumentCacheTest extends TestCase
 {
-
     protected $collection;
     protected $collectionRole;
 
     public function setUp()
     {
         parent::setUp();
-        $this->collectionRole = new Opus_CollectionRole();
+
+        $this->clearTables(false, [
+            'documents',
+            'collections_roles',
+            'collections',
+            'link_documents_collections',
+        ]);
+
+        $this->collectionRole = new CollectionRole();
         $this->collectionRole->setName("role-name-" . rand());
         $this->collectionRole->setOaiName("role-oainame-" . rand());
         $this->collectionRole->setVisible(1);
         $this->collectionRole->setVisibleBrowsingStart(1);
         $this->collectionRole->store();
         try {
-            $this->collectionRole->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus\Model\Exception $ome) {
+            $this->collectionRole->unregisterPlugin(InvalidateDocumentCache::class);
+        } catch (ModelException $ome) {
         }
 
         $this->collection = $this->collectionRole->addRootCollection();
         try {
-            $this->collection->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus\Model\Exception $ome) {
+            $this->collection->unregisterPlugin(InvalidateDocumentCache::class);
+        } catch (ModelException $ome) {
         }
         $this->collection->setName('dummy');
         $this->collection->store();
@@ -75,19 +103,17 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
      */
     public function testPostStore()
     {
-        $xmlCache = new Opus_Model_Xml_Cache();
-
+        $xmlCache = new Cache();
 
         $docIds = [];
-        $doc1 = new Opus_Document();
-        $doc1->registerPlugin(new Opus_Document_Plugin_XmlCache);
+        $doc1   = new Document();
+        $doc1->registerPlugin(new XmlCache());
         $docIds[] = $doc1->setType("article")
                 ->setServerState('published');
 
 //        $doc1->addLicence($licence);
         $doc1->addCollection($this->collection);
         $doc1->store();
-
 
         $this->assertTrue(
             $xmlCache->hasValidEntry(
@@ -98,16 +124,16 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             'Expected valid cache entry for doc1 after creation id: ' . $doc1->getId()
         );
 
-        $doc2 = new Opus_Document();
-        $doc2->registerPlugin(new Opus_Document_Plugin_XmlCache);
+        $doc2 = new Document();
+        $doc2->registerPlugin(new XmlCache());
 
         $docIds[] = $doc2->setType("article")
                 ->setServerState('unpublished');
 
-        $author = new Opus_Person();
+        $author = new Person();
         try {
-            $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus\Model\Exception $ome) {
+            $author->unregisterPlugin(InvalidateDocumentCache::class);
+        } catch (ModelException $ome) {
         }
 
         $author->setFirstName('Karl');
@@ -123,7 +149,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $this->assertTrue($domDocument->hasChildNodes(), 'cache entry consists of empty DOM document');
         $this->assertEquals(1, count($domDocument->childNodes), 'unexpected number of child nodes');
 
-        $xpath = new DOMXpath($domDocument);
+        $xpath    = new DOMXPath($domDocument);
         $elements = $xpath->query("/Opus/Opus_Document/ServerDateModified");
         $this->assertEquals(1, count($elements), 'unexpected number of matching elements');
 
@@ -171,8 +197,8 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             "Expected valid cache entry for doc2 after creation. id: " . $doc2->getId()
         );
 
-        $doc3 = new Opus_Document();
-        $doc3->registerPlugin(new Opus_Document_Plugin_XmlCache);
+        $doc3 = new Document();
+        $doc3->registerPlugin(new XmlCache());
 
         $doc3Id = $docIds[] = $doc3->setType("preprint")
                 ->setServerState('unpublished')
@@ -182,8 +208,8 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             'Expected valid cache entry for doc3 after creation. id: ' . $doc3->getId()
         );
 
-        $doc4 = new Opus_Document();
-        $doc4->registerPlugin(new Opus_Document_Plugin_XmlCache);
+        $doc4 = new Document();
+        $doc4->registerPlugin(new XmlCache());
         $docIds[] = $doc4->setType("preprint")
                 ->setServerState('unpublished');
 
@@ -199,15 +225,14 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             'Expected valid cache entry for doc4 after creation id: ' . $doc4->getId()
         );
 
-        $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
-
+        $plugin = new InvalidateDocumentCache();
 
         // test dependent model
         $title = $doc3->addTitleMain();
         // unregister plugin if registered
         try {
-            $title->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus\Model\Exception $ome) {
+            $title->unregisterPlugin(InvalidateDocumentCache::class);
+        } catch (ModelException $ome) {
         }
         $title->setValue('Ein deutscher Titel');
         $title->setLanguage('deu');
@@ -234,7 +259,6 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             $doc4->getServerDateModified()
         ), 'Expected valid cache entry before title');
 
-
         $plugin->postStore($title);
 
         $this->assertTrue($xmlCache->hasValidEntry(
@@ -258,14 +282,13 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             $doc4->getServerDateModified()
         ), 'Expected valid cache entry after title');
 
-
 //        // test linked model
         //person
-        $author = new Opus_Person($authorId);
+        $author = new Person($authorId);
         // unregister plugin if registered
         try {
-            $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus\Model\Exception $ome) {
+            $author->unregisterPlugin(InvalidateDocumentCache::class);
+        } catch (ModelException $ome) {
         }
         $author->setFirstName('Fritz');
         $author->store();
@@ -313,9 +336,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
             1,
             $doc4->getServerDateModified()
         ), 'Expected valid cache entry after person');
-//
         $plugin->postStore($this->collection);
-//
         $this->assertFalse($xmlCache->hasValidEntry(
             $doc1->getId(),
             1,
@@ -343,20 +364,19 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
      */
     public function testSetServerDateModified()
     {
-
-        $doc = new Opus_Document();
-        $doc->registerPlugin(new Opus_Document_Plugin_XmlCache);
+        $doc = new Document();
+        $doc->registerPlugin(new XmlCache());
         $doc->setType("article")
                 ->setServerState('published');
 
         $doc->addCollection($this->collection);
-        $docId = $doc->store();
+        $docId              = $doc->store();
         $serverDateModified = $doc->getServerDateModified();
 
-        $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
+        $plugin = new InvalidateDocumentCache();
         sleep(1);
         $plugin->postStore($this->collection);
-        $docReloaded = new Opus_Document($docId);
+        $docReloaded = new Document($docId);
         $this->assertTrue(
             $docReloaded->getServerDateModified()->getZendDate()->isLater($doc->getServerDateModified()->getZendDate()),
             'Expected serverDateModified to be updated.'
@@ -365,12 +385,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testPreDeleteHasNoEffectIfModelNotStored()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
         $doc->setType("article")
                 ->setServerState('published');
         $docId = $doc->store();
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setLinkLicence('http://licence');
         $licence->setNameLong('Non-Creative Uncommon');
 
@@ -378,14 +398,14 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
         $serverDateModified = $doc->getServerDateModified();
 
-        $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
+        $plugin = new InvalidateDocumentCache();
         sleep(1);
         $plugin->preDelete($licence);
-        $docReloaded = new Opus_Document($docId);
+        $docReloaded = new Document($docId);
         $this->assertTrue(
-            0 == ($docReloaded->getServerDateModified()->getZendDate()->compare(
+            0 === $docReloaded->getServerDateModified()->getZendDate()->compare(
                 $doc->getServerDateModified()->getZendDate()
-            )),
+            ),
             'Expected serverDateModified to be updated.'
         );
     }
@@ -393,30 +413,30 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
     public function testCacheInvalidatedOnlyOnce()
     {
         $this->markTestIncomplete('TODO - no assertions (used for manual debugging)');
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $patent = new Opus_Patent();
+        $patent = new Patent();
         $patent->setApplication('Test Patent');
         $patent->setCountries('Germany');
         $patent->setNumber('1');
 
         $doc->addPatent($patent);
 
-        $patent = new Opus_Patent();
+        $patent = new Patent();
         $patent->setApplication('Another Test Patent');
         $patent->setCountries('Germany');
         $patent->setNumber('2');
 
         $doc->addPatent($patent);
 
-        $patent = new Opus_Patent();
+        $patent = new Patent();
         $patent->setApplication('Third Test Patent');
         $patent->setCountries('Germany');
         $patent->setNumber('3');
 
         $doc->addPatent($patent);
 
-        $licence = new Opus_Licence();
+        $licence = new Licence();
         $licence->setLanguage('deu');
         $licence->setNameLong('Test Licence');
         $licence->setLinkLicence('http://long.org/licence');
@@ -426,7 +446,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $licences = $doc->getLicence();
 
@@ -439,9 +459,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testIgnoreCollectionRoleDisplayBrowsing()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $colRole = new Opus_CollectionRole();
+        $colRole = new CollectionRole();
         $colRole->setName('TestCol');
         $colRole->setOaiName('TestColOai');
         $root = $colRole->addRootCollection();
@@ -458,7 +478,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $colRole->store();
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,
@@ -469,9 +489,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testCollectionRoleDisplayFrontdoorDeletesCacheDoesNotChangeDateModified()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $colRole = new Opus_CollectionRole();
+        $colRole = new CollectionRole();
         $colRole->setName('TestCol');
         $colRole->setOaiName('TestColOai');
         $root = $colRole->addRootCollection();
@@ -487,12 +507,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $colRole->setDisplayFrontdoor('Name,Number');
         $colRole->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
 
         $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,
@@ -503,9 +523,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testCollectionRoleVisibleChangeDeletesCacheButDoesNotChangeDateModified()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $colRole = new Opus_CollectionRole();
+        $colRole = new CollectionRole();
         $colRole->setName('TestCol');
         $colRole->setOaiName('TestColOai');
         $colRole->setVisible(0);
@@ -522,12 +542,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $colRole->setVisible(1);
         $colRole->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
 
         $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,
@@ -538,9 +558,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testCollectionRoleVisibleBrowsingStartChangeDeletesCacheButDoesNotChangeDateModified()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $colRole = new Opus_CollectionRole();
+        $colRole = new CollectionRole();
         $colRole->setName('TestCol');
         $colRole->setOaiName('TestColOai');
         $colRole->setVisibleBrowsingStart(0);
@@ -557,12 +577,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $colRole->setVisibleBrowsingStart(1);
         $colRole->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
 
         $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,
@@ -573,9 +593,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testCollectionRoleVisibleFrontdoorChangeDeletesCacheButDoesNotChangeDateModified()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $colRole = new Opus_CollectionRole();
+        $colRole = new CollectionRole();
         $colRole->setName('TestCol');
         $colRole->setOaiName('TestColOai');
         $colRole->setVisibleFrontdoor(0);
@@ -592,12 +612,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $colRole->setVisibleFrontdoor(1);
         $colRole->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
 
         $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,
@@ -608,9 +628,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testSeriesVisibleChangeDeletesCacheButDoesNotChangeDateModified()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $series = new Opus_Series();
+        $series = new Series();
         $series->setTitle('TestSeries');
         $series->setVisible(0);
         $series->store();
@@ -626,12 +646,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $series->setVisible(1);
         $series->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
 
         $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,
@@ -642,9 +662,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testCollectionVisibleChangeDeletesCacheButDoesNotChangeDateModified()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $colRole = new Opus_CollectionRole();
+        $colRole = new CollectionRole();
         $colRole->setName('TestCol');
         $colRole->setOaiName('TestColOai');
         $colRole->setVisibleBrowsingStart(0);
@@ -662,12 +682,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $root->setVisible(0);
         $root->store();
 
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
 
         $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
 
         // need to read document from database again
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Document($doc->getId());
 
         $this->assertEquals(
             $lastModified,

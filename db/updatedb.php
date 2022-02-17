@@ -61,17 +61,18 @@ set_include_path(
 
 require_once 'autoload.php';
 
-$application = new Zend_Application(
-    APPLICATION_ENV,
-    array(
-        "config"=>array(
+$application = new \Zend_Application(
+    APPLICATION_ENV, [
+        "config" => [
             APPLICATION_PATH . '/tests/config.ini',
             APPLICATION_PATH . '/tests/tests.ini'
-        )
-    )
+        ]
+    ]
 );
 
-Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+$options = $application->getOptions();
+$options['opus']['disableDatabaseVersionCheck'] = true;
+$application->setOptions($options);
 
 // Bootstrapping application
 $application->bootstrap('Backend');
@@ -89,7 +90,7 @@ if (array_key_exists('v', $options))
     }
 }
 
-$database = new Opus_Database();
+$database = new \Opus\Database();
 
 echo $database->getName() . PHP_EOL;
 

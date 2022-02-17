@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,22 +26,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Db
- * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Db
+ * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
+
+namespace Opus\Db;
+
+use Zend_Db_Table_Abstract;
+
+use function implode;
+use function is_array;
+use function rtrim;
 
 /**
  * Implements the singleton pattern for table gateway classes.
  *
- * @category    Framework
- * @package     Opus_Db
+ * TODO nothing preventing creation of table classes directly
  *
+ * phpcs:disable
  */
-abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
+abstract class TableGateway extends Zend_Db_Table_Abstract
 {
     /**
      * Holds all table gateway instances.
@@ -52,14 +62,13 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
     /**
      * Delivers the singleton instances.
      *
-     * @param  mixed  $class The class name of the instance to get.
-     *
-     * @return Opus_Db_TableGateway
+     * @param  mixed $class The class name of the instance to get.
+     * @return TableGateway
      */
     final public static function getInstance($class)
     {
         if (! isset(self::$instances[$class])) {
-            $object = new $class();
+            $object                  = new $class();
             self::$instances[$class] = $object;
         }
         return self::$instances[$class];
@@ -91,36 +100,35 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * modified row.
      *
      * @param array $data
-     * @return void
      */
     public function insertIgnoreDuplicate($data)
     {
         $adapter = $this->getAdapter();
 
-        $q_keys = [];
+        $q_keys   = [];
         $q_values = [];
-        $update = '';
+        $update   = '';
 
         foreach ($data as $key => $value) {
-            $quotedKey = $adapter->quoteIdentifier($key);
-            $q_keys[] = $quotedKey;
+            $quotedKey  = $adapter->quoteIdentifier($key);
+            $q_keys[]   = $quotedKey;
             $q_values[] = $adapter->quote($value);
-            $update .= " $quotedKey=VALUES($quotedKey),";
+            $update    .= " $quotedKey=VALUES($quotedKey),";
         }
 
         // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
         $primaryKey = $this->_primary;
 
-        if (! is_null($primaryKey) and ! is_array($primaryKey)) {
+        if ($primaryKey !== null && ! is_array($primaryKey)) {
             // no support for composite keys
             $update .= " $primaryKey=LAST_INSERT_ID($primaryKey)";
         } else {
             $update = rtrim($update, ',');
         }
 
-        $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name) .
-                ' (' . implode(', ', $q_keys) . ') ' .
-                ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
+        $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name)
+                . ' (' . implode(', ', $q_keys) . ') '
+                . ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
 
         $adapter->query($insert);
 
@@ -132,7 +140,6 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * deletes of non-existent entries.)
      *
      * @param array $data
-     * @return void
      */
     public function deleteWhereArray($data)
     {
@@ -141,10 +148,10 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         $q_clauses = [];
 
         foreach ($data as $key => $value) {
-            $q_key = $adapter->quoteIdentifier($key);
+            $q_key   = $adapter->quoteIdentifier($key);
             $q_value = $adapter->quote($value);
             if (is_array($value)) {
-                $q_clauses[] = $q_key . ' IN (' . $q_value .')';
+                $q_clauses[] = $q_key . ' IN (' . $q_value . ')';
             } else {
                 $q_clauses[] = $q_key . " = " . $q_value;
             }
@@ -157,14 +164,12 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
 
     /**
      * FIXME: Constructor should be private due to singleton pattern. This
-     * conflicts with the signature of the Zend_Db_Table_Abstract contructor.
+     * conflicts with the signature of the \Zend_Db_Table_Abstract contructor.
      * private function __construct() {}
      */
 
     /**
      * Singleton classes cannot be cloned!
-     *
-     * @return void
      */
     final private function __clone()
     {
@@ -172,8 +177,6 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
 
     /**
      * Singleton classes should not be put to sleep!
-     *
-     * @return void
      */
     final private function __sleep()
     {

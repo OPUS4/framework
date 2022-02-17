@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,50 +25,60 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace OpusTest\Model\Xml;
+
+use Opus\Document;
+use Opus\Model\Xml;
+use Opus\Model\Xml\Version2;
+use Opus\Person;
+use Opus\Title;
+use Opus\TitleAbstract;
+use OpusTest\TestAsset\TestCase;
+
+use function date;
 
 /**
  * Test creation XML (version 2) from models and creation of models by valid XML respectivly.
  *
  * @category    Tests
- * @package     Opus_Model
- *
+ * @package     Opus\Model
  * @group XmlVersion2Test
  */
-class Opus_Model_Xml_Version2Test extends TestCase
+class Version2Test extends TestCase
 {
-
     /**
      * Overwrite parent methods.
      */
     public function setUp()
     {
     }
+
     public function tearDown()
     {
     }
 
     public function testGetVersion()
     {
-        $strategy = new Opus_Model_Xml_Version2();
+        $strategy = new Version2();
         $this->assertEquals('2.0', $strategy->getVersion());
     }
 
     /**
      * First test of xml version 2.
-     *
-     * @return void
      */
     public function testInitialXmlVersion2()
     {
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType("doctoral_thesis");
 
         $document->setLanguage('deu');
@@ -75,7 +86,7 @@ class Opus_Model_Xml_Version2Test extends TestCase
         $document->setPublishedDate(date('Y-m-d'));
         $document->setServerState('unpublished');
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1963-06-12');
@@ -83,19 +94,19 @@ class Opus_Model_Xml_Version2Test extends TestCase
         $document->addPersonAuthor($author);
         $document->addPersonAuthor($author);
 
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setLanguage('deu');
         $title->setValue('Creating of tests.');
         $document->addTitleMain($title);
 
-        $abstract = new Opus_Title();
+        $abstract = new Title();
         $abstract->setLanguage('eng');
         $abstract->setValue('this should be a lot of text...');
         $document->addTitleAbstract($abstract);
 
-        $omx = new Opus_Model_Xml();
+        $omx = new Xml();
         $omx->setModel($document);
-        $omx->setStrategy(new Opus_Model_Xml_Version2);
+        $omx->setStrategy(new Version2());
 
         $dom = $omx->getDomDocument();
         // $xmlData = $dom->saveXML();
@@ -121,12 +132,10 @@ class Opus_Model_Xml_Version2Test extends TestCase
 
     /**
      * Test if a given model and its serialized version generate same xml output.
-     *
-     * @return void
      */
     public function testSettingOfXmlShouldBeEqualToSetModel()
     {
-        $document = new Opus_Document();
+        $document = new Document();
 
         $document->setType("doctoral_thesis");
         $document->setLanguage('deu');
@@ -136,33 +145,33 @@ class Opus_Model_Xml_Version2Test extends TestCase
         $document->setPublishedDate($publishedDate);
         $document->setServerState('unpublished');
 
-        $author = new Opus_Person();
+        $author = new Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1963-06-12');
 
         $document->addPersonAuthor($author);
 
-        $title = new Opus_Title();
+        $title = new Title();
         $title->setLanguage('deu');
         $title->setValue('Creating of tests.');
         $document->addTitleMain($title);
 
-        $abstract = new Opus_TitleAbstract();
+        $abstract = new TitleAbstract();
         $abstract->setLanguage('eng');
         $abstract->setValue('this should be a lot of text...');
         $document->addTitleAbstract($abstract);
 
         // set up serialize
-        $strategy = new Opus_Model_Xml_Version2;
-        $omx = new Opus_Model_Xml();
+        $strategy = new Version2();
+        $omx      = new Xml();
         $omx->setModel($document);
         $omx->setStrategy($strategy);
         $dom = $omx->getDomDocument();
 
         // serialize
         $xmlData = $dom->saveXML();
-        $omx = new Opus_Model_Xml();
+        $omx     = new Xml();
         // take first serialize data as source
         $omx->setXml($xmlData);
 
@@ -170,9 +179,9 @@ class Opus_Model_Xml_Version2Test extends TestCase
         // build a model from xml
         $model = $omx->getModel();
 
-        $this->assertInstanceOf('Opus_Document', $model, 'Builded model is not of the expected type.');
+        $this->assertInstanceOf(Document::class, $model, 'Builded model is not of the expected type.');
 
-        $omx = new Opus_Model_Xml();
+        $omx = new Xml();
         $omx->setModel($model);
         $omx->setStrategy($strategy);
         $dom2 = $omx->getDomDocument();
@@ -188,8 +197,6 @@ class Opus_Model_Xml_Version2Test extends TestCase
 
     /**
      * Test if correct Type element gets found to determine the document type.
-     *
-     * @return void
      */
     public function testConstructionFromCorrectTypeElement()
     {
@@ -211,21 +218,19 @@ class Opus_Model_Xml_Version2Test extends TestCase
               </Opus_Document>
             </Opus>';
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $omx = new Opus_Model_Xml();
+        $omx = new Xml();
         // take first serialize data as source
         $omx->setXml($docXml);
-        $omx->setStrategy(new Opus_Model_Xml_Version2);
+        $omx->setStrategy(new Version2());
         // build a model from xml
         $model = $omx->getModel();
     }
 
     /**
      * Regression test deserializer.
-     *
-     * @return void
      */
     public function testDeserializingComplexModel()
     {
@@ -298,10 +303,10 @@ class Opus_Model_Xml_Version2Test extends TestCase
             </Opus>
             ';
 
-        $omx = new Opus_Model_Xml();
+        $omx = new Xml();
         // take first serialize data as source
         $omx->setXml($xml);
-        $omx->setStrategy(new Opus_Model_Xml_Version2);
+        $omx->setStrategy(new Version2());
         // build a model from xml
         $model = $omx->getModel();
     }

@@ -26,35 +26,48 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Jens Schwidder <schwidder@zib.de>
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus\Job\Worker;
+
+use Opus\Account;
+use Opus\Config;
+use Opus\Job;
+use Opus\Mail\SendMail;
+use Zend_Log;
+
+use function implode;
+use function is_array;
+use function trim;
 
 /**
  * Worker for sending out email notifications for newly published documents.
+ *
+ * phpcs:disable
  */
-class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
+class MailNotification extends AbstractWorker
 {
-
     const LABEL = 'opus-mail-publish-notification';
-    private $config = null;
+    private $config;
     private $lookupRecipients = true;
 
     /**
      * Constructs worker.
-     * @param Zend_Log $logger
-     * @param boolean $lookupRecipients wenn true, dann erwartet die Methode Usernamen (d.h. Accounts)
-     *                                  und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
-     *                                  Adressen erwartet in der Form wie sie Opus_Mail_SendMail erwartet
+     *
+     * @param null|Zend_Log $logger
+     * @param bool          $lookupRecipients wenn true, dann erwartet die Methode Usernamen (d.h. Accounts)
+     *                                           und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
+     *                                           Adressen erwartet in der Form wie sie Opus\Mail\SendMail erwartet
      */
     public function __construct($logger = null, $lookupRecipients = true)
     {
         $this->setLogger($logger);
-        $this->config = Zend_Registry::get('Zend_Config');
+        $this->config           = Config::get();
         $this->lookupRecipients = $lookupRecipients;
     }
 
@@ -71,29 +84,29 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
     /**
      * Perfom work.
      *
-     * @param Opus_Job $job Job description and attached data.
+     * @param Opus\Job $job Job description and attached data.
      * @return array Array of Jobs to be newly created.
      */
-    public function work(Opus_Job $job)
+    public function work(Job $job)
     {
-        $data = $job->getData(true);
+        $data    = $job->getData(true);
         $message = $data['message'];
         $subject = $data['subject'];
-        $users = $data['users'];
+        $users   = $data['users'];
 
-        $from = $this->_getFrom();
-        $fromName = $this->_getFromName();
-        $replyTo = $this->_getReplyTo();
+        $from        = $this->_getFrom();
+        $fromName    = $this->_getFromName();
+        $replyTo     = $this->_getReplyTo();
         $replyToName = $this->_getReplyToName();
-        $returnPath = $this->_getReturnPath();
+        $returnPath  = $this->_getReturnPath();
 
-        if (! is_null($users) and ! is_array($users)) {
+        if ($users !== null && ! is_array($users)) {
             $users = [$users];
         }
 
         $recipient = [];
         if ($this->lookupRecipients) {
-            $this->_logger->debug(__CLASS__ . ': Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
+            $this->logger->debug(self::class . ': Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
             $recipient = $this->getRecipients($users);
         } else {
             $recipient = $users;
@@ -103,10 +116,10 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
 //            return true;
 //        }
 
-        $mailSendMail = new Opus_Mail_SendMail();
+        $mailSendMail = new SendMail();
 
-        $this->_logger->info(__CLASS__ . ': Sending notification email...');
-        $this->_logger->debug(__CLASS__ . ': sender: ' . $from);
+        $this->logger->info(self::class . ': Sending notification email...');
+        $this->logger->debug(self::class . ': sender: ' . $from);
         $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient, $replyTo, $replyToName, $returnPath);
 
         return true;
@@ -127,6 +140,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
 
     /**
      * Returns the 'from name' for notification.
+     *
      * @return string
      */
     protected function _getFromName()
@@ -166,28 +180,27 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
 
     public function getRecipients($users = null)
     {
-
         if (! is_array($users)) {
             $users = [$users];
         }
 
         $allRecipients = [];
         foreach ($users as $user) {
-            $account = Opus_Account::fetchAccountByLogin($user);
+            $account = Account::fetchAccountByLogin($user);
 
-            if (is_null($account)) {
-                $this->_logger->warn(__CLASS__ . ": User '$user' does not exist... skipping mail.");
+            if ($account === null) {
+                $this->logger->warn(self::class . ": User '$user' does not exist... skipping mail.");
                 continue;
             }
 
             $mail = $account->getEmail();
-            if (is_null($mail) or trim($mail) == '') {
-                $this->_logger->warn(__CLASS__ . ": No mail address for user '$user'... skipping mail.");
+            if ($mail === null || trim($mail) === '') {
+                $this->logger->warn(self::class . ": No mail address for user '$user'... skipping mail.");
                 continue;
             }
 
             $allRecipients[] = [
-                'name' => $account->getFirstName() . ' ' . $account->getLastName(),
+                'name'    => $account->getFirstName() . ' ' . $account->getLastName(),
                 'address' => $mail,
             ];
         }

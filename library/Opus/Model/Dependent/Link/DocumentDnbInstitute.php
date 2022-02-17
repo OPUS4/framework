@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,115 +26,108 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus\Model\Dependent\Link;
+
+use Opus\Db\LinkDocumentsDnbInstitutes;
+use Opus\DnbInstitute;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+
 /**
  * Abstract class for link DnbInstitute model in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
- *
+ * @package     Opus\Model
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setDepartment(string $department)
  * @method string getDepartment()
- *
  * @method void setAddress(string $address)
  * @method string getAddress()
- *
  * @method void setCity(string $city)
  * @method string getCity()
- *
  * @method void setPhone(string $phone)
  * @method string getPhone()
- *
  * @method void setDnbContactId(string $contactId)
  * @method string getDnbContactId()
- *
  * @method void setIsGrantor(boolean $isGrantor)
  * @method boolean getIsGrantor()
- *
  * @method void setIsPublisher(boolean $isPublisher)
  * @method boolean getIsPublisher()
- *
  * @method void setRole(string $role)
  * @method string getRole()
  */
-class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependent_Link_Abstract
+class DocumentDnbInstitute extends AbstractLinkModel
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentsDnbInstitutes';
+    protected static $tableGatewayClass = LinkDocumentsDnbInstitutes::class;
 
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * The linked model's foreign key.
      *
      * @var mixed
      */
-    protected $_modelKey = 'dnb_institute_id';
+    protected $modelKey = 'dnb_institute_id';
 
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_DnbInstitute';
+    protected $modelClass = DnbInstitute::class;
 
     /**
      * Fields that should not be displayed on a form.
      *
      * @var array  Defaults to array('File').
      */
-    protected $_internalFields = ['Role'];
+    protected $internalFields = ['Role'];
 
     /**
      * Initialize model with the following values:
      * - DnbInstitute
      * - Role
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $modelClass = $this->_modelClass;
-        if (is_null($this->getId()) === false) {
-            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
+        $modelClass = $this->modelClass;
+        if ($this->getId() !== null) {
+            $this->setModel(new $modelClass($this->primaryTableRow->{$this->modelKey}));
         } else {
             $this->setModel(new $modelClass());
         }
 
-        $role = new Opus_Model_Field('Role');
+        $role = new Field('Role');
         $this->addField($role);
     }
 
     /**
      * Persist foreign model & link.
-     *
-     * @return void
      */
     public function store()
     {
-        $this->_primaryTableRow->dnb_institute_id = $this->_model->store();
+        $this->primaryTableRow->dnb_institute_id = $this->model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->{$this->_modelKey}) {
+        if ($this->getId() !== $this->primaryTableRow->{$this->modelKey}) {
             parent::store();
         }
     }
@@ -150,8 +144,8 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
      * TODO change Role field behaviour?
      * TODO the implementation does not feel clean - Why?
      *
-     * @param $data
-     * @throws Opus_Model_Exception
+     * @param array $data
+     * @throws ModelException
      */
     public function updateFromArray($data)
     {

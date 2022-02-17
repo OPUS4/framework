@@ -1,29 +1,44 @@
 name: PHP Composer
 
-on: [push]
+on:
+  push:
+
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+  schedule:
+    - cron: '0 22 * * *'
 
 jobs:
   build:
 
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Change to PHP7.0
-        run: sudo update-alternatives --set php /usr/bin/php7.0
+      - name: Setup PHP 7.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.1'
+
+      - name: Update Ubuntu packages
+        run: sudo apt-get update
 
       - name: Install Composer and Dependencies
-        run: sudo apt-get update && curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
+        run: curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
 
-      - name: MySQL
-        run: sudo bash bin/install_mysql_docker.sh
+      - name: Start MySQL
+        run: sudo systemctl start mysql.service
 
-      - name: Prepare
+      - name: Prepare database
+        run: export MYSQL_PWD=root && mysql --default-character-set=utf8 -h 'localhost' -P '3306' -u 'root' -v -e "CREATE DATABASE IF NOT EXISTS opusdb DEFAULT CHARACTER SET = UTF8 DEFAULT COLLATE = UTF8_GENERAL_CI; CREATE USER 'opus4admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; GRANT ALL PRIVILEGES ON opusdb.* TO 'opus4admin'@'localhost'; CREATE USER 'opus4'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; GRANT SELECT,INSERT,UPDATE,DELETE ON opusdb.* TO 'opus4'@'localhost'; FLUSH PRIVILEGES;"
+
+      - name: Setup OPUS 4
         run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
-
-      - name: Coding-Style
-        run: php composer.phar cs-check
 
       - name: Test
         run: php composer.phar test
+
+      - name: Coding-Style
+        run: php composer.phar cs-check

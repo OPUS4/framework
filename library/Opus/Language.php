@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,89 +26,91 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
- * @copyright   Copyright (c) 2009, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
+
+use function array_merge;
+use function array_unique;
+use function in_array;
 
 /**
  * Domain model for languages in the Opus framework
  *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_AbstractDb
+ * @uses        \Opus\Model\AbstractDb
  *
  * @method void setPart2B(string $part2b)
  * @method string getPart2B()
- *
  * @method void setPart2T(string $part2t)
  * @method string getPart2T()
- *
  * @method void setPart1(string $part1)
  * @method string getPart1()
- *
  * @method void setScope(string $scope)
  * @method string getScope()
- *
  * @method void setType(string $type)
  * @method string getType()
- *
  * @method void setRefName(string $refName)
  * @method string getRefName()
- *
  * @method void setComment(string $comment)
  * @method string getComment()
- *
  * @method void setActive(boolean $active)
  * @method boolean getActive()
  *
  * TODO define allowed types (const?)
  * TODO define allowed scopes
  * TODO disable caching
+ *
+ * phpcs:disable
  */
-class Opus_Language extends Opus_Model_AbstractDb
+class Language extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Languages';
+    protected static $tableGatewayClass = Db\Languages::class;
 
     /**
      * Cache used languages to reduce database queries.
+     *
      * @var null|array
      */
     private static $usedLanguages;
 
     /**
      * Initialize model with fields.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $part2B = new Opus_Model_Field('Part2B');
+        $part2B = new Field('Part2B');
 
-        $part2T = new Opus_Model_Field('Part2T');
+        $part2T = new Field('Part2T');
         $part2T->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $part1 = new Opus_Model_Field('Part1');
-        $scope = new Opus_Model_Field('Scope');
-        $type = new Opus_Model_Field('Type');
+        $part1 = new Field('Part1');
+        $scope = new Field('Scope');
+        $type  = new Field('Type');
 
-        $refName = new Opus_Model_Field('RefName');
+        $refName = new Field('RefName');
         $refName->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $comment = new Opus_Model_Field('Comment');
-        $active = new Opus_Model_Field('Active');
+        $comment = new Field('Comment');
+        $active  = new Field('Active');
         $active->setCheckbox(true);
 
         $this->addField($part2B)
@@ -121,27 +124,27 @@ class Opus_Language extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_Language instances from the database.
+     * Retrieve all Opus\Language instances from the database.
      *
-     * @return array Array of Opus_Language objects.
+     * @return array Array of Opus\Language objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_Language', self::$_tableGatewayClass);
+        return self::getAllFrom(self::class, self::$tableGatewayClass);
     }
 
     /**
      * Get all active languages.
      *
-     * @return array Array of Opus_Language objects which are active.
+     * @return array Array of Opus\Language objects which are active.
      */
     public static function getAllActive()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $rows = $table->fetchAll($table->select()->where('active = ?', 1));
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
+        $rows   = $table->fetchAll($table->select()->where('active = ?', 1));
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new Opus_Language($row);
+            $result[] = new Language($row);
         }
         return $result;
     }
@@ -149,38 +152,39 @@ class Opus_Language extends Opus_Model_AbstractDb
     /**
      * Get all active languages.
      *
-     * @return array Array of Opus_Language objects which are active.
+     * @return array Array of Opus\Language objects which are active.
      */
     public static function getAllActiveTable()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $rows = $table->fetchAll($table->select()->where('active = ?', 1))->toArray();
-        return $rows;
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
+        return $table->fetchAll($table->select()->where('active = ?', 1))->toArray();
     }
 
     /**
-     *
      * Get properties of language object as array for a specific terminology code
+     *
      * @param string $code ISO639-2 terminology code to retrieve properties for
      * @return array|null Array of properties or null if object not found in database
      */
     public static function getPropertiesByPart2T($code)
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $rows = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
-        return isset($rows[0]) ? $rows[0] : null;
+        $table = TableGateway::getInstance(self::$tableGatewayClass);
+        $rows  = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
+        return $rows[0] ?? null;
     }
 
     /**
      * Returns part2_t language code for locale (part1 code).
-     * @param $locale string
+     *
+     * @param string $locale
+     * @return null|string
      */
     public static function getPart2tForPart1($locale)
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->from([$table->info('name')], ['part2_t'])->where('part1 = ?', $locale);
-        $rows = $table->fetchRow($select);
-        if (! is_null($rows) && isset($rows['part2_t'])) {
+        $rows   = $table->fetchRow($select);
+        if ($rows !== null && isset($rows['part2_t'])) {
             return $rows['part2_t'];
         }
         return null;
@@ -189,7 +193,8 @@ class Opus_Language extends Opus_Model_AbstractDb
     /**
      * Returns reference language name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
+     * @return string
      */
     public function getDisplayName()
     {
@@ -198,13 +203,14 @@ class Opus_Language extends Opus_Model_AbstractDb
 
     /**
      * Returns language code for internal language identifier.
-     * @param $language string Internal language identifier (e.g. 'deu')
+     *
+     * @param string $language Internal language identifier (e.g. 'deu')
      * @param null $part string Field to use for language code
-     * @return string language code
+     * @return string Language code
      */
     public static function getLanguageCode($language, $part = null)
     {
-        $result = Opus_Language::getPropertiesByPart2T($language);
+        $result = self::getPropertiesByPart2T($language);
 
         if (empty($result)) {
             return $language;
@@ -212,7 +218,7 @@ class Opus_Language extends Opus_Model_AbstractDb
 
         $code = null;
 
-        if (! is_null($part) && isset($result[$part])) {
+        if ($part !== null && isset($result[$part])) {
             $code = $result[$part];
         } else {
             $code = $result['part2_b'];
@@ -230,11 +236,10 @@ class Opus_Language extends Opus_Model_AbstractDb
      * - document_files
      * - document_subjects
      * - document_title_abstracts
-     *
      */
     public function isUsed()
     {
-        $languages = Opus_Language::getUsedLanguages();
+        $languages = self::getUsedLanguages();
         return in_array($this->getPart2T(), $languages);
     }
 
@@ -243,11 +248,11 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public static function getUsedLanguages()
     {
-        if (! is_null(self::$usedLanguages)) {
+        if (self::$usedLanguages !== null) {
             return self::$usedLanguages;
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table    = TableGateway::getInstance(self::$tableGatewayClass);
         $database = $table->getAdapter();
 
         $tables = [
@@ -255,7 +260,7 @@ class Opus_Language extends Opus_Model_AbstractDb
             'document_title_abstracts',
             'document_licences',
             'document_subjects',
-            'document_files'
+            'document_files',
         ];
 
         $languages = [];
@@ -263,7 +268,7 @@ class Opus_Language extends Opus_Model_AbstractDb
         // get languages for documents
         foreach ($tables as $table) {
             $select = $database->select()->distinct()->from($table, ['language'])->where('language is not null');
-            $rows = $database->fetchCol($select);
+            $rows   = $database->fetchCol($select);
 
             if ($rows !== false) {
                 $languages = array_merge($languages, $rows);

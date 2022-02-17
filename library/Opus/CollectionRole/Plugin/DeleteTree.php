@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,40 +25,50 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\CollectionRole\Plugin;
+
+use Opus\CollectionRole;
+use Opus\Db\Collections;
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractCollection;
 
 /**
  * Plugin for deleting collections of CollectionRole und updating documents.
  */
-class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCollection
+class DeleteTree extends AbstractCollection
 {
-
     /**
      * Updates documents and deletes collections of CollectionRole.
-     * @param Opus_Model_AbstractDb $model
+     *
+     * @param AbstractDb $model
      */
-    public function preDelete(Opus\Model\ModelInterface $model)
+    public function preDelete(ModelInterface $model)
     {
         if ($model->isNewRecord()) {
             return;
         }
 
         // Update documents, incl. ServerDateModified
-        if ($model instanceof Opus_CollectionRole) {
+        if ($model instanceof CollectionRole) {
             $rootCollection = $model->getRootCollection();
-            if (! is_null($rootCollection)) {
+            if ($rootCollection !== null) {
                 $this->updateDocuments($rootCollection);
             }
         }
 
         // Delete collections belonging to CollectionRole
-        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $collections = TableGateway::getInstance(Collections::class);
         $collections->deleteTree($model->getId());
     }
 }

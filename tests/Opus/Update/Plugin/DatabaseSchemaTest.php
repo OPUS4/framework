@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,19 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
-{
+namespace OpusTest\Update\Plugin;
 
+use Opus\Update\Plugin\DatabaseSchema;
+use OpusTest\TestAsset\TestCase;
+
+class DatabaseSchemaTest extends TestCase
+{
     public function testMapVersion()
     {
-        $plugin = new Opus_Update_Plugin_DatabaseSchema();
+        $plugin = new DatabaseSchema();
 
         $this->assertEquals(1, $plugin->mapVersion(null));
         $this->assertEquals(2, $plugin->mapVersion('4.5'));

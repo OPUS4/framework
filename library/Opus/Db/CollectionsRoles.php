@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,24 +25,23 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Collections
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Collections
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
+
+namespace Opus\Db;
 
 /**
  * Table gateway class to table 'collections_roles'.
  *
- * @category    Framework
- * @package     Opus_Db
- *
+ * phpcs:disable
  */
-
-class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway
+class CollectionsRoles extends TableGateway
 {
-
     /**
      * Table name of the roles table.
      *
@@ -53,7 +53,7 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway
      * All dependant Tables,
      * i.e. those that contain a roles_id as a foreign key.
      *
-     * @var array $_dependantTables
+     * @var array
      */
-    protected $_dependentTables = ['Opus_Db_Collections'];
+    protected $_dependentTables = [Collections::class];
 }

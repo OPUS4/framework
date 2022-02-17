@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,24 +25,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Tests
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
-{
+namespace OpusTest\Model\Dependent\Link;
 
+use Opus\Date;
+use Opus\Model\Dependent\Link\DocumentPerson;
+use Opus\Person;
+use OpusTest\TestAsset\TestCase;
+
+class DocumentPersonTest extends TestCase
+{
     public function testToArray()
     {
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setAcademicTitle('Prof.');
         $person->setFirstName('Thomas');
         $person->setLastName('Mueller');
 
-        $dateOfBirth = new Opus_Date('1960-05-17');
+        $dateOfBirth = new Date('1960-05-17');
         $person->setDateOfBirth($dateOfBirth);
         $dateOfBirthArray = $dateOfBirth->toArray();
 
@@ -52,7 +60,7 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
         $person->setIdentifierGnd('123456789');
         $person->setIdentifierMisc('B');
 
-        $personLink = new Opus_Model_Dependent_Link_DocumentPerson();
+        $personLink = new DocumentPerson();
         $personLink->setModel($person);
         $personLink->setRole('author');
         $personLink->setAllowEmailContact(1);
@@ -61,42 +69,42 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
         $data = $personLink->toArray();
 
         $this->assertEquals([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => $dateOfBirthArray,
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => $dateOfBirthArray,
+            'PlaceOfBirth'      => 'München',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ], $data);
     }
 
     public function testFromArray()
     {
-        $personLink = Opus_Model_Dependent_Link_DocumentPerson::fromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+        $personLink = DocumentPerson::fromArray([
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => '1960-05-17',
+            'PlaceOfBirth'      => 'München',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ]);
 
         $this->assertNotNull($personLink);
-        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentPerson', $personLink);
+        $this->assertInstanceOf(DocumentPerson::class, $personLink);
 
         $this->assertEquals('Prof.', $personLink->getAcademicTitle());
         $this->assertEquals('Thomas', $personLink->getFirstName());
@@ -115,22 +123,22 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $personLink = new Opus_Model_Dependent_Link_DocumentPerson();
+        $personLink = new DocumentPerson();
 
         $personLink->updateFromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'PlaceOfBirth' => 'München',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => '1960-05-17',
+            'PlaceOfBirth'      => 'München',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ]);
 
         $this->assertEquals('Prof.', $personLink->getAcademicTitle());
@@ -150,26 +158,26 @@ class Opus_Model_Dependent_Link_DocumentPersonTest extends TestCase
 
     public function testUpdateFromArrayUseExistingModel()
     {
-        $personLink = new Opus_Model_Dependent_Link_DocumentPerson();
+        $personLink = new DocumentPerson();
 
-        $person = new Opus_Person();
+        $person = new Person();
         $person->setPlaceOfBirth('Berlin');
 
         $personLink->setModel($person);
 
         $personLink->updateFromArray([
-            'AcademicTitle' => 'Prof.',
-            'DateOfBirth' => '1960-05-17',
-            'FirstName' => 'Thomas',
-            'LastName' => 'Mueller',
-            'Email' => 'mueller@example.org',
-            'IdentifierOrcid' => '0000-0000-0000-0002',
-            'IdentifierGnd' => '123456789',
-            'IdentifierMisc' => 'B',
-            'OpusId' => '2',
-            'Role' => 'author',
+            'AcademicTitle'     => 'Prof.',
+            'DateOfBirth'       => '1960-05-17',
+            'FirstName'         => 'Thomas',
+            'LastName'          => 'Mueller',
+            'Email'             => 'mueller@example.org',
+            'IdentifierOrcid'   => '0000-0000-0000-0002',
+            'IdentifierGnd'     => '123456789',
+            'IdentifierMisc'    => 'B',
+            'OpusId'            => '2',
+            'Role'              => 'author',
             'AllowEmailContact' => 1,
-            'SortOrder' => 2
+            'SortOrder'         => 2,
         ]);
 
         $this->assertSame($person, $personLink->getModel());

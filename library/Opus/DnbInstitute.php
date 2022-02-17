@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -32,72 +33,73 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
+
 /**
  * Domain model for DnbInstitute in the Opus framework
  *
+ * @uses        \Opus\Model\Abstract
+ *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
- *
  * @method void setName(string $name)
  * @method string getName()
- *
  * @method void setDepartment(string $department)
  * @method string getDepartment()
- *
  * @method void setAddress(string $address)
  * @method string getAddress()
- *
  * @method void setCity(string $city)
  * @method string getCity()
- *
  * @method void setPhone(string $phone)
  * @method string getPhone()
- *
  * @method void setDnbContactId(string $contactId)
  * @method string getDnbContactId()
- *
  * @method void setIsGrantor(boolean $isGrantor)
  * @method boolean getIsGrantor()
- *
  * @method void setIsPublisher(boolean $isPublisher)
  * @method boolean getIsPublisher()
+ *
+ * phpcs:disable
  */
-class Opus_DnbInstitute extends Opus_Model_AbstractDb
+class DnbInstitute extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DnbInstitutes';
+    protected static $tableGatewayClass = Db\DnbInstitutes::class;
 
     /**
-     * Retrieve all Opus_DnbInstitute instances from the database.
+     * Retrieve all Opus\DnbInstitute instances from the database.
      *
-     * @return array Array of Opus_DnbInstitute objects.
+     * @return array Array of Opus\DnbInstitute objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_DnbInstitute', 'Opus_Db_DnbInstitutes');
+        return self::getAllFrom(self::class, Db\DnbInstitutes::class);
     }
 
     /**
      * Returns a list of organisational units that act as (thesis) grantors.
      *
-     * @return array A list of Opus_DnbInstitutes that act as grantors.
+     * @return array A list of Opus\DnbInstitutes that act as grantors.
      */
     public static function getGrantors()
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DnbInstitutes');
+        $table  = TableGateway::getInstance(Db\DnbInstitutes::class);
         $select = $table->select()
                 ->where('is_grantor = ?', 1);
 
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new Opus_DnbInstitute($row);
+            $result[] = new DnbInstitute($row);
         }
         return $result;
     }
@@ -105,18 +107,18 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     /**
      * Returns a list of organisational units that act as (thesis) publishers.
      *
-     * @return array A list of Opus_DnbInstitutes that act as publishers.
+     * @return array A list of Opus\DnbInstitutes that act as publishers.
      */
     public static function getPublishers()
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DnbInstitutes');
+        $table  = TableGateway::getInstance(Db\DnbInstitutes::class);
         $select = $table->select()
                 ->where('is_publisher = ?', 1);
 
-        $rows = $table->fetchAll($select);
+        $rows   = $table->fetchAll($select);
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new Opus_DnbInstitute($row);
+            $result[] = new DnbInstitute($row);
         }
         return $result;
     }
@@ -129,7 +131,7 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
@@ -141,31 +143,29 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
      * - phone
      * - dnbContactId
      * - is_grantor
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $name = new Opus_Model_Field('Name');
+        $name = new Field('Name');
         $name->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
-        $department = new Opus_Model_Field('Department');
+        $department = new Field('Department');
 
-        $address = new Opus_Model_Field('Address');
+        $address = new Field('Address');
 
-        $city = new Opus_Model_Field('City');
+        $city = new Field('City');
         $city->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
-        $phone = new Opus_Model_Field('Phone');
+        $phone = new Field('Phone');
 
-        $dnbContactId = new Opus_Model_Field('DnbContactId');
+        $dnbContactId = new Field('DnbContactId');
 
-        $isGrantor = new Opus_Model_Field('IsGrantor');
+        $isGrantor = new Field('IsGrantor');
         $isGrantor->setCheckbox(true);
 
-        $isPublisher = new Opus_Model_Field('IsPublisher');
+        $isPublisher = new Field('IsPublisher');
         $isPublisher->setCheckbox(true);
 
         $this->addField($name)
@@ -181,12 +181,12 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     /**
      * Returns name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {
         $departmentName = $this->getDepartment();
-        return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
+        return $this->getName() . (empty($departmentName) ? '' : ', ' . $departmentName);
     }
 
     /**
@@ -194,7 +194,7 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
      */
     public function isUsed()
     {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table    = TableGateway::getInstance(self::$tableGatewayClass);
         $database = $table->getAdapter();
 
         $select = $database->select()

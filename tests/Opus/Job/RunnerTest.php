@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,59 +25,64 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Job
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Job
+ * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  */
+
+namespace OpusTest\Job;
+
+use Opus\Document;
+use Opus\Job;
+use Opus\Job\Runner;
+use Opus\Model\NotFoundException;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Test cases for running Opus_Jobs.
+ * Test cases for running Opus\Jobs.
  *
  * @category    Tests
- * @package     Opus_Job
- *
+ * @package     Opus\Job
  * @group       RunnerTest
  */
-class Opus_Job_RunnerTest extends TestCase
+class RunnerTest extends TestCase
 {
-
     /**
      * Simple test for catching code coverage.
-     *
-     * @return void
      */
     public function testRunnerInit()
     {
-        $runner = new Opus_Job_Runner();
-        $this->assertNotNull($runner, 'Simple initializing of Opus_Job_Runner failed.');
+        $runner = new Runner();
+        $this->assertNotNull($runner, 'Simple initializing of Opus\Job\Runner failed.');
     }
 
     public function testRunIndexWorkerWithInvalidJob()
     {
         $this->markTestSkipped('Search related and needs to be moved to opus-search');
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
-
-        $job = new Opus_Job();
+        $job = new Job();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,
-            'task' => 'get-me-a-coffee']);
+            'task'       => 'get-me-a-coffee',
+        ]);
         $jobId = $job->store();
 
-        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+        $indexWorker = new Job\Worker\IndexOpusDocument();
 
-        $runner = new Opus_Job_Runner();
+        $runner = new Runner();
         $runner->registerWorker($indexWorker);
         $runner->run();
 
-        $job = new Opus_Job($jobId);
-        $this->assertEquals(Opus_Job::STATE_FAILED, $job->getState());
+        $job = new Job($jobId);
+        $this->assertEquals(Job::STATE_FAILED, $job->getState());
         $error = $job->getErrors();
         $this->assertNotEquals('', $error, 'Expected error message from job.');
 //        $job->delete();
@@ -86,26 +92,26 @@ class Opus_Job_RunnerTest extends TestCase
     {
         $this->markTestSkipped('Search related and needs to be moved to opus-search');
 
-        $document = new Opus_Document();
+        $document = new Document();
         $document->setServerState('published');
         $documentId = $document->store();
 
-
-        $job = new Opus_Job();
+        $job = new Job();
         $job->setLabel('opus-index-document');
         $job->setData([
             'documentId' => $documentId,
-            'task' => 'index']);
+            'task'       => 'index',
+        ]);
         $jobId = $job->store();
 
-        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+        $indexWorker = new Job\Worker\IndexOpusDocument();
 
-        $runner = new Opus_Job_Runner();
+        $runner = new Runner();
         $runner->registerWorker($indexWorker);
         $runner->run();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $job = new Opus_Job($jobId);
-        if ($job instanceof Opus_Job) {
+        $this->setExpectedException(NotFoundException::class);
+        $job = new Job($jobId);
+        if ($job instanceof Job) {
             $job->delete();
         }
     }

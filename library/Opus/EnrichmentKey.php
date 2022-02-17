@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,61 +25,70 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2011-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Enrichment\TypeInterface;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+use Throwable;
+use Zend_Db_Select_Exception;
+use Zend_Db_Table_Row_Exception;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for enrichments in the Opus framework
  *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method void setName(string $string)
  * @method string getName()
- *
  * @method void setType(string $type)
  * @method string getType()
- *
  * @method void setOptions(string $options)
  * @method string getOptions()
  *
+ * phpcs:disable
  */
-class Opus_EnrichmentKey extends Opus_Model_AbstractDb
+class EnrichmentKey extends AbstractDb
 {
-
     /**
      * Specify the table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_EnrichmentKeys';
+    protected static $tableGatewayClass = Db\EnrichmentKeys::class;
 
     /**
      * Optional cache for database results.
      *
      * @var null
      */
-    private static $allEnrichmentKeys = null;
+    private static $allEnrichmentKeys;
 
     /**
-     * Retrieve all Opus_EnrichmentKeys instances from the database. If $reload
+     * Retrieve all Opus\EnrichmentKeys instances from the database. If $reload
      * is set to false, we reuse the list of all enrichment keys if we previously
      * loaded it from the database.
      *
      * @param bool $reload if true, reload enrichment keys from database
-     * @return array Array of Opus_EnrichmentKeys objects.
+     * @return array Array of Opus\EnrichmentKeys objects.
      */
     public static function getAll($reload = true)
     {
-        if ($reload || is_null(self::$allEnrichmentKeys)) {
+        if ($reload || self::$allEnrichmentKeys === null) {
             // cache database result to save database queries later
-            self::$allEnrichmentKeys = self::getAllFrom('Opus_EnrichmentKey', 'Opus_Db_EnrichmentKeys');
+            self::$allEnrichmentKeys = self::getAllFrom(self::class, Db\EnrichmentKeys::class);
         }
 
         return self::$allEnrichmentKeys;
@@ -89,29 +99,27 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      * - Name
      * - Type
      * - Options
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $name = new Opus_Model_Field('Name');
+        $name = new Field('Name');
         $name->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($name);
 
-        $field = new Opus_Model_Field('Type');
+        $field = new Field('Type');
         $this->addField($field);
 
-        $field = new Opus_Model_Field('Options');
+        $field = new Field('Options');
         $this->addField($field);
     }
 
     /**
-     * ALTERNATE CONSTRUCTOR: Retrieve Opus_EnrichmentKey instance by name.  Returns
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus\EnrichmentKey instance by name.  Returns
      * null if name is null *or* nothing found.
      *
-     * @param  string $name
-     * @return Opus_EnrichmentKey
+     * @param  null|string $name
+     * @return EnrichmentKey
      */
     public static function fetchByName($name = null)
     {
@@ -119,12 +127,12 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
-        $row = $table->fetchRow($select);
+        $row    = $table->fetchRow($select);
 
         if (isset($row)) {
-            return new Opus_EnrichmentKey($row);
+            return new EnrichmentKey($row);
         }
 
         return;
@@ -133,7 +141,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     /**
      * Returns name of an enrichmentkey.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {
@@ -141,15 +149,15 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_EnrichmentKeys which are referenced by at
+     * Retrieve all Opus\EnrichmentKeys which are referenced by at
      * least one document from the database.
      *
-     * @return array Array of Opus_EnrichmentKeys objects.
+     * @return array Array of Opus\EnrichmentKeys objects.
      */
     public static function getAllReferenced()
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
-        $db = $table->getAdapter();
+        $table  = TableGateway::getInstance(Db\DocumentEnrichments::class);
+        $db     = $table->getAdapter();
         $select = $db->select()->from('document_enrichments');
         $select->reset('columns');
         $select->columns("key_name")->distinct(true);
@@ -165,13 +173,12 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     {
         $typeObj = $this->getEnrichmentType();
 
-        if (is_null($typeObj)) {
+        if ($typeObj === null) {
             return null;
         }
 
         $typeObj->setOptions($this->getOptions());
-        $result = $typeObj->getOptionsAsString();
-        return $result;
+        return $typeObj->getOptionsAsString();
     }
 
     /**
@@ -179,18 +186,18 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      * für den Enrichment-Key kein Typ festgelegt wurde (bei Altdaten) oder der
      * Typ aus einem anderen Grund nicht geladen werden konnte.
      *
-     * @return Opus_Enrichment_TypeInterface
+     * @return TypeInterface
      */
     public function getEnrichmentType()
     {
-        if (is_null($this->getType()) || $this->getType() === '') {
+        if ($this->getType() === null || $this->getType() === '') {
             return null;
         }
 
-        $typeClass = 'Opus_Enrichment_' . $this->getType();
+        $typeClass = 'Opus\Enrichment\\' . $this->getType();
         try {
             $typeObj = new $typeClass();
-        } catch (\Throwable $ex) {
+        } catch (Throwable $ex) {
             $this->getLogger()->err('could not find enrichment type class ' . $typeClass);
             return null;
         }
@@ -205,21 +212,21 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      * Achtung: diese Methode ändert *nicht* den Namen des EnrichmentKeys in der
      * Tabelle enrichmentkeys.
      *
-     * @param string $newName neuer Name des EnrichmentKey
+     * @param string        $newName neuer Name des EnrichmentKey
      * @param string | null $oldName ursprünglicher Name des EnrichmentKey, wenn null, dann
      *                      wird der aktuelle Name des EnrichmentKey verwendet
      */
     public function rename($newName, $oldName = null)
     {
-        if (is_null($oldName)) {
+        if ($oldName === null) {
             $oldName = $this->getName();
         }
         if ($oldName === $newName) {
             // keine Umbenennung erforderlich
             return;
         }
-        $table = Opus_Db_TableGateway::getInstance(Opus_Enrichment::getTableGatewayClass());
-        $db = $table->getAdapter();
+        $table                    = TableGateway::getInstance(Enrichment::getTableGatewayClass());
+        $db                       = $table->getAdapter();
         $renameEnrichmentKeyQuery = ' UPDATE document_enrichments '
             . ' SET key_name = ?'
             . ' WHERE key_name = ?;';
@@ -235,8 +242,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      */
     public function deleteFromDocuments()
     {
-        $table = Opus_Db_TableGateway::getInstance(Opus_Enrichment::getTableGatewayClass());
-        $db = $table->getAdapter();
+        $table                    = TableGateway::getInstance(Enrichment::getTableGatewayClass());
+        $db                       = $table->getAdapter();
         $deleteEnrichmentKeyQuery = ' DELETE FROM document_enrichments WHERE key_name = ?;';
         $db->query($deleteEnrichmentKeyQuery, $this->getName());
     }
@@ -247,7 +254,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      * aktualisiert (kaskadierende Namensänderung).
      *
      * @return mixed|void
-     * @throws Opus_Model_Exception
+     * @throws ModelException
      * @throws Zend_Db_Table_Row_Exception
      */
     public function store()
@@ -265,7 +272,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      * Ist der Parameter $cascade auf false gesetzt, so erfolgt keine kaskadierende Löschoperation.
      *
      * @param bool $cascade wenn false, dann kaskadiert die Löschoperation nicht
-     * @throws Opus_Model_Exception
+     * @throws ModelException
      */
     public function delete($cascade = true)
     {
@@ -277,13 +284,14 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
 
     /**
      * Returns names of all enrichment keys.
+     *
      * @return array
      * @throws Zend_Db_Select_Exception
      */
     public static function getKeys()
     {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_EnrichmentKeys');
-        $db = $table->getAdapter();
+        $table  = TableGateway::getInstance(Db\EnrichmentKeys::class);
+        $db     = $table->getAdapter();
         $select = $db->select()->from('enrichmentkeys');
         $select->reset('columns');
         $select->columns('name');

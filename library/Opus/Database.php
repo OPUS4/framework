@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,12 +25,42 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use DirectoryIterator;
+use Exception;
+use Opus\Update\Plugin\DatabaseSchema;
+use PDO;
+use PDOException;
+use Zend_Config;
+use Zend_Exception;
+use Zend_Log;
+
+use function array_filter;
+use function array_values;
+use function basename;
+use function dirname;
+use function end;
+use function file_get_contents;
+use function is_dir;
+use function is_file;
+use function is_readable;
+use function preg_match;
+use function sort;
+use function strlen;
+use function strrchr;
+use function substr;
+use function trim;
+
+use const PHP_EOL;
 
 /**
  * Class for basic database operations.
@@ -38,11 +69,12 @@
  *
  * TODO more logging
  * TODO is admin level access to schema always necessary? distinguish?
+ *
+ * phpcs:disable
  */
-class Opus_Database
+class Database
 {
-
-    use \Opus\LoggingTrait;
+    use LoggingTrait;
 
     /**
      * Path to folder containing SQL files for updates.
@@ -59,19 +91,13 @@ class Opus_Database
      */
     const DEFAULT_COLLATE = 'utf8mb4_unicode_ci';
 
-    /**
-     * @var Zend_Config
-     */
+    /** @var Zend_Config */
     private $_config;
 
-    /**
-     * @var Zend_Log
-     */
+    /** @var Zend_Log */
     private $_logger;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $_latestVersion = 0;
 
     /**
@@ -86,6 +112,7 @@ class Opus_Database
 
     /**
      * Returns name of admin user.
+     *
      * @return mixed
      */
     public function getUsername()
@@ -97,6 +124,7 @@ class Opus_Database
 
     /**
      * Returns password for admin user.
+     *
      * @return mixed
      */
     public function getPassword()
@@ -112,9 +140,9 @@ class Opus_Database
     public function create()
     {
         $dbName = $this->getName();
-        $sql = "CREATE SCHEMA IF NOT EXISTS ${dbName}" .
-            ' DEFAULT CHARACTER SET = ' . self::DEFAULT_CHARACTER_SET .
-            ' DEFAULT COLLATE = ' . self::DEFAULT_COLLATE;
+        $sql    = "CREATE SCHEMA IF NOT EXISTS ${dbName}"
+            . ' DEFAULT CHARACTER SET = ' . self::DEFAULT_CHARACTER_SET
+            . ' DEFAULT COLLATE = ' . self::DEFAULT_COLLATE;
         $this->execWithoutDbName($sql);
     }
 
@@ -135,6 +163,7 @@ class Opus_Database
 
     /**
      * Imports SQL file or folder containing SQL files.
+     *
      * @param $path string Path to file or folder
      * @throws Exception
      */
@@ -155,16 +184,17 @@ class Opus_Database
         foreach ($files as $file) {
             // TODO make output optional
             $name = basename($file);
-            echo("Importing '$name' ... ");
+            echo "Importing '$name' ... ";
             $sql = file_get_contents($file);
             $this->getLogger()->info("Import SQL file: $name");
             $this->exec($sql);
-            echo('done' . PHP_EOL);
+            echo 'done' . PHP_EOL;
         }
     }
 
     /**
      * Loads and executes SQL file.
+     *
      * @param $path Path to SQL file
      */
     public function execScript($path)
@@ -175,24 +205,25 @@ class Opus_Database
 
     /**
      * Returns database connection object.
+     *
      * @param null $dbName string
      * @return PDO
      */
     public function getPdo($dbName = null)
     {
         $dbUser = $this->getUsername();
-        $dbPwd = $this->getPassword();
+        $dbPwd  = $this->getPassword();
 
         $host = $this->getHost();
-        $port  = $this->getPort();
+        $port = $this->getPort();
 
         $defaultCharacterSet = self::DEFAULT_CHARACTER_SET;
 
-        $connStr = "mysql:host=$host;port=$port" .
-            ";default-character-set=$defaultCharacterSet" .
-            ';default-collate=' . self::DEFAULT_COLLATE;
+        $connStr = "mysql:host=$host;port=$port"
+            . ";default-character-set=$defaultCharacterSet"
+            . ';default-collate=' . self::DEFAULT_COLLATE;
 
-        if (! is_null($dbName) && strlen(trim($dbName)) > 0) {
+        if ($dbName !== null && strlen(trim($dbName)) > 0) {
             $connStr .= ";dbname=$dbName";
         }
 
@@ -238,6 +269,7 @@ class Opus_Database
 
     /**
      * Executes SQL statement.
+     *
      * @param $sql string SQL statement
      * TODO review error handling (one level up?)
      */
@@ -255,8 +287,8 @@ class Opus_Database
             }
         } catch (PDOException $pdoex) {
             $message = $pdoex->getMessage();
-            echo('Error executing SQL' . PHP_EOL);
-            echo($message . PHP_EOL);
+            echo 'Error executing SQL' . PHP_EOL;
+            echo $message . PHP_EOL;
             $logger = $this->getLogger();
             $logger->err($message);
         }
@@ -280,7 +312,7 @@ class Opus_Database
                 // iterate over rowsets until finished or exception is thrown
             }
         } catch (PDOException $pdoex) {
-            echo(PHP_EOL . $pdoex->getMessage());
+            echo PHP_EOL . $pdoex->getMessage();
         }
     }
 
@@ -298,6 +330,7 @@ class Opus_Database
 
     /**
      * Returns SQL files in a directory.
+     *
      * @param $path string Path to directory containing SQL files
      * @return array
      */
@@ -311,7 +344,7 @@ class Opus_Database
 
         foreach ($files as $file) {
             $filename = $file->getBasename();
-            if (strrchr($filename, '.') == '.sql' && (is_null($pattern) || preg_match($pattern, $filename))) {
+            if (strrchr($filename, '.') === '.sql' && ($pattern === null || preg_match($pattern, $filename))) {
                 $sqlFiles[] = $file->getPathname();
             }
         }
@@ -335,6 +368,7 @@ class Opus_Database
 
     /**
      * Returns path to database schema file.
+     *
      * @return string Path to schema file
      * @throws Exception
      */
@@ -351,13 +385,14 @@ class Opus_Database
 
     /**
      * Returns application configuration.
+     *
      * @return null|Zend_Config
      * @throws Zend_Exception
      */
     public function getConfig()
     {
-        if (is_null($this->_config)) {
-            $this->_config = Zend_Registry::get('Zend_Config');
+        if ($this->_config === null) {
+            $this->_config = Config::get();
         }
 
         return $this->_config;
@@ -365,13 +400,14 @@ class Opus_Database
 
     /**
      * Returns logger.
+     *
      * @return mixed|Zend_Log
      * @throws Zend_Exception
      */
     public function getLogger()
     {
-        if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
+        if ($this->_logger === null) {
+            $this->_logger = Log::get();
         }
 
         return $this->_logger;
@@ -403,9 +439,9 @@ class Opus_Database
 
     public function getLatestVersion()
     {
-        if ($this->_latestVersion == 0) {
-            $scripts = $this->getUpdateScripts();
-            $this->_latestVersion = ( int )substr(basename(end($scripts)), 0, 3);
+        if ($this->_latestVersion === 0) {
+            $scripts              = $this->getUpdateScripts();
+            $this->_latestVersion = (int) substr(basename(end($scripts)), 0, 3);
         }
 
         return $this->_latestVersion;
@@ -416,7 +452,7 @@ class Opus_Database
      */
     public function update($targetVersion = null)
     {
-        $schemaUpdate = new Opus_Update_Plugin_DatabaseSchema();
+        $schemaUpdate = new DatabaseSchema();
         $schemaUpdate->setTargetVersion($targetVersion);
         $schemaUpdate->run();
     }
@@ -437,19 +473,19 @@ class Opus_Database
 
         $files = $this->getSqlFiles($scriptsPath, '/^\d{3}-.*/');
 
-        if (! is_null($version)) {
+        if ($version !== null) {
             $files = array_filter($files, function ($value) use ($version) {
                 $basename = basename($value);
-                $number = substr($basename, 0, 3);
-                return ($number > $version);
+                $number   = substr($basename, 0, 3);
+                return $number > $version;
             });
         }
 
-        if (! is_null($targetVersion)) {
+        if ($targetVersion !== null) {
             $files = array_filter($files, function ($value) use ($targetVersion) {
                 $basename = basename($value);
-                $number = substr($basename, 0, 3);
-                return ($number <= $targetVersion);
+                $number   = substr($basename, 0, 3);
+                return $number <= $targetVersion;
             });
         }
 

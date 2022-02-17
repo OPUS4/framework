@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,23 +25,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Model
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Model
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
+namespace Opus\Model;
+
 /**
- * Date field retrieving information from parent Opus_Date object.
+ * Date field retrieving information from parent Opus\Date object.
  *
  * For now the field objects are kept for compatibility reasons.
  *
- * TODO really necessary - simplify Opus_Date
+ * TODO really necessary? - simplify Opus\Date
+ *
+ * phpcs:disable
  */
-class Opus_Model_DateField extends Opus_Model_Field
+class DateField extends Field
 {
-
     protected $parent;
 
     public function __construct($name, $parent)

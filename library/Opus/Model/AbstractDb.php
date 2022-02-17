@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,37 +25,60 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-use Opus\Model\PluginsTrait;
+namespace Opus\Model;
+
+use Exception;
+use InvalidArgumentException;
+use Opus\Db\TableGateway;
+use Opus\Log;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Dependent\Link\AbstractLinkModel;
+use PDOException;
+use Zend_Db_Exception;
+use Zend_Db_Statement_Exception;
+use Zend_Db_Table_Abstract;
+use Zend_Db_Table_Row;
+
+use function array_search;
+use function class_exists;
+use function count;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_subclass_of;
+use function method_exists;
+use function preg_replace;
+use function preg_replace_callback;
+use function strtolower;
+use function strtoupper;
+use function trim;
 
 /**
  * Abstract class for all domain models in the Opus framework that are connected
  * to a database table.
  *
- * @category    Framework
- * @package     Opus_Model
+ * phpcs:disable
  */
-abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
-    Opus_Model_ModificationTracking,
-    Opus\Model\ModelInterface
+abstract class AbstractDb extends AbstractModel implements ModificationTrackingInterface, ModelInterface
 {
-
-    use Opus\Model\PluginsTrait;
-
-    use Opus_Model_DatabaseTrait;
+    use DatabaseTrait;
+    use PluginsTrait;
 
     /**
      * TODO: Change name of this array to somewhat more general.
-     * TODO: Not enforce existence of custom _fetch and _store methods in Opus_Model_AbstractDb.
+     * TODO: Not enforce existence of custom _fetch and _store methods in Opus\Model\AbstractDb.
      *
      * In this array extra information for each field of the model can be
      * given, such like the classname of a referenced model object or specific options.
@@ -62,12 +86,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * It is an associative array referencing an declaration array for each field.
      *
      * 'MyField' => [
-     *          'model' => 'Opus_Title',
+     *          'model' => 'Opus\Title',
      *          'options' => ['type' => 'main']]
      *
      * @var array
      */
-    protected $_externalFields = [];
+    protected $externalFields = [];
 
     /**
      * Construct a new model instance and connect it a database table's row.
@@ -75,11 +99,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * a new persistent intance gets created wich got its id set as soon as it is stored
      * via a call to _store().
      *
-     * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
-     * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
-     * @throws Opus\Model\Exception     Thrown if passed id is invalid.
+     * @param null|int|Zend_Db_Table_Row  $id (Optional) (Id of) Existing database row.
+     * @param null|Zend_Db_Table_Abstract $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
+     * @throws ModelException     Thrown if passed id is invalid.
      */
-    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
+    public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
         $this->initDatabase($id, $tableGatewayModel);
 
@@ -94,12 +118,10 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
 
     /**
      * Clear the modified flag on all fields.
-     *
-     * @return void
      */
     protected function _clearFieldsModifiedFlag()
     {
-        foreach ($this->_fields as $field) {
+        foreach ($this->fields as $field) {
             $field->clearModified();
         }
     }
@@ -107,11 +129,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     /**
      * Tell whether there is a modified field.
      *
-     * @return boolean
+     * @return bool
      */
     public function isModified()
     {
-        foreach ($this->_fields as $field) {
+        foreach ($this->fields as $field) {
             if (true === $field->isModified()) {
                 return true;
             }
@@ -126,7 +148,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * all fields to modified and this class does not have a separate isModified status.
      *
      * @param bool $modified
-     *
      * @return mixed|void
      *
      * TODO throw exception or log warning if setModified is used with 'true'?
@@ -142,14 +163,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
      *
-     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
-     * @return Opus_Model_Abstract Provide fluent interface.
+     * @param Field $field Field instance that gets appended to the models field collection.
+     * @return parent Provide fluent interface.
      */
-    public function addField(Opus_Model_Field $field)
+    public function addField(Field $field)
     {
         $fieldname = $field->getName();
-        if (isset($fieldname, $this->_externalFields[$fieldname])) {
-            $options = $this->_externalFields[$fieldname];
+        if (isset($fieldname, $this->externalFields[$fieldname])) {
+            $options = $this->externalFields[$fieldname];
 
             // set ValueModelClass if a through option is given
             if (isset($options['model'])) {
@@ -173,8 +194,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     /**
      * Trigger preFetch plugins.
      *
-     * @return void
-     * @throw Opus\Model\Exception Throws whenever a plugin failes.
+     * @throw Opus\Model\ModelException Throws whenever a plugin failes.
      */
     protected function _preFetch()
     {
@@ -186,7 +206,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      *
      * Currently modification checking and validation.
      *
-     * @throws Opus\Model\Exception
+     * @throws ModelException
      * @return mixed Anything else then null will cancel the storage process.
      */
     protected function _preStore()
@@ -203,12 +223,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
             $msg = 'Attempt to store model with invalid data.';
             foreach ($this->getValidationErrors() as $fieldname => $err) {
                 if (false === empty($err)) {
-                    $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
+                    $msg .= "\n" . "$fieldname\t" . implode("\n", $err);
                 }
             }
             // $this->$fieldname = 'null';
             // TODO: handle error (but without throwing it)
-            throw new Opus\Model\Exception($msg);
+            throw new ModelException($msg);
         }
 
         return null;
@@ -219,20 +239,18 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      *
      * Sets _isNewRecord to false.
      *
-     * @throws Opus\Model\Exception
-     * @return void
+     * @throws ModelException
      */
     protected function _postStore()
     {
         $this->callPluginMethod('postStore');
-        $this->_isNewRecord = false;
+        $this->isNewRecord = false;
     }
 
     /**
      * Perform any actions needed after storing internal fields.
      *
-     * @throws Opus\Model\Exception
-     * @return void
+     * @throws ModelException
      */
     protected function _postStoreInternalFields()
     {
@@ -242,8 +260,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     /**
      * Perform any actions needed after storing internal fields.
      *
-     * @return void
-     * @throws Opus\Model\Exception Throws whenever an error occurs
+     * @throws ModelException Throws whenever an error occurs
      */
     protected function _postStoreExternalFields()
     {
@@ -256,9 +273,10 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * Storage logic is surrounded by _preStore() and _postStore() calls
      * to enable custom implementations.
      *
-     * @see    Opus_Model_Interface::store()
+     * @see    ModelInterface::store()
+     *
      * @throws Exception
-     * @throws Opus\Model\Exception     Thrown if the store operation could not be performed.
+     * @throws ModelException     Thrown if the store operation could not be performed.
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store()
@@ -299,16 +317,16 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     {
         try {
             // Store basic simple fields to complete the table row
-            foreach ($this->_fields as $fieldname => $field) {
+            foreach ($this->fields as $fieldname => $field) {
                 // Skip external fields.
-                if (isset($this->_externalFields[$fieldname])) {
+                if (isset($this->externalFields[$fieldname])) {
                     continue;
                 }
 
                 // map field values: Cannot process array-valued fields
                 $fieldValue = $field->getValue();
 
-                if (! is_null($fieldValue)) {
+                if ($fieldValue !== null) {
                     $fieldValue = trim($fieldValue);
                 }
 
@@ -321,8 +339,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
                     // Skip non-modified field.
                     continue;
                 } else {
-                    $colname = self::convertFieldnameToColumn($fieldname);
-                    $this->_primaryTableRow->{$colname} = $fieldValue;
+                    $colname                           = self::convertFieldnameToColumn($fieldname);
+                    $this->primaryTableRow->{$colname} = $fieldValue;
                 }
                 // Clear modification status of successfully stored field.
                 $field->clearModified();
@@ -330,42 +348,40 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
 
             // Save the row.
             // This returnes the id needed to store external fields.
-            $id = $this->_primaryTableRow->save();
+            $id = $this->primaryTableRow->save();
         } catch (Zend_Db_Statement_Exception $ze) {
             if ($ze->getChainedException() instanceof PDOException and $ze->getCode() === 23000) {
-                throw new Opus_Model_DbConstrainViolationException($ze->getMessage(), $ze->getCode(), $ze);
+                throw new DbConstrainViolationException($ze->getMessage(), $ze->getCode(), $ze);
             }
-            throw new Opus_Model_DbException($ze->getMessage(), $ze->getCode(), $ze);
-        } catch (Opus\Model\Exception $ome) {
-            // Needed to let instances of Opus\Model\Exception pass without
+            throw new DbException($ze->getMessage(), $ze->getCode(), $ze);
+        } catch (ModelException $ome) {
+            // Needed to let instances of Opus\Model\ModelException pass without
             // modifying their type.
             throw $ome;
         } catch (Exception $e) {
-            $msg = $e->getMessage() . ' Model: ' . get_class($this);
-            // this works with php >= 5.3.0: throw new Opus\Model\Exception($msg, $e->getCode(), $e);
+            $msg = $e->getMessage() . ' Model: ' . static::class;
+            // this works with php >= 5.3.0: throw new Opus\Model\ModelException($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
-            throw new Opus\Model\Exception($msg);
+            throw new ModelException($msg);
         }
         return $id;
     }
 
     /**
      * Calls the methods to store the external Fields.
-     *
-     * @return void
      */
     protected function _storeExternalFields()
     {
         try {
             // Store external fields.
-            foreach ($this->_externalFields as $fieldname => $fieldInfo) {
+            foreach ($this->externalFields as $fieldname => $fieldInfo) {
                 // Skip external fields, that have not been added to the model.
-                if (! isset($this->_fields[$fieldname])) {
+                if (! isset($this->fields[$fieldname])) {
                     continue;
                 }
 
-                $fieldValue = $this->_fields[$fieldname]->getValue();
+                $fieldValue = $this->fields[$fieldname]->getValue();
 
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
@@ -383,45 +399,44 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
                     $this->_storeExternal($fieldValue, $options);
                 }
                 // trigger any pending delete operations
-                $this->_fields[$fieldname]->doPendingDeleteOperations();
+                $this->fields[$fieldname]->doPendingDeleteOperations();
                 // Clear modification status of successfully stored field.
-                $this->_fields[$fieldname]->clearModified();
+                $this->fields[$fieldname]->clearModified();
             }
         } catch (Zend_Db_Exception $zdbe) {
             // workaround: throw database adapter exceptions
             throw $zdbe;
-        } catch (Opus\Model\Exception $ome) {
+        } catch (ModelException $ome) {
             throw $ome;
         } catch (Exception $e) {
-            $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
-            // this works with php >= 5.3.0: throw new Opus\Model\Exception($msg, $e->getCode(), $e);
+            $msg = $e->getMessage() . ' Model: ' . static::class . ' Field: ' . $fieldname . '.';
+            // this works with php >= 5.3.0: throw new Opus\Model\ModelException($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
-            throw new Opus\Model\Exception($msg);
+            throw new ModelException($msg);
         }
     }
 
     /**
      * Save the values of external fields.
      *
-     * @param array|Opus_Model_Dependent_Abstract $values One or mor dependent opus models.
-     * @param array                              $conditions (Optional) fixed conditions for certain attributes.
-     * @throws Opus\Model\Exception Thrown when trying to save non Opus_Model_Dependent objects.
-     * @return void
+     * @param array|AbstractDependentModel $values One or mor dependent opus models.
+     * @param null|array                   $conditions (Optional) fixed conditions for certain attributes.
+     * @throws ModelException Thrown when trying to save non Opus\Model\Dependent objects.
      */
-    protected function _storeExternal($values, array $conditions = null)
+    protected function _storeExternal($values, ?array $conditions = null)
     {
         if (is_array($values) === true) {
             foreach ($values as $value) {
                 $this->_storeExternal($value, $conditions);
             }
-        } elseif (is_null($values) === false) {
-            if ($values instanceof Opus_Model_Dependent_Abstract === false) {
-                throw new Opus\Model\Exception('External fields must be Opus_Model_Dependent.');
+        } elseif ($values !== null) {
+            if ($values instanceof AbstractDependentModel === false) {
+                throw new ModelException('External fields must be Opus\Model\Dependent.');
             }
-            if (is_null($conditions) === false) {
+            if ($conditions !== null) {
                 foreach ($conditions as $column => $value) {
-                    $values->_primaryTableRow->$column = $value;
+                    $values->primaryTableRow->$column = $value;
 
                     // HACK!  See OPUSVIER-2289, OPUSVIER-2292
                     // Make sure, that model field will be initialized, too!
@@ -439,7 +454,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     }
 
     /**
-     *
      * @param string $column Column name as string
      * @return string Field name in camel case
      */
@@ -455,7 +469,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     }
 
     /**
-     *
      * @param string $fieldname Field name in camel case
      * @return string Column name with case-change replaced by underscores "_"
      */
@@ -469,12 +482,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * model instances depending on whether the field has multiple linked models or not.
      *
      * @param  string $fieldname Name of the external field.
-     * @throws Opus\Model\Exception If no _fetch-method is defined for an external field.
-     * @return void
+     * @throws ModelException If no _fetch-method is defined for an external field.
      */
     protected function _loadExternal($fieldname)
     {
-        $field = $this->_fields[$fieldname];
+        $field = $this->fields[$fieldname];
 
         // Check if the fetch mechanism for the field is overwritten in model.
         $callname = '_fetch' . $fieldname;
@@ -489,10 +501,10 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
                 $modelclass = $field->getValueModelClass();
             }
 
-            // Make sure that a field's value model is inherited from Opus_Model_AbstractDb
-            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_AbstractDb') === false) {
-                $message = "Field $fieldname must extend Opus_Model_AbstractDb.";
-                throw new Opus\Model\Exception($message);
+            // Make sure that a field's value model is inherited from Opus\Model\AbstractDb
+            if (empty($modelclass) or is_subclass_of($modelclass, self::class) === false) {
+                $message = "Field $fieldname must extend Opus\Model\AbstractDb.";
+                throw new ModelException($message);
             }
 
             // Do nothing if the current model has not been persisted
@@ -501,28 +513,28 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
                 return;
             }
 
-            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_Dependent_Abstract') === false) {
-                throw new Opus\Model\Exception(
-                    'Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class '
+            if (empty($modelclass) or is_subclass_of($modelclass, AbstractDependentModel::class) === false) {
+                throw new ModelException(
+                    'Class of ' . $fieldname . ' does not extend Opus\Model\Dependent\AbstractDependentModel.  Please check class '
                     . $modelclass . '.'
                 );
             }
 
             $tableclass = $modelclass::getTableGatewayClass();
-            $table = Opus_Db_TableGateway::getInstance($tableclass);
-            $select = $table->select();
+            $table      = TableGateway::getInstance($tableclass);
+            $select     = $table->select();
 
             // If any declared constraints, add them to query
-            if (isset($this->_externalFields[$fieldname]['options'])) {
-                $options = $this->_externalFields[$fieldname]['options'];
+            if (isset($this->externalFields[$fieldname]['options'])) {
+                $options = $this->externalFields[$fieldname]['options'];
                 foreach ($options as $column => $value) {
                     $select = $select->where("$column = ?", $value);
                 }
             }
 
             // If sort_order is defined, add to query
-            if (isset($this->_externalFields[$fieldname]['sort_order'])) {
-                $sortOrder = $this->_externalFields[$fieldname]['sort_order'];
+            if (isset($this->externalFields[$fieldname]['sort_order'])) {
+                $sortOrder = $this->externalFields[$fieldname]['sort_order'];
                 foreach ($sortOrder as $column => $order) {
                     $select = $select->order("$column $order");
                 }
@@ -530,14 +542,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
 
             // Get dependent rows
             $result = [];
-            $rows = $this->_primaryTableRow->findDependentRowset($table, null, $select);
+            $rows   = $this->primaryTableRow->findDependentRowset($table, null, $select);
 
             // Create new model for each row
             foreach ($rows as $row) {
                 $newModel = new $modelclass($row);
 
-                if (is_null($newModel->getParentId())) {
-                    throw new Opus\Model\Exception(
+                if ($newModel->getParentId() === null) {
+                    throw new ModelException(
                         'Object in ' . $fieldname . ' contains empty ParentId.  Please check class '
                         . get_class($newModel) . '.'
                     );
@@ -558,7 +570,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
 
         $myid = $this->getId();
         foreach ($list as $child) {
-            if ($child instanceof Opus_Model_Dependent_Abstract) {
+            if ($child instanceof AbstractDependentModel) {
                 $child->setParentId($myid);
             }
         }
@@ -571,8 +583,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * Remove the model instance from the database.
      * NOTE: This method should not be overriden, use plugins instead where needed.
      *
-     * @throws Opus\Model\Exception If a delete operation could not be performed on this model.
-     * @return void
+     * @throws ModelException If a delete operation could not be performed on this model.
      */
     public function delete()
     {
@@ -591,13 +602,22 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
         $dbadapter = $this->getTableRow()->getTable()->getAdapter();
         $dbadapter->beginTransaction();
         try {
-            $this->_primaryTableRow->delete();
-            $this->_primaryTableRow = null;
+            $this->primaryTableRow->delete();
+            $this->primaryTableRow = null;
             $dbadapter->commit();
         } catch (Exception $e) {
             $dbadapter->rollback();
-            $msg = $e->getMessage() . ' Model: ' . get_class($this);
-            throw new Opus\Model\Exception($msg);
+            $msg = $e->getMessage() . ' Model: ' . static::class;
+            throw new ModelException($msg);
+        }
+
+        $properties = self::getPropertiesService();
+        try {
+            // TODO add function for checking without exception
+            $modelType = $this->getModelType();
+            $properties->removeProperties($modelId, $modelType);
+        } catch (UnknownModelTypeException $ex) {
+            // ignore
         }
 
         $this->callPluginMethod('postDelete', $modelId);
@@ -610,13 +630,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      */
     public function getId()
     {
-        if (null === $this->_primaryTableRow) {
+        if (null === $this->primaryTableRow) {
             return null;
         }
-        $tableInfo = $this->_primaryTableRow->getTable()->info();
-        $result = [];
+        $tableInfo = $this->primaryTableRow->getTable()->info();
+        $result    = [];
         foreach ($tableInfo['primary'] as $primaryKey) {
-            $result[] = $this->_primaryTableRow->$primaryKey;
+            $result[] = $this->primaryTableRow->$primaryKey;
         }
         if (count($result) > 1) {
             return $result;
@@ -631,11 +651,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * By default, the textual representation of a modeled entity is
      * its class name and identifier.
      *
-     * @return string Model class name and identifier (e.g. Opus_Document#4711).
+     * @return string Model class name and identifier (e.g. Opus\Document#4711).
      */
     public function getDisplayName()
     {
-        return get_class($this) . '#' . $this->getId();
+        return static::class . '#' . $this->getId();
     }
 
     /**
@@ -646,56 +666,56 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
      * @param bool   $ignore_pending (Optional) If true is given currently pending fields are ignored.
      *                               Default is false.
      * @param string $name           Name of the requested field.
-     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     * @return Field The requested field instance. If no such instance can be found, null is returned.
      */
     protected function _getField($name, $ignorePending = false)
     {
-        if (isset($this->_fields[$name]) !== true) {
+        if (isset($this->fields[$name]) !== true) {
             return null;
         }
 
         // Check if the field is in suspended fetch state
-        if (in_array($name, $this->_pending) === true and $ignorePending === false) {
+        if (in_array($name, $this->pending) === true and $ignorePending === false) {
             // Ensure that _loadExternal is called only on external fields
-            if (isset($this->_externalFields[$name])) {
+            if (isset($this->externalFields[$name])) {
                 $this->_loadExternal($name);
-                if (($key = array_search($name, $this->_pending)) !== false) {
-                    unset($this->_pending[$key]);
+                if (($key = array_search($name, $this->pending)) !== false) {
+                    unset($this->pending[$key]);
                 }
             }
         }
-        return $this->_fields[$name];
+        return $this->fields[$name];
     }
 
     /**
      * Overwrited setter mechanism to handle link retrieval properly.
      *
-     * @see Opus_Model_Abstract::_setFieldValue()
+     * @see \Opus\Model\Abstract::_setFieldValue()
      */
-    protected function _setFieldValue(Opus_Model_Field $field, $values)
+    protected function _setFieldValue(Field $field, $values)
     {
-        $fieldname = $field->getName();
+        $fieldname      = $field->getName();
         $linkmodelclass = $field->getLinkModelClass();
-        if (! is_null($values) and ! is_null($linkmodelclass)) {
+        if ($values !== null && $linkmodelclass !== null) {
             // Workaround for link_-tables with ternary relations.  It's not
             // beautyful, but it works for now.  There won't be an easier
             // solution without major changes on the framework/schema, since
             // we cannot know the type of ternary relations at this point.
             $ternaryRelationName = null;
-            if (isset($this->_externalFields[$fieldname]['addprimarykey'][0])) {
-                $ternaryRelationName = $this->_externalFields[$fieldname]['addprimarykey'][0];
+            if (isset($this->externalFields[$fieldname]['addprimarykey'][0])) {
+                $ternaryRelationName = $this->externalFields[$fieldname]['addprimarykey'][0];
             }
 
             $valuesAsArray = is_array($values);
-            $values = is_array($values) ? $values : [$values];
+            $values        = is_array($values) ? $values : [$values];
 
             foreach ($values as $i => $value) {
                 $linkmodel = null;
-                if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                if ($value instanceof AbstractLinkModel === true) {
                     $linkmodel = $value;
-                } elseif (is_null($this->getId()) or is_null($value->getId())) {
+                } elseif ($this->getId() === null || $value->getId() === null) {
                     // If any of the linked models hasn't been stored yet.
-                    $linkmodel = new $linkmodelclass;
+                    $linkmodel = new $linkmodelclass();
                     $linkmodel->setModel($value);
                 } else {
                     $linkId = [$this->getId(), $value->getId()];
@@ -705,8 +725,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
 
                     try {
                         $linkmodel = new $linkmodelclass($linkId);
-                    } catch (Opus_Model_NotFoundException $e) {
-                        $linkmodel = new $linkmodelclass;
+                    } catch (NotFoundException $e) {
+                        $linkmodel = new $linkmodelclass();
                     }
                     $linkmodel->setModel($value);
                 }
@@ -724,31 +744,31 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
     /**
      * Implements adder mechanism.
      *
-     * @see Opus_Model_Abstract::_addFieldValue()
+     * @see AbstractModel::_addFieldValue()
      */
-    protected function _addFieldValue(Opus_Model_Field $field, $value)
+    protected function _addFieldValue(Field $field, $value)
     {
         // get Modelclass if model is linked
         $linkmodelclass = $field->getLinkModelClass();
-        if (! is_null($linkmodelclass)) {
+        if ($linkmodelclass !== null) {
             // Check if $linkmodelclass is a known class name
             if (class_exists($linkmodelclass) === false) {
-                throw new Opus\Model\Exception("Link model class '$linkmodelclass' does not exist.");
+                throw new ModelException("Link model class '$linkmodelclass' does not exist.");
             }
 
-            if (is_null($value)) {
+            if ($value === null) {
                 throw new InvalidArgumentException('Argument required when adding to a link field.');
             }
 
-            if (! $value instanceof Opus_Model_Dependent_Link_Abstract) {
-                $linkmodel = new $linkmodelclass;
+            if (! $value instanceof AbstractLinkModel) {
+                $linkmodel = new $linkmodelclass();
                 $linkmodel->setModel($value);
                 $value = $linkmodel;
             }
         }
 
         $value = parent::_addFieldValue($field, $value);
-        if ($value instanceof Opus_Model_Dependent_Abstract) {
+        if ($value instanceof AbstractDependentModel) {
             $value->setParentId($this->getId());
         }
 
@@ -757,21 +777,22 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements
 
     /**
      * Returns maximal length for field.
+     *
      * @param $name
      */
     public static function getFieldMaxLength($name)
     {
         $column = self::convertFieldnameToColumn($name);
 
-        $table = Opus_Db_TableGateway::getInstance(self::getTableGatewayClass());
+        $table = TableGateway::getInstance(self::getTableGatewayClass());
 
         $metadata = $table->info();
 
         if (isset($metadata['metadata'][$column]['LENGTH'])) {
             return $metadata['metadata'][$column]['LENGTH'];
         } else {
-            $class = get_called_class();
-            Zend_Registry::get('Zend_Log')->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
+            $class = static::class;
+            Log::get()->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
             return null;
         }
     }

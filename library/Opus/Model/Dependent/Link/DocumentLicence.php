@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,70 +25,71 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @category    Framework
+ * @package     Opus\Model
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  */
+
+namespace Opus\Model\Dependent\Link;
+
+use Opus\Db\LinkDocumentsLicences;
+use Opus\Licence;
 
 /**
  * Abstract class for link licence model in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus\Model
  */
-class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Link_Abstract
+class DocumentLicence extends AbstractLinkModel
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentsLicences';
+    protected static $tableGatewayClass = LinkDocumentsLicences::class;
 
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * The linked model's foreign key.
      *
      * @var mixed
      */
-    protected $_modelKey = 'licence_id';
-
+    protected $modelKey = 'licence_id';
 
     /**
      * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Licence';
+    protected $modelClass = Licence::class;
 
     /**
      * The name of the field containing an identifying string.
      *
      * @var string
      */
-    protected $_displayAttributeName = 'NameLong';
+    protected $displayAttributeName = 'NameLong';
 
     /**
      * Initialize model with the following values:
      * - Licence
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $modelClass = $this->_modelClass;
-        if (is_null($this->getId()) === false) {
-            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
+        $modelClass = $this->modelClass;
+        if ($this->getId() !== null) {
+            $this->setModel(new $modelClass($this->primaryTableRow->{$this->modelKey}));
         } else {
             $this->setModel(new $modelClass());
         }
@@ -95,15 +97,13 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
 
     /**
      * Persist foreign model & link.
-     *
-     * @return void
      */
     public function store()
     {
-        $this->_primaryTableRow->licence_id = $this->_model->store();
+        $this->primaryTableRow->licence_id = $this->model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->licence_id) {
+        if ($this->getId() !== $this->primaryTableRow->licence_id) {
             parent::store();
         }
     }

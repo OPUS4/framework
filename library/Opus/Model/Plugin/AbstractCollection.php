@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,49 +25,58 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Model_Plugin
- * @author      Edouard Simon (edouard.simon@zib.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Model\Plugin
+ * @author      Edouard Simon (edouard.simon@zib.de)
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
+
+namespace Opus\Model\Plugin;
+
+use Opus\Collection;
+use Opus\Date;
+use Opus\Db\Collections;
+use Opus\Db\TableGateway;
+use Opus\Document;
+use Opus\DocumentFinder;
+use Opus\Model\Xml\Cache;
 
 /**
  * Base class for plugins that need to update documents associated with collection tree.
- *
  */
-abstract class Opus_Model_Plugin_AbstractCollection extends Opus\Model\Plugin\AbstractPlugin
+abstract class AbstractCollection extends AbstractPlugin
 {
-
     /**
      * make sure documents related to Collection[Role]s in subtree are updated
      * (XML-Cache and server_date_published)
      *
-     * @param Opus_Collection Starting point for recursive update to documents
+     * @param Collection $collection Starting point for recursive update to documents
      */
-    protected function updateDocuments($model)
+    protected function updateDocuments($collection)
     {
-        if (is_null($model) || is_null($model->getId())) {
-            // TODO explain why this is right
+        if ($collection === null || $collection->getId() === null) {
+            // no collection provided or collection has not been saved, so there is no ID
             return;
         }
 
-        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $collections = TableGateway::getInstance(Collections::class);
 
-        $collectionIdSelect = $collections->selectSubtreeById($model->getId(), 'id');
+        $collectionIdSelect = $collections->selectSubtreeById($collection->getId(), 'id');
 
-        $documentFinder = new Opus_DocumentFinder();
+        $documentFinder = new DocumentFinder();
         $documentFinder->setCollectionId($collectionIdSelect);
 
         // clear affected documents from cache
-        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache = new Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($documentFinder->getSelectIds());
 
         // update ServerDateModified for affected documents
-        $date = new Opus_Date();
+        $date = new Date();
         $date->setNow();
 
-        Opus_Document::setServerDateModifiedByIds($date, $documentFinder->ids());
+        Document::setServerDateModifiedByIds($date, $documentFinder->ids());
     }
 }

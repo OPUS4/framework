@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,73 +26,93 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Exception;
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Opus\Model\ModelException;
+use Opus\Security\SecurityException;
+use Zend_Db_Table_Abstract;
+use Zend_Db_Table_Row;
+use Zend_Validate;
+use Zend_Validate_EmailAddress;
+use Zend_Validate_Regex;
+
+use function array_pop;
+use function count;
+use function is_array;
+use function is_string;
+use function md5;
+use function sha1;
+use function strlen;
 
 /**
  * Domain model for accounts in the Opus framework
  *
+ * @uses        \Opus\Model\AbstractModel
+ *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
- *
  * @method string getLogin()
- *
  * @method string getPassword()
- *
  * @method string getFirstName()
  * @method void setFirstName(string $firstName)
- *
  * @method string getLastName()
  * @method void setLastName(string $lastName)
- *
  * @method string getEmail()
  * @method void setEmail(string $email)
+ * @method void addRole(UserRole $role)
+ * @method UserRole[] getRole()
+ * @method void setRole(UserRole[] $roles)
  *
- * @method void addRole(Opus_UserRole $role)
- * @method Opus_UserRole[] getRole()
- * @method void setRole(Opus_UserRole[] $roles)
+ * phpcs:disable
  */
-class Opus_Account extends Opus_Model_AbstractDb
+class Account extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Accounts';
+    protected static $tableGatewayClass = Db\Accounts::class;
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
-     * Opus_Db_Account table gateway.
+     * Opus\Db\Account table gateway.
+     *
+     * @see \Opus\Model\Abstract::$_externalFields
      *
      * @var array
-     * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = [
+    protected $externalFields = [
         'Role' => [
-            'model' => 'Opus_UserRole',
-            'through' => 'Opus_Model_Dependent_Link_AccountRole',
-            'fetch' => 'lazy'
+            'model'   => UserRole::class,
+            'through' => Model\Dependent\Link\AccountRole::class,
+            'fetch'   => 'lazy',
         ],
     ];
 
     /**
-     * Retrieve all Opus_Account instances from the database.
+     * Retrieve all Opus\Account instances from the database.
      *
-     * @return array Array of Opus_Account objects.
+     * @return array Array of Opus\Account objects.
      */
     public static function getAll()
     {
-        return self::getAllFrom('Opus_Account', 'Opus_Db_Accounts');
+        return self::getAllFrom(self::class, Db\Accounts::class);
     }
 
     /**
@@ -99,20 +120,20 @@ class Opus_Account extends Opus_Model_AbstractDb
      * If neither id nor login are specified a new persistant instance gets created which
      * got idts id set as soon as it is stored via a call to _store().
      *
-     * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
-     * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
-     * @param string                    $id                (Optional) Login of existing record.
-     * @throws Opus\Model\Exception     Thrown if passed id is invalid or login and id are specified.
+     * @param null|int|Zend_Db_Table_Row  $id (Optional) (Id of) Existing database row.
+     * @param null|Zend_Db_Table_Abstract $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
+     * @param string                      $id                (Optional) Login of existing record.
+     * @throws ModelException     Thrown if passed id is invalid or login and id are specified.
      */
-    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, $login = null)
+    public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null, $login = null)
     {
-        if (false === is_null($login) && false === empty($login)) {
-            if (false === is_null($id) && false === empty($id)) {
-                 throw new Opus\Model\Exception('Login and id of an account are specified, specify either id or login.');
+        if ($login !== null && false === empty($login)) {
+            if ($id !== null && false === empty($id)) {
+                 throw new ModelException('Login and id of an account are specified, specify either id or login.');
             }
-            $id = Opus_Account::fetchAccountRowByLogin($login);
+            $id = self::fetchAccountRowByLogin($login);
             if (! isset($id)) {
-                throw new Opus_Security_Exception('An account with the login name ' . $login . ' cannot be found.');
+                throw new SecurityException('An account with the login name ' . $login . ' cannot be found.');
             }
         }
         parent::__construct($id, $tableGatewayModel);
@@ -122,30 +143,28 @@ class Opus_Account extends Opus_Model_AbstractDb
      * Initialize model with the following fields:
      * - Username
      * - Password
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $login = new Opus_Model_Field('Login');
-        $loginValidator = new Zend_Validate;
+        $login          = new Field('Login');
+        $loginValidator = new Zend_Validate();
 
         // NOTE: Validation is also defined in Application_Form_Element_Login
         $loginValidator->addValidator(new Zend_Validate_Regex('/^[A-Za-z0-9@._-]+$/'));
         $login->setValidator($loginValidator)->setMandatory(true);
 
-        $password = new Opus_Model_Field('Password');
+        $password = new Field('Password');
         $password->setMandatory(true);
 
-        $email = new Opus_Model_Field('Email');
-        $emailValidator = new Zend_Validate;
+        $email          = new Field('Email');
+        $emailValidator = new Zend_Validate();
         $emailValidator->addValidator(new Zend_Validate_EmailAddress());
         $email->setMandatory(true);
 
-        $firstName = new Opus_Model_Field('FirstName');
-        $lastName = new Opus_Model_Field('LastName');
+        $firstName = new Field('FirstName');
+        $lastName  = new Field('LastName');
 
-        $role = new Opus_Model_Field('Role');
+        $role = new Field('Role');
         $role->setMultiplicity('*');
         $role->setSelection(true);
 
@@ -161,37 +180,36 @@ class Opus_Account extends Opus_Model_AbstractDb
      * Stores the accounts credentials. Throws exception if something failes
      * during the store operation.
      *
-     * @throws Opus_Security_Exception If storing failes.
-     * @return void
+     * @throws SecurityException If storing failes.
      */
     public function store()
     {
         // Check for a proper credentials
         if ($this->isValid() === false) {
-            throw new Opus_Security_Exception('Credentials are invalid.');
+            throw new SecurityException('Credentials are invalid.');
         }
 
         // Check if there is a account with the same
         // loginname before creating a new record.
-        if (is_null($this->getId()) === true) {
-            $row = Opus_Account::fetchAccountRowByLogin($this->getLogin());
-            if (is_null($row) === false) {
-                throw new Opus_Security_Exception('Account with login name ' . $this->getLogin() . ' already exists.');
+        if ($this->getId() === null) {
+            $row = self::fetchAccountRowByLogin($this->getLogin());
+            if ($row !== null) {
+                throw new SecurityException('Account with login name ' . $this->getLogin() . ' already exists.');
             }
         }
         // Now really store.
         try {
             return parent::store();
         } catch (Exception $ex) {
-            $logger = Zend_Registry::get('Zend_Log');
+            $logger = Log::get();
             if (null !== $logger) {
-                $message = "Unknown exception while storing account: ";
+                $message  = "Unknown exception while storing account: ";
                 $message .= $ex->getMessage();
                 $logger->err(__METHOD__ . ': ' . $message);
             }
 
             $message = "Caught exception.  Please consult the server logfile.";
-            throw new Opus_Security_Exception($message);
+            throw new SecurityException($message);
         }
     }
 
@@ -204,15 +222,15 @@ class Opus_Account extends Opus_Model_AbstractDb
             return;
         }
 
-        $accounts = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $accounts->select()->where('login = ?', $login);
+        $accounts = TableGateway::getInstance(self::$tableGatewayClass);
+        $select   = $accounts->select()->where('login = ?', $login);
         return $accounts->fetchRow($select);
     }
 
     /**
      * Alternate constructor to fetch account-objects by login name.
      *
-     * @return Opus_Account
+     * @return Account
      */
     public static function fetchAccountByLogin($login)
     {
@@ -227,16 +245,16 @@ class Opus_Account extends Opus_Model_AbstractDb
      * Validate the login before accepting the value.
      *
      * @param string $login Login name.
-     * @throws Opus_Security_Exception Thrown if the login name is not valid.
-     * @return Opus_Account Fluent interface.
+     * @throws SecurityException Thrown if the login name is not valid.
+     * @return $this Fluent interface.
      */
     public function setLogin($login)
     {
-        $login = $this->_convertToScalar($login);
+        $login      = $this->_convertToScalar($login);
         $loginField = $this->getField('Login');
         if ($loginField->getValidator()->isValid($login) === false) {
-            Zend_Registry::get('Zend_Log')->debug('Login not valid: ' . $login);
-            throw new Opus_Security_Exception('Login name is empty or contains invalid characters.');
+            Log::get()->debug('Login not valid: ' . $login);
+            throw new SecurityException('Login name is empty or contains invalid characters.');
         }
         $loginField->setValue($login);
         return $this;
@@ -247,7 +265,7 @@ class Opus_Account extends Opus_Model_AbstractDb
      * algorithm.
      *
      * @param string $password The new password to set.
-     * @return Opus_Account Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setPassword($password)
     {
@@ -261,11 +279,11 @@ class Opus_Account extends Opus_Model_AbstractDb
      * the password directly without hashing it.  Helpful for migration.
      *
      * @param string $password The new password to set.
-     * @return Opus_Account Fluent interface.
+     * @return $this Fluent interface.
      */
     public function setPasswordDirectly($password)
     {
-        $logger = Zend_Registry::get('Zend_Log');
+        $logger = Log::get();
         if (null !== $logger) {
             $message = "WARNING: Setting password directly for user '" . $this->getLogin() . "'.";
             $logger->warn(__METHOD__ . ': ' . $message);
@@ -301,11 +319,11 @@ class Opus_Account extends Opus_Model_AbstractDb
      * Check if a given string is the correct password for this account.
      *
      * @param string $password Password.
-     * @return boolean
+     * @return bool
      */
     public function isPasswordCorrect($password)
     {
-        return ($this->getPassword() === sha1($password));
+        return $this->getPassword() === sha1($password);
     }
 
     /**
@@ -314,7 +332,7 @@ class Opus_Account extends Opus_Model_AbstractDb
      * hashing algorithm.
      *
      * @param string $password Password.
-     * @return boolean
+     * @return bool
      */
     public function isPasswordCorrectOldHash($password)
     {
@@ -328,7 +346,7 @@ class Opus_Account extends Opus_Model_AbstractDb
     /**
      * Returns long name.
      *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {

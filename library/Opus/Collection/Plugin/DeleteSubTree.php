@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,21 +25,28 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
- * @package     Opus_Collection_Plugin
+ * @package     Opus\Collection_Plugin
  * @author      Edouard Simon <edouard.simon@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Collection\Plugin;
+
+use Opus\Db\Collections;
+use Opus\Db\TableGateway;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractCollection;
 
 /**
  * Plugin updates documents if collections tree is deleted.
  */
-class Opus_Collection_Plugin_DeleteSubTree extends Opus_Model_Plugin_AbstractCollection
+class DeleteSubTree extends AbstractCollection
 {
-
-    public function preDelete(Opus\Model\ModelInterface $model)
+    public function preDelete(ModelInterface $model)
     {
         if ($model->isNewRecord()) {
             return;
@@ -46,7 +54,7 @@ class Opus_Collection_Plugin_DeleteSubTree extends Opus_Model_Plugin_AbstractCol
 
         $this->updateDocuments($model);
 
-        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $collections = TableGateway::getInstance(Collections::class);
         $collections->deleteSubTree($model->getId());
     }
 }

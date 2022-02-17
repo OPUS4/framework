@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,89 +26,91 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Model
- * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Jens Schwidder
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Model
+ * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
+ * @author      Jens Schwidder
  */
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for document references in the Opus framework
  *
- * @category    Framework
- * @package     Opus_Model
- * @uses        Opus_Model_Dependent_Abstract
+ * @uses        \Opus\Model\Dependent\AbstractDependentModel
  *
+ * @category    Framework
+ * @package     Opus\Model
  * @method void setValue(string $value)
  * @method string getValue()
- *
  * @method void setLabel(string $label)
  * @method string getLabel()
- *
  * @method void setRelation(string $relation)
  * @method string getRelation()
- *
  * @method void setType(string $type)
  * @method string getType()
  */
-class Opus_Reference extends Opus_Model_Dependent_Abstract
+class Reference extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentReferences';
+    protected static $tableGatewayClass = Db\DocumentReferences::class;
 
     /**
      * Initialize model with the following fields:
      * - Value
      * - Label
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $label = new Opus_Model_Field('Label');
+        $label = new Field('Label');
         $label->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $relation = new Opus_Model_Field('Relation');
+        $relation = new Field('Relation');
         $relation->setMandatory(false);
         $relation->setSelection(true);
         $relation->setDefault([
-            'updates' => 'updates',
+            'updates'    => 'updates',
             'updated-by' => 'updated-by',
-            'other' => 'other'
+            'other'      => 'other',
         ]);
 
-        $type = new Opus_Model_Field('Type');
+        $type = new Field('Type');
         $type->setMandatory(false); // TODO change later
         $type->setSelection(true);
         $type->setDefault([
-            'isbn' => 'isbn',
-            'urn' => 'urn',
-            'doi' => 'doi',
-            'handle' => 'handle',
-            'url' => 'url',
-            'issn' => 'issn',
-            'std-doi' => 'std-doi',
-            'cris-link' => 'cris-link',
+            'isbn'       => 'isbn',
+            'urn'        => 'urn',
+            'doi'        => 'doi',
+            'handle'     => 'handle',
+            'url'        => 'url',
+            'issn'       => 'issn',
+            'std-doi'    => 'std-doi',
+            'cris-link'  => 'cris-link',
             'splash-url' => 'splash-url',
-            'opus4-id' => 'opus4-id'
+            'opus4-id'   => 'opus4-id',
         ]);
 
         $this->addField($value);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,23 +25,43 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Security
- * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id $
- */
-
-/**
- * A simple authentication adapter for LDAP using the Opus_Account mechanism.
  *
  * @category    Framework
- * @package     Opus_Security
+ * @package     Opus\Security
+ * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  */
-class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
-{
 
+namespace Opus\Security\AuthAdapter;
+
+use Exception;
+use Opus\Account;
+use Opus\Security\AuthAdapter;
+use Zend_Auth;
+use Zend_Auth_Adapter_Exception;
+use Zend_Auth_Adapter_Ldap;
+use Zend_Auth_Result;
+use Zend_Config_Ini;
+use Zend_Ldap;
+use Zend_Ldap_Exception;
+use Zend_Log;
+use Zend_Log_Filter_Priority;
+use Zend_Log_Writer_Stream;
+use Zend_Session_Namespace;
+
+use function explode;
+use function in_array;
+use function is_array;
+use function str_replace;
+
+/**
+ * A simple authentication adapter for LDAP using the Opus\Account mechanism.
+ *
+ * phpcs:disable
+ */
+class Ldap extends AuthAdapter
+{
     /**
      * Performs an authentication attempt
      *
@@ -49,11 +70,10 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
      */
     public function authenticate()
     {
-
         $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
 
         $log_path = $config->ldap->log_path;
-        $admins = explode(',', $config->ldap->admin_accounts);
+        $admins   = explode(',', $config->ldap->admin_accounts);
 
         $options = $config->ldap->toArray();
 
@@ -62,8 +82,8 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
 
         try {
             // first check local DB with parent class
-            $result = parent::authenticate();
-            $user = new Zend_Session_Namespace('loggedin');
+            $result           = parent::authenticate();
+            $user             = new Zend_Session_Namespace('loggedin');
             $user->usernumber = $this->_login;
         } catch (Exception $e) {
             throw $e;
@@ -96,12 +116,12 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
                 // if authentication was successfull and user is not already in OPUS DB
                 // register user as publisher to OPUS database
                 try {
-                    $account = new Opus_Account(null, null, $this->_login);
+                    $account = new Account(null, null, $this->_login);
                 } catch (Exception $ex) {
                     if ($result->isValid() === true) {
-                        $user = new Zend_Session_Namespace('loggedin');
+                        $user             = new Zend_Session_Namespace('loggedin');
                         $user->usernumber = $this->_login;
-                        $account = new Opus_Account();
+                        $account          = new Account();
                         $account->setLogin($this->_login);
                         $account->setPassword($this->_password);
                         $account->store();
@@ -173,8 +193,8 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
 
         $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
 
-        $log_path = $config->ldap->log_path;
-        $multiOptions = $config->ldap->toArray();
+        $log_path        = $config->ldap->log_path;
+        $multiOptions    = $config->ldap->toArray();
         $mappingSettings = $config->ldapmappings->toArray();
 
         unset($multiOptions['log_path']);
@@ -184,15 +204,15 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
 
         foreach ($multiOptions as $name => $options) {
             $mappingFirstName = $mappingSettings[$name]['firstName'];
-            $mappingLastName = $mappingSettings[$name]['lastName'];
-            $mappingEMail = $mappingSettings[$name]['EMail'];
-            $permanentId = $mappingSettings[$name]['personId'];
+            $mappingLastName  = $mappingSettings[$name]['lastName'];
+            $mappingEMail     = $mappingSettings[$name]['EMail'];
+            $permanentId      = $mappingSettings[$name]['personId'];
 
             $ldap->setOptions($options);
             try {
                 $ldap->bind();
 
-                $ldapsearch = $ldap->search('(uid='.$user->usernumber.')', 'dc=tub,dc=tu-harburg,dc=de', Zend_Ldap::SEARCH_SCOPE_ONE);
+                $ldapsearch = $ldap->search('(uid=' . $user->usernumber . ')', 'dc=tub,dc=tu-harburg,dc=de', Zend_Ldap::SEARCH_SCOPE_ONE);
 
                 if ($ldapsearch->count() > 0) {
                     $searchresult = $ldapsearch->getFirst();

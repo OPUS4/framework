@@ -25,49 +25,77 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Model
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @copyright   Copyright (c) 2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ *
+ * @category    Framework
+ * @package     Opus\Model
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  */
+
+namespace Opus\Storage;
+
+use Exception;
+use finfo;
+use Opus\Util\File as FileUtil;
+
+use function class_exists;
+use function copy;
+use function count;
+use function file_exists;
+use function filesize;
+use function function_exists;
+use function getcwd;
+use function glob;
+use function is_dir;
+use function is_executable;
+use function is_file;
+use function is_readable;
+use function is_writable;
+use function mime_content_type;
+use function mkdir;
+use function preg_match;
+use function rename;
+use function rmdir;
+use function sprintf;
+use function unlink;
+
+use const FILEINFO_MIME_TYPE;
 
 /**
- *
+ * phpcs:disable
  */
-class Opus_Storage_File
+class File
 {
-
     /**
      * Working directory.  All files will be modified relative to this path.
      *
      * @var string
      */
-    private $filesDirectory = null;
-    private $subDirectory = null;
+    private $filesDirectory;
+    private $subDirectory;
 
     /**
      * Construct storage object.  The first parameter $directory states the
      * working directory, in which all file modifications will take place.
      *
-     * @param string $directory
-     * @throws Opus_Storage_Exception
+     * @param null|string $directory
+     * @throws StorageException
      */
     public function __construct($directory = null, $subdirectory = null)
     {
         if (! is_dir($directory)) {
-            throw new Opus_Storage_Exception("Storage directory '$directory' does not exist. (cwd: " . getcwd() . ")");
+            throw new StorageException("Storage directory '$directory' does not exist. (cwd: " . getcwd() . ")");
         }
 
         if (! is_executable($directory)) {
-            throw new Opus_Storage_Exception("Storage directory '$directory' is not executable. (cwd: " . getcwd() . ")");
+            throw new StorageException("Storage directory '$directory' is not executable. (cwd: " . getcwd() . ")");
         }
 
-        $this->filesDirectory = Opus_Util_File::addDirectorySeparator($directory);
-        $this->subDirectory = Opus_Util_File::addDirectorySeparator($subdirectory);
+        $this->filesDirectory = FileUtil::addDirectorySeparator($directory);
+        $this->subDirectory   = FileUtil::addDirectorySeparator($subdirectory);
     }
 
     public function getWorkingDirectory()
@@ -79,8 +107,8 @@ class Opus_Storage_File
      * Creates subdirectory "$this->workingDirectory/$subdirectory".
      *
      * @param string $subdirectory Subdirectory of working dir to create.
-     * @throws Opus_Storage_Exception
-     * @return boolean
+     * @throws StorageException
+     * @return bool
      */
     public function createSubdirectory()
     {
@@ -88,11 +116,11 @@ class Opus_Storage_File
 
         if (is_dir($subFullPath)) {
             if (! is_readable($this->filesDirectory)) {
-                throw new Opus_Storage_Exception("Storage directory '$subFullPath' is not readable. (cwd: " . getcwd() . ")");
+                throw new StorageException("Storage directory '$subFullPath' is not readable. (cwd: " . getcwd() . ")");
             }
 
             if (! is_writable($this->filesDirectory)) {
-                throw new Opus_Storage_Exception("Storage directory '$subFullPath' is not writable. (cwd: " . getcwd() . ")");
+                throw new StorageException("Storage directory '$subFullPath' is not writable. (cwd: " . getcwd() . ")");
             }
 
             return true;
@@ -102,7 +130,7 @@ class Opus_Storage_File
             return true;
         }
 
-        throw new Opus_Storage_Exception('Could not create directory "' . $subFullPath . '"!');
+        throw new StorageException('Could not create directory "' . $subFullPath . '"!');
     }
 
     /**
@@ -112,20 +140,19 @@ class Opus_Storage_File
      *
      * @param string $sourceFile Absolute path.
      * @param string $destintationFile Path relative to workingDirectory.
-     * @throws Opus_Storage_Exception
-     * @return boolean
+     * @throws StorageException
+     * @return bool
      */
     public function copyExternalFile($sourceFile, $destinationFile)
     {
-
         $fullDestinationPath = $this->getWorkingDirectory() . $destinationFile;
 
         if (file_exists($fullDestinationPath)) {
-            throw new Opus_Storage_Exception('Destination file already exists: "' . $fullDestinationPath . '"!');
+            throw new StorageException('Destination file already exists: "' . $fullDestinationPath . '"!');
         }
 
         if (true !== @copy($sourceFile, $fullDestinationPath)) {
-            throw new Opus_Storage_Exception('Could not copy file from "' . $sourceFile . '" to "' . $fullDestinationPath . '"!');
+            throw new StorageException('Could not copy file from "' . $sourceFile . '" to "' . $fullDestinationPath . '"!');
         }
 
         return true;
@@ -136,53 +163,52 @@ class Opus_Storage_File
      *
      * @param string $sourceFile Absolute path.
      * @param string $destintationFile Path relative to workingDirectory.
-     * @throws Opus_Storage_Exception
-     * @throws Opus_Storage_FileNotFoundException if file does not exist
-     * @throws Opus_Storage_FileAccessException if renaming of file failed
-     * @return boolean
+     * @throws StorageException
+     * @throws FileNotFoundException if file does not exist
+     * @throws FileAccessException if renaming of file failed
+     * @return bool
      */
     public function renameFile($sourceFile, $destinationFile)
     {
-        $fullSourcePath = $this->getWorkingDirectory() . $sourceFile;
+        $fullSourcePath      = $this->getWorkingDirectory() . $sourceFile;
         $fullDestinationPath = $this->getWorkingDirectory() . $destinationFile;
 
         if (false === file_exists($fullSourcePath)) {
-            throw new Opus_Storage_FileNotFoundException($fullSourcePath, 'File to rename "' . $fullSourcePath . '" does not exist!');
+            throw new FileNotFoundException($fullSourcePath, 'File to rename "' . $fullSourcePath . '" does not exist!');
         }
 
         if (false === is_file($fullSourcePath)) {
-            throw new Opus_Storage_Exception('Tried to rename non-file "' . $fullSourcePath . '; abort"!');
+            throw new StorageException('Tried to rename non-file "' . $fullSourcePath . '; abort"!');
         }
 
         if (true === @rename($fullSourcePath, $fullDestinationPath)) {
             return true;
         }
 
-        throw new Opus_Storage_FileAccessException('Could not rename file from "' . $fullSourcePath . '" to "' . $fullDestinationPath . '"!');
+        throw new FileAccessException('Could not rename file from "' . $fullSourcePath . '" to "' . $fullDestinationPath . '"!');
     }
 
     /**
      * Deletes a given file inside the working directory.
      *
      * @param string $file
-     * @throws Opus_Storage_Exception
-     * @throws Opus_Storage_FileNotFoundException if file does not exist
-     * @throws Opus_Storage_FileAccessException if deleting file failed
-     * @return void
+     * @throws StorageException
+     * @throws FileNotFoundException if file does not exist
+     * @throws FileAccessException if deleting file failed
      */
     public function deleteFile($file)
     {
         $fullFile = $this->getWorkingDirectory() . $file;
         if (false === file_exists($fullFile)) {
-            throw new Opus_Storage_FileNotFoundException($fullFile, 'File to delete "' . $fullFile . '" does not exist!');
+            throw new FileNotFoundException($fullFile, 'File to delete "' . $fullFile . '" does not exist!');
         }
 
         if (false === is_file($fullFile)) {
-            throw new Opus_Storage_Exception('Tried to delete non-file "' . $fullFile . '; abort"!');
+            throw new StorageException('Tried to delete non-file "' . $fullFile . '; abort"!');
         }
 
         if (false === @unlink($fullFile)) {
-            throw new Opus_Storage_FileAccessException('File "' . $fullFile . '" could not be deleted!');
+            throw new FileAccessException('File "' . $fullFile . '" could not be deleted!');
         }
 
         return;
@@ -191,8 +217,8 @@ class Opus_Storage_File
     /**
      * Deletes current working directory if empty.
      *
-     * @throws Opus_Storage_Exception If directory is empty but deleting failed.
-     * @return boolean true on success, false if not found or not empty
+     * @throws StorageException If directory is empty but deleting failed.
+     * @return bool true on success, false if not found or not empty
      */
     public function removeEmptyDirectory()
     {
@@ -202,13 +228,13 @@ class Opus_Storage_File
             return false;
         }
 
-        $is_empty = (count(glob($directory . "/*")) === 0);
+        $is_empty = count(glob($directory . "/*")) === 0;
         if (! $is_empty) {
             return false;
         }
 
         if (false === @rmdir($directory)) {
-            throw new Opus_Storage_Exception('Empty directory "$directory" could not be deleted!');
+            throw new StorageException('Empty directory "$directory" could not be deleted!');
         }
 
         return true;
@@ -237,8 +263,8 @@ class Opus_Storage_File
             // use mime_content_type for PHP < 5.3.0
             return @mime_content_type($fullFile);
         } else {
-            $message = "Opus_Storage_File: Neither PECL fileinfo, nor mime_content_type could be found.";
-            $logger = Zend_Registry::get('Zend_Log');
+            $message = self::class . ": Neither PECL fileinfo, nor mime_content_type could be found.";
+            $logger  = Log::get();
             $logger->err($message);
 
             return $this->getFileMimeTypeFromExtension($file);

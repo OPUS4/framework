@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,32 +25,55 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
- * @package     Opus_Model_Xml
+ * @package     Opus\Model\Xml
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Model\Xml;
+
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use Opus\Model\AbstractDb;
+use Opus\Model\AbstractModel;
+use Opus\Model\Dependent\Link\AbstractLinkModel;
+use Opus\Model\Field;
+use Opus\Model\Filter;
+
+use function array_unique;
+use function count;
+use function get_class;
+use function in_array;
+use function is_array;
+use function preg_replace;
+use function str_replace;
 
 /**
  * First implementation of Opus XML representation.
  *
  * Simple fields are converted to attributes of element.
+ *
+ * TODO make XML independent of names of PHP classes
+ *
+ * phpcs:disable
  */
-class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
+class Version1 extends VersionAbstract
 {
-
     public function __construct()
     {
         $this->_version = '1.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field)
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Field $field)
     {
-        $fieldName = $field->getName();
+        $fieldName   = $field->getName();
         $fieldValues = $this->getFieldValues($field);
 
         // Replace invalid XML-1.0-Characters by UTF-8 replacement character.
@@ -60,8 +84,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
     protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
     {
         $childNode = $dom->createElement($fieldName);
-        if ($value instanceof Opus_Model_AbstractDb) {
-            if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
+        if ($value instanceof AbstractDb) {
+            if ($value instanceof AbstractLinkModel) {
                 $modelId = $value->getLinkedModelId();
             } else {
                 $modelId = $value->getId();
@@ -74,14 +98,20 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         return $childNode;
     }
 
-    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model)
+    protected function createModelNode(DOMDocument $dom, AbstractModel $model)
     {
-        $childNode = $dom->createElement(get_class($model));
+        $modelClass = get_class($model);
 
-        if ($model instanceof Opus_Model_AbstractDb) {
+        $modelClass = str_replace('\\', '_', $modelClass);
+
+        $childNode = $dom->createElement($modelClass);
+
+        if ($model instanceof AbstractDb) {
             $childNode->setAttribute('Id', $model->getId());
-        } elseif ($model instanceof Opus_Model_Filter and
-            $model->getModel() instanceof Opus_Model_AbstractDb) {
+        } elseif (
+            $model instanceof Filter &&
+            $model->getModel() instanceof AbstractDb
+        ) {
             $childNode->setAttribute('Id', $model->getId());
         }
 
@@ -91,11 +121,11 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
     /**
      * Recursively populates model's fields from an Xml DomElement.
      *
-     * @param  Opus_Model_Abstract  $model   The model to be populated.
-     * @param  DOMElement           $element The DomElement holding the field names and values.
-     * @return Opus_Model_Abstract  $model   The populated model.
+     * @param  AbstractModel $model   The model to be populated.
+     * @param  DOMElement    $element The DomElement holding the field names and values.
+     * @return AbstractModel  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    protected function _populateModelFromXml(AbstractModel $model, DOMElement $element)
     {
         $fieldList = $model->describe();
 
@@ -119,7 +149,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         foreach ($element->childNodes as $externalField) {
             $fieldName = $externalField->nodeName;
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus\Model\Exception('Field ' . $fieldName . ' not defined');
+                throw new ModelException('Field ' . $fieldName . ' not defined');
             } else {
                 $modelclass = $model->getField($fieldName)->getValueModelClass();
             }
@@ -135,16 +165,16 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
     /**
      * Update a model from a given xml structure.
      *
-     * @param Opus_Model_Abstract $model   Model for updating.
-     * @param DOMElement          $element Element with new data.
-     * @return Opus_Model_Abstract
+     * @param AbstractModel $model   Model for updating.
+     * @param DOMElement    $element Element with new data.
+     * @return AbstractModel
      */
-    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    protected function _updateModelFromXml(AbstractModel $model, DOMElement $element)
     {
         $config = $this->getConfig();
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
-        if ((null !== $config->xlinkResolver) and (null !== $ref)) {
+        if ((null !== $config->xlinkResolver) && (null !== $ref)) {
             $model = $config->xlinkResolver->get($ref->value);
         }
 
@@ -175,9 +205,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         // make names unique
         $externalFields = array_unique($externalFields);
 
-        //
         foreach ($externalFields as $fieldName) {
-            $field = $model->getField($fieldName);
+            $field      = $model->getField($fieldName);
             $fieldValue = $field->getValue();
 
             $subModels = [];
@@ -208,13 +237,16 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
 
     /**
      * (non-PHPdoc)
-     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
+     *
+     * @see \Opus\Model\Xml\StrategyInterface#updateFromXml()
      */
     public function updateFromXml($xml)
     {
         $this->setXml($xml);
-        $config = $this->getConfig();
-        $modelElement = $config->dom->getElementsByTagName(get_class($config->model))->item(0);
+        $config       = $this->getConfig();
+        $modelElement = $config->dom->getElementsByTagName(
+            preg_replace('/\\\\/', '_', get_class($config->model))
+        )->item(0);
         if (null !== $modelElement) {
             $this->_updateModelFromXml($config->model, $modelElement);
         }

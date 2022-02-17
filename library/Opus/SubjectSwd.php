@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,43 +26,50 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for document subjects in the Opus framework
  *
+ * @uses        \Opus\Model\AbstractModel
+ *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
  */
-class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract
+class SubjectSwd extends AbstractDependentModel
 {
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
+    protected static $tableGatewayClass = Db\DocumentSubjects::class;
 
     /**
      * Fields that should not be displayed on a form.
      *
      * @var array  Defaults to array('Type').
      */
-    protected $_internalFields = [
+    protected $internalFields = [
         'Type',
         'Language',
     ];
@@ -72,26 +80,24 @@ class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract
      * - Type
      * - Value
      * - External key
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $language = new Opus_Model_Field('Language');
-        $type = new Opus_Model_Field('Type');
+        $language = new Field('Language');
+        $type     = new Field('Type');
 
-        $value = new Opus_Model_Field('Value');
+        $value = new Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $externalKey = new Opus_Model_Field('ExternalKey');
+        $externalKey = new Field('ExternalKey');
 
         $this->addField($language)
             ->addField($type)
             ->addField($value)
             ->addField($externalKey);
 
-        $this->_primaryTableRow->language = 'deu';
-        $this->_primaryTableRow->type = 'swd';
+        $this->primaryTableRow->language = 'deu';
+        $this->primaryTableRow->type     = 'swd';
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,41 +25,50 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Doi
- * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Doi
+ * @author      Sascha Szott <szott@zib.de>
  */
-class Opus_Doi_Generator_DoiGeneratorFactory
-{
 
+namespace Opus\Doi\Generator;
+
+use Opus\Config;
+use Opus\Doi\DoiException;
+use Opus\Util\ClassLoaderHelper;
+
+class DoiGeneratorFactory
+{
+    /**
+     * @return DoiGeneratorInterface
+     * @throws DoiException
+     */
     public static function create()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         // versuche die Generierungsklasse für DOIs zu instanziieren
         if (! isset($config->doi->generatorClass)) {
             // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
-            throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
+            throw new DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
         }
 
-        if ($config->doi->generatorClass == '') {
+        if (empty($config->doi->generatorClass)) { // TODO empty good enough
             // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
-            throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is empty - check your configuration');
+            throw new DoiException('mandatory configuration key doi.generatorClass is empty - check your configuration');
         }
 
         $generatorClassName = $config->doi->generatorClass;
 
-        $classExists = Opus_Util_ClassLoaderHelper::classExists($generatorClassName);
+        $classExists = ClassLoaderHelper::classExists($generatorClassName);
 
         if (! $classExists) {
             // Generierungsklasse für DOIs kann nicht gefunden oder geladen werden
-            throw new Opus_Doi_DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
+            throw new DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
         }
 
-        $generator = new $generatorClassName();
-
-        return $generator;
+        return new $generatorClassName();
     }
 }

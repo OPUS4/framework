@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,25 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Db
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Db
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
+
+namespace Opus\Db;
 
 /**
  * Table gateway class to table 'document_statistics'.
  *
- * @category    Framework
- * @package     Opus_Db
- *
+ * phpcs:disable
  */
-
-class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway
+class DocumentStatistics extends TableGateway
 {
-
     /**
      * Real database name of the documents table.
      *
@@ -54,13 +54,13 @@ class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
-     * @var array $_referenceMap
+     * @var array
      */
     protected $_referenceMap = [
         'Documents' => [
-            'columns' => 'document_id',
-            'refTableClass' => 'Opus_Db_Documents',
-            'refColumns' => ['document_id', 'year', 'month', 'type']
-        ]
+            'columns'       => 'document_id',
+            'refTableClass' => Documents::class,
+            'refColumns'    => ['document_id', 'year', 'month', 'type'],
+        ],
     ];
 }

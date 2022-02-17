@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,60 +25,80 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
- * @package     Opus_Document_Plugin
+ * @package     Opus\Document_Plugin
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Document\Plugin;
+
+use Exception;
+use Opus\Config;
+use Opus\Document;
+use Opus\Doi\DoiException;
+use Opus\Doi\DoiManager;
+use Opus\Doi\RegistrationException;
+use Opus\Identifier;
+use Opus\Log;
+use Opus\Model\ModelInterface;
+use Opus\Model\Plugin\AbstractPlugin;
+use Opus\Model\Plugin\ServerStateChangeListenerInterface;
+
+use function filter_var;
+use function get_class;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Plugin for generating identifiers of type DOI.
  *
+ * phpcs:disable
  */
-class Opus_Document_Plugin_IdentifierDoi extends Opus\Model\Plugin\AbstractPlugin implements \Opus\Model\Plugin\ServerStateChangeListener
+class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListenerInterface
 {
-
-    // was muss hier alles ausgewertet werden:
-    // automatische Generierung einer DOI für das vorliegende Dokument, wenn
-    // 1. noch keine DOI vorhanden
-    // 2. Enrichment opus.doi.autoCreate wurde gesetzt
-
-    // außerdem automatische Registrierung der DOI (Aufruf MDS-Webservice von DataCite)
-    // wenn DOI vorhanden und die Konfigurationseinstellung doi.registerAtPublish ist auf true/1 gesetzt
-
-
-    // laut Spezifikation: jedes OPUS-Dokument kann maximal eine zugeordnete DOI haben
-    // diese DOI ist entweder lokal oder extern
-    // im Rahmen der automatischen DOI-Registrierung werden nur lokale DOIs betrachtet
-    public function postStoreInternal(Opus\Model\ModelInterface $model)
+    /**
+     * was muss hier alles ausgewertet werden:
+     * automatische Generierung einer DOI für das vorliegende Dokument, wenn
+     * 1. noch keine DOI vorhanden
+     * 2. Enrichment opus.doi.autoCreate wurde gesetzt
+     *
+     * außerdem automatische Registrierung der DOI (Aufruf MDS-Webservice von DataCite)
+     * wenn DOI vorhanden und die Konfigurationseinstellung doi.registerAtPublish ist auf true/1 gesetzt
+     *
+     *
+     * laut Spezifikation: jedes OPUS-Dokument kann maximal eine zugeordnete DOI haben
+     * diese DOI ist entweder lokal oder extern
+     * im Rahmen der automatischen DOI-Registrierung werden nur lokale DOIs betrachtet
+     */
+    public function postStoreInternal(ModelInterface $model)
     {
-        $log = Zend_Registry::get('Zend_Log');
+        $log = Log::get();
 
-        if (! ($model instanceof Opus_Document)) {
-            $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
+        if (! $model instanceof Document) {
+            $log->err(self::class . ' found unexpected model class ' . get_class($model));
             return;
         }
 
         $serverState = $model->getServerState();
-        $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
+        $log->debug(self::class . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
 
-        if ($serverState !== 'published') {
-            $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
+        if ($serverState === Document::STATE_PUBLISHED) {
+            $this->handlePublishEvent($model, $log);
+        } elseif ($serverState === Document::STATE_DELETED && $model->getServerStateChanged()) {
+            $this->handleDeleteEvent($model);
+        } else {
+            $log->debug(self::class . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
             return;
         }
-
-        $this->handlePublishEvent($model, $log);
     }
 
-    public function postDelete($modelId)
+    public function preDelete(ModelInterface $doc)
     {
-        // check if database contains document with given id
-        $doc = null;
-        try {
-            $doc = new Opus_Document($modelId);
-        } catch (Opus_Model_NotFoundException $e) {
+        if ($doc === null) {
             // ignore silently and exit method since we do not need to perform any action
             return;
         }
@@ -87,30 +108,43 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus\Model\Plugin\AbstractPlugi
         }
     }
 
-    private function handleDeleteEvent($document)
+    /**
+     * Removes metadata for DOI, if document gets "deleted".
+     *
+     * @param $document
+     * @return mixed|void
+     */
+    public function serverStateChanged($document)
+    {
+        if ($document != null && $document->getServerState() === 'deleted') {
+            $this->handleDeleteEvent($document);
+        }
+    }
+
+    protected function handleDeleteEvent($document)
     {
         // Metadatensatz für DOI auf den Status "inactive" setzen
-        $doiManager = new Opus_Doi_DoiManager();
+        $doiManager = $this->getDoiManager();
         $doiManager->deleteMetadataForDoi($document);
     }
 
-    private function handlePublishEvent($document, $log)
+    protected function handlePublishEvent($document, $log)
     {
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
         $generateDoi = null;
-        $enrichment = $document->getEnrichment('opus.doi.autoCreate');
-        if (! is_null($enrichment)) {
+        $enrichment  = $document->getEnrichment('opus.doi.autoCreate');
+        if ($enrichment !== null) {
             $enrichmentValue = $enrichment->getValue();
-            $generateDoi = ($enrichmentValue == 'true');
+            $generateDoi     = $enrichmentValue === 'true';
             $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
         }
 
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
-        if (is_null($generateDoi)) {
+        if ($generateDoi === null) {
             // Enrichment opus.doi.autoCreate wurde nicht gefunden - verwende Standardwert für die DOI-Erzeugung aus Konfiguration
-            $generateDoi = (isset($config->doi->autoCreate) && filter_var($config->doi->autoCreate, FILTER_VALIDATE_BOOLEAN));
+            $generateDoi = isset($config->doi->autoCreate) && filter_var($config->doi->autoCreate, FILTER_VALIDATE_BOOLEAN);
         }
 
         // prüfe, ob bereits eine DOI mit dem Dokument verknüpft ist
@@ -136,25 +170,25 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus\Model\Plugin\AbstractPlugi
      * Fügt zum Dokument $model eine DOI hinzu, sofern noch keine existiert und die Konfiguration
      * entsprechend gesetzt ist.
      *
-     * @param $model Opus_Document zu dem die DOI hinzugefügt werden soll
+     * @param $model Document zu dem die DOI hinzugefügt werden soll
      */
-    private function addDoi($model, $log)
+    protected function addDoi($model, $log)
     {
         try {
-            $doiManager = new Opus_Doi_DoiManager();
-            $doiValue = $doiManager->generateNewDoi($model);
-        } catch (Opus_Doi_DoiException $e) {
+            $doiManager = $this->getDoiManager();
+            $doiValue   = $doiManager->generateNewDoi($model);
+        } catch (DoiException $e) {
             $message = 'could not generate DOI value for document ' . $model->getId() . ': ' . $e->getMessage();
             $log->err($message);
             throw new Exception($message);
         }
 
-        $doi = new Opus_Identifier();
+        $doi = new Identifier();
         $doi->setType('doi');
         $doi->setValue($doiValue);
 
         $identifiers = $model->getIdentifier();
-        if (is_null($identifiers)) {
+        if ($identifiers === null) {
             $identifiers = [];
         }
         $identifiers[] = $doi;
@@ -168,10 +202,10 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus\Model\Plugin\AbstractPlugi
      *
      * @param $model
      */
-    private function registerDoi($model, $log, $config)
+    protected function registerDoi($model, $log, $config)
     {
         // prüfe ob Konfigurationseinstellung eine Registrierung vorgibt
-        if (! isset($config->doi->registerAtPublish) || ! (filter_var($config->doi->registerAtPublish, FILTER_VALIDATE_BOOLEAN))) {
+        if (! isset($config->doi->registerAtPublish) || ! filter_var($config->doi->registerAtPublish, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug('registration of DOIs at publish time is disabled in configuration');
             return;
         }
@@ -180,15 +214,20 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus\Model\Plugin\AbstractPlugi
         $log->info('start registration of DOI for document ' . $model->getId());
 
         try {
-            $doiManager = new Opus_Doi_DoiManager();
+            $doiManager    = $this->getDoiManager();
             $registeredDoi = $doiManager->register($model);
-            if (is_null($registeredDoi)) {
+            if ($registeredDoi === null) {
                 $log->err('could not apply DOI registration on document ' . $model->getId());
             }
-        } catch (Opus_Doi_RegistrationException $e) {
+        } catch (RegistrationException $e) {
             $log->err('unexpected error in registration of DOI ' . $e->getDoi() . ' of document ' . $model->getId() . ': ' . $e->getMessage());
-        } catch (Opus_Doi_DoiException $e) {
+        } catch (DoiException $e) {
             $log->err('unexpected error in DOI-registration of document ' . $model->getId() . ': ' . $e->getMessage());
         }
+    }
+
+    protected function getDoiManager()
+    {
+        return DoiManager::getInstance();
     }
 }

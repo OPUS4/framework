@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,19 +25,25 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Collection
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Tests
+ * @package     Opus\Collection
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-class Opus_TitleAbstractTest extends TestCase
-{
+namespace OpusTest;
 
+use Opus\Title;
+use Opus\TitleAbstract;
+use OpusTest\TestAsset\TestCase;
+
+class TitleAbstractTest extends TestCase
+{
     public function testConstruct()
     {
-        $abstract = new Opus_TitleAbstract();
+        $abstract = new TitleAbstract();
 
         $this->assertEquals('abstract', $abstract->getType());
         $this->assertNull($abstract->getLanguage());
@@ -45,7 +52,7 @@ class Opus_TitleAbstractTest extends TestCase
 
     public function testToArray()
     {
-        $abstract = new Opus_TitleAbstract();
+        $abstract = new TitleAbstract();
 
         $abstract->setLanguage('deu');
         $abstract->setValue('Deutscher Haupttitel');
@@ -54,21 +61,21 @@ class Opus_TitleAbstractTest extends TestCase
 
         $this->assertEquals([
             'Language' => 'deu',
-            'Type' => 'abstract',
-            'Value' => 'Deutscher Haupttitel'
+            'Type'     => 'abstract',
+            'Value'    => 'Deutscher Haupttitel',
         ], $data);
     }
 
     public function testFromArray()
     {
-        $abstract = Opus_TitleAbstract::fromArray([
+        $abstract = TitleAbstract::fromArray([
             'Language' => 'deu',
-            'Type' => 'abstract',
-            'Value' => 'Deutscher Haupttitel'
+            'Type'     => 'abstract',
+            'Value'    => 'Deutscher Haupttitel',
         ]);
 
         $this->assertNotNull($abstract);
-        $this->assertInstanceOf('Opus_Title', $abstract);
+        $this->assertInstanceOf(Title::class, $abstract);
 
         $this->assertEquals('deu', $abstract->getLanguage());
         $this->assertEquals('abstract', $abstract->getType());
@@ -77,13 +84,13 @@ class Opus_TitleAbstractTest extends TestCase
 
     public function testFromArrayWithoutType()
     {
-        $abstract = Opus_TitleAbstract::fromArray([
+        $abstract = TitleAbstract::fromArray([
             'Language' => 'deu',
-            'Value' => 'Deutscher Haupttitel'
+            'Value'    => 'Deutscher Haupttitel',
         ]);
 
         $this->assertNotNull($abstract);
-        $this->assertInstanceOf('Opus_Title', $abstract);
+        $this->assertInstanceOf(Title::class, $abstract);
 
         $this->assertEquals('deu', $abstract->getLanguage());
         $this->assertEquals('abstract', $abstract->getType());
@@ -92,16 +99,16 @@ class Opus_TitleAbstractTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $abstract = new Opus_TitleAbstract();
+        $abstract = new TitleAbstract();
 
         $abstract->updateFromArray([
             'Language' => 'deu',
-            'Type' => 'abstract',
-            'Value' => 'Deutscher Haupttitel'
+            'Type'     => 'abstract',
+            'Value'    => 'Deutscher Haupttitel',
         ]);
 
         $this->assertNotNull($abstract);
-        $this->assertInstanceOf('Opus_Title', $abstract);
+        $this->assertInstanceOf(Title::class, $abstract);
 
         $this->assertEquals('deu', $abstract->getLanguage());
         $this->assertEquals('abstract', $abstract->getType());
@@ -110,15 +117,15 @@ class Opus_TitleAbstractTest extends TestCase
 
     public function testUpdateFromArrayWithoutType()
     {
-        $abstract = new Opus_TitleAbstract();
+        $abstract = new TitleAbstract();
 
         $abstract->updateFromArray([
             'Language' => 'deu',
-            'Value' => 'Deutscher Haupttitel'
+            'Value'    => 'Deutscher Haupttitel',
         ]);
 
         $this->assertNotNull($abstract);
-        $this->assertInstanceOf('Opus_Title', $abstract);
+        $this->assertInstanceOf(Title::class, $abstract);
 
         $this->assertEquals('deu', $abstract->getLanguage());
         $this->assertEquals('abstract', $abstract->getType());

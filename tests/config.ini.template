@@ -26,11 +26,11 @@
 ; @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
 ; @author      Thoralf Klein <thoralf.klein@zib.de>
 ; @author      Jens Schwidder <schwidder@zib.de>
-; @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+; @copyright   Copyright (c) 2008-2020, OPUS 4 development team
 ; @license     http://www.gnu.org/licenses/gpl.html General Public License
 
-; Database adapter configuration using standard Zend_db option names.
-; Have a look on Zend_Db::factory() method for information about adapter creation.
+; Database adapter configuration using standard \Zend_db option names.
+; Have a look on \Zend_Db::factory() method for information about adapter creation.
 
 [production]
 ; The 'theme' setting can be used to select a different theme.
@@ -51,7 +51,7 @@ opusdb.params.admin.password = @db.admin.password@
 db.debug = 1
 
 ;OPUS SETTINGS
-workspacePath = APPLICATION_PATH "/tests/workspace"
+workspacePath = APPLICATION_PATH "/build/workspace"
 resources.locale.default = 'de'
 
 ;PHP SETTINGS
@@ -63,10 +63,9 @@ phpSettings.date.timezone = Europe/Berlin
 
 ;ZEND_APPLICATION SETTINGS
 includePaths.library = APPLICATION_PATH "/library"
-bootstrap.path = APPLICATION_PATH "/library/Opus/Bootstrap/Base.php"
-bootstrap.class = "Opus_Bootstrap_Base"
+bootstrap.path = APPLICATION_PATH "/library/Opus/Db/DatabaseBootstrap.php"
+bootstrap.class = "Opus\Db\DatabaseBootstrap"
 appnamespace = "Application"
-autoloaderNamespaces.opus = 'Opus_'
 
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging

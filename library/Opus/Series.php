@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,44 +25,58 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Db\TableGateway;
+use Opus\Model\AbstractDb;
+use Opus\Model\Field;
+use Zend_Db_Table;
+use Zend_Validate_Int;
+use Zend_Validate_NotEmpty;
+
+use function count;
+use function filter_var;
+use function intval;
+use function strlen;
+use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Domain model for sets in the Opus framework
  *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @uses        \Opus\Model\AbstractModel
  *
  * @method void setTitle(string $title)
  * @method string getTitle()
- *
  * @method void setInfobox(string $info)
  * @method string getInfobox()
- *
  * @method void setVisible(boolean $visible)
  * @method boolean getVisible()
- *
  * @method void setSortOrder(integer $pos)
  * @method integer getSortOrder()
+ *
+ * phpcs:disable
  */
-class Opus_Series extends Opus_Model_AbstractDb
+class Series extends AbstractDb
 {
-
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string Classname of \Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Series';
+    protected static $tableGatewayClass = Db\Series::class;
 
     /**
      * Plugins to load
@@ -71,28 +86,26 @@ class Opus_Series extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache'
+            Model\Plugin\InvalidateDocumentCache::class,
         ];
     }
 
     /**
      * Initialize model with fields.
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $title = new Opus_Model_Field('Title');
+        $title = new Field('Title');
         $title->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
-        $infobox = new Opus_Model_Field('Infobox');
+        $infobox = new Field('Infobox');
         $infobox->setTextarea(true);
 
-        $visible = new Opus_Model_Field('Visible');
+        $visible = new Field('Visible');
         $visible->setCheckbox(true);
 
-        $sortOrder = new Opus_Model_Field('SortOrder');
+        $sortOrder = new Field('SortOrder');
         $sortOrder->setValidator(new Zend_Validate_Int());
 
         $this->addField($title)
@@ -105,52 +118,52 @@ class Opus_Series extends Opus_Model_AbstractDb
      * Factory that tries to create a series with the given id.
      * Note that the series is *not* persisted to the database.
      * You need to explicitly call store() on the corresponding model instance
-     * of Opus_Series.
+     * of Opus\Series.
      *
-     * @param integer $id
-     * @return Opus_Db_TableGateway
+     * @param int $id
+     * @return TableGateway
      */
     public static function createRowWithCustomId($id)
     {
-        $tableGatewayModel = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $row = $tableGatewayModel->createRow();
-        $row->id = $id;
+        $tableGatewayModel = TableGateway::getInstance(self::$tableGatewayClass);
+        $row               = $tableGatewayModel->createRow();
+        $row->id           = $id;
         return $row;
     }
 
     /**
-     * Retrieve all Opus_Series instances from the database.
+     * Retrieve all Opus\Series instances from the database.
      *
-     * @return array Array of Opus_Series objects.
+     * @return array Array of Opus\Series objects.
      */
     public static function getAll()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
-            $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
+            $all = self::getAllFrom(self::class, self::$tableGatewayClass, null, 'title');
         } else {
-            $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
+            $all = self::getAllFrom(self::class, self::$tableGatewayClass);
         }
 
         return $all;
     }
 
     /**
-     * Retrieve all Opus_Series instances sorted by sort_order.
+     * Retrieve all Opus\Series instances sorted by sort_order.
      *
-     * @return array Array of Opus_Series objects sorted by sort_order in ascending order.
+     * @return array Array of Opus\Series objects sorted by sort_order in ascending order.
      */
     public static function getAllSortedBySortKey()
     {
-        $config = Zend_Registry::get('Zend_Config');
+        $config = Config::get();
 
         if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAll();
         } else {
             $all = self::getAllFrom(
-                'Opus_Series',
-                self::$_tableGatewayClass,
+                self::class,
+                self::$tableGatewayClass,
                 null,
                 'sort_order'
             );
@@ -163,13 +176,14 @@ class Opus_Series extends Opus_Model_AbstractDb
      * Retrieve maximum value in column sort_order.
      * Return 0 if database does not contain any series.
      *
+     * TODO return int
      */
     public static function getMaxSortKey()
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db  = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchOne('SELECT MAX(sort_order) FROM document_series');
 
-        if (is_null($max)) {
+        if ($max === null) {
             return 0;
         }
 
@@ -182,12 +196,11 @@ class Opus_Series extends Opus_Model_AbstractDb
     public function getDocumentIds()
     {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $ids = $db->fetchCol(
-            'SELECT document_id FROM link_documents_series ' .
-            'WHERE series_id = ?',
+        return $db->fetchCol(
+            'SELECT document_id FROM link_documents_series '
+            . 'WHERE series_id = ?',
             $this->getId()
         );
-        return $ids;
     }
 
     /**
@@ -196,11 +209,10 @@ class Opus_Series extends Opus_Model_AbstractDb
     public function getDocumentIdsSortedBySortKey()
     {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $ids = $db->fetchCol(
+        return $db->fetchCol(
             'SELECT document_id FROM link_documents_series WHERE series_id = ? ORDER BY doc_sort_order DESC',
             $this->getId()
         );
-        return $ids;
     }
 
     /**
@@ -208,31 +220,30 @@ class Opus_Series extends Opus_Model_AbstractDb
      */
     public function getDocumentIdForNumber($number)
     {
-        if (strlen(trim($number)) == 0) {
+        if (strlen(trim($number)) === 0) {
             return null;
         }
-        $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter    = Zend_Db_Table::getDefaultAdapter();
         $documentId = $adapter->fetchCol(
             'SELECT document_ID FROM link_documents_series WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
         );
 
-        return (count($documentId) == 1) ? $documentId[0] : null;
+        return count($documentId) === 1 ? $documentId[0] : null;
     }
 
     /**
      * Return true if given series number is available. Otherwise false.
      *
      * @param string $number
-     * @return boolean
-     *
+     * @return bool
      */
     public function isNumberAvailable($number)
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db    = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-            'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
-            'WHERE series_id = ? AND number = ?',
+            'SELECT COUNT(*) AS rows_count FROM link_documents_series '
+            . 'WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
         );
         return $count === '0';
@@ -245,10 +256,10 @@ class Opus_Series extends Opus_Model_AbstractDb
      */
     public function getNumOfAssociatedDocuments()
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db    = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-            'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
-            'WHERE series_id = ?',
+            'SELECT COUNT(*) AS rows_count FROM link_documents_series '
+            . 'WHERE series_id = ?',
             $this->getId()
         );
         return intval($count);
@@ -262,11 +273,11 @@ class Opus_Series extends Opus_Model_AbstractDb
      */
     public function getNumOfAssociatedPublishedDocuments()
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
+        $db    = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-            'SELECT COUNT(*) AS rows_count ' .
-            'FROM link_documents_series l, documents d ' .
-            'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
+            'SELECT COUNT(*) AS rows_count '
+            . 'FROM link_documents_series l, documents d '
+            . 'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
             $this->getId()
         );
         return intval($count);

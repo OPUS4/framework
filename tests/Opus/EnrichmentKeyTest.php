@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,111 +25,121 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Tests
  * @package     Opus
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace OpusTest;
+
+use Opus\Document;
+use Opus\EnrichmentKey;
+use Opus\Model\ModelException;
+use OpusTest\TestAsset\TestCase;
+
+use function count;
 
 /**
- * Test cases for class Opus_EnrichmentKeyTest .
- *
+ * Test cases for class Opus\EnrichmentKeyTest .
  */
-class Opus_EnrichmentKeyTest extends TestCase
+class EnrichmentKeyTest extends TestCase
 {
+    /** @var Document */
+    private $doc;
 
-    /**
-     * @var Opus_Document
-    */
-    private $_doc;
-
-     /**
-     * @var Opus_EnrichmentKey
-     */
+     /** @var EnrichmentKey */
     private $unreferencedEnrichmentKey;
 
-
-    /**
-     * @var Opus_EnrichmentKey
-     */
+    /** @var EnrichmentKey */
     private $referencedEnrichmentKey;
 
     public function setUp()
     {
         parent::setUp();
 
-        $this->unreferencedEnrichmentKey = new Opus_EnrichmentKey();
+        $this->clearTables(false, [
+            'enrichmentkeys',
+            'document_enrichments',
+        ]);
+
+        $this->unreferencedEnrichmentKey = new EnrichmentKey();
         $this->unreferencedEnrichmentKey->setName('foo');
         $this->unreferencedEnrichmentKey->store();
 
-        $this->referencedEnrichmentKey = new Opus_EnrichmentKey();
+        $this->referencedEnrichmentKey = new EnrichmentKey();
         $this->referencedEnrichmentKey->setName('bar');
         $this->referencedEnrichmentKey->store();
 
-        $this->_doc = new Opus_Document();
-        $this->_doc->addEnrichment()->setKeyName('bar')->setValue('value');
-        $this->_doc->store();
+        $this->doc = new Document();
+        $this->doc->addEnrichment()->setKeyName('bar')->setValue('value');
+        $this->doc->store();
     }
 
-    /* CREATE */
+    /**
+     * CREATE
+     */
     public function testStoreEnrichmentKey()
     {
-        $ek = new Opus_EnrichmentKey();
+        $ek = new EnrichmentKey();
         $ek->setName('baz');
         $ek->setType('type');
         $ek->setOptions('options');
         $ek->store();
 
-        $ek = new Opus_EnrichmentKey('baz');
+        $ek = new EnrichmentKey('baz');
         $this->assertNotNull($ek);
         $this->assertEquals('baz', $ek->getName());
         $this->assertEquals('type', $ek->getType());
         $this->assertEquals('options', $ek->getOptions());
-        $this->assertEquals(3, count(Opus_EnrichmentKey::getAll()));
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+        $this->assertEquals(3, count(EnrichmentKey::getAll()));
+        $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
     }
 
     public function testStoreEqualEnrichmentKey()
     {
-        $ek = new Opus_EnrichmentKey();
+        $ek = new EnrichmentKey();
         $ek->setName('foo');
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException(ModelException::class);
         $ek->store();
-        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+        $this->assertEquals(2, count(EnrichmentKey::getAll()));
+        $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
     }
 
     public function testStoreEmptyEnrichmentKey()
     {
-        $ek = new Opus_EnrichmentKey();
+        $ek = new EnrichmentKey();
         $ek->setName('');
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->setExpectedException(ModelException::class);
         $ek->store();
-        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+        $this->assertEquals(2, count(EnrichmentKey::getAll()));
+        $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
     }
 
     public function testStoryUnsetEnrichmentKey()
     {
-        $ek = new Opus_EnrichmentKey();
-        $this->setExpectedException('Opus\Model\Exception');
+        $ek = new EnrichmentKey();
+        $this->setExpectedException(ModelException::class);
         $ek->store();
-        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+        $this->assertEquals(2, count(EnrichmentKey::getAll()));
+        $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
     }
 
-    /* DELETE */
+    /**
+     * DELETE
+     */
     public function testDeleteUnreferencedEnrichmentKey()
     {
-        $this->assertCount(2, Opus_EnrichmentKey::getAll());
-        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(2, EnrichmentKey::getAll());
+        $this->assertCount(1, EnrichmentKey::getAllReferenced());
 
         $this->unreferencedEnrichmentKey->delete();
 
-        $this->assertCount(1, Opus_EnrichmentKey::getAll());
-        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(1, EnrichmentKey::getAll());
+        $this->assertCount(1, EnrichmentKey::getAllReferenced());
     }
 
     /**
@@ -138,13 +149,13 @@ class Opus_EnrichmentKeyTest extends TestCase
      */
     public function testDeleteReferencedEnrichmentKey()
     {
-        $this->assertCount(2, Opus_EnrichmentKey::getAll());
-        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(2, EnrichmentKey::getAll());
+        $this->assertCount(1, EnrichmentKey::getAllReferenced());
 
         $this->referencedEnrichmentKey->delete(); // mit Kaskadierung
 
-        $this->assertCount(1, Opus_EnrichmentKey::getAll());
-        $this->assertCount(0, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(1, EnrichmentKey::getAll());
+        $this->assertCount(0, EnrichmentKey::getAllReferenced());
     }
 
     /**
@@ -154,24 +165,26 @@ class Opus_EnrichmentKeyTest extends TestCase
      */
     public function testDeleteReferencedEnrichmentKeyWithoutCascading()
     {
-        $this->assertCount(2, Opus_EnrichmentKey::getAll());
-        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(2, EnrichmentKey::getAll());
+        $this->assertCount(1, EnrichmentKey::getAllReferenced());
 
         $this->referencedEnrichmentKey->delete(false);
 
-        $this->assertCount(1, Opus_EnrichmentKey::getAll());
+        $this->assertCount(1, EnrichmentKey::getAll());
 
         // obwohl der EnrichmentKey gelöscht wurde, wird er noch in Dokumenten verwendet
-        $referencedEnrichmentKeys = Opus_EnrichmentKey::getAllReferenced();
+        $referencedEnrichmentKeys = EnrichmentKey::getAllReferenced();
         $this->assertCount(1, $referencedEnrichmentKeys);
         $this->assertEquals($this->referencedEnrichmentKey->getName(), $referencedEnrichmentKeys[0]);
     }
 
-    /* READ */
+    /**
+     * READ
+     */
     public function testReadEnrichmentKey()
     {
         foreach (['foo', 'bar'] as $name) {
-            $ek = new Opus_EnrichmentKey($name);
+            $ek = new EnrichmentKey($name);
             $ek->setType('type');
             $ek->setOptions('options');
 
@@ -181,7 +194,9 @@ class Opus_EnrichmentKeyTest extends TestCase
         }
     }
 
-    /* UPDATE */
+    /**
+     * UPDATE
+     */
     public function testUpdateUnreferencedEnrichmentKey()
     {
         $newName = 'baz';
@@ -203,49 +218,51 @@ class Opus_EnrichmentKeyTest extends TestCase
         $this->referencedEnrichmentKey->setName($newName);
         $this->referencedEnrichmentKey->store();
 
-        $doc = new Opus_Document($this->_doc->getId());
+        $doc        = new Document($this->doc->getId());
         $enrichment = $doc->getEnrichment()[0];
         $this->assertEquals($newName, $enrichment->getKeyName());
 
-        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(1, EnrichmentKey::getAllReferenced());
     }
 
-    /* METHODS */
+    /**
+     * METHODS
+     */
     public function testFetchByName()
     {
-        $enrichmentkey = Opus_EnrichmentKey::fetchByName('foo');
+        $enrichmentkey = EnrichmentKey::fetchByName('foo');
         $this->assertNotNull($enrichmentkey);
     }
 
     public function testFetchWithoutName()
     {
-        $enrichmentkey = Opus_EnrichmentKey::fetchByName();
+        $enrichmentkey = EnrichmentKey::fetchByName();
         $this->assertNull($enrichmentkey);
     }
 
     public function testFetchByInvalidName()
     {
-        $enrichmentkey = Opus_EnrichmentKey::fetchByName('invalid');
+        $enrichmentkey = EnrichmentKey::fetchByName('invalid');
         $this->assertNull($enrichmentkey);
     }
 
     public function testGetDisplayName()
     {
-        $name = $this->unreferencedEnrichmentKey->getName();
+        $name        = $this->unreferencedEnrichmentKey->getName();
         $displayName = $this->unreferencedEnrichmentKey->getDisplayName();
         $this->assertEquals($name, $displayName);
     }
 
     public function testGetAll()
     {
-        foreach (Opus_EnrichmentKey::getAll() as $name) {
-             $this->assertNotContains('Opus_EnrichmentKey', (string) $name);
+        foreach (EnrichmentKey::getAll() as $name) {
+             $this->assertNotContains(EnrichmentKey::class, (string) $name);
         }
     }
 
     public function testToArray()
     {
-        $key = new Opus_EnrichmentKey();
+        $key = new EnrichmentKey();
 
         $key->setName('mykey');
         $key->setType('mytype');
@@ -254,22 +271,22 @@ class Opus_EnrichmentKeyTest extends TestCase
         $data = $key->toArray();
 
         $this->assertEquals([
-            'Name' => 'mykey',
-            'Type' => 'mytype',
+            'Name'    => 'mykey',
+            'Type'    => 'mytype',
             'Options' => 'myoptions',
         ], $data);
     }
 
     public function testFromArray()
     {
-        $key = Opus_EnrichmentKey::fromArray([
-            'Name' => 'mykey',
-            'Type' => 'mytype',
-            'Options' => 'myoptions'
+        $key = EnrichmentKey::fromArray([
+            'Name'    => 'mykey',
+            'Type'    => 'mytype',
+            'Options' => 'myoptions',
         ]);
 
         $this->assertNotNull($key);
-        $this->assertInstanceOf('Opus_EnrichmentKey', $key);
+        $this->assertInstanceOf(EnrichmentKey::class, $key);
 
         $this->assertEquals('mykey', $key->getName());
         $this->assertEquals('mytype', $key->getType());
@@ -278,12 +295,12 @@ class Opus_EnrichmentKeyTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $key = new Opus_EnrichmentKey();
+        $key = new EnrichmentKey();
 
         $key->updateFromArray([
-            'Name' => 'mykey',
-            'Type' => 'mytype',
-            'Options' => 'myoptions'
+            'Name'    => 'mykey',
+            'Type'    => 'mytype',
+            'Options' => 'myoptions',
         ]);
 
         $this->assertEquals('mykey', $key->getName());
@@ -295,7 +312,7 @@ class Opus_EnrichmentKeyTest extends TestCase
     {
         $this->referencedEnrichmentKey->rename('baz');
 
-        $doc = new Opus_Document($this->_doc->getId());
+        $doc         = new Document($this->doc->getId());
         $enrichments = $doc->getEnrichment();
         $this->assertCount(1, $enrichments);
         $this->assertEquals('baz', $enrichments[0]->getKeyName());
@@ -308,17 +325,17 @@ class Opus_EnrichmentKeyTest extends TestCase
     {
         $this->referencedEnrichmentKey->deleteFromDocuments();
 
-        $doc = new Opus_Document($this->_doc->getId());
+        $doc = new Document($this->doc->getId());
         $this->assertEmpty($doc->getEnrichment());
 
         // prüfe, dass der EnrichmentKey selbst immer noch vorhanden ist
-        $this->assertCount(2, Opus_EnrichmentKey::getAll());
-        $this->assertCount(0, Opus_EnrichmentKey::getAllReferenced());
+        $this->assertCount(2, EnrichmentKey::getAll());
+        $this->assertCount(0, EnrichmentKey::getAllReferenced());
     }
 
     public function testGetKeys()
     {
-        $keys = Opus_EnrichmentKey::getKeys();
+        $keys = EnrichmentKey::getKeys();
 
         $this->assertCount(2, $keys);
         $this->assertContains('bar', $keys);

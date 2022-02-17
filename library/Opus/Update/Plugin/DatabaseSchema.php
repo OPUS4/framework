@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,20 +25,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus\Update\Plugin;
+
+use Opus\Database;
+use Zend_Db_Table_Abstract;
+
+use function count;
 
 /**
  * Class for updating the database schema for new version of OPUS.
  */
-class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
+class DatabaseSchema extends AbstractUpdatePlugin
 {
-
-    private $_targetVersion = null;
+    private $targetVersion;
 
     /**
      * Performs update of database schema.
@@ -47,7 +55,7 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
         $this->clearCache();
         Zend_Db_Table_Abstract::setDefaultMetadataCache(null);
 
-        $database = new Opus_Database();
+        $database = new Database();
 
         $version = $database->getVersion();
 
@@ -71,12 +79,12 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
     /**
      * Maps version value to schema version.
      *
-     * @param $version
+     * @param string $version
      * @return int
      */
     public function mapVersion($version)
     {
-        if (is_null($version)) {
+        if ($version === null) {
             return 1;
         } elseif ($version === '4.5') {
             return 2;
@@ -85,20 +93,26 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
         return $version;
     }
 
+    /**
+     * @param string $targetVersion
+     */
     public function setTargetVersion($targetVersion)
     {
-        $this->_targetVersion = $targetVersion;
+        $this->targetVersion = $targetVersion;
     }
 
+    /**
+     * @return string
+     */
     public function getTargetVersion()
     {
-        return $this->_targetVersion;
+        return $this->targetVersion;
     }
 
     public function clearCache()
     {
         $cache = Zend_Db_Table_Abstract::getDefaultMetadataCache();
-        if (! is_null($cache)) {
+        if ($cache !== null) {
             $cache->clean(Zend_Cache::CLEANING_MODE_ALL);
         }
     }

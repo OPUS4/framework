@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,33 +25,67 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Util_MetadataImport
+namespace Opus\Util;
+
+use DOMDocument;
+use DOMElement;
+use DOMNamedNodeMap;
+use DOMNode;
+use DOMNodeList;
+use Exception;
+use Opus\Collection;
+use Opus\DnbInstitute;
+use Opus\Document;
+use Opus\EnrichmentKey;
+use Opus\Licence;
+use Opus\LoggingTrait;
+use Opus\Model\NotFoundException;
+use Opus\Person;
+use Opus\Series;
+use Opus\Subject;
+
+use function array_diff;
+use function libxml_clear_errors;
+use function libxml_use_internal_errors;
+use function substr;
+use function trim;
+use function ucfirst;
+
+/**
+ * phpcs:disable
+ */
+class MetadataImport
 {
+    use LoggingTrait;
 
-    use \Opus\LoggingTrait;
-
+    /** @var mixed|null */
     private $logfile;
 
+    /** @var DOMDocument */
     private $xml;
 
+    /** @var string */
     private $xmlFile;
 
+    /** @var string */
     private $xmlString;
 
+    /** @var array */
     private $fieldsToKeepOnUpdate = [];
 
     public function __construct($xml, $isFile = false, $logger = null, $logfile = null)
     {
-        if (! is_null($logger)) {
+        if ($logger !== null) {
             $this->setLogger($logger);
         }
 
@@ -70,7 +105,7 @@ class Opus_Util_MetadataImport
         $this->__validateXML();
 
         $numOfDocsImported = 0;
-        $numOfSkippedDocs = 0;
+        $numOfSkippedDocs  = 0;
 
         foreach ($this->xml->getElementsByTagName('opusDocument') as $opusDocumentElement) {
             // save oldId for later referencing of the record under consideration
@@ -80,16 +115,16 @@ class Opus_Util_MetadataImport
             $this->log("Start processing of record #" . $oldId . " ...");
 
             /*
-             * @var Opus_Document
+             * @var Document
              */
             $doc = null;
             if ($opusDocumentElement->hasAttribute('docId')) {
                 // perform metadata update on given document
                 $docId = $opusDocumentElement->getAttribute('docId');
                 try {
-                    $doc = new Opus_Document($docId);
+                    $doc = new Document($docId);
                     $opusDocumentElement->removeAttribute('docId');
-                } catch (Opus_Model_NotFoundException $e) {
+                } catch (NotFoundException $e) {
                     $this->log('Could not load document #' . $docId . ' from database: ' . $e->getMessage());
                     $this->appendDocIdToRejectList($oldId);
                     $numOfSkippedDocs++;
@@ -99,7 +134,7 @@ class Opus_Util_MetadataImport
                 $this->resetDocument($doc);
             } else {
                 // create new document
-                $doc = new Opus_Document();
+                $doc = new Document();
             }
 
             try {
@@ -125,17 +160,17 @@ class Opus_Util_MetadataImport
             $this->log('... OK');
         }
 
-        if ($numOfSkippedDocs == 0) {
+        if ($numOfSkippedDocs === 0) {
             $this->log("Import finished successfully. $numOfDocsImported documents were imported.");
         } else {
             $this->log("Import finished. $numOfDocsImported documents were imported. $numOfSkippedDocs documents were skipped.");
-            throw new Opus_Util_MetadataImportSkippedDocumentsException("$numOfSkippedDocs documents were skipped during import.");
+            throw new MetadataImportSkippedDocumentsException("$numOfSkippedDocs documents were skipped during import.");
         }
     }
 
     private function log($string)
     {
-        if (is_null($this->logger)) {
+        if ($this->logger === null) {
             return;
         }
         $this->logger->log($string);
@@ -150,19 +185,19 @@ class Opus_Util_MetadataImport
         $this->log("Load XML ...");
         $xml = new DOMDocument();
 
-        if (! is_null($this->xmlFile)) {
+        if ($this->xmlFile !== null) {
             if (! $xml->load($this->xmlFile)) {
-                $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
+                $errMsg = MetadataImportXmlValidation::getErrorMessage();
                 $this->log(
                     "... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed. $errMsg"
                 );
-                throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
+                throw new MetadataImportInvalidXmlException('XML is not well-formed.');
             }
         } else {
             if (! $xml->loadXML($this->xmlString)) {
-                $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
+                $errMsg = MetadataImportXmlValidation::getErrorMessage();
                 $this->log("... ERROR: Cannot load XML document: make sure it is well-formed. $errMsg");
-                throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
+                throw new MetadataImportInvalidXmlException('XML is not well-formed.');
             }
         }
 
@@ -176,10 +211,10 @@ class Opus_Util_MetadataImport
     {
         $this->log("Validate XML ...");
 
-        $validation = new Opus_Util_MetadataImportXmlValidation($this->xml);
+        $validation = new MetadataImportXmlValidation($this->xml);
         try {
             $validation->checkValidXml();
-        } catch (Opus_Util_MetadataImportInvalidXmlException $e) {
+        } catch (MetadataImportInvalidXmlException $e) {
             $this->log("... ERROR: XML document is not valid: " . $e->getMessage());
             throw $e;
         }
@@ -187,10 +222,13 @@ class Opus_Util_MetadataImport
         $this->log('... OK');
     }
 
+    /**
+     * @param int $docId
+     */
     private function appendDocIdToRejectList($docId)
     {
         $this->log('... SKIPPED');
-        if (is_null($this->logfile)) {
+        if ($this->logfile === null) {
             return;
         }
         $this->logfile->log($docId);
@@ -198,6 +236,7 @@ class Opus_Util_MetadataImport
 
     /**
      * Allows certain fields to be kept on update.
+     *
      * @param array $fields DescriptionArray of fields to keep on update
      */
     public function keepFieldsOnUpdate($fields)
@@ -206,8 +245,7 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param Opus_Document $doc
+     * @param Document $doc
      */
     private function resetDocument($doc)
     {
@@ -227,14 +265,12 @@ class Opus_Util_MetadataImport
             'Subject',
             'ThesisPublisher',
             'ThesisGrantor',
-
             'PublishedDate',
             'PublishedYear',
             'CompletedDate',
             'CompletedYear',
             'ThesisDateAccepted',
             'ThesisYearAccepted',
-
             'ContributingCorporation',
             'CreatingCorporation',
             'Edition',
@@ -254,26 +290,26 @@ class Opus_Util_MetadataImport
             // 'ServerDateCreated', TODO do not delete ServerDateCreated when updating document (no default in db)
             'ServerDateModified',
             'ServerDatePublished',
-            'ServerDateDeleted'
+            'ServerDateDeleted',
         ], $this->fieldsToKeepOnUpdate);
 
         $doc->deleteFields($fieldsToDelete);
     }
 
     /**
-     *
      * @param DOMNamedNodeMap $attributes
-     * @param Opus_Document $doc
+     * @param Document        $doc
      */
     private function processAttributes($attributes, $doc)
     {
         foreach ($attributes as $attribute) {
             $method = 'set' . ucfirst($attribute->name);
-            $value = trim($attribute->value);
-            if ($attribute->name == 'belongsToBibliography') {
-                if ($value == 'true') {
+            $value  = trim($attribute->value);
+            // TODO use filtervar for BOOLEAN here
+            if ($attribute->name === 'belongsToBibliography') {
+                if ($value === 'true') {
                     $value = '1';
-                } elseif ($value == 'false') {
+                } elseif ($value === 'false') {
                     $value = '0';
                 }
             }
@@ -282,9 +318,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNodeList $elements
-     * @param Opus_Document $doc
+     * @param  DOMNodeList $elements
+     * @param Document    $doc
      */
     private function processElements($elements, $doc)
     {
@@ -338,9 +373,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleTitleMain($node, $doc)
     {
@@ -354,16 +388,15 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleTitles($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
             if ($childNode instanceof DOMElement) {
                 $method = 'addTitle' . ucfirst($childNode->getAttribute('type'));
-                $t = $doc->$method();
+                $t      = $doc->$method();
                 $t->setValue(trim($childNode->textContent));
                 $t->setLanguage(trim($childNode->getAttribute('language')));
             }
@@ -371,9 +404,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleAbstracts($node, $doc)
     {
@@ -387,15 +419,14 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handlePersons($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
             if ($childNode instanceof DOMElement) {
-                $p = new Opus_Person();
+                $p = new Person();
 
                 // mandatory fields
                 $p->setFirstName(trim($childNode->getAttribute('firstName')));
@@ -411,7 +442,7 @@ class Opus_Util_MetadataImport
                 }
 
                 $method = 'addPerson' . ucfirst($childNode->getAttribute('role'));
-                $link = $doc->$method($p);
+                $link   = $doc->$method($p);
 
                 if ($childNode->hasAttribute('allowEmailContact') && ($childNode->getAttribute('allowEmailContact') === 'true' || $childNode->getAttribute('allowEmailContact') === '1')) {
                     $link->setAllowEmailContact(true);
@@ -421,15 +452,14 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleKeywords($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
             if ($childNode instanceof DOMElement) {
-                $s = new Opus_Subject();
+                $s = new Subject();
                 $s->setLanguage(trim($childNode->getAttribute('language')));
                 $s->setType($childNode->getAttribute('type'));
                 $s->setValue(trim($childNode->textContent));
@@ -439,19 +469,18 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleDnbInstitutions($node, $doc)
     {
         foreach ($node->childNodes as $childNode) {
             if ($childNode instanceof DOMElement) {
-                $instId = trim($childNode->getAttribute('id'));
+                $instId   = trim($childNode->getAttribute('id'));
                 $instRole = $childNode->getAttribute('role');
                 // check if dnbInstitute with given id and role exists
                 try {
-                    $inst = new Opus_DnbInstitute($instId);
+                    $inst = new DnbInstitute($instId);
 
                     // check if dnbInstitute supports given role
                     $method = 'getIs' . ucfirst($instRole);
@@ -461,7 +490,7 @@ class Opus_Util_MetadataImport
                     } else {
                         throw new Exception('given role ' . $instRole . ' is not allowed for dnbInstitution id ' . $instId);
                     }
-                } catch (Opus_Model_NotFoundException $e) {
+                } catch (NotFoundException $e) {
                     throw new Exception('dnbInstitution id ' . $instId . ' does not exist: ' . $e->getMessage());
                 }
             }
@@ -469,9 +498,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleIdentifiers($node, $doc)
     {
@@ -485,9 +513,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleNotes($node, $doc)
     {
@@ -501,9 +528,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleCollections($node, $doc)
     {
@@ -512,9 +538,9 @@ class Opus_Util_MetadataImport
                 $collectionId = trim($childNode->getAttribute('id'));
                 // check if collection with given id exists
                 try {
-                    $c = new Opus_Collection($collectionId);
+                    $c = new Collection($collectionId);
                     $doc->addCollection($c);
-                } catch (Opus_Model_NotFoundException $e) {
+                } catch (NotFoundException $e) {
                     throw new Exception('collection id ' . $collectionId . ' does not exist: ' . $e->getMessage());
                 }
             }
@@ -522,9 +548,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleSeries($node, $doc)
     {
@@ -533,10 +558,10 @@ class Opus_Util_MetadataImport
                 $seriesId = trim($childNode->getAttribute('id'));
                 // check if document set with given id exists
                 try {
-                    $s = new Opus_Series($seriesId);
+                    $s    = new Series($seriesId);
                     $link = $doc->addSeries($s);
                     $link->setNumber(trim($childNode->getAttribute('number')));
-                } catch (Opus_Model_NotFoundException $e) {
+                } catch (NotFoundException $e) {
                     throw new Exception('series id ' . $seriesId . ' does not exist: ' . $e->getMessage());
                 }
             }
@@ -544,9 +569,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleEnrichments($node, $doc)
     {
@@ -555,8 +579,8 @@ class Opus_Util_MetadataImport
                 $key = trim($childNode->getAttribute('key'));
                 // check if enrichment key exists
                 try {
-                    new Opus_EnrichmentKey($key);
-                } catch (Opus_Model_NotFoundException $e) {
+                    new EnrichmentKey($key);
+                } catch (NotFoundException $e) {
                     throw new Exception('enrichment key ' . $key . ' does not exist: ' . $e->getMessage());
                 }
 
@@ -568,9 +592,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param  DOMNode  $node
+     * @param Document $doc
      */
     private function handleLicences($node, $doc)
     {
@@ -578,9 +601,9 @@ class Opus_Util_MetadataImport
             if ($childNode instanceof DOMElement) {
                 $licenceId = trim($childNode->getAttribute('id'));
                 try {
-                    $l = new Opus_Licence($licenceId);
+                    $l = new Licence($licenceId);
                     $doc->addLicence($l);
-                } catch (Opus_Model_NotFoundException $e) {
+                } catch (NotFoundException $e) {
                     throw new Exception('licence id ' . $licenceId . ' does not exist: ' . $e->getMessage());
                 }
             }
@@ -588,9 +611,8 @@ class Opus_Util_MetadataImport
     }
 
     /**
-     *
-     * @param DOMNode $node
-     * @param Opus_Document $doc
+     * @param DOMNode  $node
+     * @param Document $doc
      */
     private function handleDates($node, $doc)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,24 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Db
- * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @category    Framework
+ * @package     Opus\Db
+ * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  */
+
+namespace Opus\Db;
 
 /**
  * Table gateway class for link table "link_accounts_roles".
  *
- * @category    Framework
- * @package     Opus_Db
- *
+ * phpcs:disable
  */
-class Opus_Db_LinkAccountsRoles extends Opus_Db_TableGateway
+class LinkAccountsRoles extends TableGateway
 {
-
     /**
      * DB table name.
      *
@@ -60,18 +61,18 @@ class Opus_Db_LinkAccountsRoles extends Opus_Db_TableGateway
      * Map foreign keys in this table to the column in the table they originate
      * from (i.e. the referenced table)
      *
-     * @var array $_referenceMap
+     * @var array
      */
     protected $_referenceMap = [
         'Accounts' => [
-            'columns' => 'account_id',
-            'refTableClass' => 'Opus_Db_Accounts',
-            'refColumns' => 'id'
+            'columns'       => 'account_id',
+            'refTableClass' => Accounts::class,
+            'refColumns'    => 'id',
         ],
-        'Roles' => [
-            'columns' => 'role_id',
-            'refTableClass' => 'Opus_Db_UserRoles',
-            'refColumns' => 'id'
-        ]
+        'Roles'    => [
+            'columns'       => 'role_id',
+            'refTableClass' => UserRoles::class,
+            'refColumns'    => 'id',
+        ],
     ];
 }

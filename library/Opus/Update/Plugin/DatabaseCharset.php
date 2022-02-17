@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,16 +25,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
-{
+namespace Opus\Update\Plugin;
 
+use Opus\Database;
+use Opus\Util\ConsoleColors;
+use PDO;
+
+use function explode;
+use function in_array;
+use function strtolower;
+
+/**
+ * phpcs:disable
+ */
+class DatabaseCharset extends AbstractUpdatePlugin
+{
     private $pdo;
 
     private $database;
@@ -42,7 +56,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
     {
         $this->convertDatabase();
 
-        $colors = new Opus_Util_ConsoleColors();
+        $colors = new ConsoleColors();
 
         $this->log();
         $this->log($colors->yellow(
@@ -75,8 +89,8 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
         // set character set and collation for entire database
         $database->execWithoutDbName(
             'ALTER DATABASE `' . $database->getName() . '`'
-            . ' character set = ' . Opus_Database::DEFAULT_CHARACTER_SET
-            . ' collate = ' . Opus_Database::DEFAULT_COLLATE
+            . ' character set = ' . Database::DEFAULT_CHARACTER_SET
+            . ' collate = ' . Database::DEFAULT_COLLATE
         );
 
         $tables = $this->getAllTables();
@@ -92,12 +106,13 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
     /**
      * Returns database object.
+     *
      * @return PDO
      */
     public function getPdo()
     {
-        if (is_null($this->pdo)) {
-            $database = $this->getDatabase();
+        if ($this->pdo === null) {
+            $database  = $this->getDatabase();
             $this->pdo = $database->getPdo($database->getName());
         }
 
@@ -106,8 +121,8 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
     public function getDatabase()
     {
-        if (is_null($this->database)) {
-            $this->database = new Opus_Database();
+        if ($this->database === null) {
+            $this->database = new Database();
         }
 
         return $this->database;
@@ -115,8 +130,9 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
     /**
      * Updates table to utf8mb4 if possible.
+     *
      * @param $table
-     * @return boolean true - if table was converted
+     * @return bool true - if table was converted
      */
     public function convertTable($table)
     {
@@ -131,7 +147,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
         foreach ($result as $column) {
             if (isset($column['Collation'])) {
-                list($charset) = explode('_', $column['Collation']);
+                [$charset] = explode('_', $column['Collation']);
 
                 $charset = strtolower($charset);
 
@@ -149,7 +165,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
             return false;
         }
 
-        list($tableCharset) = explode('_', $details['Collation']);
+        [$tableCharset] = explode('_', $details['Collation']);
 
         $tableCharset = strtolower($tableCharset);
 
@@ -167,14 +183,13 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
     /**
      * Returns names of all tables.
+     *
      * @return array Names of tables
      */
     public function getAllTables()
     {
         $pdo = $this->getPdo();
 
-        $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
-
-        return $tables;
+        return $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     }
 }

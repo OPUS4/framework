@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,50 +32,64 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_PermissionTest extends TestCase
-{
+namespace OpusTest;
 
+use Opus\Account;
+use Opus\Permission;
+use Opus\UserRole;
+use OpusTest\TestAsset\TestCase;
+
+class PermissionTest extends TestCase
+{
     public function setUp()
     {
         parent::setUp();
+
+        $this->clearTables(false, [
+            'user_roles',
+            'accounts',
+            'access_modules',
+            'link_accounts_roles',
+        ]);
+
         $this->setUpDatabase();
     }
 
     protected function setUpDatabase()
     {
         // TODO setup accounts, roles, permissions
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('DOI');
         $role->appendAccessModule('admin');
         $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLastName('Doe');
         $account->addRole($role);
         $account->setLogin('john');
         $account->setPassword('blabla');
         $account->store();
 
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('Manager');
         $role->appendAccessModule('sword');
         $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLastName('Muster');
         $account->addRole($role);
         $account->setLogin('jane');
         $account->setPassword('fubar');
         $account->store();
 
-        $role = new Opus_UserRole();
+        $role = new UserRole();
         $role->setName('LicenceManager');
         $role->appendAccessModule('licences');
         $role->store();
 
-        $account = new Opus_Account();
+        $account = new Account();
         $account->setLastName('Schmidt');
         $account->addRole($role);
         $account->setLogin('jeff');
@@ -84,33 +99,33 @@ class Opus_PermissionTest extends TestCase
 
     public function testGetAccounts()
     {
-        $accounts = Opus_Permission::getAccounts('admin');
+        $accounts = Permission::getAccounts('admin');
 
         $this->assertCount(1, $accounts);
 
         $account = $accounts[0];
 
-        $this->assertInstanceOf('Opus_Account', $account);
+        $this->assertInstanceOf(Account::class, $account);
         $this->assertEquals('john', $account->getLogin());
     }
 
     public function testGetAccountsUnknownPermission()
     {
-        $accounts = Opus_Permission::getAccounts('unknown');
+        $accounts = Permission::getAccounts('unknown');
 
         $this->assertCount(0, $accounts);
     }
 
     public function testGetAccountsThroughTwoRoles()
     {
-        $accounts = Opus_Permission::getAccounts('resource_doi_notification');
+        $accounts = Permission::getAccounts('resource_doi_notification');
 
         $this->assertCount(2, $accounts);
 
         $expectedAccounts = ['john' => 'john', 'jane' => 'jane'];
 
         foreach ($accounts as $account) {
-            $this->assertInstanceOf('Opus_Account', $account);
+            $this->assertInstanceOf(Account::class, $account);
             $login = $account->getLogin();
             $this->assertContains($login, $expectedAccounts);
             unset($expectedAccounts[$login]); // every account just once
@@ -119,7 +134,7 @@ class Opus_PermissionTest extends TestCase
 
     public function testGetAccountsWithNull()
     {
-        $accounts = Opus_Permission::getAccounts(null);
+        $accounts = Permission::getAccounts(null);
 
         $this->assertCount(0, $accounts);
     }

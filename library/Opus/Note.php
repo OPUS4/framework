@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,30 +25,35 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
+ * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+namespace Opus;
+
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
+use Zend_Validate_NotEmpty;
 
 /**
  * Domain model for notes in the Opus framework
  *
+ * @uses        \Opus\Model\Abstract
+ *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_Abstract
- *
  * @method void setMessage(string $message)
  * @method string getMessage()
- *
  * @method void setVisibility(string $visibility)
  * @method string getVisibility
  */
-class Opus_Note extends Opus_Model_Dependent_Abstract
+class Note extends AbstractDependentModel
 {
-
     const ACCESS_PUBLIC = 'public';
 
     const ACCESS_PRIVATE = 'private';
@@ -55,36 +61,34 @@ class Opus_Note extends Opus_Model_Dependent_Abstract
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed
      */
-    protected $_parentColumn = 'document_id';
+    protected $parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentNotes';
+    protected static $tableGatewayClass = Db\DocumentNotes::class;
 
     /**
      * Initialize model with the following fields:
      * - Language
      * - Title
-     *
-     * @return void
      */
-    protected function _init()
+    protected function init()
     {
-        $message = new Opus_Model_Field('Message');
+        $message = new Field('Message');
         $message->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty())
             ->setTextarea(true);
 
-        $visibility = new Opus_Model_Field('Visibility');
-        $visibility->setValidator(new \Opus\Validate\NoteVisibility())
+        $visibility = new Field('Visibility');
+        $visibility->setValidator(new Validate\NoteVisibility())
             ->setDefault([
                 'private' => 'private',
-                'public' => 'public'
+                'public'  => 'public',
             ])
             ->setSelection(true);
 
