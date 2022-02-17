@@ -87,7 +87,7 @@ class PersonTest extends TestCase
     {
         parent::setUp();
 
-        $this->clearTables(false, ['persons', 'documents', 'link_persons_documents']);
+        $this->clearTables(false);
 
         // create documents
         for ($i = 0; $i < 10; $i++) {
@@ -924,6 +924,24 @@ class PersonTest extends TestCase
 
         $this->assertEquals(count($persons), $count);
         $this->assertEquals(10, $count);
+    }
+
+    public function testGetAllPersonsCountBug()
+    {
+        $person = new Person();
+        $person->setLastName(' Zufall  ');
+        $person->setFirstName(' Rainer ');
+        $person->setAcademicTitle('Prof.');
+        $person->store();
+
+        $person = new Person();
+        $person->setLastName(' Zufall');
+        $person->setFirstName(' Rainer ');
+        $person->store();
+
+        $count = Person::getAllPersonsCount();
+
+        $this->assertEquals(11, $count);
     }
 
     public function testOpusId()
