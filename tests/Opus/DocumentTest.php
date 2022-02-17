@@ -930,27 +930,27 @@ class DocumentTest extends TestCase
 
     public function testGetIdentifierDoiReturnsArrayWithNormalizedIndexes()
     {
-        $doc = new Opus_Document();
+        $doc = new Document();
 
-        $urn = new Opus_Identifier();
+        $urn = new Identifier();
         $urn->setValue('urn');
         $doc->addIdentifierUrn($urn);
 
-        $isbn = new Opus_Identifier();
+        $isbn = new Identifier();
         $isbn->setValue('isbn');
         $doc->addIdentifierIsbn($isbn);
 
-        $doi1 = new Opus_Identifier();
+        $doi1 = new Identifier();
         $doi1->setValue('doi1');
         $doc->addIdentifierDoi($doi1);
 
-        $doi2 = new Opus_Identifier();
+        $doi2 = new Identifier();
         $doi2->setValue('doi2');
         $doc->addIdentifierDoi($doi2);
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
+        $doc = new Document($docId);
 
         $dois = $doc->getIdentifierDoi();
 
