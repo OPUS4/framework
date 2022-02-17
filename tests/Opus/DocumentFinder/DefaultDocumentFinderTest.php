@@ -41,6 +41,7 @@ use Opus\Date;
 use Opus\Document;
 use Opus\DocumentFinder\DefaultDocumentFinder;
 use Opus\DocumentFinderInterface;
+use Opus\Enrichment;
 use Opus\File;
 use Opus\Licence;
 use Opus\Model\ModelException;
@@ -75,6 +76,8 @@ class DefaultDocumentFinderTest extends TestCase
             'link_persons_documents',
             'document_title_abstracts',
             'document_identifiers',
+            'document_enrichments',
+            'enrichmentkeys',
         ]);
     }
 
@@ -91,6 +94,7 @@ class DefaultDocumentFinderTest extends TestCase
         $publishedDoc1 = Document::new();
         $publishedDoc1->setType("preprint")
                 ->setServerState('published')
+                ->setBelongsToBibliography(true)
                 ->store();
 
         $title = $publishedDoc1->addTitleMain();
@@ -227,37 +231,6 @@ class DefaultDocumentFinderTest extends TestCase
         $this->assertEquals(0, count($finder->getIds()));
     }
 
-    /**
-     * Basic functionality
-     */
-    public function testDoubleConstraints()
-    {
-        $document = Document::new();
-        $document->setType("article");
-
-        $title = $document->addTitleMain();
-        $title->setValue('Title');
-        $title->setLanguage('de');
-
-        $issn1 = $document->addIdentifierIssn();
-        $issn1->setValue('1000-1000-1000');
-
-        $issn2 = $document->addIdentifierIssn();
-        $issn2->setValue('2000-2000-2000');
-
-        $id = $document->store();
-
-        $finder = $this->createDocumentFinder();
-        $finder->setDocumentType('article');
-        $finder->setIdentifierValue('issn', '123-123-123');
-        $finder->setIdentifierValue('issn', '2000-2000-2000');
-
-        $this->assertEquals(0, count($finder->getIds()));
-    }
-
-    /**
-     * Basic functionality
-     */
     public function testIdsByState()
     {
         $this->prepareDocuments();
@@ -288,6 +261,205 @@ class DefaultDocumentFinderTest extends TestCase
         $deletedDocs = $finder->getIds();
         $this->assertEquals(2, count($deletedDocs));
         $this->checkServerState($deletedDocs, 'deleted');
+    }
+
+    public function testSubsetOfDocumentIds()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $document = Document::new();
+            $document->setType('book');
+            $title = $document->addTitleMain();
+            $title->setValue('Title' . $i);
+            $title->setLanguage('de');
+            $document->store();
+        }
+
+        $finder = $this->createDocumentFinder();
+        $finder->setDocumentIds([1, 3, 5, 7, 9]);
+        $this->assertEquals([1, 3, 5, 7, 9], $finder->getIds());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setDocumentIdRange(3, 7);
+        $this->assertEquals([3, 4, 5, 6, 7], $finder->getIds());
+    }
+
+    public function testIdentifierExists()
+    {
+        $document = Document::new();
+        $isbn     = $document->addIdentifierIsbn();
+        $isbn->setValue('1234-1234-1234');
+        $document->store();
+
+        $document = Document::new();
+        $issn     = $document->addIdentifierIssn();
+        $issn->setValue('2345-2345-2345');
+        $doi = $document->addIdentifierDoi();
+        $doi->setValue('3576934857');
+        $document->store();
+
+        $document = Document::new();
+        $doi      = $document->addIdentifierDoi();
+        $doi->setValue('1234567890');
+        $document->store();
+
+        $document = Document::new();
+        $issn     = $document->addIdentifierIssn();
+        $issn->setValue('5678-5678-5678');
+        $document->store();
+
+        $finder = $this->createDocumentFinder();
+        $finder->setIdentifierExists('issn');
+        $this->assertEquals(2, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setIdentifierExists('issn');
+        $finder->setIdentifierExists('doi');
+        $this->assertEquals(1, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setIdentifierExists('isbn');
+        $finder->setIdentifierExists('doi');
+        $this->assertEquals(0, $finder->getCount());
+    }
+
+    public function testIdentifierValue()
+    {
+        $document = Document::new();
+        $document->setType("article");
+
+        $title = $document->addTitleMain();
+        $title->setValue('Title');
+        $title->setLanguage('de');
+
+        $isbn = $document->addIdentifierIsbn();
+        $isbn->setValue('111-111-111');
+
+        $issn1 = $document->addIdentifierIssn();
+        $issn1->setValue('1000-1000-1000');
+
+        $issn2 = $document->addIdentifierIssn();
+        $issn2->setValue('2000-2000-2000');
+
+        $document->store();
+
+        $finder = $this->createDocumentFinder();
+        $finder->setIdentifierValue('isbn', '111-111-111');
+        $this->assertEquals(1, count($finder->getIds()));
+
+        $finder = $this->createDocumentFinder();
+        $finder->setDocumentType('article');
+        $finder->setIdentifierValue('issn', '123-123-123');
+        $finder->setIdentifierValue('issn', '2000-2000-2000');
+        $this->assertEquals(0, count($finder->getIds()));
+    }
+
+    public function testEnrichments()
+    {
+        $enrichment1 = new Enrichment();
+        $enrichment1->setKeyName('enrichmentKey1');
+        $enrichment1->setValue('enrichment-value1');
+
+        $enrichment2 = new Enrichment();
+        $enrichment2->setKeyName('enrichmentKey2');
+        $enrichment2->setValue('enrichment-value2');
+
+        $doc1 = Document::new();
+        $doc1->addEnrichment($enrichment1);
+        $doc1->addEnrichment($enrichment2);
+        $doc1Id = $doc1->store();
+
+        $enrichment3 = new Enrichment();
+        $enrichment3->setKeyName('enrichmentKey1');
+        $enrichment3->setValue('enrichment-value1');
+
+        $doc2 = Document::new();
+        $doc2->addEnrichment($enrichment3);
+        $doc2->store();
+
+        $finder = $this->createDocumentFinder();
+        $finder->setEnrichmentExists('enrichmentKey1');
+        $this->assertEquals(2, $finder->getCount());
+        $finder->setEnrichmentExists('enrichmentKey2');
+        $this->assertEquals(1, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setEnrichmentValue('enrichmentKey2', 'enrichment-value2');
+        $this->assertEquals([$doc1Id], $finder->getIds());
+    }
+
+    public function testServerDatePublished()
+    {
+        $doc = Document::new();
+        $doc->setServerDatePublished('2022-01-01');
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setServerDatePublished('2021-10-20');
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setServerDatePublished('2021-08-10');
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setServerDatePublished('2021-07-08');
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setServerDatePublished('2021-01-01');
+        $doc->store();
+
+        $finder = $this->createDocumentFinder();
+        $finder->setServerDatePublishedBefore('2021-08-30');
+        $this->assertEquals(3, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setServerDatePublishedRange('2021-07-01', '2021-10-30');
+        $this->assertEquals(3, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $this->assertEquals(['2022', '2021'], $finder->getYearsPublished());
+    }
+
+    public function testServerDateModified()
+    {
+        $doc = Document::new();
+        $id  = $doc->store();
+        Document::setServerDateModifiedByIds(new Date('2022-01-01'), [$id]);
+
+        $doc = Document::new();
+        $id  = $doc->store();
+        Document::setServerDateModifiedByIds(new Date('2021-10-20'), [$id]);
+
+        $doc = Document::new();
+        $id  = $doc->store();
+        Document::setServerDateModifiedByIds(new Date('2021-08-10'), [$id]);
+
+        $doc = Document::new();
+        $id  = $doc->store();
+        Document::setServerDateModifiedByIds(new Date('2021-07-08'), [$id]);
+
+        $doc = Document::new();
+        $id  = $doc->store();
+        Document::setServerDateModifiedByIds(new Date('2021-01-01'), [$id]);
+
+        $finder = $this->createDocumentFinder();
+        $finder->setServerDateModifiedBefore('2021-08-30');
+        $this->assertEquals(3, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setServerDateModifiedAfter('2021-08-01');
+        $this->assertEquals(3, $finder->getCount());
+    }
+
+    public function testBelongsToBibliography()
+    {
+        $this->prepareDocuments();
+
+        $finder = $this->createDocumentFinder();
+        $finder->setServerState('published');
+        $finder->setBelongsToBibliography(true);
+        $this->assertEquals(1, $finder->getCount());
     }
 
     /**

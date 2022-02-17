@@ -331,9 +331,9 @@ class DefaultDocumentFinder implements DocumentFinderInterface
 
         $queryBuilder = $this->connection->createQueryBuilder();
 
-        $subSelect = $queryBuilder->select('d.id')
-            ->from('document_enrichments', e)
-            ->where('document_id = d.id')
+        $subSelect = $queryBuilder->select('id')
+            ->from('document_enrichments', 'e')
+            ->where('e.document_id = d.id')
             ->andWhere('key_name = :' . $queryParam);
 
         $this->select->andWhere('EXISTS (' . $subSelect->getSQL() . ')')
@@ -375,8 +375,6 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     {
         $queryParam = $this->createQueryParameterName('setServerDatePublishedBeforeParam');
 
-        $this->finder->setServerDatePublishedBefore($date);
-
         $this->select->andWhere('d.server_date_published < :' . $queryParam)
             ->setParameter($queryParam, $date);
 
@@ -407,7 +405,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDateModifiedBefore($date)
     {
-        $queryParam = $this->createQueryParameterName('setServerDateModifiedBeforeDate');
+        $queryParam = $this->createQueryParameterName('setServerDateModifiedBeforeParam');
 
         $this->select->andWhere('d.server_date_modified < :' . $queryParam)
             ->setParameter($queryParam, $date);
@@ -420,7 +418,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function setServerDateModifiedAfter($date)
     {
-        $queryParam = $this->createQueryParameterName('setServerDateModifiedAfterDate');
+        $queryParam = $this->createQueryParameterName('setServerDateModifiedAfterParam');
 
         $this->select->andWhere('d.server_date_modified >= :' . $queryParam)
             ->setParameter($queryParam, $date);
