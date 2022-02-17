@@ -210,11 +210,17 @@ class Collection extends AbstractModel
     }
 
     /**
-     * @return ORMCollection|self[]
+     * Returns all child nodes. Always returns an array, even if the result set has zero or one element.
+     *
+     * @return self[]
      */
     public function getChildren()
     {
-        return $this->children;
+        // TODO DOCTRINE The $this->children property is currently unused
+
+        $children = self::getRepository()->children($this, true, 'left');
+
+        return $children ?: [];
     }
 
     /**
