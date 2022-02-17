@@ -89,6 +89,8 @@ class CollectionTest extends TestCase
 
         $this->object = $this->roleFixture->addRootCollection();
         $this->object->setTheme('dummy');
+        $this->object->store();
+
         $this->roleFixture->store();
     }
 
@@ -565,8 +567,6 @@ class CollectionTest extends TestCase
 
     public function testGetVisibleChildren()
     {
-        $this->object->store();
-
         // add two children: one of them (the first child) is invisible
         $coll1 = new Collection();
         $coll1->setVisible('1');
@@ -592,8 +592,6 @@ class CollectionTest extends TestCase
 
     public function testHasVisibleChildren()
     {
-        $this->object->store();
-
         $this->assertFalse($this->object->hasVisibleChildren());
         $this->assertFalse($this->object->hasChildren());
 
@@ -916,8 +914,6 @@ class CollectionTest extends TestCase
      */
     public function testHasVisiblePublishChildren()
     {
-        $this->object->store();
-
         $this->assertFalse($this->object->hasVisiblePublishChildren());
         $this->assertFalse($this->object->hasChildren());
 
@@ -954,8 +950,6 @@ class CollectionTest extends TestCase
 
     public function testHasVisiblePublishChildrenFalseIfNotVisible()
     {
-        $this->object->store();
-
         $this->assertFalse($this->object->hasVisiblePublishChildren());
         $this->assertFalse($this->object->hasChildren());
 
@@ -975,8 +969,6 @@ class CollectionTest extends TestCase
      */
     public function testGetVisiblePublishChildren()
     {
-        $this->object->store();
-
         // add two children: one of them (the first child) is invisible
         $coll1 = new Collection();
         $coll1->setVisiblePublish('1');
