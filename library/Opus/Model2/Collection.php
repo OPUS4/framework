@@ -151,7 +151,7 @@ class Collection extends AbstractModel
     protected $visiblePublish = 1;
 
     /**
-     * TODO: proper implementation
+     * TODO proper implementation
      *
      * @var string
      */
@@ -347,17 +347,21 @@ class Collection extends AbstractModel
     }
 
     /**
-     * TODO: proper implementation
+     * TODO proper implementation
+    // TODO return default theme if no theme is set
      *
      * @return string
      */
     public function getTheme()
     {
+//        $theme = $this->theme;
+//        return $theme ?: Config::get()->theme;
+
         return $this->theme;
     }
 
     /**
-     * TODO: proper implementation
+     * TODO proper implementation
      *
      * @param string $theme
      * @return $this
