@@ -26,6 +26,13 @@ apt-get -yq install php7.2-zip
 apt-get -yq install ant
 SCRIPT
 
+$xdebug = <<SCRIPT
+apt-get -yq install php7.2-xdebug
+if ! grep "xdebug.mode=debug" /etc/php/7.2/mods-available/xdebug.ini > /dev/null; then
+  echo -e "xdebug.mode=debug\nxdebug.client_host=10.0.2.2\nxdebug.client_port=9003" >> /etc/php/7.2/mods-available/xdebug.ini
+fi
+SCRIPT
+
 $composer = <<SCRIPT
 /vagrant/bin/install-composer.sh
 SCRIPT
@@ -52,6 +59,9 @@ fi
 if ! grep "PATH=/vagrant/bin" /home/vagrant/.bashrc > /dev/null; then
   echo "export PATH=/vagrant/bin:$PATH" >> /home/vagrant/.bashrc
 fi
+if ! grep "XDEBUG_SESSION=OPUS4" /home/vagrant/.bashrc > /dev/null; then
+  echo "export XDEBUG_SESSION=OPUS4" >> /home/vagrant/.bashrc
+fi
 SCRIPT
 
 $help = <<SCRIPT
@@ -67,6 +77,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-20.04"
 
   config.vm.provision "Install required software...", type: "shell", inline: $software
+  config.vm.provision "Install Xdebug...", type: "shell", inline: $xdebug
   config.vm.provision "Install Composer...", type: "shell", privileged: false, inline: $composer
   config.vm.provision "Setup database...", type: "shell", inline: $database
   config.vm.provision "Prepare tests...", type: "shell", privileged: false, inline: $prepare_tests
