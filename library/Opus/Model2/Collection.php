@@ -450,6 +450,55 @@ class Collection extends AbstractModel
     }
 
     /**
+     * Adds the given Collection node (or a new Collection node if none is given) as the next sibling to this
+     * Collection node.
+     *
+     * @param self|null $sibling (Optional) The Collection node that shall be added as the next sibling to this instance.
+     * @return self The sibling collection.
+     */
+    public function addNextSibling($sibling = null)
+    {
+        if ($sibling === null) {
+            $sibling = new Collection();
+            $sibling->setRole($this->getRole());
+        }
+
+        self::getRepository()->persistAsNextSiblingOf($sibling, $this);
+
+        return $sibling;
+    }
+
+    /**
+     * Adds the given Collection node (or a new Collection node if none is given) as the previous sibling to this
+     * Collection node.
+     *
+     * @param self|null $sibling (Optional) The Collection node that shall be added as the previous sibling to this
+     * instance.
+     * @return self The sibling collection.
+     */
+    public function addPrevSibling($sibling = null)
+    {
+        if ($sibling === null) {
+            $sibling = new Collection();
+            $sibling->setRole($this->getRole());
+        }
+
+        self::getRepository()->persistAsPrevSiblingOf($sibling, $this);
+
+        return $sibling;
+    }
+
+    public function moveAfterNextSibling()
+    {
+        self::getRepository()->moveDown($this);
+    }
+
+    public function moveBeforePrevSibling()
+    {
+        self::getRepository()->moveUp($this);
+    }
+
+    /**
      * Returns the relevant properties of the class.
      *
      * @return array
