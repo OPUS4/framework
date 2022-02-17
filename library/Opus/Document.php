@@ -1716,6 +1716,8 @@ class Document extends AbstractDb
             return $value->getType() === strtolower($type);
         });
 
+        $values = array_values($values);
+
         // use Opus\Model\Field for value handling
         $filteredField = new Field('FilteredIdentifier');
         $filteredField->setMultiplicity('*');
