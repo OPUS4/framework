@@ -349,12 +349,14 @@ class Opus_Person extends Opus_Model_AbstractDb
             return "trim($value) as $value";
         }, $identityColumns);
 
+        $groupColumns = array_map(function ($value) {
+            return "trim($value)";
+        }, $identityColumns);
+
         $select = $table->select()
             ->from(
                 ['p' => 'persons'],
                 $trimmedColumns
-            )->group(
-                $identityColumns
             );
 
         if (! is_null($role)) {
@@ -376,7 +378,7 @@ class Opus_Person extends Opus_Model_AbstractDb
         // result still contains name duplicates because of leading spaces -> group trimmed result
         $mergedSelect = $table->select()
             ->from(new Zend_Db_Expr("($select)"), $identityColumns)
-            ->group($identityColumns)
+            ->group($groupColumns)
             ->setIntegrityCheck(false);
 
         return $mergedSelect;
@@ -495,7 +497,7 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         $documents = $documentsTable->getAdapter()->fetchCol($select);
 
-        $documents = array_unique($documents); // just in case (TODO sorting by title creates duplicates)
+        $documents = array_values(array_unique($documents)); // just in case (TODO sorting by title creates duplicates)
 
         return $documents;
     }
