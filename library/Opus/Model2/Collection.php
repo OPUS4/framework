@@ -32,6 +32,7 @@
 
 namespace Opus\Model2;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as ORMCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -157,6 +158,11 @@ class Collection extends AbstractModel
      */
     private $theme;
 
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+    }
+
     /**
      * @return int
      */
@@ -203,8 +209,52 @@ class Collection extends AbstractModel
      */
     public function setParent($parent)
     {
-        $this->parent   = $parent;
-        $this->parentId = $parent->getId();
+        if ($this->parent === $parent) {
+            return $this;
+        }
+
+        if ($this->parent !== null) {
+            $this->parent->removeChild($this);
+        }
+
+        $this->parent = $parent;
+
+        if ($parent !== null) {
+            $parent->addChild($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Collection $child
+     * @return $this
+     */
+    protected function addChild($child)
+    {
+        // TODO DOCTRINE error handling, logging, exception?
+        if ($child === null || $this->children->contains($child)) {
+            return $this;
+        }
+
+        $this->children->add($child);
+        $child->setParent($this);
+
+        return $this;
+    }
+
+    /**
+     * @param Collection $child
+     * @return $this
+     */
+    protected function removeChild($child)
+    {
+        if (! $this->children->contains($child)) {
+            return $this;
+        }
+
+        $this->children->removeElement($child);
+        $child->setParent(null);
 
         return $this;
     }
@@ -216,9 +266,10 @@ class Collection extends AbstractModel
      */
     public function getChildren()
     {
-        // TODO DOCTRINE The $this->children property is currently unused
+        // TODO DOCTRINE The $this->children property is currently unused but needed for ORM to specify the relationship
 
-        $children = self::getRepository()->children($this, true, 'left');
+        // TODO DOCTRINE Is the $direct param (flag indicating whether only direct children should be retrieved) correct?
+        $children = self::getRepository()->children($this, false, 'left');
 
         return $children ?: [];
     }
@@ -435,6 +486,7 @@ class Collection extends AbstractModel
             $child->setRole($this->getRole());
         }
 
+        $child->setParent($this);
         self::getRepository()->persistAsFirstChildOf($child, $this);
 
         return $child;
@@ -454,6 +506,7 @@ class Collection extends AbstractModel
             $child->setRole($this->getRole());
         }
 
+        $child->setParent($this);
         self::getRepository()->persistAsLastChildOf($child, $this);
 
         return $child;
@@ -473,6 +526,7 @@ class Collection extends AbstractModel
             $sibling->setRole($this->getRole());
         }
 
+        $sibling->setParent($this->getParent());
         self::getRepository()->persistAsNextSiblingOf($sibling, $this);
 
         return $sibling;
@@ -493,6 +547,7 @@ class Collection extends AbstractModel
             $sibling->setRole($this->getRole());
         }
 
+        $sibling->setParent($this->getParent());
         self::getRepository()->persistAsPrevSiblingOf($sibling, $this);
 
         return $sibling;
