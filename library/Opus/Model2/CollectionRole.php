@@ -144,8 +144,9 @@ class CollectionRole extends AbstractModel
      */
     private $language;
 
+    // TODO DOCTRINE Test that if this collection role gets stored, the associated root collection will also get stored
     /**
-     * @ORM\OneToOne(targetEntity="Collection", mappedBy="role")
+     * @ORM\OneToOne(targetEntity="Collection", mappedBy="role", cascade={"persist"})
      *
      * @var Collection
      */

@@ -83,8 +83,10 @@ class Collection extends AbstractModel
      */
     private $parentId;
 
+    // TODO DOCTRINE Is `cascade={"persist"}` (i.e., storing the parent also stores its children) the desired behaviour?
+    // TODO DOCTRINE Test that if the associated parent gets stored/deleted, this collection will also get stored/deleted
     /**
-     * @ORM\ManyToOne(targetEntity="Collection", inversedBy="children")
+     * @ORM\ManyToOne(targetEntity="Collection", inversedBy="children", cascade={"persist"})
      * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="CASCADE", nullable=true)
      *
      * @Gedmo\TreeParent
@@ -94,7 +96,7 @@ class Collection extends AbstractModel
     private $parent;
 
     /**
-     * @ORM\OneToMany(targetEntity="Collection", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="Collection", mappedBy="parent", cascade={"persist", "remove"})
      * @ORM\OrderBy({"left" = "ASC"})
      *
      * @var ORMCollection|self[]
@@ -108,9 +110,10 @@ class Collection extends AbstractModel
      */
     private $roleId;
 
+    // TODO DOCTRINE Test that if the associated role gets deleted, this collection will also get deleted
     /**
      * @ORM\OneToOne(targetEntity="CollectionRole", inversedBy="rootCollection")
-     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="role_id", referencedColumnName="id", onDelete="CASCADE")
      *
      * @var CollectionRole
      */
@@ -254,7 +257,10 @@ class Collection extends AbstractModel
         }
 
         $this->children->removeElement($child);
-        $child->setParent(null);
+
+        if ($child->getParent() === $this) {
+            $child->setParent(null);
+        }
 
         return $this;
     }

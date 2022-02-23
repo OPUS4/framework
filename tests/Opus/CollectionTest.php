@@ -89,8 +89,6 @@ class CollectionTest extends TestCase
 
         $this->object = $this->roleFixture->addRootCollection();
         $this->object->setTheme('dummy');
-        $this->object->store();
-
         $this->roleFixture->store();
     }
 
@@ -127,6 +125,31 @@ class CollectionTest extends TestCase
 
         $this->expectException(NotFoundException::class);
         Collection::get($collectionId);
+    }
+
+    /**
+     * Test if delete also deletes any children.
+     */
+    public function testDeleteChildren()
+    {
+        $collectionId = $this->object->getId();
+
+        $this->assertTrue(is_array($this->object->getChildren()));
+        $this->assertEquals(0, count($this->object->getChildren()), 'Root collection without children should return empty array.');
+
+        $child = $this->object->addLastChild();
+        $this->object->store();
+
+        $this->assertEquals(1, count($this->object->getChildren()), 'Root collection should have one child.');
+
+        $childId = $child->getId();
+        $this->object->delete();
+
+        $this->expectException(NotFoundException::class);
+        Collection::get($collectionId);
+
+        $this->expectException(NotFoundException::class);
+        Collection::get($childId);
     }
 
     /**
