@@ -38,6 +38,7 @@ use DateTime;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Date;
+use Opus\Db\DocumentXmlCache;
 use Opus\Document;
 use Opus\DocumentFinder\DefaultDocumentFinder;
 use Opus\DocumentFinderInterface;
@@ -78,6 +79,10 @@ class DefaultDocumentFinderTest extends TestCase
             'document_identifiers',
             'document_enrichments',
             'enrichmentkeys',
+            'collections_roles',
+            'collections',
+            'link_documents_collections',
+            'document_xml_cache',
         ]);
     }
 
@@ -511,6 +516,88 @@ class DefaultDocumentFinderTest extends TestCase
 
         $this->assertEquals(4, $docs[4]);
         $this->assertEquals(3, $docs[5]);
+    }
+
+    public function testCollections()
+    {
+        $collectionRoles = [];
+        $collections     = [];
+
+        for ($i = 0; $i < 4; $i++) {
+            $collectionRole = new CollectionRole();
+            $collectionRole->setName("role-name-" . rand());
+            $collectionRole->setOaiName("role-oainame-" . rand());
+            $collectionRole->setVisible(1);
+            $collectionRole->setVisibleBrowsingStart(1);
+            $collectionRole->store();
+
+            $collectionRoles[$i] = $collectionRole;
+
+            $collection = $collectionRole->addRootCollection();
+            $collection->setTheme('dummy');
+            $collection->store();
+
+            $collections[] = $collection;
+        }
+
+        $doc1 = Document::new();
+        $doc1->addCollection($collections[1]);
+        $doc1->store();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($collections[0]);
+        $doc2->store();
+
+        $doc3 = Document::new();
+        $doc3->setType('article');
+        $doc3->addCollection($collections[2]);
+        $doc3->addCollection($collections[1]);
+        $doc3->store();
+
+        $doc4 = Document::new();
+        $doc4->setType('article');
+        $doc4->addCollection($collections[2]);
+        $doc4->store();
+
+        $finder = $this->createDocumentFinder();
+        $finder->setCollectionId($collections[2]->getId());
+        $this->assertEquals(2, $finder->getCount());
+        $finder->setCollectionId($collections[1]->getId());
+        $this->assertEquals(1, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setDocumentType('article');
+        $finder->setCollectionId($collections[1]->getId());
+        $this->assertEquals(1, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setCollectionId($collectionRoles[1]->getId());
+        $this->assertEquals(2, $finder->getCount());
+        $finder->setCollectionId($collectionRoles[2]->getId());
+        $this->assertEquals(1, $finder->getCount());
+
+        $finder = $this->createDocumentFinder();
+        $finder->setDocumentType('article');
+        $finder->setCollectionId($collectionRoles[1]->getId());
+        $this->assertEquals(1, $finder->getCount());
+    }
+
+    public function testNotInXmlCache()
+    {
+        $documentIds = [];
+
+        for ($i = 0; $i < 4; $i++) {
+            $doc             = Document::new();
+            $documentIds[$i] = $doc->store();
+        }
+
+        $xmlCache = new DocumentXmlCache();
+        $xmlCache->delete('document_id = ' . $documentIds[2]);
+
+        $finder = $this->createDocumentFinder();
+        $finder->setNotInXmlCache();
+
+        $this->assertEquals(1, $finder->getCount());
     }
 
     public function testSortById()
