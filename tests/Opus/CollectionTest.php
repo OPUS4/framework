@@ -128,28 +128,66 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * Test if delete also deletes any children.
+     * Test if deleting the root collection also deletes its entire children tree.
      */
     public function testDeleteChildren()
     {
-        $collectionId = $this->object->getId();
+        $root = $this->object;
 
-        $this->assertTrue(is_array($this->object->getChildren()));
-        $this->assertEquals(0, count($this->object->getChildren()), 'Root collection without children should return empty array.');
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
 
-        $child = $this->object->addLastChild();
-        $this->object->store();
+        $child1 = $root->addFirstChild();
+        $root->store();
 
-        $this->assertEquals(1, count($this->object->getChildren()), 'Root collection should have one child.');
+        $child2 = $child1->addFirstChild();
+        $root->store();
 
-        $childId = $child->getId();
-        $this->object->delete();
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
+        $this->assertEquals(1, count($child1->getChildren()), 'The parent\'s child collection should itself have one child.');
+
+        $rootId = $root->getId();
+        $child1Id = $child1->getId();
+        $child2Id = $child2->getId();
+
+        $root->delete();
 
         $this->expectException(NotFoundException::class);
-        Collection::get($collectionId);
+        $root = Collection::get($rootId);
+        $this->assertNull($root->getId());
 
         $this->expectException(NotFoundException::class);
-        Collection::get($childId);
+        $child1 = Collection::get($child1Id);
+        $this->assertNull($child1->getId());
+
+        $this->expectException(NotFoundException::class);
+        Collection::get($child2Id);
+    }
+
+    /**
+     * Test if storing the the root collection also stores its entire children tree.
+     */
+    public function testStoreChildren()
+    {
+        $root = $this->object;
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
+
+        $child1 = $root->addFirstChild();
+        $root->store();
+
+        $child2 = $child1->addFirstChild();
+        $root->store();
+
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
+        $this->assertEquals(1, count($child1->getChildren()), 'The parent\'s child collection should itself have one child.');
+
+        $testChild1 = Collection::get($child1->getId());
+        $this->assertEquals($child1->getId(), $testChild1->getId());
+
+        $testChild2 = Collection::get($child2->getId());
+        $this->assertEquals($child2->getId(), $testChild2->getId());
     }
 
     /**
