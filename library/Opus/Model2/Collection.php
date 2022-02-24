@@ -96,7 +96,7 @@ class Collection extends AbstractModel
     private $parent;
 
     /**
-     * @ORM\OneToMany(targetEntity="Collection", mappedBy="parent", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="Collection", mappedBy="parent")
      * @ORM\OrderBy({"left" = "ASC"})
      *
      * @var ORMCollection|self[]
