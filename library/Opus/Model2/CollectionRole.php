@@ -462,9 +462,10 @@ class CollectionRole extends AbstractModel
 
         if ($root === null) {
             $root = new Collection();
-            $root->setRole($this);
         }
 
+        // TODO DOCTRINE Do we also need to ensure that role is set correctly for an existing $root?
+        $root->setRole($this);
         $this->setRootCollection($root);
 
         return $root;
