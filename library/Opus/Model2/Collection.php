@@ -302,6 +302,8 @@ class Collection extends AbstractModel
     public function setRole($role)
     {
         $this->role   = $role;
+
+        // TODO DOCTRINE Check why it's necessary to set $this->roleId explicitly (w/o this line, $this->roleId is blank)
         $this->roleId = $role->getId();
 
         return $this;
