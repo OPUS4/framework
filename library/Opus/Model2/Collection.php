@@ -274,8 +274,7 @@ class Collection extends AbstractModel
     {
         // TODO DOCTRINE The $this->children property is currently unused but needed for ORM to specify the relationship
 
-        // TODO DOCTRINE Is the $direct param (flag indicating whether only direct children should be retrieved) correct?
-        $children = self::getRepository()->children($this, false, 'left');
+        $children = self::getRepository()->children($this, true, 'left');
 
         return $children ?: [];
     }
