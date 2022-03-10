@@ -35,30 +35,13 @@
 namespace Opus\Model2;
 
 use Doctrine\ORM\Mapping as ORM;
-
 use Opus\Date;
-use Opus\Db\LinkPersonsDocuments;
-use Opus\Db\TableGateway;
-use Opus\Model\AbstractDb;
-use Opus\Model\Field;
-use Opus\Model\ModelException;
-use Zend_Validate_EmailAddress;
-use Zend_Validate_NotEmpty;
 
 use function array_fill_keys;
-use function array_key_exists;
-use function array_map;
 use function array_merge;
-use function array_push;
-use function array_search;
-use function array_unique;
-use function count;
-use function in_array;
 use function is_array;
 use function is_string;
 use function stristr;
-use function strlen;
-use function trim;
 
 /**
  * Domain model for persons in the Opus framework
@@ -93,9 +76,6 @@ use function trim;
  *
  * TODO use OPUS-ID for people without external identifier
  *
- * @category    Framework
- * @package     Opus
- *
  * phpcs:disable
  *
  * @ORM\Entity(repositoryClass="Opus\Db2\PersonRepository")
@@ -103,6 +83,9 @@ use function trim;
  *     indexes={
  *         @ORM\Index(name="last_name", columns={"last_name"})
  *     })
+ *
+ * @category Framework
+ * @package  Opus
  */
 class Person extends AbstractModel
 {
@@ -119,7 +102,7 @@ class Person extends AbstractModel
      * @ORM\Column(name="academic_title", type="string", length=255, nullable="true")
      * @var string
      */
-    private $title;
+    private $academicTitle;
 
     /**
      * @ORM\Column(name="first_name", type="string", length=255, nullable="true")
@@ -173,7 +156,7 @@ class Person extends AbstractModel
      * @ORM\Column(name="opus_id", type="integer")
      * @var string
      */
-    private $opusId;
+    private $opusId = 0;
 
     /**
      * @return int
@@ -194,17 +177,18 @@ class Person extends AbstractModel
     /**
      * @return string
      */
-    public function getTitle()
+    public function getAcademicTitle()
     {
-        return $this->title;
+        return $this->academicTitle;
     }
 
     /**
      * @param string $title
+     * @return $this
      */
-    public function setTitle($title)
+    public function setAcademicTitle($title)
     {
-        $this->title = $title;
+        return $this->academicTitle = $title;
     }
 
     /**
@@ -217,10 +201,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $firstName
+     * @return $this
      */
     public function setFirstName($firstName)
     {
         $this->firstName = $firstName;
+        return $this;
     }
 
     /**
@@ -233,10 +219,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $lastName
+     * @return $this
      */
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
+        return $this;
     }
 
     /**
@@ -249,10 +237,12 @@ class Person extends AbstractModel
 
     /**
      * @param Date $dateOfBirth
+     * @return $this
      */
     public function setDateOfBirth($dateOfBirth)
     {
         $this->dateOfBirth = $dateOfBirth;
+        return $this;
     }
 
     /**
@@ -265,10 +255,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $placeOfBirth
+     * @return $this
      */
     public function setPlaceOfBirth($placeOfBirth)
     {
         $this->placeOfBirth = $placeOfBirth;
+        return $this;
     }
 
     /**
@@ -281,10 +273,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $identifierOrcid
+     * @return $this
      */
     public function setIdentifierOrcid($identifierOrcid)
     {
         $this->identifierOrcid = $identifierOrcid;
+        return $this;
     }
 
     /**
@@ -297,10 +291,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $identifierGnd
+     * @return $this
      */
     public function setIdentifierGnd($identifierGnd)
     {
         $this->identifierGnd = $identifierGnd;
+        return $this;
     }
 
     /**
@@ -313,10 +309,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $identifierMisc
+     * @return $this
      */
     public function setIdentifierMisc($identifierMisc)
     {
         $this->identifierMisc = $identifierMisc;
+        return $this;
     }
 
     /**
@@ -329,10 +327,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $email
+     * @return $this
      */
     public function setEmail($email)
     {
         $this->email = $email;
+        return $this;
     }
 
     /**
@@ -345,10 +345,12 @@ class Person extends AbstractModel
 
     /**
      * @param string $opusId
+     * @return $this
      */
     public function setOpusId($opusId)
     {
         $this->opusId = $opusId;
+        return $this;
     }
 
     /**
@@ -359,7 +361,7 @@ class Person extends AbstractModel
     protected static function describe()
     {
         return [
-            'Title',
+            'AcademicTitle',
             'FirstName',
             'LastName',
             'DateOfBirth',
@@ -406,5 +408,272 @@ class Person extends AbstractModel
     public function getDisplayName()
     {
         return $this->getName();
+    }
+
+    /**
+     * Checks if person matches criteria.
+     *
+     * @param $criteria
+     * @return bool
+     *
+     * TODO refactor
+     */
+    public function matches($criteria)
+    {
+        if ($criteria instanceof Person) {
+            $person = $criteria;
+
+            $criteria = [];
+            $criteria['LastName'] = $person->getLastName();
+            $criteria['FirstName'] = $person->getFirstName();
+            $criteria['IdentifierOrcid'] = $person->getIdentifierOrcid();
+            $criteria['IdentifierGnd'] = $person->getIdentifierGnd();
+            $criteria['IdentifierMisc'] = $person->getIdentifierMisc();
+        }
+
+        if (!is_array($criteria)) {
+            // TODO do some logging
+            return false;
+        }
+
+        $defaults = array_fill_keys([
+            'LastName',
+            'FirstName',
+            'IdentifierOrcid',
+            'IdentifierGnd',
+            'IdentifierMisc',
+        ], null);
+        $criteria = array_merge($defaults, $criteria);
+
+        foreach ($criteria as $fieldName => $criteriaValue) {
+            $getField = 'get' . $fieldName;
+            $value = $this->$getField();
+
+            if (is_string($value)) {
+                if (stristr($value, $criteriaValue) === false) {
+                    return false;
+                }
+            } else {
+                if ($value !== $criteriaValue) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModelType()
+    {
+        return 'person';
+    }
+
+    /**
+     * Retrieve all persons from the database.
+     *
+     * @return array|object[] Array of Person objects.
+     */
+    public static function getAll()
+    {
+        return self::getRepository()->findAll();
+    }
+
+    /**
+     * Returns all persons in the database without duplicates.
+     *
+     * Every real person might be represented by several objects, one for each document.
+     *
+     * @param string|null $role
+     * @param int $start
+     * @param int $limit
+     * @param string|null $filter
+     * @return array
+     */
+    public static function getAllPersons($role = null, $start = 0, $limit = 0, $filter = null)
+    {
+        return self::getRepository()->getAllPersons($role, $start, $limit, $filter);
+    }
+
+    /**
+     * Returns total count of persons for role and filter string.
+     *
+     * @param string|null $role
+     * @param string|null $filter
+     * @return mixed
+     */
+    public static function getAllPersonsCount($role = null, $filter = null)
+    {
+        return self::getRepository()->getAllPersonsCount($role, $filter);
+    }
+
+    /**
+     * Fetches all documents associated to the person by a certain role.
+     *
+     * @param string $role The role that the person has for the documents.
+     * @return array An array of Opus\Document
+     */
+    public function getDocumentsByRole($role)
+    {
+        return self::getRepository()->getDocumentsByRole($this, $role);
+    }
+
+    /**
+     * Returns the ids for all linked documents.
+     *
+     * @param string|null $role
+     * @return array|void
+     */
+    public function getDocumentIds($role = null)
+    {
+        return self::getRepository()->getDocumentIds($this, $role);
+    }
+
+
+    /**
+     * Get a list of IDs for Persons that have the specified role for
+     * certain documents.
+     *
+     * @param string $role Role name.
+     * @return array List of Opus\Person Ids for Person models assigned to the specified Role.
+     */
+    public static function getAllIdsByRole($role)
+    {
+        return self::getRepository()->getAllIdsByRole($role);
+    }
+
+    /**
+     * Returns roles for a person.
+     *
+     * TODO verify columns
+     * TODO use object for person
+     */
+    public static function getPersonRoles($person)
+    {
+        return self::getRepository()->getPersonRoles($person);
+    }
+
+    /**
+     * Returns document for person.
+     *
+     * The $person parameter is an array of columns and values that determine which person is meant.
+     *
+     * - first name
+     * - last name
+     * - identifier_orcid
+     * - identifier_gnd
+     * - identifier_misc
+     *
+     * @param array $person
+     * @param string|null $state
+     * @param string|null $role
+     * @param string|null $sort
+     * @param bool $order
+     * @return array
+     */
+    public static function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
+    {
+        return self::getRepository()->getPersonDocuments($person, $state, $role, $sort, $order);
+    }
+
+    /**
+     * Returns the value of matching person objects.
+     *
+     * @param array $person
+     * @return array
+     */
+    public static function getPersonValues($person)
+    {
+        return self::getRepository()->getPersonValues($person);
+    }
+
+    /**
+     * Returns ids of person objects matching criteria and documents.
+     *
+     * TODO filter by role?
+     *
+     * @param array $person Criteria for matching persons
+     * @param array|null $documents Array with ids of documents
+     * @return array Array with IDs of persons
+     */
+    public static function getPersons($person, $documents = null)
+    {
+        return self::getRepository()->getPersons($person, $documents);
+    }
+
+    /**
+     * @param array $person
+     * @param array|null $documents
+     * @return array
+     */
+    public static function getPersonsAndDocuments($person, $documents = null)
+    {
+        return self::getRepository()->getPersonsAndDocuments($person, $documents);
+    }
+
+    /**
+     * @param array $personIds
+     * @param array|null $documents
+     * @return array
+     */
+    public static function getDocuments($personIds, $documents = null)
+    {
+        return self::getRepository()->getDocuments($personIds, $documents);
+    }
+
+    /**
+     * Updates select columns of matching persons.
+     *
+     * Optionally the scope can be limited to specified set of documents.
+     *
+     * @param array      $person Criteria for matching persons
+     * @param array      $changes Map of column names and new values
+     * @param array|null $documents Array with document Ids
+     *
+     * TODO update ServerDateModified for modified documents (How?)
+     */
+    public static function updateAll($person, $changes, $documents = null)
+    {
+        return self::getRepository()->updateAll($person, $changes, $documents);
+    }
+
+    /**
+     * Converts map with field names into array with column names.
+     *
+     * @param array $changes Map of field names and values
+     * @return array Map of column names and values
+     */
+    public static function convertChanges($changes)
+    {
+        $columnChanges = [];
+
+        foreach ($changes as $fieldName => $value) {
+            $column = self::convertFieldnameToColumn($fieldName);
+
+            $columnChanges[$column] = $value;
+        }
+
+        return $columnChanges;
+    }
+
+    /**
+     * Convert array with column names into array with field names.
+     *
+     * @param array $person
+     * @return array
+     */
+    public static function convertToFieldNames($person)
+    {
+        $values = [];
+
+        foreach ($person as $column => $value) {
+            $fieldName = self::convertColumnToFieldname($column);
+
+            $values[$fieldName] = $value;
+        }
+
+        return $values;
     }
 }

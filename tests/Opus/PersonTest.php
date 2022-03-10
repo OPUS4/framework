@@ -44,7 +44,7 @@ use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
-use Opus\Model2\Person;
+use Opus\Person;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
 
@@ -97,7 +97,7 @@ class PersonTest extends TestCase
         }
 
         for ($i = 0; $i < 10; $i++) {
-            $p = Person::new();
+            $p = new Person();
             $p->setFirstName("Dummy-$i")
                 ->setLastName("Empty-$i")
                 ->store();
@@ -106,7 +106,7 @@ class PersonTest extends TestCase
         // add a person as author to every document
         // and add the person to the list of authors
         foreach ($this->documents as $document) {
-            $p = Person::new();
+            $p = new Person();
             $p->setFirstName('Rainer')
                 ->setLastName('Zufall')
                 ->setAcademicTitle('Prof. Dr.')
@@ -127,6 +127,7 @@ class PersonTest extends TestCase
         // TODO: der Tabelle link_persons_documents.
         //
         // TODO: Die ID der Person erhält man mit getLinkedModelId()
+        // TODO: Die ID der Person
 
         foreach ($this->authors as $author) {
             $docs = $author->getDocumentsByRole('author');
