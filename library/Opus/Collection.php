@@ -1349,4 +1349,32 @@ class Collection extends AbstractDb
 
         return $col;
     }
+
+    /**
+     * @param string $term Search term for matching collections
+     * @param int|array $roles CollectionRole IDs
+     * @return array
+     */
+    public static function find($term, $roles = null)
+    {
+        $table = TableGateway::getInstance(Db\Collections::class);
+
+        // FIXME: Don't use internal knowledge of foreign models/tables.
+        // FIXME: Don't return documents if collection is hidden.
+        $select = $table->select()
+            ->from("collections", ['Id' => 'id', 'RoleId' => 'role_id', 'Name' => 'name', 'Number' => 'number'])
+            ->where('name like ?', "%$term%")
+            // ->orWhere('id = ?', $term) // TODO match by ID?
+            ->distinct();
+
+        if ($roles !== null) {
+            if (! is_array($roles)) {
+                $select->where('role_id = ?', $roles);
+            } else {
+                $select->where( 'role_id IN (?)', $roles);
+            }
+        }
+
+        return $table->getAdapter()->fetchAll($select);
+    }
 }
