@@ -1598,4 +1598,50 @@ class CollectionTest extends TestCase
 
         $this->assertFalse($subCol->isRoot());
     }
+
+    public function testFind()
+    {
+        $this->setUpFixtureForMoveTests(); // TODO create specific setup for this test
+
+        $result = Collection::find('eintrag');
+
+        $this->assertCount(13, $result);
+
+        $result = Collection::find('eintrag 2');
+
+        $this->assertCount(1, $result);
+
+        $col1 = $result[0];
+
+        $this->assertCount(4, $col1);
+        $this->assertArrayHasKey('Id', $col1);
+        $this->assertArrayHasKey('RoleId', $col1);
+        $this->assertArrayHasKey('Name', $col1);
+        $this->assertArrayHasKey('Number', $col1);
+    }
+
+    public function testFindInRoles()
+    {
+        $role1 = CollectionRole::new();
+        $role1->setName('TestRole1');
+        $role1->setOaiName('TestRole1Oai');
+
+        $col1 = $role1->addRootCollection();
+        $col1->setName('TestCol1');
+
+        $role1->store();
+
+        $role2 = CollectionRole::new();
+        $role2->setName('TestRole2');
+        $role2->setOaiName('TestRole2Oai');
+
+        $col2 = $role2->addRootCollection();
+        $col2->setName('TestCol2');
+
+        $role2->store();
+
+        $this->assertCount(2, Collection::find('TestCol'));
+        $this->assertCount(1, Collection::find('TestCol', $role1->getId()));
+        $this->assertCount(2, Collection::find('TestCol', [$role1->getId(), $role2->getId()]));
+    }
 }
