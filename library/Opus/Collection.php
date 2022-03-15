@@ -1365,7 +1365,8 @@ class Collection extends AbstractDb
             ->from("collections", ['Id' => 'id', 'RoleId' => 'role_id', 'Name' => 'name', 'Number' => 'number'])
             ->where('name like ?', "%$term%")
             // ->orWhere('id = ?', $term) // TODO match by ID?
-            ->distinct();
+            ->distinct()
+            ->order(['role_id', 'name']);
 
         if ($roles !== null) {
             if (! is_array($roles)) {
