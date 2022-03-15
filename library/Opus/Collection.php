@@ -1361,12 +1361,11 @@ class Collection extends AbstractDb
 
         $database = $table->getAdapter();
 
-        $quotedLikeTerm = $database->quote("%$term%");
-        $quotedTerm = $database->quote($term);
+        $quotedTerm = $database->quote("%$term%");
 
         $select = $table->select()
             ->from("collections", ['Id' => 'id', 'RoleId' => 'role_id', 'Name' => 'name', 'Number' => 'number'])
-            ->where("name LIKE $quotedLikeTerm OR id = $quotedTerm OR number LIKE $quotedLikeTerm")
+            ->where("name LIKE $quotedTerm OR number LIKE $quotedTerm")
             ->distinct()
             ->order(['role_id', 'number', 'name']);
 
