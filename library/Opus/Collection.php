@@ -1359,23 +1359,25 @@ class Collection extends AbstractDb
     {
         $table = TableGateway::getInstance(Db\Collections::class);
 
-        // FIXME: Don't use internal knowledge of foreign models/tables.
-        // FIXME: Don't return documents if collection is hidden.
+        $database = $table->getAdapter();
+
+        $quotedLikeTerm = $database->quote("%$term%");
+        $quotedTerm = $database->quote($term);
+
         $select = $table->select()
             ->from("collections", ['Id' => 'id', 'RoleId' => 'role_id', 'Name' => 'name', 'Number' => 'number'])
-            ->where('name like ?', "%$term%")
-            // ->orWhere('id = ?', $term) // TODO match by ID?
+            ->where("name LIKE $quotedLikeTerm OR id = $quotedTerm OR number LIKE $quotedLikeTerm")
             ->distinct()
             ->order(['role_id', 'number', 'name']);
 
         if ($roles !== null) {
             if (! is_array($roles)) {
-                $select->where('role_id = ?', $roles);
+                $select->where('role_id = ?', $roles );
             } else {
                 $select->where( 'role_id IN (?)', $roles);
             }
         }
 
-        return $table->getAdapter()->fetchAll($select);
+        return $database->fetchAll($select);
     }
 }
