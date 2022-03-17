@@ -34,6 +34,7 @@
 
 namespace Opus\Model2;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Opus\Date;
 
@@ -157,6 +158,13 @@ class Person extends AbstractModel
      * @var string
      */
     private $opusId = 0;
+
+    /**
+     * @ORM\OneToMany(targetEntity="DocumentPerson", mappedBy="person", fetch="EXTRA_LAZY")
+     *
+     * @var Collection|DocumentPerson[]
+     */
+    private $documentPerson;
 
     /**
      * @return int

@@ -69,7 +69,7 @@ use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
 use Opus\Note;
 use Opus\Patent;
-use Opus\Person;
+use Opus\Model2\Person;
 use Opus\Series;
 use Opus\Subject;
 use Opus\SubjectSwd;
