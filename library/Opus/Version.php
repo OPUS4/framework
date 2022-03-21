@@ -49,12 +49,12 @@ class Version
     /**
      * Opus Framework version identification - see compareVersion()
      */
-    const VERSION = '4.7';
+    public const VERSION = '4.7.1';
 
     /**
      * Version of database schema.
      */
-    const SCHEMA_VERSION = '19';
+    public const SCHEMA_VERSION = '19';
 
     /**
      * Compare the specified Opus Framework version string $version

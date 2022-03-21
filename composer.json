@@ -15,7 +15,7 @@
     "ext-json": "*",
     "ext-libxml": "*",
     "zendframework/zendframework1": "1.12.*",
-    "opus4-repo/opus4-common": "dev-master",
+    "opus4-repo/opus4-common": "4.7.1.*",
     "opus4-repo/opus4-doi": "4.7.*"
   },
   "autoload": {
@@ -38,7 +38,6 @@
     "sebastian/phpcpd": "*",
     "mayflower/php-codebrowser": "*",
     "squizlabs/php_codesniffer": "*",
-    "opus4-repo/codesniffer": "dev-master",
     "laminas/laminas-coding-standard": "<2.3",
     "phpmetrics/phpmetrics": "*"
   },
