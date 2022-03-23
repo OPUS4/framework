@@ -178,7 +178,7 @@ class PersonRepository extends EntityRepository
      */
     public function getDocumentsByRole($person, $role)
     {
-        if ($person->getId() === 0) {
+        if ($person->isNewRecord()) {
             return [];
         }
 
@@ -214,7 +214,7 @@ class PersonRepository extends EntityRepository
      */
     public function getDocumentIds($person, $role = null)
     {
-        if ($person->getId() === 0) {
+        if ($person->isNewRecord()) {
             // TODO do more?
             return [];
         }

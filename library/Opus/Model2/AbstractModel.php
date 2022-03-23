@@ -165,6 +165,16 @@ abstract class AbstractModel
     }
 
     /**
+     * Returns whether model is a new record.
+     *
+     * @return bool
+     */
+    public function isNewRecord()
+    {
+        return $this->getId() === 0 || $this->getId() === null;
+    }
+
+    /**
      * Remove the model instance from the database.
      *
      * @throws DbException

@@ -48,8 +48,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Opus\Date;
+use Opus\Model\DbException;
 use Opus\Model\ModelException;
 
 /**
@@ -58,6 +59,20 @@ use Opus\Model\ModelException;
  */
 class Document extends AbstractModel
 {
+    const STATE_DELETED = 'deleted';
+
+    const STATE_INPROGRESS = 'inprogress';
+
+    const STATE_RESTRICTED = 'restricted';
+
+    const STATE_UNPUBLISHED = 'unpublished';
+
+    const STATE_PUBLISHED = 'published';
+
+    const STATE_TEMPORARY = 'temporary';
+
+    const STATE_AUDITED = 'audited';
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -186,7 +201,7 @@ class Document extends AbstractModel
      * @ORM\Column(type="string", name="publication_state", columnDefinition="ENUM('draft','accepted','submitted','published','updated')")
      * @var string
      */
-    protected $publicationState;
+    protected $publicationState = 'draft';
 
     /**
      * @ORM\Column(type="opusDate", name="server_date_created")
@@ -216,7 +231,7 @@ class Document extends AbstractModel
      * @ORM\Column(type="string", name="server_state", columnDefinition="ENUM('audited','published','restricted','inprogress','unpublished','deleted','temporary')")
      * @var string
      */
-    private $serverState;
+    private $serverState = self::STATE_TEMPORARY;
 
     /**
      * @ORM\Column(type="string")
@@ -252,6 +267,29 @@ class Document extends AbstractModel
         $this->titles = new ArrayCollection();
         $this->documentPersons = new ArrayCollection();
     }
+
+    /**
+     * Perform any actions needed to provide storing.
+     *
+     * @return mixed|null Anything else than null will cancel the storage process.
+     */
+    protected function preStore()
+    {
+        $result = parent::preStore();
+
+        $date = new Date();
+        $date->setNow();
+
+        if ($this->isNewRecord()) {
+            if ($this->getServerDateCreated() === null) {
+                $this->setServerDateCreated($date);
+            }
+        }
+        $this->setServerDateModified($date);
+
+        return $result;
+    }
+
 
     /**
      * @return int
