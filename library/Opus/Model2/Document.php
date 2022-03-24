@@ -667,7 +667,7 @@ class Document extends AbstractModel
             $criteria->where(Criteria::expr()->eq("role", $role));
         }
 
-        $documentPersons = $this->titles->matching($criteria);
+        $documentPersons = $this->documentPersons->matching($criteria);
 
         if ($index !== null) {
             if (! isset($documentPersons[$index])) {
