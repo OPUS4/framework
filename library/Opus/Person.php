@@ -370,12 +370,14 @@ class Person extends AbstractDb
             return "trim($value) as $value";
         }, $identityColumns);
 
+        $groupColumns = array_map(function ($value) {
+            return "trim($value)";
+        }, $identityColumns);
+
         $select = $table->select()
             ->from(
                 ['p' => 'persons'],
                 $trimmedColumns
-            )->group(
-                $identityColumns
             );
 
         if ($role !== null) {
@@ -397,7 +399,7 @@ class Person extends AbstractDb
         // result still contains name duplicates because of leading spaces -> group trimmed result
         return $table->select()
             ->from(new Zend_Db_Expr("($select)"), $identityColumns)
-            ->group($identityColumns)
+            ->group($groupColumns)
             ->setIntegrityCheck(false);
     }
 
@@ -518,7 +520,7 @@ class Person extends AbstractDb
 
         $documents = $documentsTable->getAdapter()->fetchCol($select);
 
-        $documents = array_unique($documents); // just in case (TODO sorting by title creates duplicates)
+        $documents = array_values(array_unique($documents)); // just in case (TODO sorting by title creates duplicates)
 
         return $documents;
     }
