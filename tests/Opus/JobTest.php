@@ -25,10 +25,11 @@
 
 namespace OpusTest;
 
-use Opus\Db\Jobs;
-use Opus\Db\TableGateway;
-use Opus\Job;
+use Opus\Model2\Job;
 use OpusTest\TestAsset\TestCase;
+use ReflectionClass;
+
+use function count;
 
 /**
  * Test cases for Opus\Job
@@ -54,14 +55,19 @@ class JobTest extends TestCase
         $job->setData('somedata');
         $jobId = $job->store();
 
-        $jobTable = TableGateway::getInstance(Jobs::class);
-        $jobRow   = $jobTable->fetchRow("id = $jobId");
+        $storedJob = Job::get($jobId);
 
-        $this->assertEquals($job->getSha1Id(), $jobRow->sha1_id, 'Job SHA1 hash has not been set in database.');
+        // get raw value from private Job->sha1Id property
+        $refJob      = new ReflectionClass(Job::class);
+        $refProperty = $refJob->getProperty('sha1Id');
+        $refProperty->setAccessible(true);
+        $storedSha1Id = $refProperty->getValue($storedJob);
+
+        $this->assertEquals($job->getSha1Id(), $storedSha1Id, 'Job SHA1 hash has not been set in database.');
     }
 
     /**
-     * Test if equal insitialized jobs returns same SHA1 id.
+     * Test if equal initialized jobs returns same SHA1 id.
      */
     public function testEqualJobsHaveEqualHashes()
     {
@@ -104,6 +110,33 @@ class JobTest extends TestCase
         $job2->setData('somedata');
 
         $this->assertFalse($job2->isUniqueInQueue(), 'Other jobs stored. Uniqueness should not be given.');
+    }
+
+    public function testGetAllJobs()
+    {
+        $job = new Job();
+        $job->setLabel('Job1');
+        $job->setData('data1');
+        $job->store();
+
+        $job = new Job();
+        $job->setLabel('Job2');
+        $job->setData('data2');
+        $jobId2 = $job->store();
+
+        $job = new Job();
+        $job->setLabel('Job3');
+        $job->setData('data3');
+        $jobId3 = $job->store();
+
+        $jobs = Job::getAll();
+
+        $this->assertEquals(3, count($jobs));
+
+        $jobs = Job::getAll([$jobId2, $jobId3]);
+
+        $this->assertEquals('Job2', $jobs[0]->getLabel());
+        $this->assertEquals('Job3', $jobs[1]->getLabel());
     }
 
     public function testDeleteAll()
@@ -274,5 +307,55 @@ class JobTest extends TestCase
         $this->assertEquals([
             'EventType1' => 1,
         ], $count);
+    }
+
+    public function testGetByLabels()
+    {
+        $label1 = 'JobType1';
+        $label2 = 'JobType2';
+
+        $job = new Job();
+        $job->setLabel($label1);
+        $job->setData('data1');
+        $job->setState(Job::STATE_PROCESSING);
+        $job->store();
+
+        $job = new Job();
+        $job->setLabel($label1);
+        $job->setData('data1');
+        $job->store();
+
+        $job = new Job();
+        $job->setLabel($label2);
+        $job->setData('data2');
+        $job->store();
+
+        $job = new Job();
+        $job->setLabel('JobType3');
+        $job->setData('data3');
+        $job->store();
+
+        $jobs = Job::getByLabels([$label1]);
+
+        $this->assertEquals(2, count($jobs));
+        $this->assertEquals('JobType1', $jobs[0]->getLabel());
+        $this->assertEquals('JobType1', $jobs[1]->getLabel());
+
+        $jobs = Job::getByLabels([$label1], 1);
+
+        $this->assertEquals(1, count($jobs));
+        $this->assertEquals('JobType1', $jobs[0]->getLabel());
+
+        $jobs = Job::getByLabels([$label1, $label2]);
+
+        $this->assertEquals(3, count($jobs));
+        $this->assertEquals('JobType1', $jobs[0]->getLabel());
+        $this->assertEquals('JobType1', $jobs[1]->getLabel());
+        $this->assertEquals('JobType2', $jobs[2]->getLabel());
+
+        $jobs = Job::getByLabels([$label1, $label2], null, Job::STATE_PROCESSING);
+
+        $this->assertEquals(1, count($jobs));
+        $this->assertEquals('JobType1', $jobs[0]->getLabel());
     }
 }
