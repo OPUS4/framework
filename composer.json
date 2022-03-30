@@ -18,6 +18,8 @@
     "opus4-repo/opus4-common": "dev-master",
     "opus4-repo/opus4-doi": "dev-master"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "Opus\\": "library/Opus"
