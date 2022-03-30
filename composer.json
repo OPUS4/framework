@@ -41,8 +41,6 @@
     "laminas/laminas-coding-standard": "<2.3",
     "phpmetrics/phpmetrics": "*"
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "archive": {
     "exclude": ["/tests", "/nbproject"]
   },
