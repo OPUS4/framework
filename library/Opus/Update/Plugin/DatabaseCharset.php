@@ -36,7 +36,7 @@
 namespace Opus\Update\Plugin;
 
 use Opus\Database;
-use Opus\Util\ConsoleColors;
+use Opus\Console\ConsoleColors;
 use PDO;
 
 use function explode;
