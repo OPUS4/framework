@@ -29,7 +29,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Util;
+namespace Opus\Db\Util;
 
 use Doctrine\DBAL\Exception;
 use Opus\Model\DbException;
