@@ -40,3 +40,5 @@ db.params.dbname = @db.name@
 ; TODO resolve need to specify credentials twice (unless regular user is used above)
 opusdb.params.admin.name = @db.admin.name@
 opusdb.params.admin.password = @db.admin.password@
+
+[testing : production]
