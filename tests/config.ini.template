@@ -22,10 +22,6 @@
 ; along with OPUS; if not, write to the Free Software Foundation, Inc., 51
 ; Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ;
-; @category    Tests
-; @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
-; @author      Thoralf Klein <thoralf.klein@zib.de>
-; @author      Jens Schwidder <schwidder@zib.de>
 ; @copyright   Copyright (c) 2008-2020, OPUS 4 development team
 ; @license     http://www.gnu.org/licenses/gpl.html General Public License
 
@@ -33,11 +29,8 @@
 ; Have a look on \Zend_Db::factory() method for information about adapter creation.
 
 [production]
-; The 'theme' setting can be used to select a different theme.
-; Need theme for unit tests.
-theme = foobar
 
-;DB SETTINGS
+; DB SETTINGS
 ; db.params.host = localhost
 ; db.params.port = 3306
 ; TODO use regular OPUS user account for tests
@@ -47,48 +40,3 @@ db.params.dbname = @db.name@
 ; TODO resolve need to specify credentials twice (unless regular user is used above)
 opusdb.params.admin.name = @db.admin.name@
 opusdb.params.admin.password = @db.admin.password@
-
-db.debug = 1
-
-;OPUS SETTINGS
-workspacePath = APPLICATION_PATH "/build/workspace"
-resources.locale.default = 'de'
-
-;PHP SETTINGS
-phpSettings.display_startup_errors = 1
-phpSettings.display_errors = 1
-; TODO verify the two settings below
-phpSettings.error_reporting = E_ALL | E_STRICT
-phpSettings.date.timezone = Europe/Berlin
-
-;ZEND_APPLICATION SETTINGS
-includePaths.library = APPLICATION_PATH "/library"
-bootstrap.path = APPLICATION_PATH "/library/Opus/Db/DatabaseBootstrap.php"
-bootstrap.class = "Opus\Db\DatabaseBootstrap"
-appnamespace = "Application"
-
-;LOGGING RELATED SETTINGS
-; if set to true all xml that is generated while indexing is prepared for logging
-log.prepare.xml = false
-log.level = DEBUG
-
-;DUMMY MAIL SERVER; See "server/scripts/opus-smtp-dumpserver.php" for a dummy
-;mail server, which accepts all mail.
-; mail.opus.smtp = localhost
-; mail.opus.port = 25000
-
-; Used to verify that file has been parsed properly
-syntaxCheck = production
-
-[testing : production]
-sql.schema.path =
-
-; URN SETTINGS
-; If you do not want to set URNs automatically, set these values blank or
-; comment them out
-urn.nid = nbn
-urn.nss = de:kobv:test-opus
-urn.autoCreate = true
-
-; Used to verify that file has been parsed properly
-syntaxCheck = testing
