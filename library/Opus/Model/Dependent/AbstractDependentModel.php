@@ -25,20 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model\Dependent
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model\Dependent;
 
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractDb;
-use Opus\Model\ModelException;
 use Opus\Model\Plugin\InvalidateDocumentCache;
 use Zend_Db_Table_Abstract;
 use Zend_Db_Table_Row;

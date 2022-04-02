@@ -36,7 +36,7 @@
 
 namespace OpusTest\Document\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\Document\Plugin\IdentifierUrn;
 use Opus\File;
@@ -50,6 +50,19 @@ use function substr;
 
 class IdentifierUrnTest extends TestCase
 {
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'enrichmentkeys',
+            'documents',
+            'document_identifiers',
+            'document_enrichments',
+        ]);
+    }
+
     public function testAutoGenerateUrn()
     {
         $model = new Document();

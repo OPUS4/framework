@@ -36,13 +36,14 @@
 
 namespace Opus\Model\Plugin;
 
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\Plugin\AbstractPlugin;
 use Opus\Date;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Filter;
-use Opus\Model\ModelInterface;
 use Opus\Model\Xml\Cache;
 use Zend_Config;
 use Zend_Config_Exception;

@@ -37,9 +37,9 @@
 namespace OpusTest\Model;
 
 use Exception;
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractModel;
 use Opus\Model\Filter;
-use Opus\Model\ModelException;
 use opusFilterTestMock;
 use OpusTest\TestAsset\TestCase;
 

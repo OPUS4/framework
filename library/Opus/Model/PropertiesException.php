@@ -35,6 +35,8 @@
 
 namespace Opus\Model;
 
+use Opus\Common\Model\ModelException;
+
 /**
  * Exceptions thrown by Opus\Model\Properties.
  */

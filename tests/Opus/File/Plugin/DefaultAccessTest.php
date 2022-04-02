@@ -35,7 +35,7 @@
 
 namespace OpusTest\File\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\File\Plugin\DefaultAccess;
 use Opus\UserRole;

@@ -35,6 +35,7 @@
 
 namespace Opus;
 
+use Opus\Common\Validate\Year;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
@@ -90,7 +91,7 @@ class Patent extends AbstractDependentModel
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $yearApplied = new Field('YearApplied');
-        $yearApplied->setValidator(new Validate\Year());
+        $yearApplied->setValidator(new Year());
 
         $application = new Field('Application');
 

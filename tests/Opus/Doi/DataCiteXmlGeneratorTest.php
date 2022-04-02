@@ -37,7 +37,9 @@ namespace OpusTest\Doi;
 
 use Opus\Collection;
 use Opus\CollectionRole;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
+use Opus\Common\Util\File as FileUtil;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Doi\DataCiteXmlGenerationException;
@@ -45,10 +47,8 @@ use Opus\Doi\DataCiteXmlGenerator;
 use Opus\File;
 use Opus\Identifier;
 use Opus\Language;
-use Opus\Model\ModelException;
 use Opus\Person;
 use Opus\Title;
-use Opus\Util\File as FileUtil;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 

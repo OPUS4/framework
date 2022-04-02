@@ -36,7 +36,7 @@
 
 namespace OpusTest\Doi;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Doi\Generator\DefaultGenerator;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;

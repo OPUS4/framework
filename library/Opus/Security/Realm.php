@@ -38,11 +38,11 @@
 
 namespace Opus\Security;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Log;
 use Opus\Db\Accounts;
 use Opus\Db\TableGateway;
 use Opus\Db\UserRoles;
-use Opus\Log;
 
 use function array_merge;
 use function array_unique;

@@ -31,8 +31,8 @@
 
 namespace Opus\DocumentFinder;
 
+use Opus\Common\DocumentFinderInterface;
 use Opus\DocumentFinder;
-use Opus\DocumentFinderInterface;
 
 use function is_array;
 

@@ -35,7 +35,7 @@
 
 namespace OpusTest\Document\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\Document\Plugin\SequenceNumber;
 use Opus\Identifier;

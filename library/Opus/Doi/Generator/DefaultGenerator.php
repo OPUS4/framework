@@ -35,7 +35,7 @@
 
 namespace Opus\Doi\Generator;
 
-use Opus\Config;
+use Opus\Common\Config;
 
 use function rtrim;
 use function strlen;

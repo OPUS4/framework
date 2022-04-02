@@ -36,10 +36,10 @@
 
 namespace Opus\Document\Plugin;
 
+use Opus\Common\LoggingTrait;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\Plugin\AbstractPlugin;
 use Opus\Document;
-use Opus\LoggingTrait;
-use Opus\Model\ModelInterface;
-use Opus\Model\Plugin\AbstractPlugin;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;

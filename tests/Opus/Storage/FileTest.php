@@ -36,11 +36,11 @@
 
 namespace OpusTest\Storage;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Util\File as FileUtil;
 use Opus\Storage\File;
 use Opus\Storage\FileNotFoundException;
 use Opus\Storage\StorageException;
-use Opus\Util\File as FileUtil;
 use OpusTest\TestAsset\TestCase;
 
 use function fclose;

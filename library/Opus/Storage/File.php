@@ -39,7 +39,7 @@ namespace Opus\Storage;
 
 use Exception;
 use finfo;
-use Opus\Util\File as FileUtil;
+use Opus\Common\Util\File as FileUtil;
 
 use function class_exists;
 use function copy;

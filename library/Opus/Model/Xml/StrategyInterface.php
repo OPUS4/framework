@@ -36,8 +36,8 @@
 namespace Opus\Model\Xml;
 
 use DOMDocument;
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractModel;
-use Opus\Model\ModelException;
 
 /**
  * General interface for Opus XML representations.

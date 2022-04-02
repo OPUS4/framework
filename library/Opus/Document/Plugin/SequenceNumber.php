@@ -35,14 +35,14 @@
 
 namespace Opus\Document\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Log;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\Plugin\AbstractPlugin;
 use Opus\Db\DocumentIdentifiers;
 use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\Document\DocumentException;
-use Opus\Log;
-use Opus\Model\ModelInterface;
-use Opus\Model\Plugin\AbstractPlugin;
 use Zend_Db_Expr;
 
 use function count;

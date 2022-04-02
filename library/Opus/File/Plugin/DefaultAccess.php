@@ -34,11 +34,11 @@
 
 namespace Opus\File\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\LoggingTrait;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\Plugin\AbstractPlugin;
 use Opus\File;
-use Opus\LoggingTrait;
-use Opus\Model\ModelInterface;
-use Opus\Model\Plugin\AbstractPlugin;
 use Opus\UserRole;
 
 use function strlen;

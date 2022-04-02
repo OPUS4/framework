@@ -38,11 +38,11 @@
 namespace OpusTest;
 
 use DateTime;
+use Opus\Common\Model\ModelException;
 use Opus\Date;
 use Opus\Db\Persons;
 use Opus\Db\TableGateway;
 use Opus\Document;
-use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
 use Opus\Person;
 use Opus\Title;

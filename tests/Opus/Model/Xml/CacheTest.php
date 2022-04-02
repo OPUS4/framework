@@ -15,20 +15,15 @@
  * @copyright   Copyright (c) 2009-2019
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model\Xml
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  */
 
 namespace OpusTest\Model\Xml;
 
 use DOMDocument;
+use Opus\Common\Model\ModelException;
 use Opus\Db\DocumentXmlCache;
 use Opus\Document;
 use Opus\Licence;
-use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
 use Opus\Person;
 use Opus\TitleAbstract;

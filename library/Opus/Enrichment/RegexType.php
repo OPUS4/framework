@@ -35,7 +35,7 @@
 
 namespace Opus\Enrichment;
 
-use Opus\Log;
+use Opus\Common\Log;
 use Zend_Validate_Regex;
 
 use function array_key_exists;

@@ -37,7 +37,7 @@ namespace OpusTest\TestAsset;
 
 use DOMDocument;
 use DOMXPath;
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Db\Util\DatabaseHelper;
 
 use function array_diff;

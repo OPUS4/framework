@@ -38,7 +38,7 @@
 namespace OpusTest\Db\Adapter\Pdo;
 
 use Exception;
-use Opus\Config;
+use Opus\Common\Config;
 use OpusTest\TestAsset\TestCase;
 use Zend_Db;
 use Zend_Db_Table;

@@ -36,14 +36,14 @@
 
 namespace OpusTest\Document\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Doi\DoiManager;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Enrichment;
 use Opus\EnrichmentKey;
 use Opus\Identifier;
-use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 

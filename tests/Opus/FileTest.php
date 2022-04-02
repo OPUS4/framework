@@ -37,14 +37,14 @@
 namespace OpusTest;
 
 use Exception;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
+use Opus\Common\Util\File as FileUtil;
 use Opus\Date;
 use Opus\Document;
 use Opus\File;
 use Opus\HashValues;
-use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
-use Opus\Util\File as FileUtil;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 

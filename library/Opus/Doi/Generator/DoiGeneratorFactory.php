@@ -35,9 +35,9 @@
 
 namespace Opus\Doi\Generator;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Util\ClassLoaderHelper;
 use Opus\Doi\DoiException;
-use Opus\Util\ClassLoaderHelper;
 
 class DoiGeneratorFactory
 {

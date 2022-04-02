@@ -39,10 +39,10 @@
 
 namespace Opus;
 
+use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Zend_Validate_NotEmpty;
 
 /**

@@ -18,23 +18,18 @@
  *
  * TODO add interface (database implementation just one option)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model\Xml;
 
 use DOMDocument;
+use Opus\Common\Log;
+use Opus\Common\LoggingTrait;
+use Opus\Common\Model\ModelException;
+use Opus\Common\Model\Xml\XmlCacheInterface;
 use Opus\Db\DocumentXmlCache;
 use Opus\Document;
 use Opus\DocumentFinder;
-use Opus\Log;
-use Opus\LoggingTrait;
-use Opus\Model\ModelException;
 use Opus\Model\NotFoundException;
 use Zend_Db_Select;
 use Zend_Db_Table;

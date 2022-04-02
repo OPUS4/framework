@@ -37,8 +37,8 @@ namespace Opus\Db;
 
 use Exception;
 use InvalidArgumentException;
+use Opus\Common\Model\ModelException;
 use Opus\Model\DbException;
-use Opus\Model\ModelException;
 use Zend_Db_Table_Abstract;
 use Zend_Db_Table_Row;
 use Zend_Db_Table_Row_Abstract;

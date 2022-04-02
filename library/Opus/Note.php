@@ -36,6 +36,7 @@
 
 namespace Opus;
 
+use Opus\Common\Validate\NoteVisibility;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
@@ -85,7 +86,7 @@ class Note extends AbstractDependentModel
             ->setTextarea(true);
 
         $visibility = new Field('Visibility');
-        $visibility->setValidator(new Validate\NoteVisibility())
+        $visibility->setValidator(new NoteVisibility())
             ->setDefault([
                 'private' => 'private',
                 'public'  => 'public',

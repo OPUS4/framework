@@ -35,7 +35,7 @@
 
 namespace Opus\Update\Plugin;
 
-use Opus\Console\ConsoleColors;
+use Opus\Common\Console\ConsoleColors;
 use Opus\Database;
 use PDO;
 

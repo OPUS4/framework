@@ -38,10 +38,11 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Opus\Storage\FileAccessException;
 use Opus\Storage\FileNotFoundException;
 use Opus\Storage\StorageException;

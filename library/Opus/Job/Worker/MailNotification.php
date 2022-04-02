@@ -36,9 +36,9 @@
 namespace Opus\Job\Worker;
 
 use Opus\Account;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Mail\SendMail;
 use Opus\Job;
-use Opus\Mail\SendMail;
 use Zend_Log;
 
 use function implode;

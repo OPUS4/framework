@@ -25,17 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Doi
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Doi;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Doi\ConfigRecipientProvider;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;

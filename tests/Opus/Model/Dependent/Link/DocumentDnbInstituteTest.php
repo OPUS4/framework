@@ -35,10 +35,10 @@
 
 namespace OpusTest\Model\Dependent\Link;
 
+use Opus\Common\Model\ModelException;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
-use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 
 class DocumentDnbInstituteTest extends TestCase

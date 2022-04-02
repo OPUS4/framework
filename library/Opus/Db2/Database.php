@@ -38,7 +38,7 @@ namespace Opus\Db2;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Database as OpusDatabase;
 
 /**

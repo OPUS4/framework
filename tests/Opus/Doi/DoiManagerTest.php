@@ -40,7 +40,7 @@ use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Document;
 use Opus\Doi\DoiException;
 use Opus\Doi\DoiManager;
