@@ -50,7 +50,6 @@ use function substr;
 
 class IdentifierUrnTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
