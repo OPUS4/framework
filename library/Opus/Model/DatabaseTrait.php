@@ -36,6 +36,7 @@
 namespace Opus\Model;
 
 use InvalidArgumentException;
+use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Zend_Db_Table_Abstract;
 use Zend_Db_Table_Row;

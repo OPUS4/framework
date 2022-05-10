@@ -37,8 +37,8 @@
 namespace Opus\Db;
 
 use Exception;
-use Opus\Bootstrap\Base;
-use Opus\Config;
+use Opus\Common\Bootstrap\Base;
+use Opus\Common\Config;
 use Opus\Version;
 use Zend_Config;
 use Zend_Db;

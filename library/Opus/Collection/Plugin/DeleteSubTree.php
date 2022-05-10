@@ -36,9 +36,9 @@
 
 namespace Opus\Collection\Plugin;
 
+use Opus\Common\Model\ModelInterface;
 use Opus\Db\Collections;
 use Opus\Db\TableGateway;
-use Opus\Model\ModelInterface;
 use Opus\Model\Plugin\AbstractCollection;
 
 /**

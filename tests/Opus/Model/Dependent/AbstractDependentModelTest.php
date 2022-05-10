@@ -27,19 +27,13 @@
  *
  * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Model\Dependent;
 
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Model\Dependent\AbstractDependentModel;
-use Opus\Model\ModelException;
 use Opus\Model\Plugin\InvalidateDocumentCache;
 use Opus\Subject;
 use OpusTest\TestAsset\TestCase;

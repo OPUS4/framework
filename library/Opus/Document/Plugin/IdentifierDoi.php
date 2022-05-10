@@ -37,16 +37,16 @@
 namespace Opus\Document\Plugin;
 
 use Exception;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Log;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\Plugin\AbstractPlugin;
+use Opus\Common\Model\Plugin\ServerStateChangeListenerInterface;
 use Opus\Document;
 use Opus\Doi\DoiException;
 use Opus\Doi\DoiManager;
 use Opus\Doi\RegistrationException;
 use Opus\Identifier;
-use Opus\Log;
-use Opus\Model\ModelInterface;
-use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
 use function filter_var;
 use function get_class;

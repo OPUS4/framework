@@ -37,10 +37,10 @@ namespace OpusTest\Model\Plugin;
 
 use DOMXPath;
 use Opus\CollectionRole;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Document\Plugin\XmlCache;
 use Opus\Licence;
-use Opus\Model\ModelException;
 use Opus\Model\Plugin\InvalidateDocumentCache;
 use Opus\Model\Xml\Cache;
 use Opus\Patent;

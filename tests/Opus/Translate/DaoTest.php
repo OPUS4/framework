@@ -34,8 +34,8 @@
 
 namespace OpusTest\Translate;
 
+use Opus\Common\Translate\TranslateException;
 use Opus\Translate\Dao;
-use Opus\Translate\TranslateException;
 use OpusTest\TestAsset\TestCase;
 
 /**

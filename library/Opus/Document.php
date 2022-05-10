@@ -43,6 +43,9 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\Config;
+use Opus\Common\DocumentInterface;
+use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
 use Opus\Identifier\Urn;
@@ -51,7 +54,6 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Opus\Storage\FileNotFoundException;
 use Zend_Date;
 
@@ -196,7 +198,7 @@ use function usort;
  *
  * phpcs:disable
  */
-class Document extends AbstractDb
+class Document extends AbstractDb implements DocumentInterface
 {
     const STATE_DELETED = 'deleted';
 

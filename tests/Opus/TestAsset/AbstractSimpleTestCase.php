@@ -25,16 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\TestAsset;
 
-use Opus\Config;
+use Opus\Common\Config;
 use PHPUnit_Framework_TestCase;
 use Zend_Config;
 

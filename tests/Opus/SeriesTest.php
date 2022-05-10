@@ -37,9 +37,9 @@
 
 namespace OpusTest;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
-use Opus\Model\ModelException;
 use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
 use Opus\Series;

@@ -37,7 +37,8 @@
 namespace OpusTest;
 
 use Exception;
-use Opus\Bootstrap\Base;
+use Opus\Common\Bootstrap\Base;
+use Opus\Common\Validate\MateDecorator;
 use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Identifier\Urn;
 use Opus\Model\DateField;
@@ -47,8 +48,6 @@ use Opus\Security\Realm;
 use Opus\Statistic\LocalCounter;
 use Opus\Storage\File as OpusStorageFile;
 use Opus\Translate\DatabaseAdapter;
-use Opus\Util\MetadataImport;
-use Opus\Validate\MateDecorator;
 use OpusDb_Mysqlutf8;
 use OpusTest\TestAsset\TestCase;
 
@@ -119,8 +118,6 @@ class RequireTest extends TestCase
             UnixTimestampField::class,
             DateField::class,
             OpusStorageFile::class,
-            MetadataImport::class,
-            DatabaseAdapter::class,
             DatabaseAdapter::class,
             DataCiteXmlGenerationException::class,
         ];

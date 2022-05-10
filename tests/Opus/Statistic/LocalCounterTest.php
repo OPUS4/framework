@@ -37,7 +37,7 @@
 
 namespace OpusTest\Statistic;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Db\DocumentStatistics;
 use Opus\Db\TableGateway;
 use Opus\Document;

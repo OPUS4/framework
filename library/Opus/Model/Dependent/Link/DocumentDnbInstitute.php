@@ -35,10 +35,10 @@
 
 namespace Opus\Model\Dependent\Link;
 
+use Opus\Common\Model\ModelException;
 use Opus\Db\LinkDocumentsDnbInstitutes;
 use Opus\DnbInstitute;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 
 /**
  * Abstract class for link DnbInstitute model in the Opus framework.

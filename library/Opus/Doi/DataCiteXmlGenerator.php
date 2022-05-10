@@ -37,9 +37,9 @@
 namespace Opus\Doi;
 
 use DOMDocument;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Log;
 use Opus\Document;
-use Opus\Log;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
 use XSLTProcessor;

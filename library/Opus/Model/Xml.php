@@ -37,7 +37,7 @@
 namespace Opus\Model;
 
 use DOMDocument;
-use Opus\Log;
+use Opus\Common\Log;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Conf;
 use Opus\Model\Xml\StrategyInterface;

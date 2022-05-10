@@ -36,11 +36,11 @@
 
 namespace Opus;
 
+use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Enrichment\TypeInterface;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Throwable;
 use Zend_Db_Select_Exception;
 use Zend_Db_Table_Row_Exception;

@@ -35,6 +35,8 @@
 
 namespace Opus\Model;
 
+use Opus\Common\Model\ModelException;
+
 /**
  * Exception type for Opus\Model when trying to access invalid id.
  *

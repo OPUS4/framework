@@ -37,6 +37,7 @@ namespace Opus\Model;
 
 use DOMDocument;
 use InvalidArgumentException;
+use Opus\Common\Model\ModelException;
 use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
 use Opus\Security\SecurityException;

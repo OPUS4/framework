@@ -39,12 +39,12 @@ use DateTimeZone;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractDb;
 use Opus\Model\AbstractModel;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 
 use function array_diff;
 use function array_key_exists;

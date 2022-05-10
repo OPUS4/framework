@@ -27,18 +27,13 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
 namespace OpusTest\Model\Mock;
 
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Zend_Db_Table_Abstract;
 
 /**

@@ -36,12 +36,12 @@
 
 namespace OpusTest\Doi;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Doi\ConfigRecipientProvider;
 use Opus\Doi\DoiMailNotification;
 use Opus\Identifier;
-use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 

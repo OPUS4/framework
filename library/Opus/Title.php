@@ -37,6 +37,7 @@
 
 namespace Opus;
 
+use Opus\Common\Config;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;

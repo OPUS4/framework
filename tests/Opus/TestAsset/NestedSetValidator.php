@@ -35,9 +35,9 @@
 
 namespace OpusTest\TestAsset;
 
+use Opus\Common\LoggingTrait;
+use Opus\Common\Model\ModelException;
 use Opus\Db\NestedSet;
-use Opus\LoggingTrait;
-use Opus\Model\ModelException;
 
 /**
  * Validates the structure of a NestedSet in the database.

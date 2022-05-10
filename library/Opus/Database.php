@@ -37,6 +37,9 @@ namespace Opus;
 
 use DirectoryIterator;
 use Exception;
+use Opus\Common\Config;
+use Opus\Common\Log;
+use Opus\Common\LoggingTrait;
 use Opus\Update\Plugin\DatabaseSchema;
 use PDO;
 use PDOException;

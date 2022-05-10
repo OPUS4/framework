@@ -38,10 +38,10 @@
 
 namespace OpusTest\Document\Plugin;
 
+use Opus\Common\Model\ModelException;
 use Opus\Db\DocumentXmlCache;
 use Opus\Db\TableGateway;
 use Opus\Document;
-use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 
 /**

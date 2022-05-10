@@ -35,7 +35,7 @@
 
 namespace Opus\Identifier;
 
-use Opus\Model\ModelException;
+use Opus\Common\Model\ModelException;
 
 /**
  * Extends default Exception class.

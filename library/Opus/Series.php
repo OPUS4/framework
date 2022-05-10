@@ -38,6 +38,7 @@
 
 namespace Opus;
 
+use Opus\Common\Config;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;

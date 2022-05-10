@@ -38,15 +38,15 @@
 
 namespace Opus\Document\Plugin;
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Log;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\Plugin\AbstractPlugin;
+use Opus\Common\Model\Plugin\ServerStateChangeListenerInterface;
 use Opus\Document;
 use Opus\Document\DocumentException;
 use Opus\Identifier;
 use Opus\Identifier\Urn;
-use Opus\Log;
-use Opus\Model\ModelInterface;
-use Opus\Model\Plugin\AbstractPlugin;
-use Opus\Model\Plugin\ServerStateChangeListenerInterface;
 
 use function array_filter;
 use function count;

@@ -36,10 +36,10 @@
 
 namespace Opus\Doi;
 
-use Opus\Config;
-use Opus\Log;
-use Opus\Mail\MailException;
-use Opus\Mail\SendMail;
+use Opus\Common\Config;
+use Opus\Common\Log;
+use Opus\Common\Mail\MailException;
+use Opus\Common\Mail\SendMail;
 
 use function count;
 use function filter_var;

@@ -37,11 +37,11 @@ namespace OpusTest\TestAsset;
 
 use Exception;
 use InvalidArgumentException;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\AbstractDependentModel;
-use Opus\Model\ModelException;
 use Opus\Model\Xml\Cache;
 use Opus\Person;
 use ReflectionClass;

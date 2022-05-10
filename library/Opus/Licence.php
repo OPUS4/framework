@@ -36,6 +36,7 @@
 
 namespace Opus;
 
+use Opus\Common\Config;
 use Opus\Db\TableGateway;
 use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;

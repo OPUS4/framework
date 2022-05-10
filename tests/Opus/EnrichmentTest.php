@@ -36,10 +36,10 @@
 
 namespace OpusTest;
 
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Enrichment;
 use Opus\EnrichmentKey;
-use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 
 use function array_diff;

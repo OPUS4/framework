@@ -37,6 +37,8 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\Log;
+use Opus\Common\Model\ModelException;
 use Opus\Doi\DoiException;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Doi\Generator\DoiGeneratorFactory;
@@ -44,7 +46,6 @@ use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Zend_Exception;
 use Zend_Validate_NotEmpty;
 

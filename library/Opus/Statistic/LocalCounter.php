@@ -39,10 +39,10 @@ namespace Opus\Statistic;
 
 use DOMDocument;
 use Exception;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Db\DocumentStatistics;
 use Opus\Db\TableGateway;
-use Opus\Model\ModelException;
 use Opus\Security\Realm;
 
 use function array_key_exists;

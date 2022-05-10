@@ -35,9 +35,9 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Log;
 use Opus\Database;
-use Opus\Log;
 
 /**
  * Extend standard PDO MySQL adapter to use UTF-8 strings by passing

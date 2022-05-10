@@ -39,9 +39,9 @@ namespace Opus\Model\Xml;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractModel;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 
 use function get_class;
 use function htmlspecialchars;

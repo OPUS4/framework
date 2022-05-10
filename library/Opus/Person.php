@@ -37,11 +37,11 @@
 
 namespace Opus;
 
+use Opus\Common\Model\ModelException;
 use Opus\Db\LinkPersonsDocuments;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Opus\Model\ModelException;
 use Zend_Db_Expr;
 use Zend_Db_Select;
 use Zend_Db_Table;

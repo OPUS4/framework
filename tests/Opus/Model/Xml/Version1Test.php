@@ -37,10 +37,10 @@
 namespace OpusTest\Model\Xml;
 
 use DOMDocument;
+use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractModel;
 use Opus\Model\Field;
 use Opus\Model\Filter;
-use Opus\Model\ModelException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
 use Opus\Uri\ResolverInterface;

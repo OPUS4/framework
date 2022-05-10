@@ -37,7 +37,7 @@
 
 namespace OpusTest\Security;
 
-use Opus\Config;
+use Opus\Common\Config;
 use Opus\Db\AccessDocuments;
 use Opus\Db\AccessFiles;
 use Opus\Db\AccessModules;

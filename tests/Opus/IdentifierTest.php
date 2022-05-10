@@ -39,14 +39,14 @@
 namespace OpusTest;
 
 use Exception;
-use Opus\Config;
+use Opus\Common\Config;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Identifier;
 use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
-use Opus\Model\ModelException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 use Zend_Exception;
