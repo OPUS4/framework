@@ -40,12 +40,12 @@ namespace Opus;
 use Exception;
 use Opus\Common\Config;
 use Opus\Common\Model\ModelException;
-use Opus\Db\TableGateway;
-use Opus\Model\Dependent\AbstractDependentModel;
-use Opus\Model\Field;
 use Opus\Common\Storage\FileAccessException;
 use Opus\Common\Storage\FileNotFoundException;
 use Opus\Common\Storage\StorageException;
+use Opus\Db\TableGateway;
+use Opus\Model\Dependent\AbstractDependentModel;
+use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
 use function array_key_exists;

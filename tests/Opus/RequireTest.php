@@ -38,6 +38,7 @@ namespace OpusTest;
 
 use Exception;
 use Opus\Common\Bootstrap\Base;
+use Opus\Common\Storage\File as OpusStorageFile;
 use Opus\Common\Validate\MateDecorator;
 use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Identifier\Urn;
@@ -46,7 +47,6 @@ use Opus\Model\Field;
 use Opus\Model\UnixTimestampField;
 use Opus\Security\Realm;
 use Opus\Statistic\LocalCounter;
-use Opus\Common\Storage\File as OpusStorageFile;
 use Opus\Translate\DatabaseAdapter;
 use OpusDb_Mysqlutf8;
 use OpusTest\TestAsset\TestCase;
