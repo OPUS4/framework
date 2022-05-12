@@ -46,7 +46,7 @@ use Opus\Model\Field;
 use Opus\Model\UnixTimestampField;
 use Opus\Security\Realm;
 use Opus\Statistic\LocalCounter;
-use Opus\Storage\File as OpusStorageFile;
+use Opus\Common\Storage\File as OpusStorageFile;
 use Opus\Translate\DatabaseAdapter;
 use OpusDb_Mysqlutf8;
 use OpusTest\TestAsset\TestCase;

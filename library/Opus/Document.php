@@ -54,7 +54,7 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
-use Opus\Storage\FileNotFoundException;
+use Opus\Common\Storage\FileNotFoundException;
 use Zend_Date;
 
 use function array_filter;
