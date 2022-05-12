@@ -43,10 +43,10 @@ use Opus\Config;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DefaultGenerator;
-use Opus\Identifier;
 use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
 use Opus\Model\ModelException;
+use Opus\Model2\Identifier;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 use Zend_Exception;
@@ -197,6 +197,8 @@ class IdentifierTest extends TestCase
 
     public function testIsValidDoiPositive()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model');
+
         $doi = new Identifier();
         $doi->setType('doi');
         $doi->setValue('12.3456/opustest-789');
@@ -205,6 +207,8 @@ class IdentifierTest extends TestCase
 
     public function testIsValidDoiNegative()
     {
+        $this->markTestSkipped('TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model');
+
         $doiValuesToProbe = [
             '10.000/äöüß-987',
             '10.000/opus~987',
@@ -221,6 +225,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiPositiveWithGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
@@ -235,6 +244,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiPositiveWithGeneratorClassAndMissingPrefixShlash()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
@@ -249,6 +263,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiPositiveWithoutGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
@@ -263,6 +282,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiPositiveWithoutGeneratorClassAndMissingPrefixSlash()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
@@ -277,6 +301,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiNegativeWithGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
@@ -291,6 +320,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiNegativeWithGeneratorClassAlt()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
@@ -305,6 +339,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiNegativeWithMissingGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => 'Opus\Doi\Generator\MissingGenerator',
@@ -319,6 +358,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiNegativeWithoutGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
@@ -333,6 +377,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiNegativeWithoutPrefixAndWithoutGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => '',
@@ -347,6 +396,11 @@ class IdentifierTest extends TestCase
 
     public function testIsLocalDoiNegativeWithoutPrefixAndWithGeneratorClass()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         // adapt configuration to allow detection local DOIs
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
@@ -361,6 +415,11 @@ class IdentifierTest extends TestCase
 
     public function testIsDoiUniquePositive()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
             'prefix'         => '12.3456/',
@@ -386,6 +445,11 @@ class IdentifierTest extends TestCase
 
     public function testIsDoiUniqueNegative()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
             'prefix'         => '12.3456/',
@@ -422,6 +486,11 @@ class IdentifierTest extends TestCase
 
     public function testIsUrnUniquePositive()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         $doc1   = $this->createDocumentWithIdentifierUrn('urn:987654321');
         $doc1Id = $doc1->store();
 
@@ -442,6 +511,11 @@ class IdentifierTest extends TestCase
 
     public function testIsUrnUniqueNegative()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         $doc1   = $this->createDocumentWithIdentifierUrn('urn:987654321');
         $doc1Id = $doc1->store();
 
@@ -519,6 +593,11 @@ class IdentifierTest extends TestCase
 
     public function testCheckDoiCollisionFalse()
     {
+        $this->markTestSkipped(
+            'TODO DOCTRINE Issue #187 - DOI and URN functions have been removed from the model.'
+            . ' Document model still uses the old opus identifier model'
+        );
+
         $doiConfig = [
             'generatorClass' => DefaultGenerator::class,
             'prefix'         => '12.3456/',
