@@ -41,6 +41,10 @@ use Opus\Model\DbException;
 use Opus\Model\NotFoundException;
 
 use function in_array;
+use function preg_replace;
+use function preg_replace_callback;
+use function strtolower;
+use function strtoupper;
 
 /**
  * Base class for OPUS 4 model classes.
@@ -60,6 +64,14 @@ abstract class AbstractModel
 
     // TODO The use of String as the type of $modelId become necessary due to the existence of models
     //      which do not use "id" as the primary key
+
+    /**
+     * @return static
+     */
+    public static function new()
+    {
+        return new static();
+    }
 
     /**
      * @param int|string $modelId
@@ -153,6 +165,16 @@ abstract class AbstractModel
     }
 
     /**
+     * Returns whether model is a new record.
+     *
+     * @return bool
+     */
+    public function isNewRecord()
+    {
+        return $this->getId() === 0 || $this->getId() === null;
+    }
+
+    /**
      * Remove the model instance from the database.
      *
      * @throws DbException
@@ -221,5 +243,29 @@ abstract class AbstractModel
         $model = new static();
         $model->updateFromArray($data);
         return $model;
+    }
+
+    /**
+     * @param string $fieldname Field name in camel case
+     * @return string Column name with case-change replaced by underscores "_"
+     */
+    public static function convertFieldnameToColumn($fieldname)
+    {
+        return strtolower(preg_replace('/(?!^)[[:upper:]]/', '_\0', $fieldname));
+    }
+
+    /**
+     * @param string $column Column name as string
+     * @return string Field name in camel case
+     */
+    public static function convertColumnToFieldname($column)
+    {
+        return preg_replace_callback(
+            '/(?:^|_)([a-z])([a-z]+)/',
+            function ($matches) {
+                return strtoupper($matches[1]) . $matches[2];
+            },
+            $column
+        );
     }
 }

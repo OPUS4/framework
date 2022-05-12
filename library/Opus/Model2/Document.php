@@ -48,8 +48,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Opus\Date;
+use Opus\Model\DbException;
 use Opus\Model\ModelException;
 
 /**
@@ -58,6 +59,20 @@ use Opus\Model\ModelException;
  */
 class Document extends AbstractModel
 {
+    const STATE_DELETED = 'deleted';
+
+    const STATE_INPROGRESS = 'inprogress';
+
+    const STATE_RESTRICTED = 'restricted';
+
+    const STATE_UNPUBLISHED = 'unpublished';
+
+    const STATE_PUBLISHED = 'published';
+
+    const STATE_TEMPORARY = 'temporary';
+
+    const STATE_AUDITED = 'audited';
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -186,7 +201,7 @@ class Document extends AbstractModel
      * @ORM\Column(type="string", name="publication_state", columnDefinition="ENUM('draft','accepted','submitted','published','updated')")
      * @var string
      */
-    protected $publicationState;
+    protected $publicationState = 'draft';
 
     /**
      * @ORM\Column(type="opusDate", name="server_date_created")
@@ -216,7 +231,7 @@ class Document extends AbstractModel
      * @ORM\Column(type="string", name="server_state", columnDefinition="ENUM('audited','published','restricted','inprogress','unpublished','deleted','temporary')")
      * @var string
      */
-    private $serverState;
+    private $serverState = self::STATE_TEMPORARY;
 
     /**
      * @ORM\Column(type="string")
@@ -236,6 +251,12 @@ class Document extends AbstractModel
      */
     private $titles;
 
+    /**
+     * @ORM\OneToMany(targetEntity="DocumentPerson", mappedBy="document", cascade={"persist"})
+     * @var Collection|DocumentPerson[]
+     */
+    private $documentPersons;
+
     // FIXME: Taken from the original document class due to a dependency on DocumentTest
     private static $defaultPlugins;
 
@@ -244,7 +265,31 @@ class Document extends AbstractModel
      */
     public function __construct() {
         $this->titles = new ArrayCollection();
+        $this->documentPersons = new ArrayCollection();
     }
+
+    /**
+     * Perform any actions needed to provide storing.
+     *
+     * @return mixed|null Anything else than null will cancel the storage process.
+     */
+    protected function preStore()
+    {
+        $result = parent::preStore();
+
+        $date = new Date();
+        $date->setNow();
+
+        if ($this->isNewRecord()) {
+            if ($this->getServerDateCreated() === null) {
+                $this->setServerDateCreated($date);
+            }
+        }
+        $this->setServerDateModified($date);
+
+        return $result;
+    }
+
 
     /**
      * @return int
@@ -580,5 +625,375 @@ class Document extends AbstractModel
     public function setTitleAdditional($title)
     {
         $this->setTitle(Title::TYPE_MAIN, $title);
+    }
+
+    /**
+     * Generic method for setting persons used by the role specific person methods, e.g. setPersonAuthor()
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     * @param string|null                                 $role
+     */
+    protected function setDocumentPerson($persons, $role = null)
+    {
+        $documentPersons = $this->getPerson($role);
+
+        foreach ($documentPersons as $element) {
+            $this->documentPersons->removeElement($element);
+            $element->setDocument(null);
+        }
+
+        foreach ($persons as $newPerson) {
+            $this->addTitle($newPerson, $role);
+        }
+    }
+
+    /**
+     * Generic method for getting persons|document-persons used by role specific person methods, e.g. getPersonAuthor()
+     * Returns the collection of DocumentPersons related to this document, or just the DocumentPerson of the
+     * specified index.
+     *
+     * @param string|null $role
+     * @param int|null    $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    protected function getDocumentPerson($role = null, $index = null)
+    {
+        $criteria = Criteria::create()
+            ->orderBy(["sortOrder" => Criteria::ASC])
+            ->setFirstResult(0);
+
+        if ($role !== null) {
+            // We want only persons of the given role
+            $criteria->where(Criteria::expr()->eq("role", $role));
+        }
+
+        $documentPersons = $this->documentPersons->matching($criteria);
+
+        if ($index !== null) {
+            if (! isset($documentPersons[$index])) {
+                throw new InvalidArgumentException('Invalid index: ' . $index);
+            }
+            return $documentPersons[$index];
+        }
+
+        return $documentPersons->toArray();
+    }
+
+    /**
+     * Generic method for adding persons used by role specific person methods, e.g. addPersonAuthor()
+     *
+     * @param Person      $person
+     * @param string|null $role
+     * @return DocumentPerson
+     */
+    protected function addDocumentPerson($person, $role = null)
+    {
+        $documentPerson = DocumentPerson::new();
+        $documentPerson->setDocument($this);
+        $documentPerson->setPerson($person);
+        if (isset($role)) {
+            $documentPerson->setRole($role);
+        }
+        $this->documentPersons->add($documentPerson);
+
+        return $documentPerson;
+    }
+
+    /**
+     * Sets the persons of the document
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPerson($persons)
+    {
+        $this->setDocumentPerson($persons);
+    }
+
+    /**
+     * Gets all persons related to this document,
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPerson($index = null)
+    {
+        return $this->getDocumentPerson(null, $index);
+    }
+
+    /**
+     * Adds a person to the document
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPerson($person)
+    {
+        return $this->addDocumentPerson($person);
+    }
+
+    /**
+     * Sets all persons of the role 'author'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonAuthor($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_AUTHOR);
+    }
+
+    /**
+     * Gets all persons of the role 'author'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonAuthor($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_AUTHOR, $index);
+    }
+
+    /**
+     * Adds a person of the role 'author'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonAuthor($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_AUTHOR);
+    }
+
+    /**
+     * Sets all persons of the role 'advisor'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonAdvisor($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_ADVISOR);
+    }
+
+    /**
+     * Gets all persons of the role 'advisor'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonAdvisor($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_ADVISOR, $index);
+    }
+
+    /**
+     * Adds a person of the role 'advisor'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonAdvisor($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_ADVISOR);
+    }
+
+    /**
+     * Sets all persons of the role 'contributor'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonContributor($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_CONTRIBUTOR);
+    }
+
+    /**
+     * Gets all persons of the role 'contributor'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonContributor($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_CONTRIBUTOR, $index);
+    }
+
+    /**
+     * Adds a person of the role 'contributor'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonContributor($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_CONTRIBUTOR);
+    }
+
+    /**
+     * Sets all persons of the role 'editor'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonEditor($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_EDITOR);
+    }
+
+    /**
+     * Gets all persons of the role 'editor'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonEditor($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_EDITOR, $index);
+    }
+
+    /**
+     * Adds a person of the role 'editor'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonEditor($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_EDITOR);
+    }
+
+    /**
+     * Sets all persons of the role 'referee'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonReferee($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_REFEREE);
+    }
+
+    /**
+     * Gets all persons of the role 'referee'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonReferee($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_REFEREE, $index);
+    }
+
+    /**
+     * Adds a person of the role 'referee'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonReferee($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_REFEREE);
+    }
+
+    /**
+     * Sets all persons of the role 'other'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonOther($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_OTHER);
+    }
+
+    /**
+     * Gets all persons of the role 'other'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonOther($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_OTHER, $index);
+    }
+
+    /**
+     * Adds a person of the role 'other'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonOther($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_OTHER);
+    }
+
+
+    /**
+     * Sets all persons of the role 'translator'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonTranslator($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_TRANSLATOR);
+    }
+
+    /**
+     * Gets all persons of the role 'translator'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonTranslator($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_TRANSLATOR, $index);
+    }
+
+    /**
+     * Adds a person of the role 'translator'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonTranslator($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_TRANSLATOR);
+    }
+
+    /**
+     * Sets all persons of the role 'submitter'
+     *
+     * @param ArrayCollection|Collection|DocumentPerson[] $persons
+     */
+    public function setPersonSubmitter($persons)
+    {
+        $this->setDocumentPerson($persons, DocumentPerson::ROLE_SUBMITTER);
+    }
+
+    /**
+     * Gets all persons of the role 'submitter'
+     * or just the person of the specified index.
+     *
+     * @param int|null $index
+     * @return ArrayCollection|Collection|DocumentPerson[]|DocumentPerson
+     */
+    public function getPersonSubmitter($index = null)
+    {
+        return $this->getDocumentPerson(DocumentPerson::ROLE_SUBMITTER, $index);
+    }
+
+    /**
+     * Adds a person of the role 'submitter'
+     *
+     * @param Person $person
+     * @return DocumentPerson
+     */
+    public function addPersonSubmitter($person)
+    {
+        return $this->addDocumentPerson($person, DocumentPerson::ROLE_SUBMITTER);
     }
 }
