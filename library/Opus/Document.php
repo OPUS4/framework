@@ -46,6 +46,7 @@ use Exception;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Storage\FileNotFoundException;
 use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
 use Opus\Identifier\Urn;
@@ -54,7 +55,6 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
-use Opus\Storage\FileNotFoundException;
 use Zend_Date;
 
 use function array_filter;
