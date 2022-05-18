@@ -178,7 +178,7 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->getField('Field2');
     }
 
@@ -202,7 +202,7 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->addField2();
     }
 
@@ -226,7 +226,7 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->getField2();
     }
 
@@ -250,7 +250,7 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->setField2('value');
     }
 

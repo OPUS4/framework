@@ -584,7 +584,7 @@ class FileTest extends TestCase
         $file = $doc->getFile(0);
         $doc->store();
 
-        $this->setExpectedException('Exception'); // TODO broken for PHPunit 3.6
+        $this->expectException('Exception'); // TODO broken for PHPunit 3.6
         $file->getRealHash('md23');
     }
 
@@ -655,7 +655,7 @@ class FileTest extends TestCase
         $file->setPathName('copied-' . $filename);
         $file->setLabel('Volltextdokument-2 (PDF)');
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $doc->store();
 
         // This code is not reached if the expected exception is thrown

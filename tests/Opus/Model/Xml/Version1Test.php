@@ -100,7 +100,7 @@ class Version1Test extends TestCase
     {
         $xml = new Xml();
         $xml->setModel(null);
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $xml->getDomDocument();
     }
 
@@ -470,7 +470,7 @@ class Version1Test extends TestCase
     public function testLoadInvalidXmlThrowsException()
     {
         $omx = new Xml();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $omx->setXml('<Opus attr/>');
     }
 

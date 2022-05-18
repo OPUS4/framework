@@ -141,7 +141,7 @@ class EnrichmentTest extends TestCase
     public function testStoreEnrichmentWithoutValue()
     {
         $this->doc->addEnrichment()->setKeyName('valid');
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $this->doc->store();
 
         $doc = new Document($this->doc->getId());

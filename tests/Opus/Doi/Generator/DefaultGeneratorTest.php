@@ -230,7 +230,7 @@ class DefaultGeneratorTest extends TestCase
     {
         $generator = new DefaultGenerator();
 
-        $this->setExpectedException(DoiGeneratorException::class);
+        $this->expectException(DoiGeneratorException::class);
 
         $generator->getPrefix();
     }
@@ -241,7 +241,7 @@ class DefaultGeneratorTest extends TestCase
 
         $generator = new DefaultGenerator();
 
-        $this->setExpectedException(DoiGeneratorException::class);
+        $this->expectException(DoiGeneratorException::class);
 
         $generator->getPrefix();
     }

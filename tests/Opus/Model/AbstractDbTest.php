@@ -45,7 +45,7 @@ use OpusTest\Model\Mock\CheckFieldOrderDummyClass;
 use OpusTest\Model\Mock\ModelAbstractDbMock;
 use OpusTest\Model\Mock\ModelDefiningAbstractExternalField;
 use OpusTest\Model\Mock\ModelDefiningExternalField;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend_Db_Table;
 use Zend_Validate_Date;
 
@@ -62,7 +62,7 @@ use function is_array;
  * @group AbstractDbTest
  * phpcs:disable
  */
-class AbstractDbTest extends PHPUnit_Framework_TestCase
+class AbstractDbTest extends TestCase
 {
     /**
      * Instance of the concrete table model for OpusTest\Model\Mock\AbstractDbMock.
@@ -128,7 +128,7 @@ class AbstractDbTest extends PHPUnit_Framework_TestCase
     {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new ModelDefiningExternalField();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $mockup->addLazyExternalModel();
     }
 
@@ -140,7 +140,7 @@ class AbstractDbTest extends PHPUnit_Framework_TestCase
     {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new ModelDefiningAbstractExternalField();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $return = $mockup->getLazyAbstractModel();
     }
 
@@ -620,7 +620,7 @@ class AbstractDbTest extends PHPUnit_Framework_TestCase
         $model->setValue('InvalidDate');
 
         // trigger Exception
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $id = $model->store();
     }
 

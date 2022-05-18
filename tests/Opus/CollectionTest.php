@@ -119,7 +119,7 @@ class CollectionTest extends TestCase
         $collectionId = $this->object->getId();
         $this->object->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Collection($collectionId);
     }
 
@@ -1218,7 +1218,7 @@ class CollectionTest extends TestCase
 
         $this->assertCount(7, $children);
 
-        $this->setExpectedException(InvalidArgumentException::class, 'is no child of');
+        $this->expectException(InvalidArgumentException::class, 'is no child of');
 
         $root->applySortOrderOfChildren([4, 11, 3, 16, 2, 8, 13]);
     }

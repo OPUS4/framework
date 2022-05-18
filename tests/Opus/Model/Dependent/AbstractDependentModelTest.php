@@ -195,7 +195,7 @@ class AbstractDependentModelTest extends TestCase
      */
     public function testInvalidDeletionTokenThrowsException()
     {
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $this->cut->delete();
         $this->cut->doDelete('foo');
     }
@@ -205,7 +205,7 @@ class AbstractDependentModelTest extends TestCase
      */
     public function testMissingDeletionTokenThrowsException()
     {
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $this->cut->doDelete(null);
     }
 

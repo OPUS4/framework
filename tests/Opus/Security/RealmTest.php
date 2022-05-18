@@ -210,7 +210,7 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
 
-        $this->setExpectedException(
+        $this->expectException(
             SecurityException::class,
             'An user with the given name: userbla could not be found'
         );
@@ -261,7 +261,7 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
 
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $realm->setIp('12.7.0.0.1');
     }
 

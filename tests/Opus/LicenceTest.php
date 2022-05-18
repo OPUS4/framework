@@ -210,7 +210,7 @@ class LicenceTest extends TestCase
         $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
         $licence->setLinkLicence('link 2');
 
-        $this->setExpectedException(DbConstrainViolationException::class, 'Duplicate entry');
+        $this->expectException(DbConstrainViolationException::class, 'Duplicate entry');
 
         $licence->store();
     }

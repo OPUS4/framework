@@ -450,7 +450,7 @@ class DnbInstituteTest extends TestCase
             'City' => 'Berlin',
         ]);
 
-        $this->setExpectedException(DbException::class, 'truncated');
+        $this->expectException(DbException::class, 'truncated');
 
         $instituteId = $institute->store();
 
@@ -500,7 +500,7 @@ class DnbInstituteTest extends TestCase
             'City'       => 'Berlin',
         ]);
 
-        $this->setExpectedException(DbConstrainViolationException::class, 'Duplicate entry');
+        $this->expectException(DbConstrainViolationException::class, 'Duplicate entry');
 
         $institute2->store();
     }

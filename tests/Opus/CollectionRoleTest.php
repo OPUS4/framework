@@ -122,7 +122,7 @@ class CollectionRoleTest extends TestCase
 
         $this->object->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new CollectionRole($roleId);
     }
 
@@ -144,7 +144,7 @@ class CollectionRoleTest extends TestCase
         $role   = new CollectionRole($roleId);
         $role->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new CollectionRole($roleId);
     }
 
@@ -1230,7 +1230,7 @@ class CollectionRoleTest extends TestCase
         $collRole->setName($invalidName);
         $collRole->setOaiName('foo');
 
-        $this->setExpectedException(ModelException::class, 'invalid data');
+        $this->expectException(ModelException::class, 'invalid data');
 
         $collRole->store();
     }

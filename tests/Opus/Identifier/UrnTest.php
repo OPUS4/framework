@@ -165,7 +165,7 @@ class UrnTest extends TestCase
      */
     public function testInitializeWithInvalidValues($nid, $nss, $msg)
     {
-        $this->setExpectedException('InvalidArgumentException', $msg);
+        $this->expectException('InvalidArgumentException', $msg);
         $identifier = new Urn($nid, $nss);
     }
 
@@ -178,7 +178,7 @@ class UrnTest extends TestCase
      */
     public function testCallUrnGeneratorWithInvalidValue($documentId, $msg)
     {
-        $this->setExpectedException('InvalidArgumentException', $msg);
+        $this->expectException('InvalidArgumentException', $msg);
         $identifier = new Urn('nbn', 'de:swb:14-opus');
         $generated  = $identifier->getUrn($documentId);
     }
@@ -192,7 +192,7 @@ class UrnTest extends TestCase
      */
     public function testCallCheckDigitGeneratorWithInvalidValue($documentId, $msg)
     {
-        $this->setExpectedException('InvalidArgumentException', $msg);
+        $this->expectException('InvalidArgumentException', $msg);
         $identifier = new Urn('nbn', 'de:swb:14-opus');
         $generated  = $identifier->getCheckDigit($documentId);
     }
