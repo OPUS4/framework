@@ -38,7 +38,6 @@ use OpusTest\TestAsset\TestCase;
 
 class ModelFactoryTest extends TestCase
 {
-
     public function tearDown()
     {
         $this->clearTables(false, ['documents']);

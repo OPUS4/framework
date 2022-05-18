@@ -61,6 +61,10 @@ class ModelFactory implements ModelFactoryInterface
         return new $modelClass($modelId);
     }
 
+    /**
+     * @param string $type
+     * @return mixed
+     */
     public function getRepository($type)
     {
         // TODO in old implementation model classes also serve as "repositories"
