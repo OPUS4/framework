@@ -25,54 +25,45 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Model\Plugin;
+namespace Opus;
 
-use Opus\Common\CollectionInterface;
-use Opus\Common\Model\Plugin\AbstractPlugin;
-use Opus\Date;
-use Opus\Db\Collections;
-use Opus\Db\TableGateway;
-use Opus\Document;
-use Opus\DocumentFinder;
-use Opus\Model\Xml\Cache;
+use Opus\Common\Model\ModelFactoryInterface;
 
-/**
- * Base class for plugins that need to update documents associated with collection tree.
- */
-abstract class AbstractCollection extends AbstractPlugin
+class ModelFactory implements ModelFactoryInterface
 {
     /**
-     * make sure documents related to Collection[Role]s in subtree are updated
-     * (XML-Cache and server_date_published)
-     *
-     * @param CollectionInterface $collection Starting point for recursive update to documents
+     * @param string $type
+     * @return mixed
      */
-    protected function updateDocuments($collection)
+    public function create($type)
     {
-        if ($collection === null || $collection->getId() === null) {
-            // no collection provided or collection has not been saved, so there is no ID
-            return;
-        }
+        // TODO check if supported type
+        // TODO create object
 
-        $collections = TableGateway::getInstance(Collections::class);
+        $modelClass = 'Opus\\' . $type;
 
-        $collectionIdSelect = $collections->selectSubtreeById($collection->getId(), 'id');
+        return new $modelClass();
+    }
 
-        $documentFinder = new DocumentFinder();
-        $documentFinder->setCollectionId($collectionIdSelect);
+    /**
+     * @param string $type
+     * @param int    $modelId
+     * @return mixed
+     */
+    public function get($type, $modelId)
+    {
+        $modelClass = 'Opus\\' . $type;
 
-        // clear affected documents from cache
-        $xmlCache = new Cache();
-        $xmlCache->removeAllEntriesWhereSubSelect($documentFinder->getSelectIds());
+        return new $modelClass($modelId);
+    }
 
-        // update ServerDateModified for affected documents
-        $date = new Date();
-        $date->setNow();
-
-        Document::setServerDateModifiedByIds($date, $documentFinder->ids());
+    public function getRepository($type)
+    {
+        // TODO in old implementation model classes also serve as "repositories"
+        return $this->create($type);
     }
 }

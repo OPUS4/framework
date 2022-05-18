@@ -39,6 +39,7 @@ namespace Opus;
 
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\FileInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
@@ -75,7 +76,7 @@ use const FILTER_VALIDATE_BOOLEAN;
  *
  * phpcs:disable
  */
-class File extends AbstractDependentModel
+class File extends AbstractDependentModel implements FileInterface
 {
     /**
      * Plugins to load
