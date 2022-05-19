@@ -196,6 +196,9 @@ class RealmTest extends TestCase
         $this->assertInstanceOf(Realm::class, $realm, 'Expected object of type Opus\Security\Realm.');
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSetUserSuccess()
     {
         $this->setUpUserUser();
@@ -243,6 +246,9 @@ class RealmTest extends TestCase
         }
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSetIpSuccess()
     {
         $this->setUpIp();

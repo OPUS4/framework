@@ -265,6 +265,8 @@ class DocumentTest extends TestCase
     /**
      * Test if storing a document wich has a linked model doesnt throw
      * an Opus\Model\ModelException.
+     *
+     * @doesNotPerformAssertions
      */
     public function testStoreWithLinkToIndependentModel()
     {
@@ -1795,6 +1797,8 @@ class DocumentTest extends TestCase
 
     /**
      * Regression test for OPUSVIER-2111
+     *
+     * @doesNotPerformAssertions
      */
     public function testTruncateExceptionIsNotThrown()
     {
@@ -2170,6 +2174,8 @@ class DocumentTest extends TestCase
 
     /**
      * Regression Test for OPUSVIER-3203
+     *
+     * @doesNotPerformAssertions
      */
     public function testDeleteFields()
     {
@@ -4045,6 +4051,8 @@ class DocumentTest extends TestCase
      * The database contains the shorter value so the truncation check fails.
      *
      * TODO review this test - is it still valid after deletePermanent was removed?
+     *
+     * @doesNotPerformAssertions
      */
     public function testNoTruncateExceptionDeletingDocumentUsingOutOfDateObject()
     {

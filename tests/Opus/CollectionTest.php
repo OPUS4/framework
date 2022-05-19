@@ -692,6 +692,8 @@ class CollectionTest extends TestCase
 
     /**
      * Regression Test for OPUSVIER-3145
+     *
+     * @doesNotPerformAssertions
      */
     public function testStoreCollection()
     {

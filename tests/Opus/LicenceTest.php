@@ -217,6 +217,8 @@ class LicenceTest extends TestCase
 
     /**
      * Multiple licences can have NULL for column 'name'.
+     *
+     * @doesNotPerformAssertions
      */
     public function testNameNullNotUnique()
     {

@@ -339,6 +339,9 @@ class DoiManagerTest extends TestCase
         $this->assertNull($result);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testVerifyWithUnregisteredDoi()
     {
         $docId      = $this->createTestDocWithDoi('10.5072/OPUS4-');
@@ -610,6 +613,9 @@ class DoiManagerTest extends TestCase
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doiValue);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithoutDoi()
     {
         $doc = new Document();
@@ -619,6 +625,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithExternalDoi()
     {
         $this->adaptDoiConfiguration([
@@ -633,6 +642,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Document($docId));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithLocalDoi()
     {
         $this->adaptDoiConfiguration([
@@ -647,6 +659,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Document($docId));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi()
     {
         $this->adaptDoiConfiguration([
@@ -668,6 +683,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Document($docId));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi()
     {
         $this->adaptDoiConfiguration([

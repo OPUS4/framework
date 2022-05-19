@@ -311,6 +311,8 @@ class DateTest extends TestCase
 
     /**
      * Test if setFromString() handles broken dates correctly.
+     *
+     * @doesNotPerformAssertions
      */
     public function testSetFromStringErrorHandling()
     {

@@ -108,6 +108,8 @@ class IdentifierTest extends TestCase
 
     /**
      * Regression test for OPUSVIER-2289
+     *
+     * @doesNotPerformAssertions
      */
     public function testFailDoubleUrnForSameDocument()
     {

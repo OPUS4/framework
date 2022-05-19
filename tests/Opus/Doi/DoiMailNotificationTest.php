@@ -126,6 +126,9 @@ class DoiMailNotificationTest extends TestCase
         $this->assertFalse($notification->isEnabled());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSendMailEmpty()
     {
         $this->adaptDoiConfiguration([
@@ -136,6 +139,9 @@ class DoiMailNotificationTest extends TestCase
         $notification->sendRegistrationEmail();
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSendMailSingle()
     {
         Config::get()->merge(new Zend_Config([
@@ -154,6 +160,9 @@ class DoiMailNotificationTest extends TestCase
         $notification->sendRegistrationEmail();
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSendMailMultiple()
     {
         Config::get()->merge(new Zend_Config([

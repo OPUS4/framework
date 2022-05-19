@@ -83,6 +83,8 @@ class AccountTest extends TestCase
 
     /**
      * Test if creating a new account on a clean database works.
+     *
+     * @doesNotPerformAssertions
      */
     public function testCreate()
     {
@@ -91,6 +93,8 @@ class AccountTest extends TestCase
 
     /**
      * Test setting of login and password.
+     *
+     * @doesNotPerformAssertions
      */
     public function testSetCredentials()
     {

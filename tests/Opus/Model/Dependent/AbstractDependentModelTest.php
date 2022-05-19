@@ -211,6 +211,8 @@ class AbstractDependentModelTest extends TestCase
 
     /**
      * Test if doDelete() accepts a valid deletion token.
+     *
+     * @doesNotPerformAssertions
      */
     public function testDoDeleteAcceptsValidDeletionToken()
     {

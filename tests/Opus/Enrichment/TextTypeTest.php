@@ -74,6 +74,9 @@ class TextTypeTest extends TestCase
         $this->assertNotEmpty($resultArr);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testRobustnessOfSetOptions()
     {
         $textType = new TextType();
