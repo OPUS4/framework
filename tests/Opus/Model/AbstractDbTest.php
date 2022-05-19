@@ -294,13 +294,12 @@ class AbstractDbTest extends TestCase
      */
     public function testIfModelIsNotStoredWhenUnmodified()
     {
-        // A record with id 1 is created by setUp() using AbstractDataSet.xml
+        // A record with id 1 is created by setUp()
         // So create a mocked Model to detect certain calls
-        $mock = $this->getMock(
-            AbstractDbMock::class,
-            ['_storeInternalFields', '_storeExternalFields'],
-            [1]
-        );
+        $mock = $this->getMockBuilder(AbstractDbMock::class)
+            ->setMethods(['_storeInternalFields', '_storeExternalFields'])
+            ->setConstructorArgs([1])
+            ->getMock();
 
         // Clear modified flag just to be sure
         $mock->getField('Value')->clearModified();
@@ -654,11 +653,11 @@ class AbstractDbTest extends TestCase
         $model = new \testStoreClearsModifiedFlagOfInternalFieldsOnly();
 
         // mock external field
-        $mockFieldExternalModel = $this->getMock(
-            Field::class,
-            ['clearModified'],
-            ['ExternalField']
-        );
+        $mockFieldExternalModel = $this->getMockBuilder(Field::class)
+            ->setMethods(['clearModified'])
+            ->setConstructorArgs(['ExternalField'])
+            ->getMock();
+
         $model->addField($mockFieldExternalModel);
 
         // clear and set modified flags respectivly
@@ -795,7 +794,7 @@ class AbstractDbTest extends TestCase
     public function testRegisteredPluginGetsCalled($call, $expect)
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock(AbstractPlugin::class);
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)->getMock();
 
         // define expectation
         $getsCalled = $plugin->expects($this->once())->method($expect);
@@ -816,7 +815,7 @@ class AbstractDbTest extends TestCase
     public function testRegisteredPluginPreFetchGetsCalledOnCreation()
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock(AbstractPlugin::class);
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)->getMock();
 
         // define expectation
         $plugin->expects($this->once())
@@ -832,7 +831,7 @@ class AbstractDbTest extends TestCase
     public function testRegisteredPluginPostDeleteGetsCalledOnCreation()
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock(AbstractPlugin::class);
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)->getMock();
 
         // create persistent test model
         $model = new AbstractDbMock();
@@ -856,10 +855,10 @@ class AbstractDbTest extends TestCase
     {
         $model = new AbstractDbMock();
 
-        $plugin = $this->getMock(
-            AbstractPlugin::class,
-            ['postStoreInternal']
-        );
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)
+            ->setMethods(['postStoreInternal'])
+            ->getMock();
+
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -876,10 +875,10 @@ class AbstractDbTest extends TestCase
     {
         $model = new AbstractDbMock();
 
-        $plugin = $this->getMock(
-            AbstractPlugin::class,
-            ['postStoreInternal']
-        );
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)
+            ->setMethods(['postStoreInternal'])
+            ->getMock();
+
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -896,10 +895,10 @@ class AbstractDbTest extends TestCase
     {
         $model = new AbstractDbMock();
 
-        $plugin = $this->getMock(
-            AbstractPlugin::class,
-            ['postStoreInternal']
-        );
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)
+            ->setMethods(['postStoreInternal'])
+            ->getMock();
+
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 

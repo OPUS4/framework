@@ -111,38 +111,38 @@ class AbstractDependentModelTest extends TestCase
 
         $config = ['dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser'];
 
-        $this->mockAdapter = $this->getMock(
-            'Zend_Db_Adapter_Abstract',
-            [
-                '_connect',
-                '_beginTransaction',
-                '_commit',
-                '_rollback',
-                'listTables',
-                'describeTable',
-                'closeConnection',
-                'prepare',
-                'lastInsertId',
-                'setFetchMode',
-                'limit',
-                'supportsParameters',
-                'isConnected',
-                'getServerVersion',
-            ],
-            [$config]
-        );
+        $this->mockAdapter = $this->getMockBuilder('Zend_Db_Adapter_Abstract')
+            ->setMethods(
+                [
+                    '_connect',
+                    '_beginTransaction',
+                    '_commit',
+                    '_rollback',
+                    'listTables',
+                    'describeTable',
+                    'closeConnection',
+                    'prepare',
+                    'lastInsertId',
+                    'setFetchMode',
+                    'limit',
+                    'supportsParameters',
+                    'isConnected',
+                    'getServerVersion',
+                ]
+            )
+            ->setConstructorArgs([$config])
+            ->getMock();
 
-        $this->mockTableGateway = $this->getMock(
-            'Opus_Model_Dependent_AbstractTest_MockTableGateway',
-            ['createRow'],
-            [[Zend_Db_Table_Abstract::ADAPTER => $this->mockAdapter]]
-        );
+        $this->mockTableGateway = $this->getMockBuilder('Opus_Model_Dependent_AbstractTest_MockTableGateway')
+            ->setMethods(['createRow'])
+            ->setConstructorArgs([[Zend_Db_Table_Abstract::ADAPTER => $this->mockAdapter]])
+            ->getMock();
 
-        $this->mockTableRow = $this->getMock(
-            'Zend_Db_Table_Row',
-            ['delete'],
-            [['table' => $this->mockTableGateway]]
-        );
+        $this->mockTableRow = $this->getMockBuilder('Zend_Db_Table_Row')
+            ->setMethods(['delete'])
+            ->setConstructorArgs([['table' => $this->mockTableGateway]])
+            ->getMock();
+
         $this->mockTableRow->expects($this->any())
             ->method('delete')
             ->will($this->returnValue(1));
@@ -151,11 +151,11 @@ class AbstractDependentModelTest extends TestCase
             ->method('createRow')
             ->will($this->returnValue($this->mockTableRow));
 
-        $this->cut = $this->getMock(
-            AbstractDependentModel::class,
-            ['init', 'getId'],
-            [null, $this->mockTableGateway]
-        );
+        $this->cut = $this->getMockBuilder(AbstractDependentModel::class)
+            ->setMethods(['init', 'getId'])
+            ->setConstructorArgs([null, $this->mockTableGateway])
+            ->getMock();
+
         $this->cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
         // unregister plugin to avoid side effects using mock object
         // plugin relies on table gateway class which is not available

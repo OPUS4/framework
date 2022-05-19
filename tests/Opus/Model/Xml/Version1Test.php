@@ -354,7 +354,10 @@ class Version1Test extends TestCase
         $model->addField($field);
 
         // create mock to track calls
-        $link = $this->getMock(ModelDependentLinkMock::class, ['getId', 'getLinkedModelId', 'describeAll']);
+        $link = $this->getMockBuilder(ModelDependentLinkMock::class)
+            ->setMethods(['getId', 'getLinkedModelId', 'describeAll'])
+            ->getMock();
+
         $link->setModelClass(AbstractModelMock::class);
         $model->setLinkField($link);
 
@@ -739,8 +742,11 @@ class Version1Test extends TestCase
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels()
     {
-        $mockResolver = $this->getMock(ResolverInterface::class, ['get']);
-        $xmlData      = '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><OpusTest_Model_Mock_AbstractModelMock xlink:href="www.example.org/item/12" /></Opus>';
+        $mockResolver = $this->getMockBuilder(ResolverInterface::class)
+            ->setProxyTarget(['get'])
+            ->getMock();
+
+        $xmlData = '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><OpusTest_Model_Mock_AbstractModelMock xlink:href="www.example.org/item/12" /></Opus>';
 
         $mockResolver->expects($this->once())
             ->method('get')
@@ -784,7 +790,10 @@ class Version1Test extends TestCase
         $mockModel = new AbstractModelMock();
         $mockModel->setValue('after');
 
-        $mockResolver = $this->getMock(ResolverInterface::class, ['get']);
+        $mockResolver = $this->getMockBuilder(ResolverInterface::class)
+            ->setMethods(['get'])
+            ->getMock();
+
         $mockResolver->expects($this->once())
             ->method('get')
             ->with($this->equalTo('www.example.org/mockitem'))

@@ -242,7 +242,7 @@ class AbstractModelTest extends TestCase
      */
     public function testValidationOfSubmodelIfStoredInMandatoryField()
     {
-        $submodel = $this->getMock(AbstractModelMock::class);
+        $submodel = $this->getMockBuilder(AbstractModelMock::class)->getMock();
         $model    = new AbstractModelMock();
         $field    = new Field('Submodel');
         $field->setValueModelClass(AbstractModelMock::class)
@@ -264,9 +264,9 @@ class AbstractModelTest extends TestCase
      */
     public function testValidationOfSubmodelsInMultivalueFields()
     {
-        $submodels[] = $this->getMock(AbstractModelMock::class);
-        $submodels[] = $this->getMock(AbstractModelMock::class);
-        $submodels[] = $this->getMock(AbstractModelMock::class);
+        $submodels[] = $this->getMockBuilder(AbstractModelMock::class)->getMock();
+        $submodels[] = $this->getMockBuilder(AbstractModelMock::class)->getMock();
+        $submodels[] = $this->getMockBuilder(AbstractModelMock::class)->getMock();
 
         // expect calls to isValid
         foreach ($submodels as $submodel) {
@@ -291,7 +291,7 @@ class AbstractModelTest extends TestCase
      */
     public function testValidationFailsIfSubmodelValidationDoesSo()
     {
-        $submodel = $this->getMock(AbstractModelMock::class);
+        $submodel = $this->getMockBuilder(AbstractModelMock::class)->getMock();
         $model    = new AbstractModelMock();
         $field    = new Field('Submodel');
         $field->setValueModelClass(AbstractModelMock::class)
