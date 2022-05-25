@@ -149,7 +149,9 @@ class CacheTest extends TestCase
     public function testHasValidEntryReturnsFalseOnMissedCacheHitWithEmptyCache()
     {
         $cache        = new Cache();
-        $invalidEntry = $cache->hasValidEntry(0, 2,
+        $invalidEntry = $cache->hasValidEntry(
+            0,
+            2,
             (new DateTime())->format(DateTime::ISO8601)
         );
 
@@ -163,7 +165,9 @@ class CacheTest extends TestCase
 
         $cache        = new Cache();
         $maxEntries   = $this->maxEntries;
-        $invalidEntry = $cache->hasValidEntry($maxEntries++, 2,
+        $invalidEntry = $cache->hasValidEntry(
+            $maxEntries++,
+            2,
             (new DateTime())->format(DateTime::ISO8601)
         );
 
@@ -438,7 +442,7 @@ class CacheTest extends TestCase
         $table           = new DocumentXmlCache();
         $beforeSecondPut = $table->fetchAll()->count();
 
-        $serverDateModified =  (new DateTime())->add(new DateInterval('PT' . mt_rand(1, 59) . 'S'))
+        $serverDateModified = (new DateTime())->add(new DateInterval('PT' . mt_rand(1, 59) . 'S'))
             ->format(DateTime::ISO8601);
         $subElement         = $dom->createElement('SubElement');
         $opusDocument->appendChild($subElement);
