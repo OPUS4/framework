@@ -19,6 +19,8 @@
 
 namespace OpusTest\Model\Xml;
 
+use DateInterval;
+use DateTime;
 use DOMDocument;
 use Opus\Common\Model\ModelException;
 use Opus\Db\DocumentXmlCache;
@@ -28,7 +30,6 @@ use Opus\Model\Xml\Cache;
 use Opus\Person;
 use Opus\TitleAbstract;
 use OpusTest\TestAsset\TestCase;
-use Zend_Date;
 
 use function array_key_exists;
 use function count;
@@ -79,7 +80,8 @@ class CacheTest extends TestCase
         for ($i = 0; $i < $this->maxEntries; $i++) {
             $data               = [
                 'document_id'          => $i + 1,
-                'server_date_modified' => Zend_Date::now()->addSecond(rand(1, 59))->getIso(),
+                'server_date_modified' => (new DateTime())->add(new DateInterval('PT' . rand(1, 59) . 'S'))
+                    ->format(DateTime::ISO8601),
                 'xml_version'          => $i % 2 ? 1 : 2,
                 'xml_data'             => '<Opus><Opus_Document><Foo/></Opus_Document></Opus>',
             ];
@@ -147,7 +149,9 @@ class CacheTest extends TestCase
     public function testHasValidEntryReturnsFalseOnMissedCacheHitWithEmptyCache()
     {
         $cache        = new Cache();
-        $invalidEntry = $cache->hasValidEntry(0, 2, Zend_Date::now()->getIso());
+        $invalidEntry = $cache->hasValidEntry(0, 2,
+            (new DateTime())->format(DateTime::ISO8601)
+        );
 
         $this->assertFalse($invalidEntry, 'Expecting not a cache hit.');
     }
@@ -159,7 +163,9 @@ class CacheTest extends TestCase
 
         $cache        = new Cache();
         $maxEntries   = $this->maxEntries;
-        $invalidEntry = $cache->hasValidEntry($maxEntries++, 2, Zend_Date::now()->getIso());
+        $invalidEntry = $cache->hasValidEntry($maxEntries++, 2,
+            (new DateTime())->format(DateTime::ISO8601)
+        );
 
         $this->assertFalse($invalidEntry, 'Expecting not a cache hit.');
     }
@@ -261,7 +267,7 @@ class CacheTest extends TestCase
     {
         $documentId         = 1;
         $xmlVersion         = 2;
-        $serverDateModified = Zend_Date::now()->getIso();
+        $serverDateModified = (new DateTime())->format(DateTime::ISO8601);
         $dom                = new DOMDocument('1.0', 'utf-8');
         $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
@@ -379,7 +385,7 @@ class CacheTest extends TestCase
     {
         $documentId         = 1;
         $xmlVersion         = 2;
-        $serverDateModified = Zend_Date::now()->getIso();
+        $serverDateModified = (new DateTime())->format(DateTime::ISO8601);
         $dom                = new DOMDocument('1.0', 'utf-8');
         $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
@@ -414,7 +420,7 @@ class CacheTest extends TestCase
     {
         $documentId         = 1;
         $xmlVersion         = 2;
-        $serverDateModified = Zend_Date::now()->getIso();
+        $serverDateModified = (new DateTime())->format(DateTime::ISO8601);
         $dom                = new DOMDocument('1.0', 'utf-8');
         $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
@@ -432,7 +438,8 @@ class CacheTest extends TestCase
         $table           = new DocumentXmlCache();
         $beforeSecondPut = $table->fetchAll()->count();
 
-        $serverDateModified = Zend_Date::now()->addSecond(mt_rand(1, 59))->getIso();
+        $serverDateModified =  (new DateTime())->add(new DateInterval('PT' . mt_rand(1, 59) . 'S'))
+            ->format(DateTime::ISO8601);
         $subElement         = $dom->createElement('SubElement');
         $opusDocument->appendChild($subElement);
         $cache = new Cache();

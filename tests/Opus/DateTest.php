@@ -112,19 +112,6 @@ class DateTest extends TestCase
     }
 
     /**
-     * Test creation by passing Zend_Date as constructor argument.
-     */
-    public function testCreateWithZendDateConstructionArgument()
-    {
-        $now = new Zend_Date();
-        $od  = new Date($now);
-        $this->assertEquals($od->getYear(), $now->get(Zend_Date::YEAR), 'Year values dont match.');
-        $this->assertEquals($od->getMonth(), $now->get(Zend_Date::MONTH), 'Month values dont match.');
-        $this->assertEquals($od->getDay(), $now->get(Zend_Date::DAY), 'Day values dont match.');
-        $this->assertTrue($od->isValid(), 'Opus\Date should be valid!');
-    }
-
-    /**
      * Test creation by passing Opus\Date as constructor argument.
      */
     public function testCreateWithOpusDateConstructionArgument()
@@ -354,13 +341,13 @@ class DateTest extends TestCase
     }
 
     /**
-     * TODO Test may fail because to much time passed between setNow and\Zend_Date construction.
+     * TODO Test may fail because to much time passed between setNow and\DateTime construction.
      */
-    public function testZendDateOutput()
+    public function testDateTimeOutput()
     {
         $date = new Date();
         $date->setNow();
-        $dateZend = new Date(new Zend_Date());
+        $dateZend = new Date(new DateTime());
 
         $this->assertEquals($date->__toString(), $dateZend->__toString());
     }
