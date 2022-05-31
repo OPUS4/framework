@@ -63,7 +63,7 @@ class SequenceNumberTest extends TestCase
         $model  = new Identifier();
         $plugin = new SequenceNumber();
 
-        $this->setExpectedException(Document\DocumentException::class);
+        $this->expectException(Document\DocumentException::class);
         $plugin->postStoreInternal($model);
     }
 

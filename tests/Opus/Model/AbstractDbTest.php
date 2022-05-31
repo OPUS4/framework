@@ -45,15 +45,12 @@ use OpusTest\Model\Mock\CheckFieldOrderDummyClass;
 use OpusTest\Model\Mock\ModelAbstractDbMock;
 use OpusTest\Model\Mock\ModelDefiningAbstractExternalField;
 use OpusTest\Model\Mock\ModelDefiningExternalField;
-use PHPUnit_Extensions_Database_DataSet_IDataSet;
-use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
-use PHPUnit_Extensions_Database_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend_Db_Table;
 use Zend_Validate_Date;
 
 use function class_exists;
 use function count;
-use function dirname;
 use function get_class;
 use function is_array;
 
@@ -65,7 +62,7 @@ use function is_array;
  * @group AbstractDbTest
  * phpcs:disable
  */
-class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
+class AbstractDbTest extends TestCase
 {
     /**
      * Instance of the concrete table model for OpusTest\Model\Mock\AbstractDbMock.
@@ -75,41 +72,19 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     protected $dbProvider;
 
     /**
-     * Provides test data as stored in AbstractDataSet.xml.
+     * Provides test data.
      *
      * @return array Array containing arrays of id and value pairs.
      */
     public function abstractDataSetDataProvider()
     {
         return [
-            [1, 'foobar'],
-            [3, 'foo'],
-            [4, 'bar'],
-            [5, 'bla'],
-            [8, 'blub'],
+            ['testtable_id' => 1, 'value' => 'foobar'],
+            ['testtable_id' => 3, 'value' => 'foo'],
+            ['testtable_id' => 4, 'value' => 'bar'],
+            ['testtable_id' => 5, 'value' => 'bla'],
+            ['testtable_id' => 8, 'value' => 'blub'],
         ];
-    }
-
-    /**
-     * Return the actual database connection.
-     *
-     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
-     */
-    protected function getConnection()
-    {
-        $dba = Zend_Db_Table::getDefaultAdapter();
-        $pdo = $dba->getConnection();
-        return $this->createDefaultDBConnection($pdo, null);
-    }
-
-    /**
-     * Returns test data to set up the Database before a test is started or after a test finished.
-     *
-     * @return PHPUnit_Extensions_Database_DataSet_IDataSet
-     */
-    protected function getDataSet()
-    {
-        return $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSet.xml');
     }
 
     /**
@@ -124,6 +99,12 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
             value        VARCHAR(255))');
 
         // load table data
+        foreach ($this->abstractDataSetDataProvider() as $row) {
+            $dba->query('INSERT INTO testtable (testtable_id, value) VALUES ( ' .
+                $row['testtable_id'] . ', "' . $row['value'] .'")'
+            );
+        }
+
         parent::setUp();
 
         // Instantiate the\Zend_Db_Table
@@ -147,7 +128,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new ModelDefiningExternalField();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $mockup->addLazyExternalModel();
     }
 
@@ -159,7 +140,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new ModelDefiningAbstractExternalField();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $return = $mockup->getLazyAbstractModel();
     }
 
@@ -291,12 +272,21 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
      */
     public function testChangeOfValueAndStore()
     {
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $obj = new AbstractDbMock(1);
         $obj->setValue('raboof');
         $obj->store();
-        $expected = $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSetAfterChangedValue.xml')->getTable('testtable');
-        $result   = $this->getConnection()->createDataSet()->getTable('testtable');
-        $this->assertTablesEqual($expected, $result);
+
+        $expected = [
+            ['testtable_id' => 1, 'value' => 'raboof'],
+            ['testtable_id' => 3, 'value' => 'foo'],
+            ['testtable_id' => 4, 'value' => 'bar'],
+            ['testtable_id' => 5, 'value' => 'bla'],
+            ['testtable_id' => 8, 'value' => 'blub']
+        ];
+
+        $result = $dba->fetchAll('SELECT * FROM testtable');
+        $this->assertEquals($expected, $result);
     }
 
     /**
@@ -304,13 +294,12 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
      */
     public function testIfModelIsNotStoredWhenUnmodified()
     {
-        // A record with id 1 is created by setUp() using AbstractDataSet.xml
+        // A record with id 1 is created by setUp()
         // So create a mocked Model to detect certain calls
-        $mock = $this->getMock(
-            AbstractDbMock::class,
-            ['_storeInternalFields', '_storeExternalFields'],
-            [1]
-        );
+        $mock = $this->getMockBuilder(AbstractDbMock::class)
+            ->setMethods(['_storeInternalFields', '_storeExternalFields'])
+            ->setConstructorArgs([1])
+            ->getMock();
 
         // Clear modified flag just to be sure
         $mock->getField('Value')->clearModified();
@@ -388,10 +377,11 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
      */
     public function testDeletion()
     {
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $obj      = new AbstractDbMock(1);
-        $preCount = $this->getConnection()->createDataSet()->getTable('testtable')->getRowCount();
+        $preCount = $dba->fetchOne('SELECT count(*) FROM testtable');
         $obj->delete();
-        $postCount = $this->getConnection()->createDataSet()->getTable('testtable')->getRowCount();
+        $postCount = $dba->fetchOne('SELECT count(*) FROM testtable');
         $this->assertEquals($postCount, $preCount - 1, 'Object persists allthough it was deleted.');
     }
 
@@ -629,7 +619,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         $model->setValue('InvalidDate');
 
         // trigger Exception
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $id = $model->store();
     }
 
@@ -663,11 +653,11 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
         $model = new \testStoreClearsModifiedFlagOfInternalFieldsOnly();
 
         // mock external field
-        $mockFieldExternalModel = $this->getMock(
-            Field::class,
-            ['clearModified'],
-            ['ExternalField']
-        );
+        $mockFieldExternalModel = $this->getMockBuilder(Field::class)
+            ->setMethods(['clearModified'])
+            ->setConstructorArgs(['ExternalField'])
+            ->getMock();
+
         $model->addField($mockFieldExternalModel);
 
         // clear and set modified flags respectivly
@@ -804,7 +794,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function testRegisteredPluginGetsCalled($call, $expect)
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock(AbstractPlugin::class);
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)->getMock();
 
         // define expectation
         $getsCalled = $plugin->expects($this->once())->method($expect);
@@ -825,7 +815,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function testRegisteredPluginPreFetchGetsCalledOnCreation()
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock(AbstractPlugin::class);
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)->getMock();
 
         // define expectation
         $plugin->expects($this->once())
@@ -841,7 +831,7 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     public function testRegisteredPluginPostDeleteGetsCalledOnCreation()
     {
         // create mock plugin to register method calls
-        $plugin = $this->getMock(AbstractPlugin::class);
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)->getMock();
 
         // create persistent test model
         $model = new AbstractDbMock();
@@ -865,10 +855,10 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         $model = new AbstractDbMock();
 
-        $plugin = $this->getMock(
-            AbstractPlugin::class,
-            ['postStoreInternal']
-        );
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)
+            ->setMethods(['postStoreInternal'])
+            ->getMock();
+
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -885,10 +875,10 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         $model = new AbstractDbMock();
 
-        $plugin = $this->getMock(
-            AbstractPlugin::class,
-            ['postStoreInternal']
-        );
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)
+            ->setMethods(['postStoreInternal'])
+            ->getMock();
+
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -905,10 +895,10 @@ class AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
     {
         $model = new AbstractDbMock();
 
-        $plugin = $this->getMock(
-            AbstractPlugin::class,
-            ['postStoreInternal']
-        );
+        $plugin = $this->getMockBuilder(AbstractPlugin::class)
+            ->setMethods(['postStoreInternal'])
+            ->getMock();
+
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 

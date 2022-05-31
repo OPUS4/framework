@@ -265,6 +265,8 @@ class DocumentTest extends TestCase
     /**
      * Test if storing a document wich has a linked model doesnt throw
      * an Opus\Model\ModelException.
+     *
+     * @doesNotPerformAssertions
      */
     public function testStoreWithLinkToIndependentModel()
     {
@@ -289,7 +291,7 @@ class DocumentTest extends TestCase
         $doc->setType("doctoral_thesis");
 
         $doc->addPageFirst(10);
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $doc->addPageFirst(100);
     }
 
@@ -300,7 +302,7 @@ class DocumentTest extends TestCase
      */
     public function testUndefinedFetchMethodForFieldValueClassNotExtendingAbstractModelThrowsException()
     {
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $document = new ModelWithNonAbstractExtendingClassField();
     }
 
@@ -468,7 +470,7 @@ class DocumentTest extends TestCase
         $docId = $doc->store();
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         Document::get($docId);
     }
 
@@ -491,7 +493,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         Document::get($modelId);
     }
 
@@ -532,7 +534,7 @@ class DocumentTest extends TestCase
 
         $doc->delete(); // delete document with missing file
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         Document::get($modelId);
     }
 
@@ -555,7 +557,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new DocumentPerson($linkId);
     }
 
@@ -575,7 +577,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new DocumentDnbInstitute($linkid);
 
         $this->fail("Document delete has not been cascaded.");
@@ -598,7 +600,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new DocumentLicence($linkid);
 
         $this->fail("Document delete has not been cascaded.");
@@ -626,7 +628,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Enrichment($id);
     }
 
@@ -647,7 +649,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Identifier($id);
     }
 
@@ -671,7 +673,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Patent($id);
     }
 
@@ -692,7 +694,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Note($id);
     }
 
@@ -713,7 +715,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Subject($id);
     }
 
@@ -735,7 +737,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Title($id);
     }
 
@@ -757,7 +759,7 @@ class DocumentTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         new Title($id);
     }
 
@@ -877,7 +879,7 @@ class DocumentTest extends TestCase
 
         $doc->addLanguage('de');
 
-        $this->setExpectedException(InvalidArgumentException::class, 'Cannot add multiple values to Language');
+        $this->expectException(InvalidArgumentException::class, 'Cannot add multiple values to Language');
 
         $doc->addLanguage('en');
     }
@@ -1769,7 +1771,7 @@ class DocumentTest extends TestCase
         $d->setIssue($stringWith26Chars);
         $d->setVolume($stringWith26Chars);
 
-        $this->setExpectedException(DbException::class, 'truncated');
+        $this->expectException(DbException::class, 'truncated');
 
         $d->store();
     }
@@ -1788,13 +1790,15 @@ class DocumentTest extends TestCase
         $d->setPublisherName($stringWith256Chars);
         $d->setLanguage($stringWith256Chars);
 
-        $this->setExpectedException(DbException::class, 'truncated');
+        $this->expectException(DbException::class, 'truncated');
 
         $d->store();
     }
 
     /**
      * Regression test for OPUSVIER-2111
+     *
+     * @doesNotPerformAssertions
      */
     public function testTruncateExceptionIsNotThrown()
     {
@@ -2170,6 +2174,8 @@ class DocumentTest extends TestCase
 
     /**
      * Regression Test for OPUSVIER-3203
+     *
+     * @doesNotPerformAssertions
      */
     public function testDeleteFields()
     {
@@ -2417,7 +2423,7 @@ class DocumentTest extends TestCase
         $doc = new Document();
         $doc->setServerState('unknown');
 
-        $this->setExpectedException(DbException::class, 'truncated');
+        $this->expectException(DbException::class, 'truncated');
         $doc->store();
     }
 
@@ -2825,7 +2831,7 @@ class DocumentTest extends TestCase
 
         $doc = new Document($docId);
 
-        $this->setExpectedException(ModelException::class, 'unknown enrichment key');
+        $this->expectException(ModelException::class, 'unknown enrichment key');
 
         $doc->getEnrichmentValue('unknownkey');
     }
@@ -4045,6 +4051,8 @@ class DocumentTest extends TestCase
      * The database contains the shorter value so the truncation check fails.
      *
      * TODO review this test - is it still valid after deletePermanent was removed?
+     *
+     * @doesNotPerformAssertions
      */
     public function testNoTruncateExceptionDeletingDocumentUsingOutOfDateObject()
     {
@@ -4111,7 +4119,7 @@ class DocumentTest extends TestCase
 
         $patent->setNumber(str_repeat('0123456789', 26));
 
-        $this->setExpectedException(DbException::class, 'Data too long');
+        $this->expectException(DbException::class, 'Data too long');
 
         $doc->store();
     }
@@ -4426,7 +4434,7 @@ class DocumentTest extends TestCase
 
         $this->assertFalse($file->exists());
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
 
         Document::get($docId);
     }

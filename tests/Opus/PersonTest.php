@@ -1193,7 +1193,7 @@ class PersonTest extends TestCase
 
         sleep(2);
 
-        $this->setExpectedException(ModelException::class, 'unknown field \'IdentifierIntern\' for update');
+        $this->expectException(ModelException::class, 'unknown field \'IdentifierIntern\' for update');
 
         Person::updateAll($personCrit, $changes);
 
@@ -1829,7 +1829,7 @@ class PersonTest extends TestCase
 
         $doc->delete();
 
-        $this->setExpectedException(ModelException::class, 'No Opus\Db\Documents with id');
+        $this->expectException(ModelException::class, 'No Opus\Db\Documents with id');
         new Document($docId);
     }
 

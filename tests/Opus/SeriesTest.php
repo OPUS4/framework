@@ -136,7 +136,7 @@ class SeriesTest extends TestCase
         $this->assertTrue($s->isValid(), 'series should be valid');
         $this->assertFalse($ls->isValid());
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $d->store();
     }
 
@@ -173,7 +173,7 @@ class SeriesTest extends TestCase
     public function testCreateSeriesWithoutTitle()
     {
         $s = new Series();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $s->store();
     }
 
@@ -213,7 +213,7 @@ class SeriesTest extends TestCase
 
         $s->delete();
 
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         $s = new Series($id);
     }
 
@@ -230,7 +230,7 @@ class SeriesTest extends TestCase
         $d->addSeries($s)->setNumber('1');
         $d->addSeries($s)->setNumber('2');
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $d->store();
     }
 

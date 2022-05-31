@@ -178,12 +178,14 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->getField('Field2');
     }
 
     /**
      * Test if calling add<Fieldname>() on a non-blacklisted field is allowed.
+     *
+     * @doesNotPerformAssertions
      */
     public function testAddCallToNotBlacklistedFieldNotThrowsAnException()
     {
@@ -202,12 +204,14 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->addField2();
     }
 
     /**
      * Test if calling get<Fieldname>() on a non-blacklisted field is allowed.
+     *
+     * @doesNotPerformAssertions
      */
     public function testGetCallToNotBlacklistedFieldNotThrowsAnException()
     {
@@ -226,12 +230,14 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->getField2();
     }
 
     /**
      * Test if calling set<Fieldname>() on a non-blacklisted field is allowed.
+     *
+     * @doesNotPerformAssertions
      */
     public function testSetCallToNotBlacklistedFieldNotThrowsAnException()
     {
@@ -250,7 +256,7 @@ class FilterTest extends TestCase
         $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field = $this->filter->setField2('value');
     }
 

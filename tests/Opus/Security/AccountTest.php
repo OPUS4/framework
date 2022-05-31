@@ -83,6 +83,8 @@ class AccountTest extends TestCase
 
     /**
      * Test if creating a new account on a clean database works.
+     *
+     * @doesNotPerformAssertions
      */
     public function testCreate()
     {
@@ -91,6 +93,8 @@ class AccountTest extends TestCase
 
     /**
      * Test setting of login and password.
+     *
+     * @doesNotPerformAssertions
      */
     public function testSetCredentials()
     {
@@ -135,7 +139,7 @@ class AccountTest extends TestCase
         $account2->setPassword('testpwd2');
 
         $account1->store();
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $account2->store();
     }
 
@@ -146,7 +150,7 @@ class AccountTest extends TestCase
     public function testCreateAndStoreWithoutLoginThrowsException()
     {
         $account = new Account();
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $account->store();
     }
 
@@ -184,7 +188,7 @@ class AccountTest extends TestCase
         $dave = new Account();
         $dave->setLogin('dave')->setPassword('secret')->store();
 
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $dave->setLogin('bob')->store();
     }
 
@@ -194,7 +198,7 @@ class AccountTest extends TestCase
     public function testNonAlphaNumericLoginsGetRejected()
     {
         $dave = new Account();
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $dave->setLogin('#~$??!');
     }
 
@@ -218,7 +222,7 @@ class AccountTest extends TestCase
         $bob = new Account();
         $bob->setLogin('bob')->setPassword('secret')->store();
 
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $result = new Account(null, null, 'bobby');
     }
 }

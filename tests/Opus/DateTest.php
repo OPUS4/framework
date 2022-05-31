@@ -311,6 +311,8 @@ class DateTest extends TestCase
 
     /**
      * Test if setFromString() handles broken dates correctly.
+     *
+     * @doesNotPerformAssertions
      */
     public function testSetFromStringErrorHandling()
     {
@@ -675,7 +677,7 @@ class DateTest extends TestCase
     {
         $date = new Date('2018-10-14');
 
-        $this->setExpectedException(ModelException::class, 'Cannot compare Zend_Config with Opus\Date object.');
+        $this->expectException(ModelException::class, 'Cannot compare Zend_Config with Opus\Date object.');
 
         $date->compare(new Zend_Config([]));
     }

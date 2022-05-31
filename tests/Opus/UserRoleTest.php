@@ -107,7 +107,7 @@ class UserRoleTest extends TestCase
     {
         $ur = UserRole::fetchByName('unit-test');
 
-        $this->setExpectedException(Zend_Db_Statement_Exception::class);
+        $this->expectException(Zend_Db_Statement_Exception::class);
 
         $ur->appendAccessDocument(1)->store();
     }

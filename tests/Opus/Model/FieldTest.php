@@ -186,7 +186,7 @@ class FieldTest extends TestCase
     {
         $field = new Field('MyField');
         $field->setMultiplicity(1);
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field->setValue(['single', 'sungle', 'sangle']);
     }
 
@@ -199,7 +199,7 @@ class FieldTest extends TestCase
      */
     public function testInputValuesForMultiplicityAreIntegerOrStar($value)
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity($value);
     }
@@ -449,7 +449,7 @@ class FieldTest extends TestCase
      */
     public function testAddingValuesToNonMultipleField()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity('1');
         $field->addValue([15, 16, 17]);
@@ -483,7 +483,7 @@ class FieldTest extends TestCase
      */
     public function testAddingMoreValuesThenAllowedThrowsException()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity(3);
         $field->addValue([15, 16, 17, 18]);
@@ -613,7 +613,7 @@ class FieldTest extends TestCase
     {
         $field = new Field('myfield');
         $field->setValueModelClass('Zend_Date');
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field->setValue(new stdClass());
     }
 

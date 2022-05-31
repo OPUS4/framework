@@ -84,7 +84,7 @@ class AccountTest extends TestCase
         $account = new Account();
         $account->setLogin('dummy3');
 
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $account->store();
     }
 
@@ -97,7 +97,7 @@ class AccountTest extends TestCase
         $account->store();
         $account->delete();
 
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         new Account(null, null, 'dummy');
     }
 
