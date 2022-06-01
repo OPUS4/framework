@@ -39,7 +39,6 @@ use Opus\Common\Model\ModelException;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
-use Zend_Date;
 
 use function array_diff;
 use function array_keys;
@@ -354,8 +353,6 @@ abstract class AbstractModel implements PropertySupportInterface
 
             foreach ($fieldvalue as $value) {
                 if ($value instanceof AbstractModel) {
-                    $fieldvalues[] = $value->toArray();
-                } elseif ($value instanceof Zend_Date) {
                     $fieldvalues[] = $value->toArray();
                 } else {
                     $fieldvalues[] = $value;

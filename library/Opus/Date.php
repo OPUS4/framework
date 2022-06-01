@@ -46,7 +46,6 @@ use Opus\Model\ComparableInterface;
 use Opus\Model\DateField;
 use Opus\Model\Field;
 use Opus\Model\UnixTimestampField;
-use Zend_Date;
 use Zend_Validate_Int;
 
 use function checkdate;
@@ -178,33 +177,6 @@ class Date extends AbstractModel implements ComparableInterface
 
         $field = new UnixTimestampField('UnixTimestamp', $this);
         $this->addField($field);
-    }
-
-    /**
-     * Returns a \Zend_Date instance properly set up with
-     * date values as described in the Models fields.
-     *
-     * @return Zend_Date
-     */
-    public function getZendDate()
-    {
-        $datearray = [
-            'year'     => $this->values[self::FIELD_YEAR],
-            'month'    => $this->values[self::FIELD_MONTH],
-            'day'      => $this->values[self::FIELD_DAY],
-            'hour'     => $this->values[self::FIELD_HOUR],
-            'minute'   => $this->values[self::FIELD_MINUTE],
-            'second'   => $this->values[self::FIELD_SECOND],
-            'timezone' => $this->values[self::FIELD_TIMEZONE],
-        ];
-
-        foreach ($datearray as $key => $value) {
-            if ($value === null) {
-                unset($datearray[$key]);
-            }
-        }
-
-        return new Zend_Date($datearray);
     }
 
     /**

@@ -42,6 +42,7 @@
 
 namespace Opus;
 
+use DateTime;
 use Exception;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
@@ -55,7 +56,6 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
-use Zend_Date;
 
 use function array_filter;
 use function array_key_exists;
@@ -945,26 +945,26 @@ class Document extends AbstractDb implements DocumentInterface
     {
         try {
             if ($from === null) {
-                $from = new Zend_Date(self::getEarliestPublicationDate());
+                $from = new DateTime(self::getEarliestPublicationDate());
             } else {
-                $from = new Zend_Date($from);
+                $from = new DateTime($from);
             }
         } catch (Exception $e) {
             throw new Exception('Invalid date string supplied: ' . $from);
         }
         try {
             if ($until === null) {
-                $until = new Zend_Date();
+                $until = new DateTimer();
             } else {
-                $until = new Zend_Date($until);
+                $until = new DateTime($until);
             }
         } catch (Exception $e) {
             throw new Exception('Invalid date string supplied: ' . $until);
         }
 
         $searchRange = null;
-        if (true === $from->equals($until)) {
-            $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
+        if ($from->getTimestamp() === $until->getTimestamp()) {
+            $searchRange = 'LIKE "' . $from->format('Y-m-d') . '%"';
         } else {
             // TODO FIXME
             //
@@ -975,8 +975,8 @@ class Document extends AbstractDb implements DocumentInterface
             // If we add one day then is result as expected but maybe wrong?
             //
             // Between range looks like $from < $until and not $from <= $until
-            $until->addDay(1);
-            $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd')
+            $until->modify('+1 day');
+            $searchRange = 'BETWEEN "' . $from->format('Y-m-d') . '%" AND "' . $until->format('Y-m-d')
                 . '%"';
         }
 

@@ -41,12 +41,12 @@ use fieldTestInspector;
 use InvalidArgumentException;
 use Opus\Common\Model\ModelException;
 use Opus\Date;
+use Opus\Document;
 use Opus\Model\Field;
 use OpusTest\Model\Mock\ModelAbstractDbMock;
 use OpusTest\Model\Mock\ModelDependentMock;
 use OpusTest\TestAsset\TestCase;
 use stdClass;
-use Zend_Date;
 
 use function get_class;
 use function is_array;
@@ -612,7 +612,7 @@ class FieldTest extends TestCase
     public function testValueOfUnexpectedTypeThrowsException()
     {
         $field = new Field('myfield');
-        $field->setValueModelClass('Zend_Date');
+        $field->setValueModelClass('Date');
         $this->setExpectedException(ModelException::class);
         $field->setValue(new stdClass());
     }
@@ -623,7 +623,7 @@ class FieldTest extends TestCase
     public function testValueOfUncastableDataThrowsException()
     {
         $field = new Field('myfield');
-        $field->setValueModelClass('Zend_Date');
+        $field->setValueModelClass(Document::class);
 
         try {
             $field->setValue('Foo');
@@ -639,7 +639,7 @@ class FieldTest extends TestCase
     public function testSetterValueGetsCasted()
     {
         $field = new Field('myfield');
-        $field->setValueModelClass('Zend_Date');
+        $field->setValueModelClass(Date::class);
         try {
             $field->setValue('10.11.1979');
         } catch (ModelException $ome) {
@@ -647,7 +647,7 @@ class FieldTest extends TestCase
         }
         $result = $field->getValue();
 
-        $this->assertTrue($result instanceof Zend_Date, 'Value has not been casted to valueModelClass object.');
+        $this->assertTrue($result instanceof Date, 'Value has not been casted to valueModelClass object.');
     }
 
     /**

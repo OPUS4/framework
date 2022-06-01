@@ -45,7 +45,6 @@ use Opus\Date;
 use Opus\Document;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
-use Zend_Date;
 use Zend_Locale;
 
 use function date;
@@ -81,22 +80,6 @@ class DateTest extends TestCase
     {
         $od = new Date();
         $this->assertFalse($od->isValid(), 'Opus\Date object should not be valid!');
-    }
-
-    /**
-     * Test if a valid\Zend_Date object can be created.
-     */
-    public function testGetZendDate()
-    {
-        $od = new Date();
-        $od->setYear(2005)
-            ->setMonth(10)
-            ->setDay(24);
-        $this->assertTrue($od->isValid(), 'Date should be valid!');
-
-        $zd = $od->getZendDate();
-        $this->assertNotNull($zd, 'Object expected.');
-        $this->assertTrue($zd instanceof Zend_Date, 'Returned object is not\Zend_Date.');
     }
 
     /**

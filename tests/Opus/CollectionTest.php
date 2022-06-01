@@ -646,7 +646,8 @@ class CollectionTest extends TestCase
 
         $d                       = new Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
-        $this->assertTrue($serverDateModifiedAfter->getZendDate()->getTimestamp() > $serverDateModifiedBeforeDelete->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+
+        $this->assertTrue($serverDateModifiedAfter->getTimestamp() > $serverDateModifiedBeforeDelete->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
 
     /**
