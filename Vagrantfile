@@ -31,7 +31,7 @@ $composer = <<SCRIPT
 SCRIPT
 
 $database = <<SCRIPT
-/vagrant/scripts/prepare-database.sh
+/vagrant/bin/prepare-database.sh
 SCRIPT
 
 $prepare_tests = <<SCRIPT
