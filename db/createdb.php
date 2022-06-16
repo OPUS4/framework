@@ -30,8 +30,10 @@
  */
 
 /**
- * Script for creating OPUS 4 database with optional name and version
+ * Script for creating an OPUS 4 database with optional name and version
  * parameters.
+ *
+ * Note that this script is also used by other OPUS 4 packages.
  */
 
 // Define path to application directory
@@ -42,7 +44,7 @@ defined('APPLICATION_PATH')
 defined('APPLICATION_ENV')
     || define('APPLICATION_ENV', getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production');
 
-// Configure include path.
+// Configure include path
 set_include_path(
     implode(
         PATH_SEPARATOR,
@@ -63,9 +65,16 @@ require_once 'autoload.php';
 $dirPath = dirname(__FILE__, 2);
 require_once $dirPath . '/library/OpusDb/Mysqlutf8.php';
 
+// Gather .ini files to be used for environment initializiation
+// NOTE: Since this script is also used by other OPUS 4 packages we also check
+//       a `test` directory (which gets used by other packages). All found .ini
+//       files will then be used for initializiation (in the given order).
+// TODO: move common initializiation from `tests.ini` into `application.ini`
 $configFiles = array_filter([
-    APPLICATION_PATH . '/test/config.ini',
+    APPLICATION_PATH . '/tests/tests.ini',
     APPLICATION_PATH . '/tests/config.ini',
+    APPLICATION_PATH . '/test/test.ini',
+    APPLICATION_PATH . '/test/config.ini',
 ], 'file_exists');
 
 // Environment initializiation
