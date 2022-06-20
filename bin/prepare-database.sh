@@ -24,15 +24,18 @@
 # along with OPUS; if not, write to the Free Software Foundation, Inc., 51
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-# @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+# @copyright   Copyright (c) 2022, OPUS 4 development team
 # @license     http://www.gnu.org/licenses/gpl.html General Public License
 
+#
 # Script to set up an OPUS 4 database and database users with optional
 # parameters to provide custom database user names & passwords and/or a
 # custom database name. If no optional parameters are given, default values
 # will be used.
 #
-# Note that this script is also used by other OPUS 4 packages.
+# IMPORTANT: This script is also used by other OPUS 4 packages that require
+#            a database for testing.
+#
 
 # Define variables and their default values
 root_pwd='root'
@@ -85,9 +88,7 @@ while [ $# -gt 0 ]; do
             # Process next option
             shift
         fi
-
     fi
-
     shift
 done
 

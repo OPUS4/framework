@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,8 +25,6 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -59,8 +58,9 @@ $application = new \Zend_Application(
     APPLICATION_ENV,
     array(
         "config"=>array(
-            APPLICATION_PATH . '/tests/config.ini',
-            APPLICATION_PATH . '/tests/tests.ini'
+            APPLICATION_PATH . '/tests/application.ini',
+            APPLICATION_PATH . '/tests/test.ini',
+            APPLICATION_PATH . '/tests/config.ini'
         )
     )
 );

@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,9 +36,14 @@
  * Note that this script is also used by other OPUS 4 packages.
  */
 
+$frameworkPath = dirname(__FILE__, 2);
+
 // Define path to application directory
 defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', getenv('APPLICATION_PATH') ? getenv('APPLICATION_PATH') : realpath(dirname(dirname(__FILE__))));
+    || define(
+        'APPLICATION_PATH',
+        getenv('APPLICATION_PATH') ? getenv('APPLICATION_PATH') : realpath($frameworkPath)
+    );
 
 // Define application environment
 defined('APPLICATION_ENV')
@@ -62,18 +67,15 @@ set_include_path(
 require_once 'autoload.php';
 
 // TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
-$dirPath = dirname(__FILE__, 2);
-require_once $dirPath . '/library/OpusDb/Mysqlutf8.php';
+require_once $frameworkPath . '/library/OpusDb/Mysqlutf8.php';
 
-// Gather .ini files to be used for environment initializiation
+// Gather .ini files to be used for environment initialization
 // NOTE: Since this script is also used by other OPUS 4 packages we also check
 //       a `test` directory (which gets used by other packages). All found .ini
-//       files will then be used for initializiation (in the given order).
-// TODO: move common initializiation from `tests.ini` into `application.ini`
+//       files will then be used for initialization (in the given order).
 $configFiles = array_filter([
-    APPLICATION_PATH . '/tests/tests.ini',
+    $frameworkPath . '/tests/application.ini',
     APPLICATION_PATH . '/tests/config.ini',
-    APPLICATION_PATH . '/test/test.ini',
     APPLICATION_PATH . '/test/config.ini',
 ], 'file_exists');
 
