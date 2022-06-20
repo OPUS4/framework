@@ -39,9 +39,15 @@ $frameworkPath = dirname(__FILE__, 2);
 defined('FRAMEWORK_PATH')
     || define('FRAMEWORK_PATH', realpath($frameworkPath));
 
-// Define path to application directory
-defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath($frameworkPath));
+if (! defined('APPLICATION_PATH')) {
+    // Check if bootstrapping Framework or package
+    $packagePath = '/vendor/opus4-repo/framework';
+    if (substr($frameworkPath, -strlen($packagePath)) === $packagePath) {
+        define('APPLICATION_PATH', realpath(dirname(__FILE__, 5)));
+    } else {
+        define('APPLICATION_PATH', realpath($frameworkPath));
+    }
+}
 
 // Define application environment (use 'production' by default)
 define('APPLICATION_ENV', 'testing');
@@ -51,15 +57,20 @@ $scriptDir = dirname(__FILE__);
 
 require_once APPLICATION_PATH . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
+$configFiles = array_filter([
+    $frameworkPath . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'application.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'test.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'test.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini',
+], 'file_exists');
+
+
 // Do test environment initializiation.
 $application = new Zend_Application(
     APPLICATION_ENV,
     [
-        "config" => [
-            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'application.ini',
-            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'test.ini',
-            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini',
-        ],
+        "config" => $configFiles,
     ]
 );
 
