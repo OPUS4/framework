@@ -80,4 +80,7 @@ $options                                        = $application->getOptions();
 $options['opus']['disableDatabaseVersionCheck'] = true;
 $application->setOptions($options);
 
-$application->bootstrap(['Database', 'Temp', 'OpusLocale']);
+$resourcesOption = $options['opus']['bootstrap']['resources'];
+$resources = preg_split('/(\s*,\s*)+/', $resourcesOption);
+
+$application->bootstrap($resources);
