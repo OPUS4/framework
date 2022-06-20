@@ -65,7 +65,6 @@ $configFiles = array_filter([
     APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini',
 ], 'file_exists');
 
-
 // Do test environment initializiation.
 $application = new Zend_Application(
     APPLICATION_ENV,
