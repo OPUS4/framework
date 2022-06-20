@@ -57,6 +57,9 @@ $scriptDir = dirname(__FILE__);
 
 require_once APPLICATION_PATH . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
+// TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
+require_once FRAMEWORK_PATH . '/library/OpusDb/Mysqlutf8.php';
+
 $configFiles = array_filter([
     $frameworkPath . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'application.ini',
     APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'test.ini',
