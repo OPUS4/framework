@@ -34,9 +34,14 @@
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 1);
 
+$frameworkPath = dirname(__FILE__, 2);
+
+defined('FRAMEWORK_PATH')
+    || define('FRAMEWORK_PATH', realpath($frameworkPath));
+
 // Define path to application directory
 defined('APPLICATION_PATH')
-        || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+    || define('APPLICATION_PATH', realpath($frameworkPath));
 
 // Define application environment (use 'production' by default)
 define('APPLICATION_ENV', 'testing');

@@ -38,6 +38,9 @@
 
 $frameworkPath = dirname(__FILE__, 2);
 
+defined('FRAMEWORK_PATH')
+    || define('FRAMEWORK_PATH', realpath($frameworkPath));
+
 // Define path to application directory
 defined('APPLICATION_PATH')
     || define(

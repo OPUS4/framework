@@ -33,8 +33,13 @@
  * Script for converting database to 'utf8mb4'.
  */
 
+$frameworkPath = dirname( __FILE__, 2);
+
+defined('FRAMEWORK_PATH')
+    || define('FRAMEWORK_PATH', realpath($frameworkPath));
+
 defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+    || define('APPLICATION_PATH', realpath($frameworkPath));
 
 defined('APPLICATION_ENV')
     || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
