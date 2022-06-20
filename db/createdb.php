@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,49 +25,72 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
- * Script for creating OPUS 4 database with optional name and version
+ * Script for creating an OPUS 4 database with optional name and version
  * parameters.
+ *
+ * Note that this script is also used by other OPUS 4 packages.
  */
 
+$frameworkPath = dirname(__FILE__, 2);
+
+defined('FRAMEWORK_PATH')
+    || define('FRAMEWORK_PATH', realpath($frameworkPath));
+
+// Define path to application directory
 defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+    || define(
+        'APPLICATION_PATH',
+        getenv('APPLICATION_PATH') ? getenv('APPLICATION_PATH') : realpath($frameworkPath)
+    );
 
+// Define application environment
 defined('APPLICATION_ENV')
-    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
+    || define('APPLICATION_ENV', getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production');
 
-// Configure include path.
+// Configure include path
 set_include_path(
     implode(
-        PATH_SEPARATOR, array(
+        PATH_SEPARATOR,
+        [
             '.',
             dirname(__FILE__),
             APPLICATION_PATH . '/library',
+            APPLICATION_PATH . '/src',
             APPLICATION_PATH . '/vendor',
             get_include_path(),
-        )
+        ]
     )
 );
 
 require_once 'autoload.php';
 
-$application = new \Zend_Application(
+// TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
+require_once $frameworkPath . '/library/OpusDb/Mysqlutf8.php';
+
+// Gather .ini files to be used for environment initialization
+// NOTE: Since this script is also used by other OPUS 4 packages we also check
+//       a `test` directory (which gets used by other packages). All found .ini
+//       files will then be used for initialization (in the given order).
+$configFiles = array_filter([
+    $frameworkPath . '/tests/application.ini',
+    APPLICATION_PATH . '/tests/config.ini',
+    APPLICATION_PATH . '/test/config.ini',
+], 'file_exists');
+
+// Environment initializiation
+$application = new Zend_Application(
     APPLICATION_ENV,
-    array(
-        "config"=>array(
-            APPLICATION_PATH . '/tests/config.ini',
-            APPLICATION_PATH . '/tests/tests.ini'
-        )
-    )
+    [
+        "config" => $configFiles,
+    ]
 );
 
-$options = $application->getOptions();
+$options                                        = $application->getOptions();
 $options['opus']['disableDatabaseVersionCheck'] = true;
 $application->setOptions($options);
 
@@ -77,22 +101,28 @@ $options = getopt('v:n:');
 
 $version = null;
 
-if (array_key_exists('v', $options))
-{
+if (array_key_exists('v', $options)) {
     $version = $options['v'];
-    if (!ctype_digit($version))
-    {
+    if (! ctype_digit($version)) {
         $version = null;
     }
 }
 
-$database = new \Opus\Database();
+/**
+ * Prepare database.
+ */
 
-echo $database->getName() . PHP_EOL;
+$database = new Opus\Database();
 
+$dbName = $database->getName();
+
+echo "Dropping database '$dbName' ... ";
 $database->drop();
+echo 'done' . PHP_EOL;
+
+echo "Creating database '$dbName' ... ";
 $database->create();
+echo 'done' . PHP_EOL;
+
+echo PHP_EOL . "Importing database schema ... " . PHP_EOL;
 $database->importSchema($version);
-
-
-

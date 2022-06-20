@@ -27,11 +27,6 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Doi
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Doi;
@@ -43,7 +38,7 @@ use Zend_Config;
 
 /**
  * The tests in this class require access to the DataCite testing environment using a username and a passwort. This
- * needs to be setup in the 'config.ini' or 'tests.ini'.
+ * needs to be setup in the 'config.ini' or 'test.ini'.
  */
 class DoiManagerDataCiteTest extends TestCase
 {
