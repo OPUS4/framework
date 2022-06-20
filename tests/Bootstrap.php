@@ -84,3 +84,27 @@ $resourcesOption = $options['opus']['bootstrap']['resources'];
 $resources       = preg_split('/(\s*,\s*)+/', $resourcesOption);
 
 $application->bootstrap($resources);
+
+// make sure necessary directories are available
+// TODO move to class
+// TODO use configured workspace path
+ensureDirectory(APPLICATION_PATH . '/build/workspace');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/cache');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/filecache');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/files');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/log');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/tmp');
+
+/**
+ * Creates the given directory if it doesn't exist.
+ *
+ * @param string $path The directory path to be created.
+ */
+function ensureDirectory($path)
+{
+    if (! is_dir($path)) {
+        mkdir($path);
+        echo "Created directory '$path'" . PHP_EOL;
+    }
+}
+
