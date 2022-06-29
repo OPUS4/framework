@@ -47,6 +47,8 @@ use Opus\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Model\ModelException;
 use Opus\Date;
+use Opus\Db\Documents;
+use Opus\Db\TableGateway;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Enrichment;
@@ -1573,6 +1575,25 @@ class DocumentTest extends TestCase
         // Check if all numbers are unique
         $uniqueNumbers = array_unique($numbers);
         $this->assertEquals(count($authors), count($uniqueNumbers));
+    }
+
+    public function testGetEarliestPublicationDate()
+    {
+        $nullDate = Document::getEarliestPublicationDate();
+        $this->assertNull($nullDate, "Expected NULL on empty database.");
+
+        // Insert valid entry through framework.
+        $document = new Document();
+        $document->setServerDatePublished('2011-06-01T00:00:00Z');
+        $document->store();
+        $validDate = Document::getEarliestPublicationDate();
+        $this->assertEquals('2011-06-01', $validDate);
+
+        // Insert invalid entry into database...
+        $table = TableGateway::getInstance(Documents::class);
+        $table->insert(['server_date_published' => '1234', 'server_date_created' => '1234']);
+        $invalidDate = Document::getEarliestPublicationDate();
+        $this->assertNull($invalidDate, "Expected NULL on invalid date.");
     }
 
     public function testGetDefaultsForPublicationState()
