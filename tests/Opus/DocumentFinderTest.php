@@ -768,7 +768,7 @@ class DocumentFinderTest extends TestCase
 
         $finder = new DefaultDocumentFinder();
         $finder->setServerState('published');
-        $publishedDocs   = $finder->getIds();
+        $publishedDocs = $finder->getIds();
 
         $finder = new DefaultDocumentFinder();
         $finder->setServerState('unpublished');

@@ -47,8 +47,6 @@ use Opus\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Model\ModelException;
 use Opus\Date;
-use Opus\Db\Documents;
-use Opus\Db\TableGateway;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Enrichment;
@@ -1336,7 +1334,6 @@ class DocumentTest extends TestCase
         $document = new Document($docId);
         $this->assertEquals(1, count($document->getCollection()), 'After 4th store(): document should still have 1 collection.');
     }
-
 
     /**
      * We had a problem, that we were caching the xml document of a newly

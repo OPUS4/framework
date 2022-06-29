@@ -42,7 +42,6 @@
 
 namespace Opus;
 
-use DateTime;
 use Exception;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
