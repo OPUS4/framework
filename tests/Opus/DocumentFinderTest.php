@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
@@ -43,6 +38,7 @@ use Opus\Common\Model\ModelException;
 use Opus\Date;
 use Opus\Document;
 use Opus\DocumentFinder;
+use Opus\DocumentFinder\DefaultDocumentFinder;
 use Opus\File;
 use Opus\Licence;
 use Opus\Person;
@@ -733,5 +729,209 @@ class DocumentFinderTest extends TestCase
 
         $this->assertCount(1, $foundIds);
         $this->assertContains($publishedId, $foundIds);
+    }
+
+    /**
+     * Test retrieving a document list based on server (publication) states.
+     */
+    public function testGetByServerStateReturnsCorrectDocuments()
+    {
+        $publishedDoc1 = new Document();
+        $publishedDoc1->setType("doctoral_thesis")
+            ->setServerState('published')
+            ->store();
+
+        $publishedDoc2 = new Document();
+        $publishedDoc2->setType("doctoral_thesis")
+            ->setServerState('published')
+            ->store();
+
+        $unpublishedDoc1 = new Document();
+        $unpublishedDoc1->setType("doctoral_thesis")
+            ->setServerState('unpublished')
+            ->store();
+
+        $unpublishedDoc2 = new Document();
+        $unpublishedDoc2->setType("doctoral_thesis")
+            ->setServerState('unpublished')
+            ->store();
+
+        $deletedDoc1 = new Document();
+        $deletedDoc1->setType("doctoral_thesis")
+            ->setServerState('deleted')
+            ->store();
+
+        $deletedDoc2 = new Document();
+        $deletedDoc2->setType("doctoral_thesis")
+            ->setServerState('deleted')
+            ->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setServerState('published');
+        $publishedDocs   = $finder->getIds();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setServerState('unpublished');
+        $unpublishedDocs = $finder->getIds();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setServerState('deleted');
+        $deletedDocs = $finder->getIds();
+
+        $this->assertEquals(2, count($publishedDocs));
+        $this->assertEquals(2, count($unpublishedDocs));
+        $this->assertEquals(2, count($deletedDocs));
+    }
+
+    public function testGetAllDocumentsByAuthorsReturnsDocumentsWithoutAuthor()
+    {
+        $d = new Document();
+        $d->setServerState('published');
+        $publishedId = $d->store();
+
+        $d = new Document();
+        $d->setServerState('unpublished');
+        $unpublishedId = $d->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder(DefaultDocumentFinder::ORDER_AUTHOR);
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder(DefaultDocumentFinder::ORDER_AUTHOR);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder(DefaultDocumentFinder::ORDER_AUTHOR, false);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder(DefaultDocumentFinder::ORDER_AUTHOR, true);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
+    }
+
+    public function testGetAllDocumentsByTitleReturnsDocumentsWithoutTitle()
+    {
+        $d = new Document();
+        $d->setServerState('published');
+        $publishedId = $d->store();
+
+        $d = new Document();
+        $d->setServerState('unpublished');
+        $unpublishedId = $d->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_TITLE);
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_TITLE);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_TITLE, false);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_TITLE, true);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
+    }
+
+    public function testGetAllDocumentsByDoctype()
+    {
+        $d = new Document();
+        $d->setServerState('published');
+        $publishedId = $d->store();
+
+        $d = new Document();
+        $d->setServerState('unpublished');
+        $unpublishedId = $d->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_DOCUMENT_TYPE);
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_DOCUMENT_TYPE);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_DOCUMENT_TYPE, false);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_DOCUMENT_TYPE, true);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
+    }
+
+    public function testGetAllDocumentsByPubDate()
+    {
+        $d = new Document();
+        $d->setServerState('published');
+        $publishedId = $d->store();
+
+        $d = new Document();
+        $d->setServerState('unpublished');
+        $unpublishedId = $d->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_SERVER_DATE_PUBLISHED);
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'all should contain "published"');
+        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_SERVER_DATE_PUBLISHED);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_SERVER_DATE_PUBLISHED, false);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setOrder($finder::ORDER_SERVER_DATE_PUBLISHED, true);
+        $finder->setServerState('published');
+        $docs = $finder->getIds();
+        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
+        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
     }
 }
