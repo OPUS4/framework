@@ -404,7 +404,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $docReloaded = new Document($docId);
         $this->assertTrue(
             0 === $docReloaded->getServerDateModified()->compare($doc->getServerDateModified()),
-            'Expected serverDateModified to be updated.'
+            'Expected serverDateModified not to be updated.'
         );
     }
 

@@ -47,7 +47,7 @@ use Exception;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Common\ServerStateConstants;
+use Opus\Common\ServerStateConstantsInterface;
 use Opus\Common\Storage\FileNotFoundException;
 use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
@@ -199,7 +199,7 @@ use function usort;
  *
  * phpcs:disable
  */
-class Document extends AbstractDb implements DocumentInterface, ServerStateConstants
+class Document extends AbstractDb implements DocumentInterface, ServerStateConstantsInterface
 {
 
     /**
@@ -942,7 +942,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
         }
         try {
             if ($until === null) {
-                $until = new DateTimer();
+                $until = new DateTime();
             } else {
                 $until = new DateTime($until);
             }

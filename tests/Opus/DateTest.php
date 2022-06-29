@@ -324,15 +324,18 @@ class DateTest extends TestCase
     }
 
     /**
-     * TODO Test may fail because to much time passed between setNow and\DateTime construction.
+     * TODO What are we trying to test here?
      */
-    public function testDateTimeOutput()
+    public function testSetNowOutput()
     {
         $date = new Date();
         $date->setNow();
-        $dateZend = new Date(new DateTime());
 
-        $this->assertEquals($date->__toString(), $dateZend->__toString());
+        $dateTime = $date->getDateTime();
+
+        $date2 = new Date($dateTime);
+
+        $this->assertEquals($date->__toString(), $date2->__toString());
     }
 
     public function testGetUnixTimestamp()
