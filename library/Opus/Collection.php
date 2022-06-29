@@ -35,6 +35,7 @@ namespace Opus;
 use DOMDocument;
 use Exception;
 use InvalidArgumentException;
+use Opus\Common\CollectionInterface;
 use Opus\Common\Config;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
@@ -79,7 +80,7 @@ use function usort;
  *
  * TODO check what output array for Opus\Collection looks like - document!!!
  */
-class Collection extends AbstractDb
+class Collection extends AbstractDb implements CollectionInterface
 {
     /**
      * Specify the table gateway.

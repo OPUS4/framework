@@ -36,6 +36,7 @@
 
 namespace Opus;
 
+use Opus\Common\EnrichmentKeyInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Enrichment\TypeInterface;
@@ -60,7 +61,7 @@ use Zend_Validate_NotEmpty;
  *
  * phpcs:disable
  */
-class EnrichmentKey extends AbstractDb
+class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface
 {
     /**
      * Specify the table gateway.

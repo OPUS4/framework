@@ -25,54 +25,43 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Model\Plugin;
+namespace OpusTest;
 
-use Opus\Common\CollectionInterface;
-use Opus\Common\Model\Plugin\AbstractPlugin;
-use Opus\Date;
-use Opus\Db\Collections;
-use Opus\Db\TableGateway;
+use Opus\Common\Document as CommonDocument;
+use Opus\Common\DocumentInterface;
 use Opus\Document;
-use Opus\DocumentFinder;
-use Opus\Model\Xml\Cache;
+use OpusTest\TestAsset\TestCase;
 
-/**
- * Base class for plugins that need to update documents associated with collection tree.
- */
-abstract class AbstractCollection extends AbstractPlugin
+class ModelFactoryTest extends TestCase
 {
-    /**
-     * make sure documents related to Collection[Role]s in subtree are updated
-     * (XML-Cache and server_date_published)
-     *
-     * @param CollectionInterface $collection Starting point for recursive update to documents
-     */
-    protected function updateDocuments($collection)
+    public function tearDown()
     {
-        if ($collection === null || $collection->getId() === null) {
-            // no collection provided or collection has not been saved, so there is no ID
-            return;
-        }
+        $this->clearTables(false, ['documents']);
 
-        $collections = TableGateway::getInstance(Collections::class);
+        parent::tearDown();
+    }
 
-        $collectionIdSelect = $collections->selectSubtreeById($collection->getId(), 'id');
+    public function testCreate()
+    {
+        $model = CommonDocument::create();
 
-        $documentFinder = new DocumentFinder();
-        $documentFinder->setCollectionId($collectionIdSelect);
+        $this->assertInstanceOf(DocumentInterface::class, $model);
+        $this->assertInstanceOf(Document::class, $model);
+    }
 
-        // clear affected documents from cache
-        $xmlCache = new Cache();
-        $xmlCache->removeAllEntriesWhereSubSelect($documentFinder->getSelectIds());
+    public function testGet()
+    {
+        $doc = new Document();
+        $doc->setType('article');
+        $docId = $doc->store();
 
-        // update ServerDateModified for affected documents
-        $date = new Date();
-        $date->setNow();
+        $model = CommonDocument::get($docId);
 
-        Document::setServerDateModifiedByIds($date, $documentFinder->ids());
+        $this->assertEquals($docId, $model->getId());
+        $this->assertEquals('article', $model->getType());
     }
 }

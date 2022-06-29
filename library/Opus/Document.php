@@ -47,6 +47,7 @@ use Exception;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\ServerStateConstants;
 use Opus\Common\Storage\FileNotFoundException;
 use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
@@ -198,21 +199,8 @@ use function usort;
  *
  * phpcs:disable
  */
-class Document extends AbstractDb implements DocumentInterface
+class Document extends AbstractDb implements DocumentInterface, ServerStateConstants
 {
-    const STATE_DELETED = 'deleted';
-
-    const STATE_INPROGRESS = 'inprogress';
-
-    const STATE_RESTRICTED = 'restricted';
-
-    const STATE_UNPUBLISHED = 'unpublished';
-
-    const STATE_PUBLISHED = 'published';
-
-    const STATE_TEMPORARY = 'temporary';
-
-    const STATE_AUDITED = 'audited';
 
     /**
      * Specify then table gateway.

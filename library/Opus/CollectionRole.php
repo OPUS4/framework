@@ -33,6 +33,7 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\CollectionRoleInterface;
 use Opus\Common\Validate\CollectionRoleName;
 use Opus\Db\Collections;
 use Opus\Db\TableGateway;
@@ -96,7 +97,7 @@ use const PHP_INT_MAX;
  *
  * phpcs:disable
  */
-class CollectionRole extends AbstractDb
+class CollectionRole extends AbstractDb implements CollectionRoleInterface
 {
     /**
      * Specify then table gateway.
