@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
  * @category    Tests
@@ -1063,50 +1063,6 @@ class DocumentTest extends TestCase
     }
 
     /**
-     * Test retrieving a document list based on server (publication) states.
-     */
-    public function testGetByServerStateReturnsCorrectDocuments()
-    {
-        $publishedDoc1 = new Document();
-        $publishedDoc1->setType("doctoral_thesis")
-            ->setServerState('published')
-            ->store();
-
-        $publishedDoc2 = new Document();
-        $publishedDoc2->setType("doctoral_thesis")
-            ->setServerState('published')
-            ->store();
-
-        $unpublishedDoc1 = new Document();
-        $unpublishedDoc1->setType("doctoral_thesis")
-            ->setServerState('unpublished')
-            ->store();
-
-        $unpublishedDoc2 = new Document();
-        $unpublishedDoc2->setType("doctoral_thesis")
-            ->setServerState('unpublished')
-            ->store();
-
-        $deletedDoc1 = new Document();
-        $deletedDoc1->setType("doctoral_thesis")
-            ->setServerState('deleted')
-            ->store();
-
-        $deletedDoc2 = new Document();
-        $deletedDoc2->setType("doctoral_thesis")
-            ->setServerState('deleted')
-            ->store();
-
-        $publishedDocs   = Document::getAllByState('published');
-        $unpublishedDocs = Document::getAllByState('unpublished');
-        $deletedDocs     = Document::getAllByState('deleted');
-
-        $this->assertEquals(2, count($publishedDocs));
-        $this->assertEquals(2, count($unpublishedDocs));
-        $this->assertEquals(2, count($deletedDocs));
-    }
-
-    /**
      * Test setting and getting date values on different ways and fields.
      */
     public function testSettingAndGettingDateValues()
@@ -1379,114 +1335,6 @@ class DocumentTest extends TestCase
 
         $document = new Document($docId);
         $this->assertEquals(1, count($document->getCollection()), 'After 4th store(): document should still have 1 collection.');
-    }
-
-    public function testGetAllDocumentsByAuthorsReturnsDocumentsWithoutAuthor()
-    {
-        $d = new Document();
-        $d->setServerState('published');
-        $publishedId = $d->store();
-
-        $d = new Document();
-        $d->setServerState('unpublished');
-        $unpublishedId = $d->store();
-
-        $docs = Document::getAllDocumentsByAuthors();
-        $this->assertContains($publishedId, $docs, 'all should contain "published"');
-        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
-
-        $docs = Document::getAllDocumentsByAuthorsByState('published');
-        $this->assertContains($publishedId, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByAuthorsByState('published', 0);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByAuthorsByState('published', 1);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
-    }
-
-    public function testGetAllDocumentsByTitleReturnsDocumentsWithoutTitle()
-    {
-        $d = new Document();
-        $d->setServerState('published');
-        $publishedId = $d->store();
-
-        $d = new Document();
-        $d->setServerState('unpublished');
-        $unpublishedId = $d->store();
-
-        $docs = Document::getAllDocumentsByTitles();
-        $this->assertContains($publishedId, $docs, 'all should contain "published"');
-        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
-
-        $docs = Document::getAllDocumentsByTitlesByState('published');
-        $this->assertContains($publishedId, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByTitlesByState('published', 0);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByTitlesByState('published', 1);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
-    }
-
-    public function testGetAllDocumentsByDoctype()
-    {
-        $d = new Document();
-        $d->setServerState('published');
-        $publishedId = $d->store();
-
-        $d = new Document();
-        $d->setServerState('unpublished');
-        $unpublishedId = $d->store();
-
-        $docs = Document::getAllDocumentsByDoctype();
-        $this->assertContains($publishedId, $docs, 'all should contain "published"');
-        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
-
-        $docs = Document::getAllDocumentsByDoctypeByState('published');
-        $this->assertContains($publishedId, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByDoctypeByState('published', 0);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByDoctypeByState('published', 1);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
-    }
-
-    public function testGetAllDocumentsByPubDate()
-    {
-        $d = new Document();
-        $d->setServerState('published');
-        $publishedId = $d->store();
-
-        $d = new Document();
-        $d->setServerState('unpublished');
-        $unpublishedId = $d->store();
-
-        $docs = Document::getAllDocumentsByPubDate();
-        $this->assertContains($publishedId, $docs, 'all should contain "published"');
-        $this->assertContains($unpublishedId, $docs, 'all should contain "unpublished"');
-
-        $docs = Document::getAllDocumentsByPubDateByState('published');
-        $this->assertContains($publishedId, $docs, 'published list should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByPubDateByState('published', 0);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 0) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 0) should not contain unpublished');
-
-        $docs = Document::getAllDocumentsByPubDateByState('published', 1);
-        $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
-        $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
     }
 
     /**

@@ -45,7 +45,6 @@ use Opus\Date;
 use Opus\Document;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
-use Zend_Date;
 use Zend_Locale;
 
 use function date;
@@ -84,22 +83,6 @@ class DateTest extends TestCase
     }
 
     /**
-     * Test if a valid\Zend_Date object can be created.
-     */
-    public function testGetZendDate()
-    {
-        $od = new Date();
-        $od->setYear(2005)
-            ->setMonth(10)
-            ->setDay(24);
-        $this->assertTrue($od->isValid(), 'Date should be valid!');
-
-        $zd = $od->getZendDate();
-        $this->assertNotNull($zd, 'Object expected.');
-        $this->assertTrue($zd instanceof Zend_Date, 'Returned object is not\Zend_Date.');
-    }
-
-    /**
      * Test creation by passing string as constructor argument.
      */
     public function testCreateWithStringConstructionArgument()
@@ -108,19 +91,6 @@ class DateTest extends TestCase
         $this->assertEquals(1972, (int) $od->getYear(), 'Year values dont match.');
         $this->assertEquals(11, (int) $od->getMonth(), 'Month values dont match.');
         $this->assertEquals(10, (int) $od->getDay(), 'Day values dont match.');
-        $this->assertTrue($od->isValid(), 'Opus\Date should be valid!');
-    }
-
-    /**
-     * Test creation by passing Zend_Date as constructor argument.
-     */
-    public function testCreateWithZendDateConstructionArgument()
-    {
-        $now = new Zend_Date();
-        $od  = new Date($now);
-        $this->assertEquals($od->getYear(), $now->get(Zend_Date::YEAR), 'Year values dont match.');
-        $this->assertEquals($od->getMonth(), $now->get(Zend_Date::MONTH), 'Month values dont match.');
-        $this->assertEquals($od->getDay(), $now->get(Zend_Date::DAY), 'Day values dont match.');
         $this->assertTrue($od->isValid(), 'Opus\Date should be valid!');
     }
 
@@ -354,15 +324,18 @@ class DateTest extends TestCase
     }
 
     /**
-     * TODO Test may fail because to much time passed between setNow and\Zend_Date construction.
+     * TODO What are we trying to test here?
      */
-    public function testZendDateOutput()
+    public function testSetNowOutput()
     {
         $date = new Date();
         $date->setNow();
-        $dateZend = new Date(new Zend_Date());
 
-        $this->assertEquals($date->__toString(), $dateZend->__toString());
+        $dateTime = $date->getDateTime();
+
+        $date2 = new Date($dateTime);
+
+        $this->assertEquals($date->__toString(), $date2->__toString());
     }
 
     public function testGetUnixTimestamp()
@@ -906,5 +879,34 @@ class DateTest extends TestCase
 
         $this->assertEquals(0, $date->compare($dateLoaded));
         $this->assertEquals('2018-10-20T14:31:12Z', $dateLoaded->__toString());
+    }
+
+    public function testGetIso()
+    {
+        $expected = '2022-06-30T14:42:26+02:00';
+
+        $dateTime = new DateTime('2022-06-30T14:42:26+0200'); // ISO8601 format
+        $date     = new Date($dateTime);
+
+        $this->assertEquals($dateTime->format(DateTime::RFC3339), $date->getIso());
+        $this->assertEquals($expected, $date->getIso());
+    }
+
+    public function testIsLater()
+    {
+        $now = new DateTime();
+
+        $date1 = new Date($now);
+        $date2 = new Date($now);
+
+        $this->assertFalse($date1->isLater($date2));
+        $this->assertFalse($date2->isLater($date1));
+
+        $later = $now->add(new DateInterval('PT90S')); // 90 seconds later
+
+        $date2 = new Date($later);
+
+        $this->assertFalse($date1->isLater($date2));
+        $this->assertTrue($date2->isLater($date1));
     }
 }

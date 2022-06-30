@@ -46,7 +46,8 @@ use Exception;
 use Opus\Common\Config;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Common\ServerStateConstants;
+use Opus\Common\ServerStateConstantsInterface;
+use Opus\Common\Storage\FileNotFoundException;
 use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
 use Opus\Identifier\Urn;
@@ -55,8 +56,6 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
-use Opus\Storage\FileNotFoundException;
-use Zend_Date;
 
 use function array_filter;
 use function array_key_exists;
@@ -199,7 +198,7 @@ use function usort;
  *
  * phpcs:disable
  */
-class Document extends AbstractDb implements DocumentInterface, ServerStateConstants
+class Document extends AbstractDb implements DocumentInterface, ServerStateConstantsInterface
 {
 
     /**
@@ -652,237 +651,11 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     }
 
     /**
-     * Returns all document that are in a specific server (publication) state.
-     *
-     * @deprecated
-     *
-     * @param  string $state The state to check for.
-     * @throws Exception Thrown if an unknown state is encountered.
-     * @return array The list of documents in the specified state.
-     */
-    public static function getAllByState($state)
-    {
-        $finder = new DocumentFinder();
-        $finder->setServerState($state);
-        return self::getAll($finder->ids());
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order. Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByDoctype($sortReverse = '0')
-    {
-        return self::getAllDocumentsByDoctypeByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state    Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByDoctypeByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByType($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByPubDate($sortReverse = '0')
-    {
-        return self::getAllDocumentsByPubDateByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByPubDateByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByServerDatePublished($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document titles associated with the corresponding
-     * document id.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByAuthors($sortReverse = '0')
-    {
-        return self::getAllDocumentsByAuthorsByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     * This array is sorted by authors (first one only)
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByAuthorsByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByAuthorLastname($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document titles associated with the corresponding
-     * document id.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByTitles($sortReverse = '0')
-    {
-        return self::getAllDocumentsByTitlesByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByTitlesByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByTitleMain($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Returns an array of all document ids.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array Array of document ids.
-     */
-    public static function getAllIds($sortReverse = '0')
-    {
-        return self::getAllIdsByState(null, $sortReverse);
-    }
-
-    /**
-     * Returns all document that are in a specific server (publication) state.
-     *
-     * @deprecated
-     *
-     * @param string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array The list of documents in the specified state.
-     */
-    public static function getAllIdsByState($state = 'published', $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderById($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document_id titles associated with the given
-     * (identifier, value)
-     *
-     * @deprecated
-     *
-     * @param string   $value value of the identifer that should be queried in DB
-     * @param string [ $type] optional string describing the type of identifier (default is urn)
-     * @return array array with all ids of the entries.
-     */
-    public static function getDocumentByIdentifier($value, $type = 'urn')
-    {
-        $finder = new DocumentFinder();
-        $finder->setIdentifierTypeValue($type, $value);
-        return $finder->ids();
-    }
-
-    /**
-     * Returns all documents that are in publication state and whose ids are within the given range.
-     * Used by SolrIndexBuilder.
-     *
-     * @deprecated
-     *
-     * @param int $start The smallest document id to be considered.
-     * @param int $end The largest document id to be considered.
-     * @return array The list of document ids within the given range.
-     */
-    public static function getAllPublishedIds($start, $end)
-    {
-        $finder = new DocumentFinder();
-        $finder->setServerState('published');
-
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
-        }
-
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
-
-        return $finder->ids();
-    }
-
-    /**
      * Returns the earliest date (server_date_published) of all documents.
      *
      * @deprecated
+     *
+     * TODO still in use in Application
      *
      * @return string|null /^\d{4}-\d{2}-\d{2}$/ on success, null otherwise
      */
@@ -890,8 +663,8 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     {
         $table     = TableGateway::getInstance(Db\Documents::class);
         $select    = $table->select()->from($table, 'min(server_date_published) AS min_date')
-                ->where('server_date_published IS NOT NULL')
-                ->where('TRIM(server_date_published) != \'\'');
+            ->where('server_date_published IS NOT NULL')
+            ->where('TRIM(server_date_published) != \'\'');
         $timestamp = $table->fetchRow($select)->toArray();
 
         if (! isset($timestamp['min_date'])) {
@@ -903,85 +676,6 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
             return $matches[1];
         }
         return null;
-    }
-
-    /**
-     * Returns an array of ids for all document of the specified type.
-     *
-     * @deprecated
-     *
-     * @param  string $typename The name of the document type.
-     * @return array Array of document ids.
-     */
-    public static function getIdsForDocType($typename)
-    {
-        $finder = new DocumentFinder();
-        $finder->setType($typename);
-        return $finder->ids();
-    }
-
-    /**
-     * Returns an array of ids for all documents published between two dates.
-     *
-     * @deprecated
-     *
-     * @param  null|string $from (Optional) The earliest publication date to include.
-     * @param  null|string $until (Optional) The latest publication date to include.
-     * @return array Array of document ids.
-     */
-    public static function getIdsForDateRange($from = null, $until = null)
-    {
-        try {
-            if ($from === null) {
-                $from = new Zend_Date(self::getEarliestPublicationDate());
-            } else {
-                $from = new Zend_Date($from);
-            }
-        } catch (Exception $e) {
-            throw new Exception('Invalid date string supplied: ' . $from);
-        }
-        try {
-            if ($until === null) {
-                $until = new Zend_Date();
-            } else {
-                $until = new Zend_Date($until);
-            }
-        } catch (Exception $e) {
-            throw new Exception('Invalid date string supplied: ' . $until);
-        }
-
-        $searchRange = null;
-        if (true === $from->equals($until)) {
-            $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
-        } else {
-            // TODO FIXME
-            //
-            // For some strange reason a between does not include the
-            // latest day. E.g. if until date is 2009-05-10 then the
-            // result does not include data sets with 2009-05-10 only newer dates.
-            //
-            // If we add one day then is result as expected but maybe wrong?
-            //
-            // Between range looks like $from < $until and not $from <= $until
-            $until->addDay(1);
-            $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd')
-                . '%"';
-        }
-
-        $table = TableGateway::getInstance(Db\Documents::class);
-        // TODO server date publish really needed ?
-        // because server date modified is in any case setted to latest change date
-        $select = $table->select()
-                ->from($table, ['id'])
-                ->where('server_date_published ' . $searchRange)
-                ->orWhere('server_date_modified ' . $searchRange);
-
-        $rows = $table->fetchAll($select)->toArray();
-        $ids  = [];
-        foreach ($rows as $row) {
-            $ids[] = $row['id'];
-        }
-        return $ids;
     }
 
     /**
@@ -1349,18 +1043,6 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
         }
 
         return $result;
-    }
-
-    /**
-     * Fetch a list of all available document types.
-     *
-     * @deprecated
-     */
-    public static function fetchDocumentTypes()
-    {
-        $finder = new DocumentFinder();
-        $finder->setServerState('published');
-        return $finder->groupedTypes();
     }
 
     /**

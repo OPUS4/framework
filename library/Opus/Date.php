@@ -46,7 +46,7 @@ use Opus\Model\ComparableInterface;
 use Opus\Model\DateField;
 use Opus\Model\Field;
 use Opus\Model\UnixTimestampField;
-use Zend_Date;
+use Opus\Security\SecurityException;
 use Zend_Validate_Int;
 
 use function checkdate;
@@ -126,15 +126,13 @@ class Date extends AbstractModel implements ComparableInterface
     /**
      * Set up model with given value or with the current timestamp.
      *
-     * @param null|Zend_Date|Date|string $value (Optional) Some sort of date representation.
+     * @param null|DateTime|Date|string $value (Optional) Some sort of date representation.
      */
     public function __construct($value = null)
     {
         parent::__construct();
 
-        if ($value instanceof Zend_Date) {
-            $this->setZendDate($value);
-        } elseif ($value instanceof DateTime) {
+        if ($value instanceof DateTime) {
             $this->setDateTime($value);
         } elseif (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
             $this->setFromString($value);
@@ -180,33 +178,6 @@ class Date extends AbstractModel implements ComparableInterface
 
         $field = new UnixTimestampField('UnixTimestamp', $this);
         $this->addField($field);
-    }
-
-    /**
-     * Returns a \Zend_Date instance properly set up with
-     * date values as described in the Models fields.
-     *
-     * @return Zend_Date
-     */
-    public function getZendDate()
-    {
-        $datearray = [
-            'year'     => $this->values[self::FIELD_YEAR],
-            'month'    => $this->values[self::FIELD_MONTH],
-            'day'      => $this->values[self::FIELD_DAY],
-            'hour'     => $this->values[self::FIELD_HOUR],
-            'minute'   => $this->values[self::FIELD_MINUTE],
-            'second'   => $this->values[self::FIELD_SECOND],
-            'timezone' => $this->values[self::FIELD_TIMEZONE],
-        ];
-
-        foreach ($datearray as $key => $value) {
-            if ($value === null) {
-                unset($datearray[$key]);
-            }
-        }
-
-        return new Zend_Date($datearray);
     }
 
     /**
@@ -298,24 +269,6 @@ class Date extends AbstractModel implements ComparableInterface
     }
 
     /**
-     * Set date values from \Zend_Date instance.
-     *
-     * @param Zend_Date $date Zend_Date instance to use.
-     *
-     *
-     * TODO new Date(new \Zend_Date('2017/03/12') often works, but sometimes
-     * the resulting date is '2017/12/03'. This happens in the OPUS 4 application
-     * sometimes and can be tested there. Maybe it depends on the locale that has
-     * been set during bootstrapping.
-     *
-     * @deprecated Sometimes date conversion does not work properly (OPUSVIER-3713).
-     */
-    public function setZendDate(Zend_Date $date)
-    {
-        $this->setFromString($date->get(Zend_Date::ISO_8601));
-    }
-
-    /**
      * Set up date model from string representationo of a date.
      * Date parsing depends on current set locale date format.
      *
@@ -389,6 +342,17 @@ class Date extends AbstractModel implements ComparableInterface
         );
         $tzStr   = $this->values[self::FIELD_TIMEZONE];
         return $dateStr . "T" . $timeStr . $tzStr;
+    }
+
+    /**
+     * Returns string matching Zend_Date::getIso format.
+     * @return string
+     *
+     * TODO should this format be changed - Does it differ from __toString
+     */
+    public function getIso()
+    {
+        return $this->getDateTime()->format(DateTime::RFC3339);
     }
 
     /**
@@ -500,6 +464,18 @@ class Date extends AbstractModel implements ComparableInterface
         } else {
             return 1; // larger than
         }
+    }
+
+    /**
+     * Checks if given date is later.
+     *
+     * @param Date $date
+     * @return bool True if given date is later than parameter date
+     * @throws ModelException
+     */
+    public function isLater($date)
+    {
+        return $this->compare($date) === 1;
     }
 
     /**

@@ -41,12 +41,12 @@ use Exception;
 use Opus\Common\Config;
 use Opus\Common\FileInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Storage\FileAccessException;
+use Opus\Common\Storage\FileNotFoundException;
+use Opus\Common\Storage\StorageException;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
-use Opus\Storage\FileAccessException;
-use Opus\Storage\FileNotFoundException;
-use Opus\Storage\StorageException;
 use Zend_Validate_NotEmpty;
 
 use function array_key_exists;
@@ -94,7 +94,7 @@ class File extends AbstractDependentModel implements FileInterface
     /**
      * Holds storage object.
      *
-     * @var Storage\File
+     * @var Opus\Common\Storage\File
      */
     private $storage;
 
@@ -200,9 +200,9 @@ class File extends AbstractDependentModel implements FileInterface
     }
 
     /**
-     * Prepare and return Opus\Storage\File object for filesystem manipulation.
+     * Prepare and return Opus\Common\Storage\File object for filesystem manipulation.
      *
-     * @return Storage\File Storage object.
+     * @return Opus\Common\Storage\File Storage object.
      */
     private function getStorage()
     {
@@ -216,7 +216,7 @@ class File extends AbstractDependentModel implements FileInterface
 
         $config         = Config::get();
         $filesPath      = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
-        $this->storage = new Storage\File($filesPath, $this->getParentId());
+        $this->storage = new \Opus\Common\Storage\File($filesPath, $this->getParentId());
 
         return $this->storage;
     }
