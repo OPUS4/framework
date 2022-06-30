@@ -378,7 +378,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $plugin->postStore($this->collection);
         $docReloaded = new Document($docId);
         $this->assertTrue(
-            1 === $docReloaded->getServerDateModified()->compare($doc->getServerDateModified()),
+            $docReloaded->getServerDateModified()->isLater($doc->getServerDateModified()),
             'Expected serverDateModified to be updated.'
         );
     }

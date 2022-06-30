@@ -880,4 +880,33 @@ class DateTest extends TestCase
         $this->assertEquals(0, $date->compare($dateLoaded));
         $this->assertEquals('2018-10-20T14:31:12Z', $dateLoaded->__toString());
     }
+
+    public function testGetIso()
+    {
+        $expected = '2022-06-30T14:42:26+02:00';
+
+        $dateTime = new DateTime('2022-06-30T14:42:26+0200'); // ISO8601 format
+        $date = new Date($dateTime);
+
+        $this->assertEquals($dateTime->format(DateTime::RFC3339), $date->getIso());
+        $this->assertEquals($expected, $date->getIso());
+    }
+
+    public function testIsLater()
+    {
+        $now = new DateTime();
+
+        $date1 = new Date($now);
+        $date2 = new Date($now);
+
+        $this->assertFalse($date1->isLater($date2));
+        $this->assertFalse($date2->isLater($date1));
+
+        $later = $now->add(new DateInterval('PT90S')); // 90 seconds later
+
+        $date2 = new Date($later);
+
+        $this->assertFalse($date1->isLater($date2));
+        $this->assertTrue($date2->isLater($date1));
+    }
 }

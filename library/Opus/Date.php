@@ -46,6 +46,7 @@ use Opus\Model\ComparableInterface;
 use Opus\Model\DateField;
 use Opus\Model\Field;
 use Opus\Model\UnixTimestampField;
+use Opus\Security\SecurityException;
 use Zend_Validate_Int;
 
 use function checkdate;
@@ -344,6 +345,17 @@ class Date extends AbstractModel implements ComparableInterface
     }
 
     /**
+     * Returns string matching Zend_Date::getIso format.
+     * @return string
+     *
+     * TODO should this format be changed - Does it differ from __toString
+     */
+    public function getIso()
+    {
+        return $this->getDateTime()->format(DateTime::RFC3339);
+    }
+
+    /**
      * Overload isValid to for additional date checks.
      *
      * @return bool
@@ -452,6 +464,18 @@ class Date extends AbstractModel implements ComparableInterface
         } else {
             return 1; // larger than
         }
+    }
+
+    /**
+     * Checks if given date is later.
+     *
+     * @param Date $date
+     * @return bool True if given date is later than parameter date
+     * @throws ModelException
+     */
+    public function isLater($date)
+    {
+        return $this->compare($date) === 1;
     }
 
     /**
