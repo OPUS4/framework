@@ -462,7 +462,7 @@ class DaoTest extends TestCase
         $this->assertEquals($data['testkey1'], $dao->getTranslation('testkey1'));
         $this->assertEquals($data['testkey2'], $dao->getTranslation('testkey2'));
 
-        $this->setExpectedException(TranslateException::class, 'Duplicate entry');
+        $this->expectException(TranslateException::class, 'Duplicate entry');
 
         $dao->renameKey('testkey1', 'testkey2');
     }

@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 // Setup error reporting.
@@ -39,9 +34,20 @@
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 1);
 
-// Define path to application directory
-defined('APPLICATION_PATH')
-        || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+$frameworkPath = dirname(__FILE__, 2);
+
+defined('FRAMEWORK_PATH')
+    || define('FRAMEWORK_PATH', realpath($frameworkPath));
+
+if (! defined('APPLICATION_PATH')) {
+    // Check if bootstrapping Framework or package
+    $packagePath = '/vendor/opus4-repo/framework';
+    if (substr($frameworkPath, -strlen($packagePath)) === $packagePath) {
+        define('APPLICATION_PATH', realpath(dirname(__FILE__, 5)));
+    } else {
+        define('APPLICATION_PATH', realpath($frameworkPath));
+    }
+}
 
 // Define application environment (use 'production' by default)
 define('APPLICATION_ENV', 'testing');
@@ -51,14 +57,22 @@ $scriptDir = dirname(__FILE__);
 
 require_once APPLICATION_PATH . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
+// TODO OPUSVIER-4420 remove after switching to Laminas/ZF3
+require_once FRAMEWORK_PATH . '/library/OpusDb/Mysqlutf8.php';
+
+$configFiles = array_filter([
+    $frameworkPath . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'application.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'test.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'test.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini',
+], 'file_exists');
+
 // Do test environment initializiation.
 $application = new Zend_Application(
     APPLICATION_ENV,
     [
-        "config" => [
-            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'tests.ini',
-            APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini',
-        ],
+        "config" => $configFiles,
     ]
 );
 
@@ -66,4 +80,32 @@ $options                                        = $application->getOptions();
 $options['opus']['disableDatabaseVersionCheck'] = true;
 $application->setOptions($options);
 
-$application->bootstrap(['Database', 'Temp', 'OpusLocale']);
+$resourcesOption = $options['opus']['bootstrap']['resources'];
+$resources       = preg_split('/(\s*,\s*)+/', $resourcesOption);
+
+// make sure necessary directories are available
+// TODO move to class
+// TODO use configured workspace path
+ensureDirectory(APPLICATION_PATH . '/build/workspace');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/cache');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/filecache');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/files');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/log');
+ensureDirectory(APPLICATION_PATH . '/build/workspace/tmp');
+
+$application->bootstrap($resources);
+
+/**
+ * Creates the given directory if it doesn't exist.
+ *
+ * @param string $path The directory path to be created.
+ *
+ * TODO move to class
+ */
+function ensureDirectory($path)
+{
+    if (! is_dir($path)) {
+        mkdir($path);
+        echo "Created directory '$path'" . PHP_EOL;
+    }
+}

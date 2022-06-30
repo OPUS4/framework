@@ -45,6 +45,9 @@ use function count;
  */
 class ReferenceTest extends TestCase
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testConstructor()
     {
         $ref = new Reference();

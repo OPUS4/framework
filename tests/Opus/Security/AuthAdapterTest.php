@@ -91,7 +91,7 @@ class AuthAdapterTest extends TestCase
      */
     public function testSettingEmptyCredentialsThrowsException()
     {
-        $this->setExpectedException('Zend_Auth_Adapter_Exception');
+        $this->expectException('Zend_Auth_Adapter_Exception');
         $this->authAdapter->setCredentials('', null);
     }
 

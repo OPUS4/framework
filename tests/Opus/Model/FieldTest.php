@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Model;
@@ -186,7 +181,7 @@ class FieldTest extends TestCase
     {
         $field = new Field('MyField');
         $field->setMultiplicity(1);
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field->setValue(['single', 'sungle', 'sangle']);
     }
 
@@ -199,7 +194,7 @@ class FieldTest extends TestCase
      */
     public function testInputValuesForMultiplicityAreIntegerOrStar($value)
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity($value);
     }
@@ -449,7 +444,7 @@ class FieldTest extends TestCase
      */
     public function testAddingValuesToNonMultipleField()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity('1');
         $field->addValue([15, 16, 17]);
@@ -483,7 +478,7 @@ class FieldTest extends TestCase
      */
     public function testAddingMoreValuesThenAllowedThrowsException()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $field = new Field('MyField');
         $field->setMultiplicity(3);
         $field->addValue([15, 16, 17, 18]);
@@ -613,7 +608,7 @@ class FieldTest extends TestCase
     {
         $field = new Field('myfield');
         $field->setValueModelClass('Date');
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $field->setValue(new stdClass());
     }
 

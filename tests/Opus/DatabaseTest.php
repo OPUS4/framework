@@ -154,7 +154,7 @@ class DatabaseTest extends TestCase
 
         $sql = 'TRUNCATE TABLE `schema_ver`; INSERT INTO `schema_version` (`version`) VALUES (\'5.0\');';
 
-        $this->setExpectedException(PDOException::class, 'schema_ver\' doesn\'t exist');
+        $this->expectException(PDOException::class, 'schema_ver\' doesn\'t exist');
 
         $pdo->exec($sql);
     }
@@ -194,7 +194,7 @@ class DatabaseTest extends TestCase
 
         $this->assertEquals('00000', $statement->errorCode());
 
-        $this->setExpectedException(PDOException::class, 'schema_ver\' doesn\'t exist');
+        $this->expectException(PDOException::class, 'schema_ver\' doesn\'t exist');
 
         $statement->nextRowset();
     }

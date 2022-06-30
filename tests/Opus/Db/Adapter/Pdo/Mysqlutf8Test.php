@@ -94,6 +94,8 @@ class Mysqlutf8Test extends TestCase
 
     /**
      * Test if starting nested transactions gets handeld by the adapter.
+     *
+     * @doesNotPerformAssertions
      */
     public function testStartNestingTransactions()
     {
@@ -108,6 +110,8 @@ class Mysqlutf8Test extends TestCase
 
     /**
      * Test if all opened transactions can be committed.
+     *
+     * @doesNotPerformAssertions
      */
     public function testCommitNestedTransactions()
     {
@@ -131,6 +135,7 @@ class Mysqlutf8Test extends TestCase
     /**
      * Test if all opened transactions can be ended by rollback.
      *
+     * @doesNotPerformAssertions
      * FIXME: design fault: on rollback should abort all enclosing transactions!
      */
     public function testRollbackNestedTransactions()

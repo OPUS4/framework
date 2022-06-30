@@ -197,6 +197,8 @@ class Version2Test extends TestCase
 
     /**
      * Test if correct Type element gets found to determine the document type.
+     *
+     * @doesNotPerformAssertions
      */
     public function testConstructionFromCorrectTypeElement()
     {

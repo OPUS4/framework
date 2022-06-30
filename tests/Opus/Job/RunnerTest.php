@@ -109,7 +109,7 @@ class RunnerTest extends TestCase
         $runner = new Runner();
         $runner->registerWorker($indexWorker);
         $runner->run();
-        $this->setExpectedException(NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         $job = new Job($jobId);
         if ($job instanceof Job) {
             $job->delete();

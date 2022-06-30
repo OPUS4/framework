@@ -128,14 +128,14 @@ class DoiManagerTest extends TestCase
     public function testRegisterMissingArg()
     {
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->register(null);
     }
 
     public function testRegisterInvalidArg()
     {
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->register('999');
     }
 
@@ -215,7 +215,7 @@ class DoiManagerTest extends TestCase
         $docId = $this->createTestDocWithDoi('10.3456/');
 
         $doiManager = new DoiManager();
-        $this->setExpectedException(RegistrationException::class);
+        $this->expectException(RegistrationException::class);
         $doi = $doiManager->register(new Document($docId));
     }
 
@@ -227,7 +227,7 @@ class DoiManagerTest extends TestCase
         $this->addRequiredPropsToDoc(new Document($docId));
 
         $doiManager = new DoiManager();
-        $this->setExpectedException(RegistrationException::class);
+        $this->expectException(RegistrationException::class);
         $doi = $doiManager->register(new Document($docId));
     }
 
@@ -251,7 +251,7 @@ class DoiManagerTest extends TestCase
         $this->addRequiredPropsToDoc(new Document($docId));
 
         $doiManager = new DoiManager();
-        $this->setExpectedException(RegistrationException::class);
+        $this->expectException(RegistrationException::class);
         $doi = $doiManager->register(new Document($docId));
     }
 
@@ -339,6 +339,9 @@ class DoiManagerTest extends TestCase
         $this->assertNull($result);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testVerifyWithUnregisteredDoi()
     {
         $docId      = $this->createTestDocWithDoi('10.5072/OPUS4-');
@@ -548,7 +551,7 @@ class DoiManagerTest extends TestCase
         $doc = new Document();
         $doc->store();
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->generateNewDoi($doc);
     }
 
@@ -561,7 +564,7 @@ class DoiManagerTest extends TestCase
         $doc = new Document();
         $doc->store();
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->generateNewDoi($doc);
     }
 
@@ -574,7 +577,7 @@ class DoiManagerTest extends TestCase
         $doc = new Document();
         $doc->store();
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->generateNewDoi('999');
     }
 
@@ -610,6 +613,9 @@ class DoiManagerTest extends TestCase
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doiValue);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithoutDoi()
     {
         $doc = new Document();
@@ -619,6 +625,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi($doc);
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithExternalDoi()
     {
         $this->adaptDoiConfiguration([
@@ -633,6 +642,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Document($docId));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithLocalDoi()
     {
         $this->adaptDoiConfiguration([
@@ -647,6 +659,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Document($docId));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi()
     {
         $this->adaptDoiConfiguration([
@@ -668,6 +683,9 @@ class DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Document($docId));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi()
     {
         $this->adaptDoiConfiguration([
@@ -692,7 +710,7 @@ class DoiManagerTest extends TestCase
     public function testUpdateLandingPageUrlOfDoiWithMissingConfig()
     {
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
@@ -712,7 +730,7 @@ class DoiManagerTest extends TestCase
         ]);
 
         $doiManager = new DoiManager();
-        $this->setExpectedException(DoiException::class);
+        $this->expectException(DoiException::class);
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
@@ -810,7 +828,7 @@ class DoiManagerTest extends TestCase
     {
         $manager = new DoiManager();
 
-        $this->setExpectedException(
+        $this->expectException(
             DoiException::class,
             'No URL for repository configured. Cannot generate landing page URL.'
         );

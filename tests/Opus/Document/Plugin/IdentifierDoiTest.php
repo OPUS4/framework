@@ -321,7 +321,7 @@ class IdentifierDoiTest extends TestCase
         $doc->store();
 
         // mock DoiManager to check if function is called
-        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        $doiManagerMock = $this->getMockBuilder(DoiManager::class)->getMock();
         DoiManager::setInstance($doiManagerMock);
         $doiManagerMock->expects($this->once())->method('deleteMetadataForDoi');
 
@@ -362,7 +362,7 @@ class IdentifierDoiTest extends TestCase
         $doc->store();
 
         // mock DoiManager to check if function is called
-        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        $doiManagerMock = $this->getMockBuilder(DoiManager::class)->getMock();
         DoiManager::setInstance($doiManagerMock);
         $doiManagerMock->expects($this->once())->method('deleteMetadataForDoi');
 
@@ -398,7 +398,7 @@ class IdentifierDoiTest extends TestCase
         $doc->store();
 
         // mock DoiManager to check if function is called
-        $doiManagerMock = $this->getMock(DoiManager::class, []);
+        $doiManagerMock = $this->getMockBuilder(DoiManager::class)->getMock();
         DoiManager::setInstance($doiManagerMock);
         $doiManagerMock->expects($this->never())->method('deleteMetadataForDoi');
 

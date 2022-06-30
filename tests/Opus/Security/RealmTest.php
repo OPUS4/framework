@@ -196,6 +196,9 @@ class RealmTest extends TestCase
         $this->assertInstanceOf(Realm::class, $realm, 'Expected object of type Opus\Security\Realm.');
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSetUserSuccess()
     {
         $this->setUpUserUser();
@@ -210,7 +213,7 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
 
-        $this->setExpectedException(
+        $this->expectException(
             SecurityException::class,
             'An user with the given name: userbla could not be found'
         );
@@ -243,6 +246,9 @@ class RealmTest extends TestCase
         }
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSetIpSuccess()
     {
         $this->setUpIp();
@@ -261,7 +267,7 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
 
-        $this->setExpectedException(SecurityException::class);
+        $this->expectException(SecurityException::class);
         $realm->setIp('12.7.0.0.1');
     }
 

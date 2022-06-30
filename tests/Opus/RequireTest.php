@@ -82,6 +82,8 @@ class RequireTest extends TestCase
      * Try to load all class files, just to make sure no syntax error have
      * been introduced.  As a side effect, all classes will be visible to
      * code coverage report.
+     *
+     * @doesNotPerformAssertions
      */
     public function testRequire()
     {

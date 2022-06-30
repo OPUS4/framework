@@ -73,7 +73,7 @@ class XmlCacheTest extends TestCase
         $this->markTestSkipped('Cache is re-enabled');
         $doc = new Document();
 
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $doc->unregisterPlugin(Document\Plugin\XmlCache::class);
         $this->fail('Plugin should stay disabled.');
     }

@@ -139,7 +139,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new DataCiteXmlGenerator();
-        $this->setExpectedException(DataCiteXmlGenerationException::class);
+        $this->expectException(DataCiteXmlGenerationException::class);
         $generator->getXml($doc);
     }
 
@@ -154,7 +154,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doi->store();
 
         $generator = new DataCiteXmlGenerator();
-        $this->setExpectedException(DataCiteXmlGenerationException::class);
+        $this->expectException(DataCiteXmlGenerationException::class);
         $generator->getXml($doc);
 
         // DOI wieder lokal machen

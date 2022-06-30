@@ -92,7 +92,7 @@ class AbstractModelTest extends TestCase
     public function testSetCallToInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $model->setHiddenField('value');
     }
 
@@ -102,7 +102,7 @@ class AbstractModelTest extends TestCase
     public function testGetCallToInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $model->getHiddenField();
     }
 
@@ -112,7 +112,7 @@ class AbstractModelTest extends TestCase
     public function testAddCallToInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $model->addHiddenField();
     }
 
@@ -122,7 +122,7 @@ class AbstractModelTest extends TestCase
     public function testGetInternalFieldThrowsException()
     {
         $model = new ModelWithHiddenField(null);
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $model->getField('HiddenField');
     }
 
@@ -147,7 +147,7 @@ class AbstractModelTest extends TestCase
      */
     public function testCallToUnknownMethodThrowsBadMethodCallException()
     {
-        $this->setExpectedException('BadMethodCallException');
+        $this->expectException('BadMethodCallException');
         $model = new AbstractModelMock();
         $model->notAMethodOfThisClass();
     }
@@ -242,7 +242,7 @@ class AbstractModelTest extends TestCase
      */
     public function testValidationOfSubmodelIfStoredInMandatoryField()
     {
-        $submodel = $this->getMock(AbstractModelMock::class);
+        $submodel = $this->getMockBuilder(AbstractModelMock::class)->getMock();
         $model    = new AbstractModelMock();
         $field    = new Field('Submodel');
         $field->setValueModelClass(AbstractModelMock::class)
@@ -264,9 +264,9 @@ class AbstractModelTest extends TestCase
      */
     public function testValidationOfSubmodelsInMultivalueFields()
     {
-        $submodels[] = $this->getMock(AbstractModelMock::class);
-        $submodels[] = $this->getMock(AbstractModelMock::class);
-        $submodels[] = $this->getMock(AbstractModelMock::class);
+        $submodels[] = $this->getMockBuilder(AbstractModelMock::class)->getMock();
+        $submodels[] = $this->getMockBuilder(AbstractModelMock::class)->getMock();
+        $submodels[] = $this->getMockBuilder(AbstractModelMock::class)->getMock();
 
         // expect calls to isValid
         foreach ($submodels as $submodel) {
@@ -291,7 +291,7 @@ class AbstractModelTest extends TestCase
      */
     public function testValidationFailsIfSubmodelValidationDoesSo()
     {
-        $submodel = $this->getMock(AbstractModelMock::class);
+        $submodel = $this->getMockBuilder(AbstractModelMock::class)->getMock();
         $model    = new AbstractModelMock();
         $field    = new Field('Submodel');
         $field->setValueModelClass(AbstractModelMock::class)
@@ -510,7 +510,7 @@ class AbstractModelTest extends TestCase
     {
         $model = new Language();
 
-        $this->setExpectedException(
+        $this->expectException(
             UnknownModelTypeException::class,
             'Properties not supported for Opus\Language'
         );
@@ -556,7 +556,7 @@ class AbstractModelTest extends TestCase
         $key   = 'source';
         $value = 'sword';
 
-        $this->setExpectedException(PropertiesException::class, 'Model ID is null');
+        $this->expectException(PropertiesException::class, 'Model ID is null');
 
         $doc->setProperty($key, $value);
     }

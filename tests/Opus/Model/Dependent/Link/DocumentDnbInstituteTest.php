@@ -47,7 +47,7 @@ class DocumentDnbInstituteTest extends TestCase
     {
         $institute = new DocumentDnbInstitute();
 
-        $this->setExpectedException(ModelException::class, 'Access to internal field not allowed: Role');
+        $this->expectException(ModelException::class, 'Access to internal field not allowed: Role');
 
         $institute->setRole('grantor');
     }
@@ -56,7 +56,7 @@ class DocumentDnbInstituteTest extends TestCase
     {
         $institute = new DocumentDnbInstitute();
 
-        $this->setExpectedException(ModelException::class, 'Access to internal field not allowed: Role');
+        $this->expectException(ModelException::class, 'Access to internal field not allowed: Role');
 
         $institute->getRole();
     }

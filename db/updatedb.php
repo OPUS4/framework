@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -24,9 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -40,37 +39,44 @@
  * TODO name parameter not supported yet (still needed?)
  */
 
+$frameworkPath = dirname( __FILE__, 2);
+
+defined('FRAMEWORK_PATH')
+    || define('FRAMEWORK_PATH', realpath($frameworkPath));
+
 defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+    || define('APPLICATION_PATH', realpath($frameworkPath));
 
 defined('APPLICATION_ENV')
-    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
+    || define('APPLICATION_ENV', getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production');
 
 // Configure include path.
 set_include_path(
     implode(
-        PATH_SEPARATOR, array(
+        PATH_SEPARATOR, [
             '.',
             dirname(__FILE__),
             APPLICATION_PATH . '/library',
             APPLICATION_PATH . '/vendor',
             get_include_path(),
-        )
+        ]
     )
 );
 
 require_once 'autoload.php';
 
-$application = new \Zend_Application(
-    APPLICATION_ENV, [
+$application = new Zend_Application(
+    APPLICATION_ENV,
+    [
         "config" => [
+            APPLICATION_PATH . '/tests/application.ini',
+            APPLICATION_PATH . '/tests/test.ini',
             APPLICATION_PATH . '/tests/config.ini',
-            APPLICATION_PATH . '/tests/tests.ini'
-        ]
+        ],
     ]
 );
 
-$options = $application->getOptions();
+$options                                        = $application->getOptions();
 $options['opus']['disableDatabaseVersionCheck'] = true;
 $application->setOptions($options);
 
@@ -81,20 +87,15 @@ $options = getopt('v:n:');
 
 $targetVersion = null;
 
-if (array_key_exists('v', $options))
-{
+if (array_key_exists('v', $options)) {
     $targetVersion = $options['v'];
-    if (!ctype_digit($targetVersion))
-    {
+    if (!ctype_digit($targetVersion)) {
         $targetVersion = null;
     }
 }
 
-$database = new \Opus\Database();
+$database = new Opus\Database();
 
 echo $database->getName() . PHP_EOL;
 
 $database->update($targetVersion);
-
-
-

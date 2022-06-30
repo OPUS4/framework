@@ -103,7 +103,7 @@ class EnrichmentKeyTest extends TestCase
     {
         $ek = new EnrichmentKey();
         $ek->setName('foo');
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $ek->store();
         $this->assertEquals(2, count(EnrichmentKey::getAll()));
         $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
@@ -113,7 +113,7 @@ class EnrichmentKeyTest extends TestCase
     {
         $ek = new EnrichmentKey();
         $ek->setName('');
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $ek->store();
         $this->assertEquals(2, count(EnrichmentKey::getAll()));
         $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
@@ -122,7 +122,7 @@ class EnrichmentKeyTest extends TestCase
     public function testStoryUnsetEnrichmentKey()
     {
         $ek = new EnrichmentKey();
-        $this->setExpectedException(ModelException::class);
+        $this->expectException(ModelException::class);
         $ek->store();
         $this->assertEquals(2, count(EnrichmentKey::getAll()));
         $this->assertEquals(1, count(EnrichmentKey::getAllReferenced()));
