@@ -79,7 +79,7 @@ class CacheTest extends TestCase
         // initial test setup
         $table = new DocumentXmlCache();
         for ($i = 0; $i < $this->maxEntries; $i++) {
-            $dateTime = (new DateTime())->add(new DateInterval('PT' . rand(1, 59) . 'S'));
+            $dateTime           = (new DateTime())->add(new DateInterval('PT' . rand(1, 59) . 'S'));
             $data               = [
                 'document_id'          => $i + 1,
                 'server_date_modified' => (new Date($dateTime))->getIso(),

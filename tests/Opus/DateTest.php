@@ -886,7 +886,7 @@ class DateTest extends TestCase
         $expected = '2022-06-30T14:42:26+02:00';
 
         $dateTime = new DateTime('2022-06-30T14:42:26+0200'); // ISO8601 format
-        $date = new Date($dateTime);
+        $date     = new Date($dateTime);
 
         $this->assertEquals($dateTime->format(DateTime::RFC3339), $date->getIso());
         $this->assertEquals($expected, $date->getIso());
