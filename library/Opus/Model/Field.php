@@ -39,6 +39,7 @@ namespace Opus\Model;
 
 use Exception;
 use InvalidArgumentException;
+use Opus\Common\Model\ComparableInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
