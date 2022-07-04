@@ -31,13 +31,20 @@
 
 namespace Opus\Db2;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Tools\Setup;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+use Gedmo\DoctrineExtensions;
+use Gedmo\Tree\TreeListener;
 use Opus\Config;
 use Opus\Database as OpusDatabase;
 
@@ -135,31 +142,71 @@ class Database
      * @return EntityManager
      * @throws ORMException
      *
-     * TODO more specific than __DIR__? Why __DIR__?
-     * TODO evaluate, explain options
+     * TODO reevaluate setup for Doctrine & DoctrineExtensions
+     * TODO more specific than __DIR__?
+     * TODO use PsrCachedReader instead of CachedReader
      */
     public static function getEntityManager()
     {
+        if (self::$entityManager !== null) {
+            return self::$entityManager;
+        }
+
         $config = Config::get();
 
+        $paths                     = [__DIR__]; // one or multiple paths where mapping classes can be found
         $isDevMode                 = filter_var($config->doctrine->devMode, FILTER_VALIDATE_BOOLEAN);
-        $proxyDir                  = null; // TODO What could go here?
-        $cache                     = null; // TODO What could go here?
-        $useSimpleAnnotationReader = false;
+        $proxyDir                  = null; // the directory where Doctrine generates any necessary proxy class files
+        $cache                     = null; // used to cache metadata, query & result, pass null to auto-generate caches
+        $useSimpleAnnotationReader = false; // if true, `@Entity` will work, otherwise `@ORM\Entity` will be supported
 
-        $config = Setup::createAnnotationMetadataConfiguration(
-            [__DIR__],
-            $isDevMode,
-            $proxyDir,
-            $cache,
-            $useSimpleAnnotationReader
+        // NOTE: Instead of just using Setup::createAnnotationMetadataConfiguration() as below to create the $config
+        //       registration of the Doctrine "Tree" extension (Gedmo\DoctrineExtensions) requires a more manual setup.
+        //       The Doctrine "Tree" extension implements nested-set behavior for Doctrine.
+
+//        $config = Setup::createAnnotationMetadataConfiguration(
+//            $paths,
+//            $isDevMode,
+//            $proxyDir,
+//            $cache,
+//            $useSimpleAnnotationReader
+//        );
+
+        $config = Setup::createConfiguration($isDevMode, $proxyDir, $cache);
+
+        // Ensure standard Doctrine annotations are registered
+        AnnotationRegistry::registerFile(
+            __DIR__ . '/../../../vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php'
         );
+
+        // Use the (metadata) cache that was auto-generated when creating the configuration
+        $metadataCache = $config->getMetadataCacheImpl();
+
+        // Build the annotation reader for the application
+        $cachedReader = new CachedReader(new AnnotationReader(), $metadataCache);
+
+        // Create the mapping driver chain that will be used to read metadata from our various sources
+        $mappingDriver = new MappingDriverChain();
+
+        // Load the superclass metadata mapping for the Doctrine extensions into the driver chain.
+        // Internally, this will also register the Doctrine Extensions annotations
+        DoctrineExtensions::registerAbstractMappingIntoDriverChainORM($mappingDriver, $cachedReader);
+
+        $annotationDriver = new AnnotationDriver($cachedReader, $paths);
+
+        // Register the application entities to our driver chain
+        $mappingDriver->addDriver($annotationDriver, 'Opus');
+
+        $config->setMetadataDriverImpl($mappingDriver);
 
         $conn = self::getConnection();
 
-        if (self::$entityManager === null) {
-            self::$entityManager = EntityManager::create($conn, $config);
-        }
+        // Add a listener for the Doctrine "Tree" extension
+        $treeListener = new TreeListener();
+        $eventManager = $conn->getEventManager();
+        $eventManager->addEventSubscriber($treeListener);
+
+        self::$entityManager = EntityManager::create($conn, $config, $eventManager);
 
         return self::$entityManager;
     }

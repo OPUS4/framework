@@ -35,7 +35,6 @@
 namespace OpusTest\TestAsset;
 
 use Opus\Config;
-use PHPUnit_Framework_TestCase;
 use Zend_Config;
 
 use function call_user_func;
@@ -48,7 +47,7 @@ use function is_callable;
  *
  * TODO needs refactoring
  */
-abstract class AbstractSimpleTestCase extends PHPUnit_Framework_TestCase
+abstract class AbstractSimpleTestCase extends \PHPUnit\Framework\TestCase
 {
     private $configBackup;
 

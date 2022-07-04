@@ -40,13 +40,12 @@ namespace OpusTest;
 
 use Exception;
 use InvalidArgumentException;
-use Opus\Collection;
-use Opus\CollectionRole;
 use Opus\Config;
-use Opus\Db\Collections;
 use Opus\Document;
 use Opus\Model\NotFoundException;
 use Opus\Model\Xml\Cache;
+use Opus\Model2\Collection;
+use Opus\Model2\CollectionRole;
 use OpusTest\Model\Plugin\AbstractPluginMock;
 use OpusTest\TestAsset\NestedSetValidator;
 use OpusTest\TestAsset\TestCase;
@@ -109,7 +108,7 @@ class CollectionTest extends TestCase
 
         // Check, if we can create the object for this Id.
         $collectionId = $this->object->getId();
-        $collection   = new Collection($collectionId);
+        $collection   = Collection::get($collectionId);
 
         $this->assertNotNull($collection, 'Collection construction failed: collection is null.');
         $this->assertNotNull($collection->getId(), 'Collection storing failed: should have an Id.');
@@ -124,8 +123,71 @@ class CollectionTest extends TestCase
         $collectionId = $this->object->getId();
         $this->object->delete();
 
-        $this->setExpectedException(NotFoundException::class);
-        new Collection($collectionId);
+        $this->expectException(NotFoundException::class);
+        Collection::get($collectionId);
+    }
+
+    /**
+     * Test if deleting the root collection also deletes its entire children tree.
+     */
+    public function testDeleteChildren()
+    {
+        $root = $this->object;
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
+
+        $child1 = $root->addFirstChild();
+        $root->store();
+
+        $child2 = $child1->addFirstChild();
+        $root->store();
+
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
+        $this->assertEquals(1, count($child1->getChildren()), 'The parent\'s child collection should itself have one child.');
+
+        $rootId = $root->getId();
+        $child1Id = $child1->getId();
+        $child2Id = $child2->getId();
+
+        $root->delete();
+
+        $this->expectException(NotFoundException::class);
+        $root = Collection::get($rootId);
+        $this->assertNull($root->getId());
+
+        $this->expectException(NotFoundException::class);
+        $child1 = Collection::get($child1Id);
+        $this->assertNull($child1->getId());
+
+        $this->expectException(NotFoundException::class);
+        Collection::get($child2Id);
+    }
+
+    /**
+     * Test if storing the the root collection also stores its entire children tree.
+     */
+    public function testStoreChildren()
+    {
+        $root = $this->object;
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
+
+        $child1 = $root->addFirstChild();
+        $root->store();
+
+        $child2 = $child1->addFirstChild();
+        $root->store();
+
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
+        $this->assertEquals(1, count($child1->getChildren()), 'The parent\'s child collection should itself have one child.');
+
+        $testChild1 = Collection::get($child1->getId());
+        $this->assertEquals($child1->getId(), $testChild1->getId());
+
+        $testChild2 = Collection::get($child2->getId());
+        $this->assertEquals($child2->getId(), $testChild2->getId());
     }
 
     /**
@@ -139,12 +201,14 @@ class CollectionTest extends TestCase
         $collection = $this->object;
         $this->assertEquals('test-theme', $collection->getTheme(), 'After store: Stored theme does not match expectation.');
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('test-theme', $collection->getTheme(), 'After reload: Stored theme does not match expectation.');
     }
 
     /**
      * Test if virtual field "GetOaiName" contains the value of "OaiSubset".
+     *
+     * TODO: Is this test correct?
      */
     public function testGetOaiName()
     {
@@ -154,7 +218,7 @@ class CollectionTest extends TestCase
         $collectionId = $this->object->store();
         $this->assertNotNull($collectionId);
 
-        $collection = new Collection($collectionId);
+        $collection = Collection::get($collectionId);
         $this->assertEquals('subset', $this->object->getOaiSubset());
     }
 
@@ -166,7 +230,7 @@ class CollectionTest extends TestCase
         $collectionId = $this->object->store();
         $this->assertNotNull($collectionId);
 
-        $testObject = new Collection($collectionId);
+        $testObject = Collection::get($collectionId);
         $this->assertEquals($this->object->getRoleId(), $testObject->getRoleId());
     }
 
@@ -180,9 +244,6 @@ class CollectionTest extends TestCase
         $child1 = $root->addLastChild();
         $root->store();
 
-        // FIXME: We have to reload model to get correct results!
-        $root = new Collection($root->getId());
-
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
 
@@ -192,8 +253,6 @@ class CollectionTest extends TestCase
         $child1->addFirstChild();
         $child1->store();
 
-        // FIXME: We have to reload model to get correct results!
-        $root = new Collection($root->getId());
 
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(2, count($root->getChildren()), 'Root collection should have two children.');
@@ -207,7 +266,7 @@ class CollectionTest extends TestCase
         $this->object->setTheme($defaultTheme);
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals($defaultTheme, $collection->getTheme(), 'Expect default theme if non set');
     }
 
@@ -219,7 +278,7 @@ class CollectionTest extends TestCase
         $defaultTheme = Config::get()->theme;
         $this->assertFalse(empty($defaultTheme), 'Could not get theme from config');
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals($defaultTheme, $collection->getTheme(), 'Expect default theme if non set');
     }
 
@@ -265,7 +324,7 @@ class CollectionTest extends TestCase
         }
 
         // Check if getDocumentIds returns *all* documents.
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $docIds     = $collection->getDocumentIds();
         $this->assertEquals(2 * $max, count($docIds), 'Expected ' . (2 * $max) . ' element in array');
 
@@ -292,7 +351,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('thirteen');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('fooblablub', $collection->getDisplayName('browsing'));
         $this->assertEquals('thirteen', $collection->getDisplayName('frontdoor'));
     }
@@ -307,13 +366,13 @@ class CollectionTest extends TestCase
         $this->object->setNumber('thirteen');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('thirteen', $collection->getDisplayFrontdoor());
 
         $this->roleFixture->setDisplayFrontdoor('Number, Name');
         $this->roleFixture->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('thirteen fooblablub', $collection->getDisplayFrontdoor());
     }
 
@@ -326,7 +385,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('thirteen');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('fooblablub', $collection->getDisplayNameForBrowsingContext());
     }
 
@@ -339,7 +398,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('thirteen');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('fooblablub', $collection->getDisplayNameForBrowsingContext($this->roleFixture));
     }
 
@@ -353,7 +412,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
@@ -367,7 +426,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
@@ -381,7 +440,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
@@ -395,7 +454,7 @@ class CollectionTest extends TestCase
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Collection($this->object->getId());
+        $collection = Collection::get($this->object->getId());
         $this->assertEquals('number - name', $collection->getNumberAndName(' - '));
     }
 
@@ -497,7 +556,7 @@ class CollectionTest extends TestCase
         $d->setCollection([]);
         $d->store();
 
-        $collection = new Collection($collectionId);
+        $collection = Collection::get($collectionId);
     }
 
     public function testGettingIdOfParentNode()
@@ -519,7 +578,7 @@ class CollectionTest extends TestCase
         $root->store();
 
         // FIXME: We have to reload model to get correct results!
-        $root = new Collection($root->getId());
+        $root = Collection::get($root->getId());
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
 
@@ -529,7 +588,7 @@ class CollectionTest extends TestCase
         $child->delete();
 
         // FIXME: We have to reload model to get correct results!
-        $root = new Collection($root->getId());
+        $root = Collection::get($root->getId());
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(0, count($root->getChildren()), 'Root collection should have no child.');
     }
@@ -549,7 +608,7 @@ class CollectionTest extends TestCase
 
         $this->object->store();
 
-        $coll = new Collection($this->object->getId());
+        $coll = Collection::get($this->object->getId());
 
         $e = null;
         try {
@@ -564,8 +623,6 @@ class CollectionTest extends TestCase
 
     public function testGetVisibleChildren()
     {
-        $this->object->store();
-
         // add two children: one of them (the first child) is invisible
         $coll1 = new Collection();
         $coll1->setVisible('1');
@@ -591,8 +648,6 @@ class CollectionTest extends TestCase
 
     public function testHasVisibleChildren()
     {
-        $this->object->store();
-
         $this->assertFalse($this->object->hasVisibleChildren());
         $this->assertFalse($this->object->hasChildren());
 
@@ -745,11 +800,11 @@ class CollectionTest extends TestCase
         $collection = $this->roleFixture->getRootCollection();
         $collection->setVisiblePublish(1);
         $cId        = $collection->store();
-        $collection = new Collection($cId);
+        $collection = Collection::get($cId);
         $this->assertEquals(1, $collection->getVisiblePublish());
         $collection->setVisiblePublish(0);
         $cId        = $collection->store();
-        $collection = new Collection($cId);
+        $collection = Collection::get($cId);
         $this->assertEquals(0, $collection->getVisiblePublish());
     }
 
@@ -762,18 +817,18 @@ class CollectionTest extends TestCase
 
         $colId = 1; // $this->object->getId();
 
-        $root     = new Collection($colId);
+        $root     = Collection::get($colId);
         $children = $root->getChildren();
 
         $this->assertEquals('test3', $children[2]->getNumber(), 'Test fixture was modified.');
         $this->assertEquals('test4', $children[3]->getNumber(), 'Test fixture was modified.');
 
-        $collection = new Collection(8);
+        $collection = Collection::get(8);
         $this->assertEquals('test4', $collection->getNumber(), 'Test fixture was modified.');
 
         $collection->moveBeforePrevSibling();
 
-        $root     = new Collection($colId);
+        $root     = Collection::get($colId);
         $children = $root->getChildren();
         $this->assertEquals(7, count($children));
 
@@ -803,18 +858,18 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals($children[3]->getNumber(), 'test4');
         $this->assertEquals($children[4]->getNumber(), 'test5');
 
-        $collection = new Collection(8);
+        $collection = Collection::get(8);
         $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
 
         $collection->moveAfterNextSibling();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -915,8 +970,6 @@ class CollectionTest extends TestCase
      */
     public function testHasVisiblePublishChildren()
     {
-        $this->object->store();
-
         $this->assertFalse($this->object->hasVisiblePublishChildren());
         $this->assertFalse($this->object->hasChildren());
 
@@ -953,8 +1006,6 @@ class CollectionTest extends TestCase
 
     public function testHasVisiblePublishChildrenFalseIfNotVisible()
     {
-        $this->object->store();
-
         $this->assertFalse($this->object->hasVisiblePublishChildren());
         $this->assertFalse($this->object->hasChildren());
 
@@ -974,8 +1025,6 @@ class CollectionTest extends TestCase
      */
     public function testGetVisiblePublishChildren()
     {
-        $this->object->store();
-
         // add two children: one of them (the first child) is invisible
         $coll1 = new Collection();
         $coll1->setVisiblePublish('1');
@@ -1019,19 +1068,19 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
         $this->assertEquals(7, count($children));
 
         $this->assertEquals('test3', $children[2]->getNumber(), 'Test fixture was modified.');
         $this->assertEquals('test4', $children[3]->getNumber(), 'Test fixture was modified.');
 
-        $collection = new Collection(8);
+        $collection = Collection::get(8);
         $this->assertEquals('test4', $collection->getNumber(), 'Test fixture was modified.');
 
         $collection->moveToPosition(1);
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
         $this->assertEquals(7, count($children));
 
@@ -1058,13 +1107,13 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $collection = new Collection(4);
+        $collection = Collection::get(4);
 
         $this->assertEquals('test3', $collection->getNumber());
 
         $collection->moveToPosition(5);
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -1081,13 +1130,13 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $collection = new Collection(11);
+        $collection = Collection::get(11);
 
         $this->assertEquals('test5', $collection->getNumber());
 
         $collection->moveToStart();
 
-        $root = new Collection(1);
+        $root = Collection::get(1);
 
         $children = $root->getChildren();
 
@@ -1103,13 +1152,13 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $collection = new Collection(8);
+        $collection = Collection::get(8);
 
         $this->assertEquals('test4', $collection->getNumber());
 
         $collection->moveToEnd();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -1125,11 +1174,11 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root = new Collection(1);
+        $root = Collection::get(1);
 
         $root->sortChildrenByName(true);
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -1142,7 +1191,7 @@ class CollectionTest extends TestCase
 
         $root->sortChildrenByName();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -1158,11 +1207,11 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root = new Collection(1);
+        $root = Collection::get(1);
 
         $root->sortChildrenByName(true);
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -1175,7 +1224,7 @@ class CollectionTest extends TestCase
 
         $root->sortChildrenByName();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
@@ -1191,14 +1240,14 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertCount(7, $children);
 
         $root->applySortOrderOfChildren([4, 11, 3, 14, 2, 8, 13]);
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertCount(7, $children);
@@ -1218,12 +1267,13 @@ class CollectionTest extends TestCase
     {
         $this->setUpFixtureForMoveTests();
 
-        $root     = new Collection(1);
+        $root     = Collection::get(1);
         $children = $root->getChildren();
 
         $this->assertCount(7, $children);
 
-        $this->setExpectedException(InvalidArgumentException::class, 'is no child of');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('is no child of');
 
         $root->applySortOrderOfChildren([4, 11, 3, 16, 2, 8, 13]);
     }
@@ -1233,18 +1283,14 @@ class CollectionTest extends TestCase
      */
     protected function validateNestedSet()
     {
-        $table = new Collections();
-
-        $select = $table->select()->where('role_id = ?', 1)->order('left_id ASC');
-
-        $rows = $table->fetchAll($select);
+        $rows = Collection::fetchCollectionsByRoleId(1, true);
 
         $this->assertEquals(14, count($rows));
 
-        $this->assertEquals(1, $rows[0]->left_id);
-        $this->assertEquals(28, $rows[0]->right_id);
+        $this->assertEquals(1, $rows[0]->getLeft());
+        $this->assertEquals(28, $rows[0]->getRight());
 
-        $validator = new NestedSetValidator($table);
+        $validator = new NestedSetValidator();
 
         $this->assertTrue($validator->validate(1));
     }
@@ -1288,7 +1334,7 @@ class CollectionTest extends TestCase
 
         $collection->store();
 
-        $collection = new Collection($collection->getId());
+        $collection = Collection::get($collection->getId());
 
         $this->assertNull($collection->getNumber());
         $this->assertNull($collection->getOaiSubset());
