@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,6 +36,7 @@ use DOMDocument;
 use InvalidArgumentException;
 use Opus\Common\LoggingTrait;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\ModelInterface;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
@@ -68,7 +69,7 @@ use function substr;
  *
  * phpcs:disable
  */
-abstract class AbstractModel implements PropertySupportInterface
+abstract class AbstractModel implements PropertySupportInterface, ModelInterface
 {
     use LoggingTrait;
 
@@ -352,7 +353,7 @@ abstract class AbstractModel implements PropertySupportInterface
             $fieldvalues = [];
 
             foreach ($fieldvalue as $value) {
-                if ($value instanceof AbstractModel) {
+                if ($value instanceof ModelInterface) {
                     $fieldvalues[] = $value->toArray();
                 } else {
                     $fieldvalues[] = $value;

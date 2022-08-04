@@ -351,12 +351,12 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface
      * Returns null if name is null *or* nothing found.
      *
      * @param null|string $name Name of collection role to look for.
-     * @return CollectionRole
+     * @return CollectionRole|null
      */
     public static function fetchByName($name = null)
     {
         if (false === isset($name)) {
-            return;
+            return null;
         }
 
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
@@ -367,22 +367,22 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface
             return new CollectionRole($row);
         }
 
-        return;
+        return null;
     }
 
     /**
      * ALTERNATE CONSTRUCTOR: Retrieve Opus\CollectionRole instance by oaiName.
      * Returns null if name is null *or* nothing found.
      *
-     * TODO: Return Opus\Model\NotFoundException?
+     * TODO: Return Opus\Common\Model\NotFoundException?
      *
      * @param null|string $oaiName OaiName of collection role to look for.
-     * @return CollectionRole
+     * @return CollectionRole|null
      */
     public static function fetchByOaiName($oaiName = null)
     {
         if (false === isset($oaiName)) {
-            return;
+            return null;
         }
 
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
@@ -393,7 +393,7 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface
             return new CollectionRole($row);
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -528,12 +528,12 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface
     }
 
     /**
-     * Return the ids of documents in an oai set.
+     * Checks if set contains documents.
      *
      * @see modules/oai/controllers/IndexController.php
      *
      * @param  string $oaiSetName The name of the oai set.
-     * @return array The ids of the documents in the set.
+     * @return bool True if set contains documents
      *
      * FIXME: Need Collection constructor-by-oaiSetName.
      * FIXME: Check OAI set names for invalid characters (i.e. ':')

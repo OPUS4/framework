@@ -26,13 +26,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Kaustabh Barman <barman@zib.de>
  */
 
 namespace Opus\Doi;
@@ -44,12 +39,12 @@ use InvalidArgumentException;
 use Opus\Common\Config;
 use Opus\Common\Log;
 use Opus\Common\Log\LogService;
+use Opus\Common\Model\NotFoundException;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DoiGeneratorException;
 use Opus\Doi\Generator\DoiGeneratorFactory;
 use Opus\Identifier;
-use Opus\Model\NotFoundException;
 use Zend_Config;
 use Zend_Exception;
 use Zend_Log;

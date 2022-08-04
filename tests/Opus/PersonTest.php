@@ -38,8 +38,8 @@
 namespace OpusTest;
 
 use DateTime;
+use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
-use Opus\Date;
 use Opus\Db\Persons;
 use Opus\Db\TableGateway;
 use Opus\Document;

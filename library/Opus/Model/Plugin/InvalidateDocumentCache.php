@@ -25,20 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2013-2018
+ * @copyright   Copyright (c) 2013
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model\Plugin
- * @author      Edouard Simon <edouard.simon@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model\Plugin;
 
+use Opus\Common\Date;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\Plugin\AbstractPlugin;
-use Opus\Date;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DocumentFinderException;

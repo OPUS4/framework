@@ -25,19 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008 - 2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  */
 
 namespace Opus\Model;
 
 use DOMDocument;
 use Opus\Common\Log;
+use Opus\Common\Model\ModelException;
+use Opus\Common\Model\ModelInterface;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Conf;
 use Opus\Model\Xml\StrategyInterface;
@@ -47,11 +44,13 @@ use Opus\Uri\ResolverInterface;
 use function get_class;
 
 /**
- * Provides creation XML from models and creation of models by valid XML respectivly.
+ * Provides creation XML from models and creation of models from valid XML respectively.
  *
+ * This class is a wrapper around implementations of the StrategyInterface like Version1
+ * and Version1. It adds support for caching XML.
+ *
+ * TODO rename StrategyInterface as well
  * TODO NAMESPACE rename class?
- *
- * phpcs:disable
  */
 class Xml
 {
@@ -182,10 +181,10 @@ class Xml
     /**
      * Set up list of fields to exclude from serialization.
      *
-     * @param array Field list
+     * @param array|null $fields List of Field names
      * @return $this Fluent interface
      */
-    public function exclude(array $fields)
+    public function exclude($fields)
     {
         $this->config->excludeFields = $fields;
         return $this;
@@ -229,7 +228,7 @@ class Xml
     /**
      * Set the Model for XML generation.
      *
-     * @param AbstractModel $model Model to serialize.
+     * @param ModelInterface $model Model to serialize.
      * @return $this Fluent interface.
      */
     public function setModel($model)
@@ -242,7 +241,7 @@ class Xml
      * Return the current Model instance if there is any. If there is an XML representation set up,
      * a new model is created by unserialising it from the XML data.
      *
-     * @return AbstractModel Deserialised or previously set Model.
+     * @return ModelInterface Deserialised or previously set Model.
      */
     public function getModel()
     {
@@ -285,7 +284,7 @@ class Xml
      * null in case of an error/cache miss/cache disabled.  Returns DOMDocument
      * otherwise.
      *
-     * @return DOMDocument DOM representation of the current Model.
+     * @return DOMDocument|null DOM representation of the current Model.
      */
     private function getDomDocumentFromXmlCache()
     {

@@ -27,16 +27,13 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model;
 
 use InvalidArgumentException;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\NotFoundException;
 use Opus\Db\TableGateway;
 use Zend_Db_Table_Abstract;
 use Zend_Db_Table_Row;
@@ -293,10 +290,22 @@ trait DatabaseTrait
      * Returns whether model is a new record.
      *
      * @return bool
+     *
+     * TODO LAMINAS isNew replaces isNewRecord
      */
     public function isNewRecord()
     {
         return $this->isNewRecord;
+    }
+
+    /**
+     * @return bool
+     *
+     * TODO LAMINAS isNew replaces isNewRecord
+     */
+    public function isNew()
+    {
+        return $this->isNewRecord();
     }
 
     /**

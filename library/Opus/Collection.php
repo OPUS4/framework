@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -37,10 +37,10 @@ use Exception;
 use InvalidArgumentException;
 use Opus\Common\CollectionInterface;
 use Opus\Common\Config;
+use Opus\Common\Model\NotFoundException;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Opus\Model\NotFoundException;
 use Opus\Model\Xml\StrategyInterface;
 
 use function array_diff;

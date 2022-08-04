@@ -44,6 +44,7 @@ namespace Opus;
 
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Common\ServerStateConstantsInterface;
@@ -681,7 +682,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     /**
      * Bulk update of ServerDateModified for documents matching selection
      *
-     * @param Date  $date Opus\Date-Object holding the date to be set
+     * @param Date  $date Date-Object holding the date to be set
      * @param array $ids array of document ids
      */
     public static function setServerDateModifiedByIds($date, $ids)

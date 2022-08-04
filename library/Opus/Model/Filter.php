@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
 namespace Opus\Model;
@@ -38,6 +34,7 @@ namespace Opus\Model;
 use DOMDocument;
 use InvalidArgumentException;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\ModelInterface;
 use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
 use Opus\Security\SecurityException;
@@ -54,13 +51,18 @@ use function substr;
  * Wrapper class for all domain models in the Opus framework.
  * Defines field blacklist to restrict access and field reporting
  * of concrete Models.
+ *
+ * A whitelist or a blacklist of fields can be used.
+ *
+ * TODO document example use cases for Filter (it was important for automatically generated form, which are not used
+ *      anymore) - Filtering for XML conversion, output in general?
  */
-class Filter extends AbstractModel
+class Filter implements ModelInterface
 {
     /**
      * Model instance that gets filtered.
      *
-     * @var parent
+     * @var ModelInterface
      */
     private $model;
 
@@ -79,21 +81,12 @@ class Filter extends AbstractModel
     private $sortorder = [];
 
     /**
-     * Just here to implement abstract interface.
-     *
-     * @see \Opus\Model\Abstract#_init()
-     */
-    protected function init()
-    {
-    }
-
-    /**
      * Set model to filter.
      *
-     * @param parent $model Filter source.
+     * @param ModelInterface $model Filter source.
      * @return $this Fluent interface.
      */
-    public function setModel(parent $model)
+    public function setModel($model)
     {
         $this->model = $model;
         return $this;
@@ -105,7 +98,7 @@ class Filter extends AbstractModel
      * @param array $list Array of fields that shall be filtered.
      * @return $this Fluent interface.
      */
-    public function setBlacklist(array $list)
+    public function setBlacklist($list)
     {
         $this->blacklist = $list;
         return $this;
@@ -117,7 +110,7 @@ class Filter extends AbstractModel
      * @param array $list Array of fields that shall be allowed to be accessed.
      * @return $this Fluent interface.
      */
-    public function setWhitelist(array $list)
+    public function setWhitelist($list)
     {
         $this->blacklist = array_diff($this->model->describe(), $list);
         return $this;
@@ -138,8 +131,6 @@ class Filter extends AbstractModel
     /**
      * Get a list of all fields attached to the model. Filters all fieldnames
      * that are listed on the blacklist.
-     *
-     * @see    \Opus\Model\Abstract::_internalFields
      *
      * @return array    List of fields
      */
@@ -167,6 +158,7 @@ class Filter extends AbstractModel
     public function getField($name)
     {
         if (in_array($name, $this->blacklist)) {
+            // TODO should Exception expose blacklist? What if is is a genuine undefined field? Could be misleading!
             throw new ModelException('Requested field is hidden by the blacklist.');
         }
         return $this->model->getField($name);
@@ -183,7 +175,7 @@ class Filter extends AbstractModel
      * @throws SecurityException  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
-    public function __call($name, array $arguments)
+    public function __call($name, $arguments)
     {
         $fieldname = substr($name, 3);
         if (in_array($fieldname, $this->blacklist)) {

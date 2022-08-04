@@ -40,6 +40,7 @@ namespace Opus\Model;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Model\ComparableInterface;
+use Opus\Common\Model\FieldInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
@@ -67,7 +68,7 @@ use function spl_object_hash;
  *
  * phpcs:disable
  */
-class Field implements ModificationTrackingInterface
+class Field implements ModificationTrackingInterface, FieldInterface
 {
     /**
      * Hold validator.

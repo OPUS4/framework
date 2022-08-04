@@ -14,7 +14,7 @@
  *
  * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
+ * @copyright   Copyright (c) 2010 OPUS 4 development team
  *
  * TODO add interface (database implementation just one option)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -26,11 +26,11 @@ use DOMDocument;
 use Opus\Common\Log;
 use Opus\Common\LoggingTrait;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\NotFoundException;
 use Opus\Common\Model\Xml\XmlCacheInterface;
 use Opus\Db\DocumentXmlCache;
 use Opus\Document;
 use Opus\DocumentFinder;
-use Opus\Model\NotFoundException;
 use Zend_Db_Select;
 use Zend_Db_Table;
 

@@ -37,6 +37,7 @@
 
 namespace Opus;
 
+use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
 use Opus\Db\LinkPersonsDocuments;
 use Opus\Db\TableGateway;

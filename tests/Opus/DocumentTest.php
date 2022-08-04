@@ -45,8 +45,9 @@ use InvalidArgumentException;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
+use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
-use Opus\Date;
+use Opus\Common\Model\NotFoundException;
 use Opus\Db\Documents;
 use Opus\Db\TableGateway;
 use Opus\DnbInstitute;
@@ -63,7 +64,6 @@ use Opus\Model\Dependent\Link\DocumentLicence;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
 use Opus\Model\Filter;
-use Opus\Model\NotFoundException;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
@@ -4311,5 +4311,21 @@ class DocumentTest extends TestCase
         $doc->setServerState(Document::STATE_DELETED);
 
         $this->assertFalse($field->isModified());
+    }
+
+    public function testIsDateOnlyForStoredDateValues()
+    {
+        $doc = Document::new();
+        $doc->setPublishedDate('2022-05-18');
+        $doc->setServerDateCreated('2022-07-01T00:00:00+02:00');
+        $doc = Document::get($doc->store());
+
+        $publishedDate = $doc->getPublishedDate();
+
+        $this->assertTrue($publishedDate->isDateOnly());
+
+        $serverDateCreated = $doc->getServerDateCreated();
+
+        $this->assertFalse($serverDateCreated->isDateOnly());
     }
 }

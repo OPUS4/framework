@@ -25,12 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model\Xml
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model\Xml;
@@ -38,13 +34,14 @@ namespace Opus\Model\Xml;
 use DateTimeZone;
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
+use Opus\Common\Model\DependentModelInterface;
+use Opus\Common\Model\FieldInterface;
+use Opus\Common\Model\LinkModelInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Model\AbstractDb;
-use Opus\Model\AbstractModel;
-use Opus\Model\Dependent\AbstractDependentModel;
-use Opus\Model\Dependent\Link\AbstractLinkModel;
-use Opus\Model\Field;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\PersistableInterface;
 
 use function array_diff;
 use function array_key_exists;
@@ -62,40 +59,42 @@ use function preg_replace;
 use function trim;
 
 /**
- * phpcs:disable
+ * Basic class for XML formats.
+ *
+ * TODO review and refine documentation (comments in code)
  */
-abstract class VersionAbstract implements StrategyInterface
+abstract class AbstractVersion implements StrategyInterface
 {
     /**
      * Holds current configuration.
      *
      * @var Conf
      */
-    private $_config;
+    private $config;
 
     /**
      * Holds current representation version.
      *
      * @var string
      */
-    protected $_version;
+    protected $version;
 
     /**
      * Initiate class with a valid config object.
      */
     public function __construct()
     {
-        $this->_config = new Conf();
+        $this->config = new Conf();
     }
 
     /**
      * (non-PHPdoc)
      *
-     * @see \Opus\Model\Xml\StrategyInterface#setDomDocument()
+     * @see StrategyInterface#setDomDocument()
      */
     public function setDomDocument(DOMDocument $dom)
     {
-        $this->_config->dom = $dom;
+        $this->config->dom = $dom;
     }
 
     /**
@@ -108,9 +107,9 @@ abstract class VersionAbstract implements StrategyInterface
      * @param DOMElement  $element   Element to use for model creation.
      * @param null|string $classname (Optional) Class name of class to be created. If not given, the node name is used.
      * @throws ModelException Thrown if the model reffered to by the elements name is unknown.
-     * @return AbstractModel Created model
+     * @return ModelInterface Created model
      */
-    protected function _createModelFromElement(DOMElement $element, $classname = null)
+    protected function createModelFromElement(DOMElement $element, $classname = null)
     {
         if (null === $classname) {
             $classname = preg_replace('/_/', '\\', $element->nodeName);
@@ -122,8 +121,8 @@ abstract class VersionAbstract implements StrategyInterface
 
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
-        if ((null !== $this->_config->xlinkResolver) and (null !== $ref)) {
-            return $this->_config->xlinkResolver->get($ref->value);
+        if ((null !== $this->config->xlinkResolver) && (null !== $ref)) {
+            return $this->config->xlinkResolver->get($ref->value);
         }
 
         // Handle constructor attributes
@@ -133,34 +132,34 @@ abstract class VersionAbstract implements StrategyInterface
     /**
      * If there is a mapping for a model available a xlink:href string is created.
      *
-     * @param AbstractModel $model Model to link.
+     * @param ModelInterface $model Model to link.
      * @return null|string Returns a string or null if no mapping is available
      */
-    protected function _createXlinkRef(AbstractModel $model)
+    protected function createXlinkRef($model)
     {
         // detect wether the model is persistent and shall be represented as xlink
         $uri = null;
 
         // determine the real model class name (there might be an link model in between)
         $valueModelClassName = get_class($model);
-        if ($model instanceof AbstractLinkModel) {
+        if ($model instanceof LinkModelInterface) {
             $valueModelClassName = $model->getModelClass();
         }
 
         // is there a mapping from class name to resource name?
-        if (true === array_key_exists($valueModelClassName, $this->_config->resourceNameMap)) {
+        if (true === array_key_exists($valueModelClassName, $this->config->resourceNameMap)) {
             // is the model a persisted database object?
-            if ($model instanceof AbstractDb) {
+            if ($model instanceof PersistableInterface) {
                 // return associated model id if $model is a link model
-                if ($model instanceof AbstractLinkModel) {
+                if ($model instanceof LinkModelInterface) {
                     $modelId = $model->getLinkedModelId();
                 } else {
                     $modelId = $model->getId();
                 }
 
                 if (null !== $modelId) {
-                    $resourceName = $this->_config->resourceNameMap[$valueModelClassName];
-                    $uri          = $this->_config->baseUri . '/' . $resourceName . '/' . $modelId;
+                    $resourceName = $this->config->resourceNameMap[$valueModelClassName];
+                    $uri          = $this->config->baseUri . '/' . $resourceName . '/' . $modelId;
                 }
             }
         }
@@ -171,26 +170,22 @@ abstract class VersionAbstract implements StrategyInterface
     /**
      * Maps attribute model informations to a DOMDocument.
      *
-     * @param AbstractModel $model      Model informations for attribute mapping.
-     * @param DOMDocument   $dom        General DOM document.
-     * @param DOMNode       $rootNode   Node where to add created structure.
-     * @param bool          $unTunneled Should only current (true) or all (false, default) fields shown.
+     * @param ModelInterface $model      Model informations for attribute mapping.
+     * @param DOMDocument    $dom        General DOM document.
+     * @param DOMNode        $rootNode   Node where to add created structure.
+     * @param bool           $unTunneled Should only current (true) or all (false, default) fields shown.
      */
-    protected function _mapAttributes(
-        AbstractModel $model,
-        DOMDocument $dom,
-        DOMNode $rootNode,
-        $unTunneled = false
-    ) {
-        if ((true === $unTunneled) and $model instanceof AbstractLinkModel) {
+    protected function mapAttributes($model, $dom, $rootNode, $unTunneled = false)
+    {
+        if ((true === $unTunneled) && $model instanceof LinkModelInterface) {
             $fields = $model->describeUntunneled();
-        } elseif ((true === $unTunneled) and $model instanceof AbstractDependentModel) {
+        } elseif ((true === $unTunneled) && $model instanceof DependentModelInterface) {
             return; // short-circuit
         } else {
             $fields = $model->describe();
         }
 
-        $excludeFields = $this->_config->excludeFields;
+        $excludeFields = $this->config->excludeFields;
         if (count($excludeFields) > 0) {
             $fieldsDiff = array_diff($fields, $excludeFields);
         } else {
@@ -199,75 +194,83 @@ abstract class VersionAbstract implements StrategyInterface
 
         foreach ($fieldsDiff as $fieldname) {
             $field = $model->getField($fieldname);
-            $this->_mapField($field, $dom, $rootNode);
+            $this->mapField($field, $dom, $rootNode);
         }
     }
 
     /**
      * (non-PHPdoc)
      *
-     * @see \Opus\Model\Xml\StrategyInterface#getDomDocument()
+     * @see StrategyInterface#getDomDocument()
+     *
+     * @return DOMDocument
      */
     public function getDomDocument()
     {
-        if (null === $this->_config->model) {
+        if (null === $this->config->model) {
             throw new ModelException('No Model given for serialization.');
         }
 
-        $this->_config->dom = new DOMDocument('1.0', 'UTF-8');
-        $root               = $this->_config->dom->createElement('Opus');
+        $this->config->dom = new DOMDocument('1.0', 'UTF-8');
+        $root              = $this->config->dom->createElement('Opus');
         $root->setAttribute('version', $this->getVersion());
-        $this->_config->dom->appendChild($root);
+        $this->config->dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-        $this->_mapModel($this->_config->model, $this->_config->dom, $root);
+        $this->mapModel($this->config->model, $this->config->dom, $root);
 
-        return $this->_config->dom;
+        return $this->config->dom;
     }
 
     /**
      * (non-PHPdoc)
      *
-     * @see \Opus\Model\Xml\StrategyInterface#getModel()
+     * @see StrategyInterface#getModel()
+     *
+     * @return ModelInterface
      */
     public function getModel()
     {
-        if (null !== $this->_config->dom) {
-            $root = $this->_config->dom->getElementsByTagName('Opus')->item(0);
+        if (null !== $this->config->dom) {
+            $root = $this->config->dom->getElementsByTagName('Opus')->item(0);
             if (null === $root) {
                 throw new ModelException('Root element "Opus" not found.');
             }
-            $model                = $this->_createModelFromElement($root->firstChild);
-            $this->_config->model = $this->_populateModelFromXml($model, $root->firstChild);
+            $model               = $this->createModelFromElement($root->firstChild);
+            $this->config->model = $this->populateModelFromXml($model, $root->firstChild);
         }
 
-        return $this->_config->model;
+        return $this->config->model;
     }
 
     /**
      * Return version value of current xml representation.
      *
-     * @see \Opus\Model\Xml\StrategyInterface#getVersion()
+     * @see StrategyInterface#getVersion()
+     *
+     * @return int
      */
     public function getVersion()
     {
-        return floor($this->_version);
+        return floor($this->version);
     }
 
     /**
      * (non-PHPdoc)
      *
-     * @see \Opus\Model\Xml\StrategyInterface#setDomDocument()
+     * @see StrategyInterface#setDomDocument()
      */
     public function setup(Conf $conf)
     {
-        $this->_config = $conf;
+        $this->config = $conf;
     }
 
     /**
      * (non-PHPdoc)
      *
-     * @see \Opus\Model\Xml\StrategyInterface#setXml()
+     * @see StrategyInterface#setXml()
+     *
+     * @param string $xml
      */
     public function setXml($xml)
     {
@@ -291,22 +294,25 @@ abstract class VersionAbstract implements StrategyInterface
         $this->setDomDocument($dom);
     }
 
+    /**
+     * @return Conf
+     */
     public function getConfig()
     {
-        return $this->_config;
+        return $this->config;
     }
 
     /**
      * Map field information to a DOMDocument.
      *
-     * @param Field       $field    Contains informations about mapping field.
-     * @param DOMDocument $dom      General DOM document.
-     * @param DOMNode     $rootNode Node where to add created structure.
+     * @param FieldInterface $field    Contains informations about mapping field.
+     * @param DOMDocument    $dom      General DOM document.
+     * @param DOMNode        $rootNode Node where to add created structure.
      *
      *
      * FIXME: remove code duplication (duplicates Opus\Model\Xml\Version*)
      */
-    protected function _mapField(Field $field, DOMDocument $dom, DOMNode $rootNode)
+    protected function mapField($field, $dom, $rootNode)
     {
         $modelClass  = $field->getValueModelClass();
         $fieldValues = $field->getValue();
@@ -342,20 +348,30 @@ abstract class VersionAbstract implements StrategyInterface
                 }
 
                 // delivers a URI if a mapping for the given model exists
-                $uri = $this->_createXlinkRef($value);
+                $uri = $this->createXlinkRef($value);
                 if (null !== $uri) {
                     $childNode->setAttribute('xlink:type', 'simple');
                     $childNode->setAttribute('xlink:href', $uri);
-                    $this->_mapAttributes($value, $dom, $childNode, true);
+                    $this->mapAttributes($value, $dom, $childNode, true);
                 } else {
-                    $this->_mapAttributes($value, $dom, $childNode);
+                    $this->mapAttributes($value, $dom, $childNode);
                 }
             }
         }
     }
 
-    abstract public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Field $field);
+    /**
+     * @param DOMDocument    $dom
+     * @param DOMNode        $rootNode
+     * @param FieldInterface $field
+     * @return mixed
+     */
+    abstract public function mapSimpleField($dom, $rootNode, $field);
 
+    /**
+     * @param FieldInterface $field
+     * @return string
+     */
     public function getFieldValues($field)
     {
         $fieldValues = $field->getValue();
@@ -374,11 +390,11 @@ abstract class VersionAbstract implements StrategyInterface
     /**
      * Maps model information to a DOMDocument.
      *
-     * @param AbstractModel $model    Contains model information of mapping.
-     * @param DOMDocument   $dom      General DOM document.
-     * @param DOMNode       $rootNode Node where to add created structure.
+     * @param ModelInterface $model    Contains model information of mapping.
+     * @param DOMDocument    $dom      General DOM document.
+     * @param DOMNode        $rootNode Node where to add created structure.
      */
-    protected function _mapModel(AbstractModel $model, DOMDocument $dom, DOMNode $rootNode)
+    protected function mapModel($model, $dom, $rootNode)
     {
         $fields        = $model->describe();
         $excludeFields = $this->getConfig()->excludeFields;
@@ -393,17 +409,39 @@ abstract class VersionAbstract implements StrategyInterface
 
         foreach ($fieldsDiff as $fieldname) {
             $field = $model->getField($fieldname);
-            $this->_mapField($field, $dom, $childNode);
+            $this->mapField($field, $dom, $childNode);
         }
     }
 
-    protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
+    /**
+     * @param DOMDocument $dom
+     * @param string      $fieldName
+     * @param mixed       $value
+     * @return DOMElement|false
+     * @throws DOMException
+     */
+    protected function createFieldElement($dom, $fieldName, $value)
     {
         return $dom->createElement($fieldName);
     }
 
-    protected function createModelNode(DOMDocument $dom, AbstractModel $model)
+    /**
+     * @param DOMDocument    $dom
+     * @param ModelInterface $model
+     * @return DOMElement|false
+     * @throws DOMException
+     */
+    protected function createModelNode($dom, $model)
     {
         return $dom->createElement(preg_replace('/\\\\/', '_', get_class($model)));
     }
+
+    /**
+     * Recursively populates model's fields from an Xml DomElement.
+     *
+     * @param  ModelInterface $model   The model to be populated.
+     * @param  DOMElement     $element The DomElement holding the field names and values.
+     * @return ModelInterface
+     */
+    abstract protected function populateModelFromXml($model, $element);
 }

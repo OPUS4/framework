@@ -35,6 +35,7 @@
 
 namespace Opus;
 
+use Opus\Common\Date;
 use Opus\Common\Validate\Year;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
