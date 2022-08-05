@@ -27,23 +27,16 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Uri
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
-namespace Opus\Uri;
+namespace Opus\Model\Xml;
 
 /**
  * Interface for classes resolving URIs to concrete content specified by the URI.
  *
- * @category    Framework
- * @package     Opus\Uri
- *
- * TODO NAMESPACE rename class
+ * TODO What is this interface for? How could it be used? Use cases?
  */
-interface ResolverInterface
+interface XlinkResolverInterface
 {
     /**
      * Get content of a represented resource.

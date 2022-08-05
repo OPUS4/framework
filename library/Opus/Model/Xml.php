@@ -39,7 +39,7 @@ use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Conf;
 use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
-use Opus\Uri\ResolverInterface;
+use Opus\Model\Xml\XlinkResolverInterface;
 
 use function get_class;
 
@@ -149,12 +149,12 @@ class Xml
     /**
      * Set up Xlink-Resolver called to obtain contents of Xlink referenced resources.
      *
-     * @param ResolverInterface $resolver Resolver implementation that gets called for xlink:ref content.
+     * @param XlinkResolverInterface $resolver Resolver implementation that gets called for xlink:ref content.
      * @return $this Fluent interface
      *
      * TODO seems unused in OPUS
      */
-    public function setXlinkResolver(ResolverInterface $resolver)
+    public function setXlinkResolver(XlinkResolverInterface $resolver)
     {
         $this->config->xlinkResolver = $resolver;
         return $this;

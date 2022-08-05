@@ -39,8 +39,8 @@ use Opus\Model\Field;
 use Opus\Model\Filter;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
+use Opus\Model\Xml\XlinkResolverInterface;
 use Opus\Title;
-use Opus\Uri\ResolverInterface;
 use OpusTest\Model\Mock\AbstractModelMock;
 use OpusTest\Model\Mock\AbstractModelWithoutIdMock;
 use OpusTest\Model\Mock\ModelAbstractDbMock;
@@ -739,7 +739,7 @@ class Version1Test extends TestCase
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels()
     {
-        $mockResolver = $this->getMockBuilder(ResolverInterface::class)
+        $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)
             ->setProxyTarget(['get'])
             ->getMock();
 
@@ -787,7 +787,7 @@ class Version1Test extends TestCase
         $mockModel = new AbstractModelMock();
         $mockModel->setValue('after');
 
-        $mockResolver = $this->getMockBuilder(ResolverInterface::class)
+        $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)
             ->setMethods(['get'])
             ->getMock();
 

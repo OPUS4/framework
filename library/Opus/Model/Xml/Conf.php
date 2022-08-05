@@ -33,7 +33,6 @@ namespace Opus\Model\Xml;
 
 use DOMDocument;
 use Opus\Common\Model\ModelInterface;
-use Opus\Uri\ResolverInterface;
 
 /**
  * Simple configuration object.
@@ -78,7 +77,7 @@ class Conf
     /**
      * Holds Resolver instance to get contents of xlink referenced resources.
      *
-     * @var ResolverInterface
+     * @var XlinkResolverInterface
      */
     public $xlinkResolver;
 
