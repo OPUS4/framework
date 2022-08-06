@@ -80,11 +80,12 @@ class CacheTest extends TestCase
         $table = new DocumentXmlCache();
         for ($i = 0; $i < $this->maxEntries; $i++) {
             $dateTime           = (new DateTime())->add(new DateInterval('PT' . rand(1, 59) . 'S'));
+            $docId              = $i + 1;
             $data               = [
-                'document_id'          => $i + 1,
+                'document_id'          => $docId,
                 'server_date_modified' => (new Date($dateTime))->getIso(),
                 'xml_version'          => $i % 2 ? 1 : 2,
-                'xml_data'             => '<Opus><Opus_Document><Foo/></Opus_Document></Opus>',
+                'xml_data'             => "<Opus><Opus_Document id=\"$docId\"><Foo/></Opus_Document></Opus>",
             ];
             $this->allEntries[] = $data;
             $table->insert($data);
@@ -541,5 +542,29 @@ class CacheTest extends TestCase
         $cache->removeAllEntriesForDependentModel($licence);
 
         $this->assertNull($cache->getData($docId, '1.0'));
+    }
+
+    public function testGetDataForDocuments()
+    {
+        $this->fillCache();
+
+        $cache = new Cache();
+
+        $data = $cache->getDataForDocuments([2, 4], '1');
+
+        $this->assertCount(2, $data);
+        $this->assertArrayHasKey(2, $data);
+        $this->assertArrayHasKey(4, $data);
+        $this->assertEquals('<Opus><Opus_Document id="2"><Foo/></Opus_Document></Opus>', $data[2]);
+        $this->assertEquals('<Opus><Opus_Document id="4"><Foo/></Opus_Document></Opus>', $data[4]);
+
+        $data = $cache->getDataForDocumentS([1, 3, 5], '2');
+        $this->assertCount(3, $data);
+        $this->assertArrayHasKey(1, $data);
+        $this->assertArrayHasKey(3, $data);
+        $this->assertArrayHasKey(5, $data);
+
+        $data = $cache->getDataForDocuments([1, 3, 5], '1');
+        $this->assertCount(0, $data);
     }
 }
