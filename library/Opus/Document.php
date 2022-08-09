@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2014-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
  * @category    Framework
@@ -46,6 +46,7 @@ use Exception;
 use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
+use Opus\Common\Model\DocumentLifecycleListener;
 use Opus\Common\Model\ModelException;
 use Opus\Common\ServerStateConstantsInterface;
 use Opus\Common\Storage\FileNotFoundException;
@@ -226,6 +227,11 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     private $oldServerState;
 
     private static $defaultPlugins;
+
+    /**
+     * @var DocumentLifecycleListener
+     */
+    private $documentLifecycleListener = null;
 
     /**
      * Plugins to load
@@ -479,6 +485,8 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
      */
     protected function init()
     {
+        $this->documentLifecycleListener = new DocumentLifecycleListener();
+
         $fields = [
             'BelongsToBibliography',
             'CompletedDate',
@@ -1025,22 +1033,8 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     {
         $result = parent::_preStore();
 
-        $date = new Date();
-        $date->setNow();
-        if (true === $this->isNewRecord()) {
-            if ($this->getServerDateCreated() === null) {
-                $this->setServerDateCreated($date);
-            }
-        }
-        $this->setServerDateModified($date);
-
-        if (true === $this->isNewRecord() || true === $this->isModified()) {
-            // Initially set ServerDatePublished if ServerState==='published'
-            if ($this->getServerState() === 'published') {
-                if ($this->getServerDatePublished() === null) {
-                    $this->setServerDatePublished($date);
-                }
-            }
+        if ($this->documentLifecycleListener !== null) {
+            $this->documentLifecycleListener->preStore($this);
         }
 
         return $result;
@@ -1402,5 +1396,15 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     public function getModelType()
     {
         return 'document';
+    }
+
+    /**
+     * @param DocumentLifecycleListener $listener
+     *
+     * TODO LAMINAS temporary hack to start separating database code from workflow event handling (business logic)
+     */
+    public function setLifecycleListener($listener)
+    {
+        $this->documentLifecycleListener = $listener;
     }
 }
