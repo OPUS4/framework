@@ -50,7 +50,6 @@ use Opus\Common\Model\DocumentLifecycleListener;
 use Opus\Common\Model\ModelException;
 use Opus\Common\ServerStateConstantsInterface;
 use Opus\Common\Storage\FileNotFoundException;
-use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
 use Opus\Identifier\Urn;
 use Opus\Identifier\UUID;
@@ -73,7 +72,6 @@ use function is_array;
 use function is_null;
 use function is_numeric;
 use function is_object;
-use function preg_match;
 use function reset;
 use function strtolower;
 use function substr;
@@ -657,61 +655,6 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     public static function getAll(?array $ids = null)
     {
         return self::getAllFrom(self::class, Db\Documents::class, $ids);
-    }
-
-    /**
-     * Returns the earliest date (server_date_published) of all documents.
-     *
-     * @deprecated
-     *
-     * TODO still in use in Application
-     *
-     * @return string|null /^\d{4}-\d{2}-\d{2}$/ on success, null otherwise
-     */
-    public static function getEarliestPublicationDate()
-    {
-        $table     = TableGateway::getInstance(Db\Documents::class);
-        $select    = $table->select()->from($table, 'min(server_date_published) AS min_date')
-            ->where('server_date_published IS NOT NULL')
-            ->where('TRIM(server_date_published) != \'\'');
-        $timestamp = $table->fetchRow($select)->toArray();
-
-        if (! isset($timestamp['min_date'])) {
-            return null;
-        }
-
-        $matches = [];
-        if (preg_match("/^(\d{4}-\d{2}-\d{2})T/", $timestamp['min_date'], $matches) > 0) {
-            return $matches[1];
-        }
-        return null;
-    }
-
-    /**
-     * Bulk update of ServerDateModified for documents matching selection
-     *
-     * @param Date  $date Date-Object holding the date to be set
-     * @param array $ids array of document ids
-     */
-    public static function setServerDateModifiedByIds($date, $ids)
-    {
-        // Update wird nur ausgeführt, wenn IDs übergeben werden
-        if ($ids === null || count($ids) === 0) {
-            return;
-        }
-
-        $table = TableGateway::getInstance(self::$tableGatewayClass);
-
-        $where = $table->getAdapter()->quoteInto('id IN (?)', $ids);
-
-        try {
-            $table->update(['server_date_modified' => "$date"], $where);
-        } catch (Exception $e) {
-            $logger = Log::get();
-            if ($logger !== null) {
-                $logger->err(__METHOD__ . ' ' . $e);
-            }
-        }
     }
 
     /**

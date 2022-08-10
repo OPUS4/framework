@@ -34,6 +34,7 @@ namespace Opus\Model\Plugin;
 use Opus\Common\CollectionInterface;
 use Opus\Common\Date;
 use Opus\Common\Model\Plugin\AbstractPlugin;
+use Opus\Common\Repository;
 use Opus\Db\Collections;
 use Opus\Db\TableGateway;
 use Opus\Document;
@@ -73,6 +74,9 @@ abstract class AbstractCollection extends AbstractPlugin
         $date = new Date();
         $date->setNow();
 
-        Document::setServerDateModifiedByIds($date, $documentFinder->ids());
+        Repository::getInstance()->getModelRepository(Document::class)->setServerDateModifiedForDocuments(
+            $date,
+            $documentFinder->ids()
+        );
     }
 }

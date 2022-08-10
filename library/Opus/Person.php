@@ -25,20 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
 use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Repository;
 use Opus\Db\LinkPersonsDocuments;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
@@ -698,7 +693,10 @@ class Person extends AbstractDb
                 $date = new Date();
                 $date->setNow();
 
-                Document::setServerDateModifiedByIds($date, $documentIds);
+                Repository::getInstance()->getModelRepository(Document::class)->setServerDateModifiedForDocuments(
+                    $date,
+                    $documentIds
+                );
             }
         }
     }

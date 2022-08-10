@@ -33,7 +33,11 @@ namespace OpusTest;
 
 use Opus\Common\Document as CommonDocument;
 use Opus\Common\DocumentInterface;
+use Opus\Common\Model\ModelException;
 use Opus\Document;
+use Opus\DocumentRepository;
+use Opus\ModelFactory;
+use Opus\Person;
 use OpusTest\TestAsset\TestCase;
 
 class ModelFactoryTest extends TestCase
@@ -63,5 +67,33 @@ class ModelFactoryTest extends TestCase
 
         $this->assertEquals($docId, $model->getId());
         $this->assertEquals('article', $model->getType());
+    }
+
+    public function testGetRepository()
+    {
+        $modelFactory = new ModelFactory();
+
+        $documentRepository = $modelFactory->getRepository('Document');
+
+        $this->assertInstanceOf(DocumentRepository::class, $documentRepository);
+    }
+
+    public function testGetRepositoryFallbackToModelClass()
+    {
+        $modelFactory = new ModelFactory();
+
+        $personRepository = $modelFactory->getRepository('Person');
+
+        $this->assertInstanceOf(Person::class, $personRepository);
+    }
+
+    public function testGetRepositoryUnknownType()
+    {
+        $modelFactory = new ModelFactory();
+
+        $this->expectException(ModelException::class);
+        $this->expectExceptionMessage('Model class not found: Opus\UnknownModel');
+
+        $modelFactory->getRepository('UnknownModel');
     }
 }

@@ -48,8 +48,6 @@ use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
-use Opus\Db\Documents;
-use Opus\Db\TableGateway;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Enrichment;
@@ -1579,25 +1577,6 @@ class DocumentTest extends TestCase
         $this->assertEquals(count($authors), count($uniqueNumbers));
     }
 
-    public function testGetEarliestPublicationDate()
-    {
-        $nullDate = Document::getEarliestPublicationDate();
-        $this->assertNull($nullDate, "Expected NULL on empty database.");
-
-        // Insert valid entry through framework.
-        $document = new Document();
-        $document->setServerDatePublished('2011-06-01T00:00:00Z');
-        $document->store();
-        $validDate = Document::getEarliestPublicationDate();
-        $this->assertEquals('2011-06-01', $validDate);
-
-        // Insert invalid entry into database...
-        $table = TableGateway::getInstance(Documents::class);
-        $table->insert(['server_date_published' => '1234', 'server_date_created' => '1234']);
-        $invalidDate = Document::getEarliestPublicationDate();
-        $this->assertNull($invalidDate, "Expected NULL on invalid date.");
-    }
-
     public function testGetDefaultsForPublicationState()
     {
         $doc = new Document();
@@ -2239,31 +2218,6 @@ class DocumentTest extends TestCase
         $doc->store();
 
         $this->assertFalse($doc->isNewRecord());
-    }
-
-    public function testSetServerDateModifiedByIds()
-    {
-        $doc    = new Document();
-        $doc1Id = $doc->store();
-
-        $doc    = new Document();
-        $doc2Id = $doc->store();
-
-        $doc    = new Document();
-        $doc3Id = $doc->store();
-
-        $date = new Date('2016-05-10');
-
-        Document::setServerDateModifiedByIds($date, [1, 3]);
-
-        $doc = new Document($doc1Id);
-        $this->assertEquals('2016-05-10', $doc->getServerDateModified());
-
-        $doc = new Document($doc2Id);
-        $this->assertNotEquals('2016-05-10', $doc->getServerDateModified());
-
-        $doc = new Document($doc3Id);
-        $this->assertEquals('2016-05-10', $doc->getServerDateModified());
     }
 
     public function testSetServerStateInvalidValue()

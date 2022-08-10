@@ -31,7 +31,10 @@
 
 namespace Opus;
 
+use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelFactoryInterface;
+
+use function class_exists;
 
 class ModelFactory implements ModelFactoryInterface
 {
@@ -45,6 +48,10 @@ class ModelFactory implements ModelFactoryInterface
         // TODO create object
 
         $modelClass = 'Opus\\' . $type;
+
+        if (! class_exists($modelClass)) {
+            throw new ModelException("Model class not found: $modelClass");
+        }
 
         return new $modelClass();
     }
@@ -64,10 +71,18 @@ class ModelFactory implements ModelFactoryInterface
     /**
      * @param string $type
      * @return mixed
+     *
+     * TODO reuse repository instance
      */
     public function getRepository($type)
     {
-        // TODO in old implementation model classes also serve as "repositories"
-        return $this->create($type);
+        $repositoryClass = 'Opus\\' . $type . 'Repository';
+
+        if (class_exists($repositoryClass)) {
+            return new $repositoryClass();
+        } else {
+            // TODO in old implementation model classes also serve as "repositories"
+            return $this->create($type);
+        }
     }
 }

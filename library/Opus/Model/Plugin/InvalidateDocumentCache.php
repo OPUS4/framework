@@ -34,6 +34,7 @@ namespace Opus\Model\Plugin;
 use Opus\Common\Date;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\Plugin\AbstractPlugin;
+use Opus\Common\Repository;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DocumentFinderException;
@@ -185,7 +186,10 @@ class InvalidateDocumentCache extends AbstractPlugin
         if ($this->_updateServerDateModified) {
             $date = new Date();
             $date->setNow();
-            Document::setServerDateModifiedByIds($date, $ids);
+            Repository::getInstance()->getModelRepository(Document::class)->setServerDateModifiedForDocuments(
+                $date,
+                $ids
+            );
         }
     }
 
