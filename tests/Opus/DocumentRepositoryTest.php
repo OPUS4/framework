@@ -41,6 +41,15 @@ use OpusTest\TestAsset\TestCase;
 
 class DocumentRepositoryTest extends TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->clearTables(false, [
+            'documents',
+        ]);
+    }
+
     public function testGetEarliestPublicationDate()
     {
         $documents = Repository::getInstance()->getModelRepository(Document::class);
