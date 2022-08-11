@@ -34,18 +34,17 @@ namespace Opus;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelFactoryInterface;
 
+use function array_key_exists;
 use function class_exists;
 
 /**
  * Creates model and model repository objects.
- *
- *
  */
 class ModelFactory implements ModelFactoryInterface
 {
     /** @var string[] Mapping of model types to separate DocumentRepository classes */
     protected $repositoryClasses = [
-        'Document' => 'Opus\DocumentRepository'
+        'Document' => DocumentRepository::class,
     ];
 
     /**
