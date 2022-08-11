@@ -36,8 +36,18 @@ use Opus\Common\Model\ModelFactoryInterface;
 
 use function class_exists;
 
+/**
+ * Creates model and model repository objects.
+ *
+ *
+ */
 class ModelFactory implements ModelFactoryInterface
 {
+    /** @var string[] Mapping of model types to separate DocumentRepository classes */
+    protected $repositoryClasses = [
+        'Document' => 'Opus\DocumentRepository'
+    ];
+
     /**
      * @param string $type
      * @return mixed
@@ -73,12 +83,14 @@ class ModelFactory implements ModelFactoryInterface
      * @return mixed
      *
      * TODO reuse repository instance
+     * TODO Using class_exists causes exceptions in the autoloader, because it tries to load the class. If autoload
+     *      is disabled, it doesn't find existing classes. Therefore mapping in $repositoryClasses was created to
+     *      avoid having to check if a class exists for the decision which one to use.
      */
     public function getRepository($type)
     {
-        $repositoryClass = 'Opus\\' . $type . 'Repository';
-
-        if (class_exists($repositoryClass)) {
+        if (array_key_exists($type, $this->repositoryClasses)) {
+            $repositoryClass = $this->repositoryClasses[$type];
             return new $repositoryClass();
         } else {
             // TODO in old implementation model classes also serve as "repositories"
