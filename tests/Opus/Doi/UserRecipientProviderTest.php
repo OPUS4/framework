@@ -27,15 +27,11 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Doi
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Doi;
 
-use Opus\Account;
+use Opus\Common\Account;
 use Opus\Doi\UserRecipientProvider;
 use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
@@ -61,7 +57,7 @@ class UserRecipientProviderTest extends TestCase
         $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
-        $account = new Account();
+        $account = Account::new();
         $account->addRole($role);
         $account->setFirstName('John');
         $account->setLastName('Doe');
@@ -71,7 +67,7 @@ class UserRecipientProviderTest extends TestCase
         $account->store();
 
         // Account without name
-        $account = new Account();
+        $account = Account::new();
         $account->addRole($role);
         $account->setEmail('jane@localhost');
         $account->setLogin('jane');
@@ -79,13 +75,13 @@ class UserRecipientProviderTest extends TestCase
         $account->store();
 
         // Account without permission
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('tom');
         $account->setPassword('123456');
         $account->store();
 
         // Account without email will not be included
-        $account = new Account();
+        $account = Account::new();
         $account->addRole($role);
         $account->setFirstName('Paul');
         $account->setLastName('Miller');
@@ -112,7 +108,7 @@ class UserRecipientProviderTest extends TestCase
         $role->appendAccessModule('doi_notification');
         $role->store();
 
-        $account = new Account();
+        $account = Account::new();
         $account->addRole($role);
         $account->setFirstName('Paul');
         $account->setLastName('Miller');

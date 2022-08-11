@@ -26,13 +26,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
 use Exception;
+use Opus\Common\AccountInterface;
+use Opus\Common\AccountRepositoryInterface;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
@@ -55,26 +57,8 @@ use function strlen;
 
 /**
  * Domain model for accounts in the Opus framework
- *
- * @uses        \Opus\Model\AbstractModel
- *
- * @category    Framework
- * @package     Opus
- * @method string getLogin()
- * @method string getPassword()
- * @method string getFirstName()
- * @method void setFirstName(string $firstName)
- * @method string getLastName()
- * @method void setLastName(string $lastName)
- * @method string getEmail()
- * @method void setEmail(string $email)
- * @method void addRole(UserRole $role)
- * @method UserRole[] getRole()
- * @method void setRole(UserRole[] $roles)
- *
- * phpcs:disable
  */
-class Account extends AbstractDb
+class Account extends AbstractDb implements AccountInterface, AccountRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -86,8 +70,6 @@ class Account extends AbstractDb
     /**
      * The documents external fields, i.e. those not mapped directly to the
      * Opus\Db\Account table gateway.
-     *
-     * @see \Opus\Model\Abstract::$_externalFields
      *
      * @var array
      */
@@ -104,7 +86,7 @@ class Account extends AbstractDb
      *
      * @return array Array of Opus\Account objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, Db\Accounts::class);
     }
@@ -116,7 +98,7 @@ class Account extends AbstractDb
      *
      * @param null|int|Zend_Db_Table_Row  $id (Optional) (Id of) Existing database row.
      * @param null|Zend_Db_Table_Abstract $tableGatewayModel (Optional) Opus\Db model to fetch table row from.
-     * @param string                      $id                (Optional) Login of existing record.
+     * @param null|string                 $login (Optional) Login of existing record.
      * @throws ModelException     Thrown if passed id is invalid or login and id are specified.
      */
     public function __construct($id = null, ?Zend_Db_Table_Abstract $tableGatewayModel = null, $login = null)
@@ -175,6 +157,7 @@ class Account extends AbstractDb
      * during the store operation.
      *
      * @throws SecurityException If storing failes.
+     * @return mixed
      */
     public function store()
     {
@@ -209,11 +192,14 @@ class Account extends AbstractDb
 
     /**
      * Helper method to fetch account-rows by login name.
+     *
+     * @param string $login
+     * @return Zend_Db_Table_Row|null
      */
     private static function fetchAccountRowByLogin($login)
     {
-        if (false === isset($login) or false === is_string($login)) {
-            return;
+        if (false === isset($login) || false === is_string($login)) {
+            return null;
         }
 
         $accounts = TableGateway::getInstance(self::$tableGatewayClass);
@@ -224,14 +210,17 @@ class Account extends AbstractDb
     /**
      * Alternate constructor to fetch account-objects by login name.
      *
-     * @return Account
+     * @param string $login
+     * @return AccountInterface
      */
-    public static function fetchAccountByLogin($login)
+    public function fetchAccountByLogin($login)
     {
         $row = self::fetchAccountRowByLogin($login);
 
-        if (isset($row)) {
+        if ($row !== null) {
             return new self($row);
+        } else {
+            throw new SecurityException("Account with login name '$login' not found.");
         }
     }
 
@@ -244,7 +233,7 @@ class Account extends AbstractDb
      */
     public function setLogin($login)
     {
-        $login      = $this->_convertToScalar($login);
+        $login      = $this->convertToScalar($login);
         $loginField = $this->getField('Login');
         if ($loginField->getValidator()->isValid($login) === false) {
             Log::get()->debug('Login not valid: ' . $login);
@@ -263,7 +252,7 @@ class Account extends AbstractDb
      */
     public function setPassword($password)
     {
-        $password = $this->_convertToScalar($password);
+        $password = $this->convertToScalar($password);
         $this->getField('Password')->setValue(sha1($password));
         return $this;
     }
@@ -295,14 +284,14 @@ class Account extends AbstractDb
      * The FormBuilder provides an array. The setValue method can handle it, but
      * the validation and the sha1 function throw an exception.
      *
-     * @param $value
-     * @return scalar
+     * @param string|array $value
+     * @return mixed
      */
-    protected function _convertToScalar($value)
+    protected function convertToScalar($value)
     {
-        if (true === is_array($value) and 1 === count($value)) {
+        if (true === is_array($value) && 1 === count($value)) {
             $value = array_pop($value);
-        } elseif (true === is_array($value) and 0 === count($value)) {
+        } elseif (true === is_array($value) && 0 === count($value)) {
             $value = null;
         }
 
@@ -340,20 +329,23 @@ class Account extends AbstractDb
     /**
      * Returns long name.
      *
-     * @see \Opus\Model\Abstract#getDisplayName()
+     * @return string
      */
     public function getDisplayName()
     {
         return $this->getLogin();
     }
 
+    /**
+     * @return string
+     */
     public function getFullName()
     {
         $name = $this->getFirstName();
 
         $lastName = $this->getLastName();
 
-        if (strlen($name) > 0 and strlen($lastName) > 0) {
+        if (strlen($name) > 0 && strlen($lastName) > 0) {
             $name .= ' ';
         }
 

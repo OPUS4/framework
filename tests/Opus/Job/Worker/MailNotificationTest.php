@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,16 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework Unit Test
- * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Job\Worker;
 
-use Opus\Account;
+use Opus\Common\Account;
 use Opus\Job\Worker\MailNotification;
 use OpusTest\TestAsset\TestCase;
 
@@ -49,12 +46,12 @@ class MailNotificationTest extends TestCase
 
         $this->clearTables(false, ['accounts']);
 
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('admin')
             ->setPassword('foobar-' . rand())
             ->store();
 
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('hasmail')
             ->setPassword('foobar-' . rand())
             ->setEmail('has@mail.de')
