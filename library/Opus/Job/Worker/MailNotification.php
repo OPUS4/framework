@@ -35,6 +35,7 @@ use Opus\Common\Account;
 use Opus\Common\Config;
 use Opus\Common\Mail\SendMail;
 use Opus\Job;
+use Opus\Security\SecurityException;
 use Zend_Log;
 
 use function implode;
@@ -182,7 +183,11 @@ class MailNotification extends AbstractWorker
 
         $allRecipients = [];
         foreach ($users as $user) {
-            $account = Account::fetchAccountByLogin($user);
+            try {
+                $account = Account::fetchAccountByLogin($user);
+            } catch (SecurityException $ex) {
+                $account = null;
+            }
 
             if ($account === null) {
                 $this->logger->warn(self::class . ": User '$user' does not exist... skipping mail.");
