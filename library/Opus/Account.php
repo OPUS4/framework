@@ -37,6 +37,7 @@ use Opus\Common\AccountInterface;
 use Opus\Common\AccountRepositoryInterface;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
+use Opus\Common\UserRoleInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
@@ -49,6 +50,7 @@ use Zend_Validate_Regex;
 
 use function array_pop;
 use function count;
+use function func_get_args;
 use function is_array;
 use function is_string;
 use function md5;
@@ -352,5 +354,109 @@ class Account extends AbstractDb implements AccountInterface, AccountRepositoryI
         $name .= $lastName;
 
         return $name;
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getLogin()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getPassword()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getFirstName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $firstName
+     * @return $this
+     * @throws ModelException
+     */
+    public function setFirstName($firstName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getLastName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $lastName
+     * @return $this
+     * @throws ModelException
+     */
+    public function setLastName($lastName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getEmail()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $email
+     * @return $this
+     * @throws ModelException
+     */
+    public function setEmail($email)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param UserRoleInterface $role
+     * @return $this
+     * @throws ModelException
+     */
+    public function addRole($role)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return UserRoleInterface[]
+     * @throws ModelException
+     */
+    public function getRole()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param UserRoleInterface[]|null $roles
+     * @return $this
+     * @throws ModelException
+     */
+    public function setRole($roles)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }
