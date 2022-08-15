@@ -25,11 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace Opus\File\Plugin;
@@ -38,8 +35,8 @@ use Opus\Common\Config;
 use Opus\Common\LoggingTrait;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\Plugin\AbstractPlugin;
+use Opus\Common\UserRole;
 use Opus\File;
-use Opus\UserRole;
 
 use function strlen;
 use function trim;
@@ -50,9 +47,6 @@ use function trim;
  * @uses        \Opus\Model\AbstractModel
  *
  * TODO NAMESPACE rename class
- *
- * @category    Framework
- * @package     Opus
  */
 class DefaultAccess extends AbstractPlugin
 {

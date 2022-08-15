@@ -307,10 +307,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
     {
         // If the fields value is not going to change, leave.
         if (is_object($value) === true) {
-            // Opus\Date objects can currently not be compared with "==" because it leads to a endless recursion,
-            // because Opus\Date points to its Opus\Model\DateField objects and those back to Opus\Date. Therefore
-            // Opus\Date implements Opus\Model\Comparable, which is in any case better to ensure that the comparison
-            // follows meaningful rules.
+            // ComparableInterface used for comparing Date objects
             if ($value instanceof ComparableInterface) {
                 if ($value->compare($this->value) === 0) {
                     return $this;

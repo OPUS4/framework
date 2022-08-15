@@ -33,8 +33,8 @@ namespace OpusTest;
 
 use Opus\Common\Account;
 use Opus\Common\AccountInterface;
+use Opus\Common\UserRole;
 use Opus\Permission;
-use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
 
 class PermissionTest extends TestCase
@@ -56,7 +56,7 @@ class PermissionTest extends TestCase
     protected function setUpDatabase()
     {
         // TODO setup accounts, roles, permissions
-        $role = new UserRole();
+        $role = UserRole::new();
         $role->setName('DOI');
         $role->appendAccessModule('admin');
         $role->appendAccessModule('resource_doi_notification');
@@ -69,7 +69,7 @@ class PermissionTest extends TestCase
         $account->setPassword('blabla');
         $account->store();
 
-        $role = new UserRole();
+        $role = UserRole::new();
         $role->setName('Manager');
         $role->appendAccessModule('sword');
         $role->appendAccessModule('resource_doi_notification');
@@ -82,7 +82,7 @@ class PermissionTest extends TestCase
         $account->setPassword('fubar');
         $account->store();
 
-        $role = new UserRole();
+        $role = UserRole::new();
         $role->setName('LicenceManager');
         $role->appendAccessModule('licences');
         $role->store();

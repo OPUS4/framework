@@ -25,20 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\File
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\File\Plugin;
 
 use Opus\Common\Config;
+use Opus\Common\UserRole;
 use Opus\Document;
 use Opus\File\Plugin\DefaultAccess;
-use Opus\UserRole;
 use OpusTest\TestAsset\FileMock;
 use OpusTest\TestAsset\LoggerMock;
 use OpusTest\TestAsset\TestCase;
@@ -48,10 +44,6 @@ use function uniqid;
 
 /**
  * Test cases for class Opus\File\Plugin\DefaultAccessTest.
- *
- * @package Opus\File
- * @category Tests
- * @group FileTest
  */
 class DefaultAccessTest extends TestCase
 {
@@ -61,11 +53,11 @@ class DefaultAccessTest extends TestCase
 
         $this->clearTables(false, ['user_roles', 'documents', 'document_files']);
 
-        $guestRole = new UserRole();
+        $guestRole = UserRole::new();
         $guestRole->setName('guest');
         $guestRole->store();
 
-        $userRole = new UserRole();
+        $userRole = UserRole::new();
         $userRole->setName('user');
         $userRole->store();
     }
