@@ -3855,13 +3855,13 @@ class DocumentTest extends TestCase
         $colRole->store();
 
         $rootCol = $colRole->getRootCollection();
-        $colId = $rootCol->getId();
+        $colId   = $rootCol->getId();
 
         $data = [
-            'Type'      => 'article',
+            'Type'       => 'article',
             'Collection' => [
-                ['Id' => $colId]
-            ]
+                ['Id' => $colId],
+            ],
         ];
 
         $document = Document::fromArray($data);
@@ -3889,10 +3889,10 @@ class DocumentTest extends TestCase
         $licenceId = $licence->store();
 
         $data = [
-            'Type'      => 'article',
+            'Type'    => 'article',
             'Licence' => [
-                ['Id' => $licenceId]
-            ]
+                ['Id' => $licenceId],
+            ],
         ];
 
         $document = Document::fromArray($data);
