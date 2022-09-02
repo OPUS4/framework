@@ -777,22 +777,14 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
      * Returns maximal length for field.
      *
      * @param $name
+     *
+     * TODO replace this function -> move to FieldDescriptorInterface implementation
      */
     public static function getFieldMaxLength($name)
     {
-        $column = self::convertFieldnameToColumn($name);
+        $column = self::convertFieldnameToColumn($name); // TODO extension of descriptor for DB implementation
 
-        $table = TableGateway::getInstance(self::getTableGatewayClass());
-
-        $metadata = $table->info();
-
-        if (isset($metadata['metadata'][$column]['LENGTH'])) {
-            return $metadata['metadata'][$column]['LENGTH'];
-        } else {
-            $class = static::class;
-            Log::get()->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
-            return null;
-        }
+        // TODO replace with FieldDescriptor->getMaxSize
     }
 
     /**
