@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
@@ -40,6 +35,7 @@ use Opus\Db\TableGateway;
 use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
+use Opus\Model\NotFoundException;
 use Zend_Validate_NotEmpty;
 
 use function count;
@@ -231,5 +227,32 @@ class Licence extends AbstractDb
         $finder = new DocumentFinder();
         $finder->setDependentModel($this);
         return count($finder->ids());
+    }
+
+    /**
+     * @param array $data
+     * @return mixed|Licence|Model\AbstractModel|null
+     * @throws Model\ModelException
+     */
+    public static function fromArray($data)
+    {
+        $licence = null;
+
+        if (isset($data['Id'])) {
+            try {
+                $licence = new Licence($data['Id']);
+
+                // TODO update from array not supported (handling of roleId)
+                // $col->updateFromArray($data);
+            } catch (NotFoundException $omnfe) {
+                // TODO handle it
+            }
+        }
+
+        if ($licence === null) {
+            $licence = parent::fromArray($data);
+        }
+
+        return $licence;
     }
 }
