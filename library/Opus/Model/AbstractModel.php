@@ -440,10 +440,15 @@ abstract class AbstractModel implements PropertySupportInterface
                             if ($linkModelClass !== null) {
                                 $linkModel = new $linkModelClass();
                                 $linkModel->setModel($model);
+                                $newModel = $model->isNewRecord();
                                 $model = $linkModel;
+                                if ($newModel) {
+                                    // only populate model if it is new
+                                    // TODO allow update of dependent models like licences?
+                                    $model->updateFromArray($modelValues);
+                                }
                             }
 
-                            // $model->updateFromArray($modelValues);
                             $models[] = $model;
                         }
 
