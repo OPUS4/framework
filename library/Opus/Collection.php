@@ -1311,14 +1311,14 @@ class Collection extends AbstractDb
      * TODO If 'Id' is from a different system the wrong collection might be used.
      *      How can we deal with the possible problems? Does it make more sense to
      *      handle reuse of existing objects outside the fromArray function?
-     *      Would it make more sense if we generte new objects and then apply
+     *      Would it make more sense if we generate new objects and then apply
      *      another function that maps the attributes of a document to existing
      *      objects in the database. It seems this really depends on the type of
      *      object in question.
      *
      * TODO Collections should probably never be created as part of an import. When
      *      a document is stored the connected collections should already exist. If
-     *      not the storing operation should fail.
+     *      not the storing operation should fail OR generate a message.
      *
      * @return mixed|void
      */

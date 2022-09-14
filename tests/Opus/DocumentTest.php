@@ -3852,6 +3852,71 @@ class DocumentTest extends TestCase
         $this->assertCount(2, $titles);
     }
 
+    public function testFromArrayWithCollection()
+    {
+        $colRole = CollectionRole::new();
+        $colRole->setName('TestColRole');
+        $colRole->setOaiName('TestColRoleOai');
+        $colRole->addRootCollection();
+        $colRole->store();
+
+        $rootCol = $colRole->getRootCollection();
+        $colId   = $rootCol->getId();
+
+        $data = [
+            'Type'       => 'article',
+            'Collection' => [
+                ['Id' => $colId],
+            ],
+        ];
+
+        $document = Document::fromArray($data);
+
+        $docId = $document->store();
+
+        $document = Document::get($docId);
+
+        $this->assertNotNull($document);
+        $this->assertInstanceOf(Document::class, $document);
+        $this->assertEquals('article', $document->getType());
+
+        $cols = $document->getCollection();
+
+        $this->assertCount(1, $cols);
+        $this->assertEquals($colId, $cols[0]->getId());
+    }
+
+    public function testFromArrayWithLicence()
+    {
+        $licence = Licence::new();
+        $licence->setName('Test Licence');
+        $licence->setNameLong('Licence LongName');
+        $licence->setLinkLicence('http://example.org');
+        $licenceId = $licence->store();
+
+        $data = [
+            'Type'    => 'article',
+            'Licence' => [
+                ['Id' => $licenceId],
+            ],
+        ];
+
+        $document = Document::fromArray($data);
+
+        $docId = $document->store();
+
+        $document = Document::get($docId);
+
+        $this->assertNotNull($document);
+        $this->assertInstanceOf(Document::class, $document);
+        $this->assertEquals('article', $document->getType());
+
+        $licences = $document->getLicence();
+
+        $this->assertCount(1, $licences);
+        $this->assertEquals($licenceId, $licences[0]->getModel()->getId());
+    }
+
     public function testUpdateFrom()
     {
         $this->markTestIncomplete('Not implemented yet.');

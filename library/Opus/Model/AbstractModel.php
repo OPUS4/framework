@@ -394,6 +394,10 @@ abstract class AbstractModel implements PropertySupportInterface
      *
      * @param $data
      * @throws ModelException
+     *
+     * TODO use fromArray if new object have to be created
+     * TODO use updateFromArray if objects (like Collection) already exist
+     *      OR decide the objects like Licence, Collection, and such cannot be updated this way
      */
     public function updateFromArray($data)
     {
@@ -424,15 +428,22 @@ abstract class AbstractModel implements PropertySupportInterface
                     if ($field->getMultiplicity() === '*') {
                         $models = [];
                         foreach ($values as $modelValues) {
-                            $model = new $fieldModelClass();
+                            // TODO before creating a new one - check if it already exists
+                            //      how to deal with multiple values, like Collection - the order might be different
+                            $model = $fieldModelClass::fromArray($modelValues);
 
                             if ($linkModelClass !== null) {
                                 $linkModel = new $linkModelClass();
                                 $linkModel->setModel($model);
+                                $newModel = $model->isNewRecord();
                                 $model = $linkModel;
+                                if ($newModel) {
+                                    // only populate model if it is new
+                                    // TODO allow update of dependent models like licences?
+                                    $model->updateFromArray($modelValues);
+                                }
                             }
 
-                            $model->updateFromArray($modelValues);
                             $models[] = $model;
                         }
 
