@@ -43,9 +43,11 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
+use Opus\Common\EnrichmentKey;
 use Opus\Common\Model\DocumentLifecycleListener;
 use Opus\Common\Model\ModelException;
 use Opus\Common\ServerStateConstantsInterface;

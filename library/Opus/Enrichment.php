@@ -25,20 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Gunar Maiwald <maiwald@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Sascha Szott <szott@zib.de>
  */
 
 namespace Opus;
 
+use Opus\Common\EnrichmentKey;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;

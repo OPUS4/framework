@@ -31,16 +31,43 @@
 
 namespace OpusTest\Db\Model;
 
+use Opus\Common\Document;
+use Opus\Common\Person;
 use Opus\Common\UserRole;
 use OpusTest\TestAsset\TestCase;
 
-class FieldDescriptorTest extends TestCase
+class DbFieldDescriptorTest extends TestCase
 {
     public function testGetMaxSize()
     {
         // TODO does not prove the information came from the datebase
+        //      modify configuration and check if database size is returned nevertheless?
         $field = UserRole::describeField(UserRole::FIELD_NAME);
 
         $this->assertEquals(100, $field->getMaxSize());
+    }
+
+    public function testGetMaxSizeForUserRoleName()
+    {
+        $field = UserRole::describeField(UserRole::FIELD_NAME);
+
+        $this->assertEquals(100, $field->getMaxSize());
+    }
+
+    public function testGetFieldMaxLength()
+    {
+        $field = Person::describeField(Person::FIELD_LAST_NAME);
+
+        $this->assertEquals(191, $field->getMaxSize());
+    }
+
+    public function testGetFieldMaxLengthUnknownField()
+    {
+        $this->assertNull(Person::describeField('LastName2'));
+    }
+
+    public function testGetFieldMaxLengthForNumeric()
+    {
+        $this->assertNull(Document::describeField(Document::FIELD_PUBLISHED_YEAR)->getMaxSize());
     }
 }

@@ -33,6 +33,7 @@ namespace Opus\Db\Model;
 
 use Opus\Common\Log;
 use Opus\Common\Model\FieldDescriptor as CommonFieldDescriptor;
+use Opus\Common\Repository;
 use Opus\Db\TableGateway;
 use Zend_Db_Table_Exception;
 use Zend_Exception;
@@ -44,7 +45,7 @@ use function strtolower;
  * FieldDescriptorInterface implementation that queries the database for the supported
  * length of fields.
  */
-class FieldDescriptor extends CommonFieldDescriptor
+class DbFieldDescriptor extends CommonFieldDescriptor
 {
     /**
      * @return int
@@ -54,9 +55,13 @@ class FieldDescriptor extends CommonFieldDescriptor
      */
     public function getMaxSize()
     {
-        // TODO get max size from database
+        $size = $this->getColumnSizeFromDatabase();
 
-        return parent::getMaxSize();
+        if ($size === 0) {
+            return parent::getMaxSize();
+        } else {
+            return $size;
+        }
     }
 
     /**
@@ -68,16 +73,18 @@ class FieldDescriptor extends CommonFieldDescriptor
     {
         $column = $this->getColumnName();
 
-        $table = TableGateway::getInstance(self::getTableGatewayClass()); // TODO get gatewayClass from ModelDescriptor
+        $modelDescriptor   = $this->getModelDescriptor();
+        $modelId           = $modelDescriptor->getModelId();
+        $tableGatewayClass = Repository::getInstance()->getModelFactory()->getTableGatewayClass($modelId);
 
-        $metadata = $table->info();
+        $metadata = TableGateway::getInstance($tableGatewayClass)->info();
 
         if (isset($metadata['metadata'][$column]['LENGTH'])) {
             return $metadata['metadata'][$column]['LENGTH'];
         } else {
             // TODO throw exception ModelException
-            $class = static::class;
-            Log::get()->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
+            $name = $this->getName();
+            Log::get()->err("Length of column '$column' for field '$name' of model '$modelId' not found");
             return 0;
         }
     }

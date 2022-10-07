@@ -25,18 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2011-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Gunar Maiwald <maiwald@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
 use Opus\Common\EnrichmentKeyInterface;
+use Opus\Common\EnrichmentKeyRepositoryInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Enrichment\TypeInterface;
@@ -61,7 +57,7 @@ use Zend_Validate_NotEmpty;
  *
  * phpcs:disable
  */
-class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface
+class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, EnrichmentKeyRepositoryInterface
 {
     /**
      * Specify the table gateway.
@@ -85,7 +81,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface
      * @param bool $reload if true, reload enrichment keys from database
      * @return array Array of Opus\EnrichmentKeys objects.
      */
-    public static function getAll($reload = true)
+    public function getAll($reload = true)
     {
         if ($reload || self::$allEnrichmentKeys === null) {
             // cache database result to save database queries later
@@ -122,7 +118,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface
      * @param  null|string $name
      * @return EnrichmentKey
      */
-    public static function fetchByName($name = null)
+    public function fetchByName($name = null)
     {
         if (false === isset($name)) {
             return;
@@ -155,7 +151,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface
      *
      * @return array Array of Opus\EnrichmentKeys objects.
      */
-    public static function getAllReferenced()
+    public function getAllReferenced()
     {
         $table  = TableGateway::getInstance(Db\DocumentEnrichments::class);
         $db     = $table->getAdapter();
@@ -289,7 +285,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface
      * @return array
      * @throws Zend_Db_Select_Exception
      */
-    public static function getKeys()
+    public function getKeys()
     {
         $table  = TableGateway::getInstance(Db\EnrichmentKeys::class);
         $db     = $table->getAdapter();

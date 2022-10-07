@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Tests
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Model\Dependent\Link;
@@ -65,7 +61,7 @@ class DocumentDnbInstituteTest extends TestCase
     {
         $institute = new DocumentDnbInstitute();
 
-        $institute->setModel(new DnbInstitute());
+        $institute->setModel(DnbInstitute::new());
         $institute->setName('Solutions');
         $institute->setDepartment('Big Solutions');
         $institute->setAddress('Research Street');
@@ -159,7 +155,7 @@ class DocumentDnbInstituteTest extends TestCase
 
         $institute = new DocumentDnbInstitute();
 
-        $institute->setModel(new DnbInstitute());
+        $institute->setModel(DnbInstitute::new());
         $institute->setName('Solutions');
         $institute->setDepartment('Big Solutions');
         $institute->setAddress('Research Street');

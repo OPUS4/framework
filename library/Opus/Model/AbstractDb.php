@@ -469,6 +469,8 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
     /**
      * @param string $fieldname Field name in camel case
      * @return string Column name with case-change replaced by underscores "_"
+     *
+     * TODO redundant in new DbFieldDescriptor class
      */
     public static function convertFieldnameToColumn($fieldname)
     {
@@ -771,20 +773,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
         }
 
         return $value;
-    }
-
-    /**
-     * Returns maximal length for field.
-     *
-     * @param $name
-     *
-     * TODO replace this function -> move to FieldDescriptorInterface implementation
-     */
-    public static function getFieldMaxLength($name)
-    {
-        $column = self::convertFieldnameToColumn($name); // TODO extension of descriptor for DB implementation
-
-        // TODO replace with FieldDescriptor->getMaxSize
     }
 
     /**

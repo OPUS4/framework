@@ -46,12 +46,12 @@ use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Date;
+use Opus\Common\EnrichmentKey;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
 use Opus\DnbInstitute;
 use Opus\Document;
 use Opus\Enrichment;
-use Opus\EnrichmentKey;
 use Opus\Identifier;
 use Opus\Identifier\Urn;
 use Opus\Licence;
@@ -348,7 +348,7 @@ class DocumentTest extends TestCase
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
 
-        $enrichmentkey = new EnrichmentKey();
+        $enrichmentkey = EnrichmentKey::new();
         $enrichmentkey->setName('foo');
         $enrichmentkey->store();
 
@@ -380,7 +380,7 @@ class DocumentTest extends TestCase
         $licence->setSortOrder(0);
         $document->addLicence($licence);
 
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
         $dnbInstitute->setCity('Calisota');
         $dnbInstitute->setIsGrantor(1);
@@ -565,7 +565,7 @@ class DocumentTest extends TestCase
     public function testDeleteDocumentCascadesDnbInstituteLink()
     {
         $doc          = Document::new();
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
         $dnbInstitute->setCity('Calisota');
 
@@ -612,7 +612,7 @@ class DocumentTest extends TestCase
         $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $enrichmentkey = new EnrichmentKey();
+        $enrichmentkey = EnrichmentKey::new();
         $enrichmentkey->setName('foo');
         $enrichmentkey->store();
 
@@ -1382,7 +1382,7 @@ class DocumentTest extends TestCase
 
     public function testAddDnbInstitute()
     {
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage')
             ->setAddress('Musterstr. 23 - 12345 Entenhausen - Calisota')
             ->setCity('Calisota')
@@ -1404,7 +1404,7 @@ class DocumentTest extends TestCase
 
     public function testSetDnbInstitute()
     {
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage')
             ->setAddress('Musterstr. 23 - 12345 Entenhausen - Calisota')
             ->setCity('Calisota')
@@ -1965,7 +1965,7 @@ class DocumentTest extends TestCase
 
     public function testRegression2982StoreWithInstituteModifiesServerDateModifiedForOtherDocs()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
         $institute->setName('Test Institut');
         $institute->setCity('Berlin');
         $institute->setIsGrantor(true);
@@ -1973,7 +1973,7 @@ class DocumentTest extends TestCase
         $instituteId = $institute->store();
 
         $doc1      = new Document();
-        $institute = new DnbInstitute($instituteId);
+        $institute = DnbInstitute::get($instituteId);
         $doc1->setThesisGrantor([$institute]);
         $doc1id                 = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
@@ -1981,7 +1981,7 @@ class DocumentTest extends TestCase
         sleep(2);
 
         $doc2      = new Document();
-        $institute = new DnbInstitute($instituteId);
+        $institute = DnbInstitute::get($instituteId);
         $doc2->setThesisGrantor([$institute]);
         $doc2->store();
 
@@ -2491,7 +2491,7 @@ class DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
@@ -2531,11 +2531,11 @@ class DocumentTest extends TestCase
     {
         $keyName = "test.key1";
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName('anotherKey');
         $enrichmentKey->store();
 
@@ -2567,7 +2567,7 @@ class DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
@@ -2592,7 +2592,7 @@ class DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
@@ -2617,7 +2617,7 @@ class DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
@@ -2642,11 +2642,11 @@ class DocumentTest extends TestCase
     {
         $keyName = 'test.key1';
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName($keyName);
         $enrichmentKey->store();
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName('otherkey');
         $enrichmentKey->store();
 
@@ -2935,7 +2935,7 @@ class DocumentTest extends TestCase
         $keyword->setExternalKey('gnd:Schlagwort'); // not a real example
         $doc->addSubject($keyword);
 
-        $grantor = new DnbInstitute();
+        $grantor = DnbInstitute::new();
         $grantor->setAddress('Grantor Str. 18');
         $grantor->setCity('Berlin');
         $grantor->setDepartment('The department');
@@ -2946,7 +2946,7 @@ class DocumentTest extends TestCase
         $grantor->setPhone('555 1234');
         $doc->addThesisGrantor($grantor);
 
-        $grantor = new DnbInstitute();
+        $grantor = DnbInstitute::new();
         $grantor->setAddress('Grantor Str. 19');
         $grantor->setCity('Berlin');
         $grantor->setDepartment('The department 2');
@@ -2957,7 +2957,7 @@ class DocumentTest extends TestCase
         $grantor->setPhone('555 5678');
         $doc->addThesisGrantor($grantor);
 
-        $publisher = new DnbInstitute();
+        $publisher = DnbInstitute::new();
         $publisher->setAddress('Publishing Str. 18');
         $publisher->setCity('Berlin');
         $publisher->setDepartment('The other department');
@@ -2968,7 +2968,7 @@ class DocumentTest extends TestCase
         $publisher->setPhone('555 4321');
         $doc->addThesisPublisher($publisher);
 
-        $publisher = new DnbInstitute();
+        $publisher = DnbInstitute::new();
         $publisher->setAddress('Publishing Str. 19');
         $publisher->setCity('London');
         $publisher->setDepartment('The other department 2');
@@ -2979,11 +2979,11 @@ class DocumentTest extends TestCase
         $publisher->setPhone('555 8765');
         $doc->addThesisPublisher($publisher);
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName('enkey1');
         $enrichmentKey->store();
 
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName('enkey2');
         $enrichmentKey->store();
 
@@ -4281,5 +4281,15 @@ class DocumentTest extends TestCase
         $serverDateCreated = $doc->getServerDateCreated();
 
         $this->assertFalse($serverDateCreated->isDateOnly());
+    }
+
+    public function testGetFieldForIdReturnsNull()
+    {
+        $doc = Document::new();
+        $doc->store();
+
+        $fieldId = $doc->getField('Id');
+
+        $this->assertNull($fieldId);
     }
 }

@@ -31,14 +31,18 @@
 
 namespace Opus;
 
+use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelFactoryInterface;
 
 use function array_key_exists;
+use function call_user_func;
 use function class_exists;
 
 /**
  * Creates model and model repository objects.
+ *
+ * TODO add function to get TableGatewayClass for model - for use in DbFieldDescriptor
  */
 class ModelFactory implements ModelFactoryInterface
 {
@@ -47,20 +51,18 @@ class ModelFactory implements ModelFactoryInterface
         'Document' => DocumentRepository::class,
     ];
 
+    /** @var string[] Custom mapping of model types to model classes */
+    protected $modelClasses = [
+        'Date' => Date::class,
+    ];
+
     /**
      * @param string $type
      * @return mixed
      */
     public function create($type)
     {
-        // TODO check if supported type
-        // TODO create object
-
-        $modelClass = 'Opus\\' . $type;
-
-        if (! class_exists($modelClass)) {
-            throw new ModelException("Model class not found: $modelClass");
-        }
+        $modelClass = $this->getModelClass($type);
 
         return new $modelClass();
     }
@@ -72,7 +74,7 @@ class ModelFactory implements ModelFactoryInterface
      */
     public function get($type, $modelId)
     {
-        $modelClass = 'Opus\\' . $type;
+        $modelClass = $this->getModelClass($type);
 
         return new $modelClass($modelId);
     }
@@ -95,5 +97,39 @@ class ModelFactory implements ModelFactoryInterface
             // TODO in old implementation model classes also serve as "repositories"
             return $this->create($type);
         }
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     * @throws ModelException
+     */
+    public function getTableGatewayClass($type)
+    {
+        $modelClass = $this->getModelClass($type);
+
+        return call_user_func([$modelClass, 'getTableGatewayClass']);
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     * @throws ModelException
+     *
+     * TODO check if supported type?
+     */
+    public function getModelClass($type)
+    {
+        if (array_key_exists($type, $this->modelClasses)) {
+            $modelClass = $this->modelClasses[$type];
+        } else {
+            $modelClass = 'Opus\\' . $type;
+        }
+
+        if (! class_exists($modelClass)) {
+            throw new ModelException("Model class not found: $modelClass");
+        }
+
+        return $modelClass;
     }
 }

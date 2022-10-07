@@ -444,7 +444,7 @@ class DataCiteXmlGeneratorTest extends TestCase
      */
     private function addThesisPublisherHelper($doc)
     {
-        $thesisPublisher = new DnbInstitute();
+        $thesisPublisher = DnbInstitute::new();
         $thesisPublisher->setName('ThesisPublisher');
         $thesisPublisher->setCity('Berlin');
         $thesisPublisher->setIsPublisher(true);

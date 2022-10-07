@@ -96,4 +96,13 @@ class ModelFactoryTest extends TestCase
 
         $modelFactory->getRepository('UnknownModel');
     }
+
+    public function testGetTableGatewayClass()
+    {
+        $modelFactory = new ModelFactory();
+
+        $gatewayClass = $modelFactory->getTableGatewayClass('Document');
+
+        $this->assertEquals($gatewayClass, Document::getTableGatewayClass());
+    }
 }

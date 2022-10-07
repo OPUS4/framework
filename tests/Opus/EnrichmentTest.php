@@ -25,21 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
+use Opus\Common\EnrichmentKey;
+use Opus\Common\EnrichmentKeyInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Enrichment;
-use Opus\EnrichmentKey;
 use OpusTest\TestAsset\TestCase;
 
 use function array_diff;
@@ -69,11 +65,11 @@ class EnrichmentTest extends TestCase
 
         $this->clearTables(false, ['documents', 'enrichmentkeys', 'document_enrichments']);
 
-        $this->enrichmentkey = new EnrichmentKey();
+        $this->enrichmentkey = EnrichmentKey::new();
         $this->enrichmentkey->setName('valid');
         $this->enrichmentkey->store();
 
-        $this->anotherenrichmentkey = new EnrichmentKey();
+        $this->anotherenrichmentkey = EnrichmentKey::new();
         $this->anotherenrichmentkey->setName('anothervalid');
         $this->anotherenrichmentkey->store();
 
@@ -376,7 +372,7 @@ class EnrichmentTest extends TestCase
         $this->assertEquals(1, count($enrichments));
         $enrichment    = $enrichments[0];
         $enrichmentKey = $enrichment->getEnrichmentKey();
-        $this->assertInstanceOf(EnrichmentKey::class, $enrichmentKey);
+        $this->assertInstanceOf(EnrichmentKeyInterface::class, $enrichmentKey);
         $this->assertEquals('valid', $enrichmentKey->getName());
         $this->assertEquals('valid', $enrichment->getKeyName());
         $this->assertEquals('value', $enrichment->getValue());
@@ -397,7 +393,7 @@ class EnrichmentTest extends TestCase
 
         $enrichment    = $enrichments[0];
         $enrichmentKey = $enrichment->getEnrichmentKey();
-        $this->assertInstanceOf(EnrichmentKey::class, $enrichmentKey);
+        $this->assertInstanceOf(EnrichmentKeyInterface::class, $enrichmentKey);
         $this->assertEquals('valid', $enrichmentKey->getName());
         $this->assertEquals('valid', $enrichment->getKeyName());
         $this->assertEquals('value', $enrichment->getValue());
