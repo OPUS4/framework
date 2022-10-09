@@ -25,18 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
-use Opus\Document;
-use Opus\Subject;
+use Opus\Common\Document;
+use Opus\Common\Subject;
+use Opus\Common\SubjectInterface;
 use OpusTest\TestAsset\TestCase;
 
 class SubjectTest extends TestCase
@@ -53,14 +50,16 @@ class SubjectTest extends TestCase
 
     public function testGetMatchingSubjects()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $subject->setExternalKey('comext');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('Com');
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('Com');
 
         $this->assertCount(1, $values);
         $this->assertInternalType('array', $values);
@@ -78,20 +77,22 @@ class SubjectTest extends TestCase
      */
     public function testGetMatchingSubjectsSqlInjection()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $subject->setExternalKey('comext');
         $doc->store();
 
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('cam or 1=1');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('cam or 1=1');
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('cam or 1=1');
 
         $this->assertCount(1, $values);
         $this->assertInternalType('array', $values);
@@ -99,58 +100,64 @@ class SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsGroup()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('com');
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('com');
 
         $this->assertCount(1, $values);
     }
 
     public function testGetMatchingSubjectsGroupDifferentExternalKey()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $subject->setExternalKey('comext');
         $doc->store();
 
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('com');
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('com');
 
         $this->assertCount(2, $values);
     }
 
     public function testGetMatchingSubjectsType()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('uncontrolled');
         $subject->setValue('Communication');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('com', 'uncontrolled');
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('com', 'uncontrolled');
 
         $this->assertCount(1, $values);
 
@@ -164,26 +171,30 @@ class SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsTypeNull()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('uncontrolled');
         $subject->setValue('Communication');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('com', null);
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('com', null);
 
         $this->assertCount(2, $values);
     }
 
     public function testGetMatchingSubjectsNull()
     {
-        $values = Subject::getMatchingSubjects(null);
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects(null);
 
         $this->assertInternalType('array', $values);
         $this->assertCount(0, $values);
@@ -191,7 +202,9 @@ class SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsEmpty()
     {
-        $values = Subject::getMatchingSubjects('');
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('');
 
         $this->assertInternalType('array', $values);
         $this->assertCount(0, $values);
@@ -199,33 +212,35 @@ class SubjectTest extends TestCase
 
     public function testGetMatchingSubjectsLimit()
     {
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Computer');
         $doc->store();
 
-        $doc     = new Document();
+        $doc     = Document::new();
         $subject = $doc->addSubject();
         $subject->setType('swd');
         $subject->setValue('Communication');
         $doc->store();
 
-        $values = Subject::getMatchingSubjects('com', 'swd', null);
+        $subjectRepository = Subject::getModelRepository();
+
+        $values = $subjectRepository->getMatchingSubjects('com', 'swd', null);
 
         $this->assertCount(2, $values);
 
-        $values = Subject::getMatchingSubjects('com', 'swd', 1);
+        $values = $subjectRepository->getMatchingSubjects('com', 'swd', 1);
 
         $this->assertCount(1, $values);
     }
 
     public function testToArray()
     {
-        $subject = new Subject();
+        $subject = Subject::new();
 
         $subject->setLanguage('deu');
-        $subject->setType(Subject::SWD);
+        $subject->setType(Subject::TYPE_SWD);
         $subject->setExternalKey('key:Schlagwort');
         $subject->setValue('Schlagwort');
 
@@ -249,7 +264,7 @@ class SubjectTest extends TestCase
         ]);
 
         $this->assertNotNull($subject);
-        $this->assertInstanceOf(Subject::class, $subject);
+        $this->assertInstanceOf(SubjectInterface::class, $subject);
 
         $this->assertEquals('deu', $subject->getLanguage());
         $this->assertEquals('swd', $subject->getType());
@@ -259,7 +274,7 @@ class SubjectTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $subject = new Subject();
+        $subject = Subject::new();
 
         $subject->updateFromArray([
             'Language'    => 'deu',
@@ -269,7 +284,7 @@ class SubjectTest extends TestCase
         ]);
 
         $this->assertNotNull($subject);
-        $this->assertInstanceOf(Subject::class, $subject);
+        $this->assertInstanceOf(SubjectInterface::class, $subject);
 
         $this->assertEquals('deu', $subject->getLanguage());
         $this->assertEquals('swd', $subject->getType());

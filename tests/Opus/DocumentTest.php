@@ -27,15 +27,6 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Michael Lang <lang@zib.de>
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
@@ -46,10 +37,11 @@ use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Date;
+use Opus\Common\DnbInstitute;
 use Opus\Common\EnrichmentKey;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
-use Opus\DnbInstitute;
+use Opus\Common\Subject;
 use Opus\Document;
 use Opus\Enrichment;
 use Opus\Identifier;
@@ -69,7 +61,6 @@ use Opus\Note;
 use Opus\Patent;
 use Opus\Person;
 use Opus\Series;
-use Opus\Subject;
 use Opus\SubjectSwd;
 use Opus\Title;
 use OpusTest\Model\Mock\ModelWithNonAbstractExtendingClassField;
@@ -111,10 +102,6 @@ use function var_dump;
 
 /**
  * Test cases for class Opus\Document.
- *
- * @package Opus
- * @category Tests
- * @group DocumentTest
  */
 class DocumentTest extends TestCase
 {
@@ -714,7 +701,7 @@ class DocumentTest extends TestCase
         $doc->delete();
 
         $this->expectException(NotFoundException::class);
-        new Subject($id);
+        Subject::get($id);
     }
 
     /**
@@ -3748,20 +3735,20 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
 
-        $keyword = new Subject();
-        $keyword->setType(Subject::SWD);
+        $keyword = Subject::new();
+        $keyword->setType(Subject::TYPE_SWD);
         $keyword->setValue('Berlin');
 
         $doc->addSubject($keyword);
 
-        $keyword = new Subject();
-        $keyword->setType(Subject::SWD);
+        $keyword = Subject::new();
+        $keyword->setType(Subject::TYPE_SWD);
         $keyword->setValue('Antonplatz');
 
         $doc->addSubject($keyword);
 
-        $keyword = new Subject();
-        $keyword->setType(Subject::SWD);
+        $keyword = Subject::new();
+        $keyword->setType(Subject::TYPE_SWD);
         $keyword->setValue('Checkpoint');
 
         $doc->addSubject($keyword);
