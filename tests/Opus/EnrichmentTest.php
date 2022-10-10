@@ -33,11 +33,11 @@ namespace OpusTest;
 
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
+use Opus\Common\Enrichment;
 use Opus\Common\EnrichmentInterface;
 use Opus\Common\EnrichmentKey;
 use Opus\Common\EnrichmentKeyInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Common\Enrichment;
 use OpusTest\TestAsset\TestCase;
 
 use function array_diff;
