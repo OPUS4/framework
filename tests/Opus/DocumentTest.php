@@ -670,7 +670,7 @@ class DocumentTest extends TestCase
         $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $note = new Note();
+        $note = Note::new();
         $note->setMessage('A note!');
 
         $doc->addNote($note);
@@ -680,7 +680,7 @@ class DocumentTest extends TestCase
         $doc->delete();
 
         $this->expectException(NotFoundException::class);
-        new Note($id);
+        Note::get($id);
     }
 
     /**

@@ -25,35 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
+use Opus\Common\NoteInterface;
 use Opus\Common\Validate\NoteVisibility;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
+use function func_get_args;
+
 /**
  * Domain model for notes in the Opus framework
- *
- * @uses        \Opus\Model\Abstract
- *
- * @category    Framework
- * @package     Opus
- * @method void setMessage(string $message)
- * @method string getMessage()
- * @method void setVisibility(string $visibility)
- * @method string getVisibility
  */
-class Note extends AbstractDependentModel
+class Note extends AbstractDependentModel implements NoteInterface
 {
     const ACCESS_PUBLIC = 'public';
 
@@ -95,5 +84,39 @@ class Note extends AbstractDependentModel
 
         $this->addField($visibility)
             ->addField($message);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMessage()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $message
+     * @return $this
+     */
+    public function setMessage($message)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getVisibility()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $visibility
+     * @return $this
+     */
+    public function setVisibility($visibility)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }
