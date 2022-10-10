@@ -28,10 +28,6 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Doi;
@@ -135,7 +131,7 @@ class DataCiteXmlGenerator
         }
 
         $proc = new XSLTProcessor();
-        $proc->registerPHPFunctions('Opus\Language::getLanguageCode');
+        $proc->registerPHPFunctions('Opus\Common\Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
         if (! $skipTestOfRequiredFields && ! $allowInvalidXml && ! $this->checkRequiredFields($doc)) {

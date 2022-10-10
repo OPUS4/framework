@@ -25,12 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Doi
- * @author      Sascha Szott <szott@zib.de>
  */
 
 namespace OpusTest\Doi;
@@ -38,6 +34,7 @@ namespace OpusTest\Doi;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
+use Opus\Common\Language;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Util\File as FileUtil;
 use Opus\DnbInstitute;
@@ -46,7 +43,6 @@ use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Doi\DataCiteXmlGenerator;
 use Opus\File;
 use Opus\Identifier;
-use Opus\Language;
 use Opus\Person;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
@@ -78,7 +74,9 @@ class DataCiteXmlGeneratorTest extends TestCase
     {
         parent::setUp();
 
-        $lang = new Language();
+        $this->clearTables(false);
+
+        $lang = Language::new();
         $lang->updateFromArray([
             'Comment' => 'Deutsche Sprache',
             'Part2B'  => 'ger',
@@ -91,7 +89,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         ]);
         $lang->store();
 
-        $lang = new Language();
+        $lang = Language::new();
         $lang->updateFromArray([
             'Comment' => 'English language',
             'Part2B'  => 'eng',

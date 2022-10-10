@@ -28,15 +28,12 @@
  *
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  */
 
 namespace Opus;
 
+use Opus\Common\LanguageInterface;
+use Opus\Common\LanguageRepositoryInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
@@ -49,32 +46,13 @@ use function in_array;
 /**
  * Domain model for languages in the Opus framework
  *
- * @uses        \Opus\Model\AbstractDb
- *
- * @method void setPart2B(string $part2b)
- * @method string getPart2B()
- * @method void setPart2T(string $part2t)
- * @method string getPart2T()
- * @method void setPart1(string $part1)
- * @method string getPart1()
- * @method void setScope(string $scope)
- * @method string getScope()
- * @method void setType(string $type)
- * @method string getType()
- * @method void setRefName(string $refName)
- * @method string getRefName()
- * @method void setComment(string $comment)
- * @method string getComment()
- * @method void setActive(boolean $active)
- * @method boolean getActive()
- *
  * TODO define allowed types (const?)
  * TODO define allowed scopes
  * TODO disable caching
  *
  * phpcs:disable
  */
-class Language extends AbstractDb
+class Language extends AbstractDb implements LanguageInterface, LanguageRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -128,7 +106,7 @@ class Language extends AbstractDb
      *
      * @return array Array of Opus\Language objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, self::$tableGatewayClass);
     }
@@ -138,7 +116,7 @@ class Language extends AbstractDb
      *
      * @return array Array of Opus\Language objects which are active.
      */
-    public static function getAllActive()
+    public function getAllActive()
     {
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $rows   = $table->fetchAll($table->select()->where('active = ?', 1));
@@ -154,7 +132,7 @@ class Language extends AbstractDb
      *
      * @return array Array of Opus\Language objects which are active.
      */
-    public static function getAllActiveTable()
+    public function getAllActiveTable()
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
         return $table->fetchAll($table->select()->where('active = ?', 1))->toArray();
@@ -166,7 +144,7 @@ class Language extends AbstractDb
      * @param string $code ISO639-2 terminology code to retrieve properties for
      * @return array|null Array of properties or null if object not found in database
      */
-    public static function getPropertiesByPart2T($code)
+    public function getPropertiesByPart2T($code)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
         $rows  = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
@@ -179,7 +157,7 @@ class Language extends AbstractDb
      * @param string $locale
      * @return null|string
      */
-    public static function getPart2tForPart1($locale)
+    public function getPart2tForPart1($locale)
     {
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->from([$table->info('name')], ['part2_t'])->where('part1 = ?', $locale);
@@ -208,7 +186,7 @@ class Language extends AbstractDb
      * @param null $part string Field to use for language code
      * @return string Language code
      */
-    public static function getLanguageCode($language, $part = null)
+    public function getLanguageCode($language, $part = null)
     {
         $result = self::getPropertiesByPart2T($language);
 
@@ -246,7 +224,7 @@ class Language extends AbstractDb
     /**
      * Returns all languages used in database.
      */
-    public static function getUsedLanguages()
+    public function getUsedLanguages()
     {
         if (self::$usedLanguages !== null) {
             return self::$usedLanguages;
@@ -286,5 +264,85 @@ class Language extends AbstractDb
     public static function clearCache()
     {
         self::$usedLanguages = null;
+    }
+
+    public function getActive()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setActive($active)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getComment()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setComment($comment)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getPart1()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setPart1($part1)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getPart2B()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setPart2B($part2b)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getPart2T()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setPart2T($part2t)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getRefName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setRefName($refName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getScope()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setScope($scope)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getType()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setType($type)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

@@ -32,12 +32,13 @@
 namespace OpusTest\Model;
 
 use Opus\Common\Date;
+use Opus\Common\Document;
+use Opus\Common\Language;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
-use Opus\Document;
+use Opus\Document as DocumentImpl;
 use Opus\Identifier;
-use Opus\Language;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
 use Opus\Model\Properties;
@@ -313,9 +314,9 @@ class AbstractModelTest extends TestCase
      */
     public function testGetOwningModelClassForFieldOfDocument()
     {
-        $doc   = new Document();
+        $doc   = Document::new();
         $field = $doc->getField('Type');
-        $this->assertEquals(Document::class, $field->getOwningModelClass());
+        $this->assertEquals(DocumentImpl::class, $field->getOwningModelClass());
     }
 
     /**
@@ -333,7 +334,7 @@ class AbstractModelTest extends TestCase
      */
     public function testGetOwningModelClassForFieldOfDocumentPerson()
     {
-        $doc    = new Document();
+        $doc    = Document::new();
         $person = new Person();
         $doc->addPerson($person);
         $persons = $doc->getPerson();
@@ -350,7 +351,7 @@ class AbstractModelTest extends TestCase
 
     public function testGetFieldForUnkownField()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $this->assertNull($doc->getField('FieldDoesNotExist'));
     }
 
@@ -378,7 +379,7 @@ class AbstractModelTest extends TestCase
 
     public function testToArrayWithPerson()
     {
-        $doc = new Document();
+        $doc = Document::new();
 
         $person = new Person();
         $person->setLastName('Testy');
@@ -386,7 +387,7 @@ class AbstractModelTest extends TestCase
         $link = $doc->addPerson($person);
         $link->setRole('author');
 
-        $doc = new Document($doc->store());
+        $doc = Document::get($doc->store());
 
         $data = $doc->toArray();
 
@@ -407,7 +408,7 @@ class AbstractModelTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $doc = new Document();
+        $doc = Document::new();
 
         $doc->updateFromArray([
             'Type'    => 'article',
@@ -420,7 +421,7 @@ class AbstractModelTest extends TestCase
 
     public function testUpdateFromArrayComplexValue()
     {
-        $doc = new Document();
+        $doc = Document::new();
 
         $doc->updateFromArray([
             'Type'         => 'article',
@@ -442,7 +443,7 @@ class AbstractModelTest extends TestCase
 
     public function testUpdateFromArrayMultipleComplexValues()
     {
-        $doc = new Document();
+        $doc = Document::new();
 
         $doc->updateFromArray([
             'Type'         => 'article',
@@ -508,7 +509,7 @@ class AbstractModelTest extends TestCase
 
     public function testGetModelType()
     {
-        $model = new Language();
+        $model = Language::new();
 
         $this->expectException(
             UnknownModelTypeException::class,
@@ -520,7 +521,7 @@ class AbstractModelTest extends TestCase
 
     public function testSetProperty()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->store();
 
         $key   = 'indexed';
@@ -533,7 +534,7 @@ class AbstractModelTest extends TestCase
 
     public function testGetProperty()
     {
-        $doc = new Document();
+        $doc = Document::new();
         $doc->store();
 
         $key   = 'indexed';
@@ -551,7 +552,7 @@ class AbstractModelTest extends TestCase
 
     public function testSetPropertyModelWithoutId()
     {
-        $doc = new Document();
+        $doc = Document::new();
 
         $key   = 'source';
         $value = 'sword';

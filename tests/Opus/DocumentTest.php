@@ -39,6 +39,7 @@ use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\DnbInstitute;
 use Opus\Common\EnrichmentKey;
+use Opus\Common\Licence;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
 use Opus\Common\Subject;
@@ -46,7 +47,6 @@ use Opus\Document;
 use Opus\Enrichment;
 use Opus\Identifier;
 use Opus\Identifier\Urn;
-use Opus\Licence;
 use Opus\Model\DbException;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
@@ -201,7 +201,7 @@ class DocumentTest extends TestCase
         $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $licence = new Licence();
+        $licence = Licence::new();
         $doc->addLicence($licence);
         $doc->getLicence(0)->setSortOrder(47);
         $value = $doc->getLicence(0)->getSortOrder();
@@ -221,7 +221,7 @@ class DocumentTest extends TestCase
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
 
-        $doc->addLicence(new Licence());
+        $doc->addLicence(Licence::new());
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
@@ -357,7 +357,7 @@ class DocumentTest extends TestCase
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 
-        $licence = new Licence();
+        $licence = Licence::new();
         $licence->setActive(1);
         $licence->setLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');
@@ -575,7 +575,7 @@ class DocumentTest extends TestCase
     {
         $doc = Document::new();
 
-        $licence = new Licence();
+        $licence = Licence::new();
         $licence->setNameLong('LongName');
         $licence->setLinkLicence('http://long.org/licence');
 
@@ -775,7 +775,7 @@ class DocumentTest extends TestCase
         $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $licence = new Licence();
+        $licence = Licence::new();
         $document->addLicence($licence);
 
         $licence = $document->getField('Licence')->getValue();
@@ -796,7 +796,7 @@ class DocumentTest extends TestCase
         $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $licence = new Licence();
+        $licence = Licence::new();
         $document->setLicence($licence);
 
         $licence = $document->getField('Licence')->getValue();
@@ -817,7 +817,7 @@ class DocumentTest extends TestCase
         $document = new Document();
         $document->setType("doctoral_thesis");
 
-        $licence = new Licence();
+        $licence = Licence::new();
         $document->setLicence($licence);
 
         $licence = $document->getField('Licence')->getValue();
@@ -2879,7 +2879,7 @@ class DocumentTest extends TestCase
         $patent->setYearApplied(2018);
         $patent->setApplication('Another invention');
 
-        $licence1 = new Licence();
+        $licence1 = Licence::new();
         $licence1->setActive(0);
         $licence1->setCommentInternal('first licence');
         $licence1->setDescMarkup('<b>Main Licence</b>');
@@ -2895,7 +2895,7 @@ class DocumentTest extends TestCase
         $licence1->setSortOrder(2);
         $doc->addLicence($licence1);
 
-        $licence2 = new Licence();
+        $licence2 = Licence::new();
         $licence2->setActive(1);
         $licence2->setCommentInternal('second licence');
         $licence2->setDescMarkup('<b>Second Licence</b>');
