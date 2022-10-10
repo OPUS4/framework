@@ -33,6 +33,7 @@ namespace OpusTest;
 
 use Opus\Common\Document;
 use Opus\Common\DocumentInterface;
+use Opus\Common\EnrichmentInterface;
 use Opus\Common\EnrichmentKey;
 use Opus\Common\EnrichmentKeyInterface;
 use Opus\Common\Model\ModelException;
