@@ -42,6 +42,7 @@ use Opus\Common\EnrichmentKey;
 use Opus\Common\Licence;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
+use Opus\Common\Patent;
 use Opus\Common\Subject;
 use Opus\Document;
 use Opus\Enrichment;
@@ -58,7 +59,6 @@ use Opus\Model\Xml;
 use Opus\Model\Xml\Cache;
 use Opus\Model\Xml\Version1;
 use Opus\Note;
-use Opus\Patent;
 use Opus\Person;
 use Opus\Series;
 use Opus\SubjectSwd;
@@ -646,7 +646,7 @@ class DocumentTest extends TestCase
         $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setCountries('Germany');
         $patent->setNumber('X0815');
         $patent->setDateGranted('2001-01-01');
@@ -659,7 +659,7 @@ class DocumentTest extends TestCase
         $doc->delete();
 
         $this->expectException(NotFoundException::class);
-        new Patent($id);
+        Patent::get($id);
     }
 
     /**
@@ -1065,7 +1065,7 @@ class DocumentTest extends TestCase
         $personAuthor->setDateOfBirth('1965-06-23');
         $doc->addPersonAuthor($personAuthor);
 
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setNumber('08 15');
         $patent->setDateGranted('2008-07-07');
         $patent->setCountries('Germany');
@@ -3870,7 +3870,7 @@ class DocumentTest extends TestCase
     public function testNoTruncateExceptionDeletingDocumentWithPatentUsingOutOfDateObject()
     {
         $doc    = new Document();
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setNumber('0123456789');
         $patent->setCountries('Germany');
         $patent->setApplication('Application');
@@ -3898,7 +3898,7 @@ class DocumentTest extends TestCase
     public function testTruncateExceptionForTooLongValue()
     {
         $doc    = new Document();
-        $patent = new Patent();
+        $patent = Patent::new();
         $value  = str_repeat('0123456789', 25);
         $patent->setNumber($value);
         $patent->setCountries('Germany');

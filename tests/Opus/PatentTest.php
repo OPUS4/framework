@@ -32,14 +32,15 @@
 namespace OpusTest;
 
 use Opus\Common\Date;
-use Opus\Patent;
+use Opus\Common\Patent;
+use Opus\Common\PatentInterface;
 use OpusTest\TestAsset\TestCase;
 
 class PatentTest extends TestCase
 {
     public function testToArray()
     {
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setYearApplied(2017);
         $patent->setNumber('A23');
         $patent->setCountries('Germany, France');
@@ -77,7 +78,7 @@ class PatentTest extends TestCase
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf(Patent::class, $patent);
+        $this->assertInstanceOf(PatentInterface::class, $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
@@ -88,7 +89,7 @@ class PatentTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $patent = new Patent();
+        $patent = Patent::new();
 
         $patent->updateFromArray([
             'YearApplied' => 2015,
@@ -99,7 +100,7 @@ class PatentTest extends TestCase
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf(Patent::class, $patent);
+        $this->assertInstanceOf(PatentInterface::class, $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
