@@ -353,7 +353,7 @@ class Identifier extends AbstractDependentModel
         }
     }
 
-    public static function getTypeForFieldname($fieldname)
+    public function getTypeForFieldname($fieldname)
     {
         return self::$identifierMapping[substr($fieldname, 10)];
     }

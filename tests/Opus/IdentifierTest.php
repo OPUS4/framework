@@ -653,7 +653,7 @@ class IdentifierTest extends TestCase
 
     public function testGetModelType()
     {
-        $identifier = Identifier::get();
+        $identifier = Identifier::new();
         $this->assertEquals('identifier', $identifier->getModelType());
     }
 }
