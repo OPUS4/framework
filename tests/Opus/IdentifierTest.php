@@ -26,14 +26,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
@@ -44,7 +38,7 @@ use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DefaultGenerator;
-use Opus\Identifier;
+use Opus\Common\Identifier;
 use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
 use OpusTest\TestAsset\TestCase;
@@ -199,7 +193,7 @@ class IdentifierTest extends TestCase
 
     public function testIsValidDoiPositive()
     {
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue('12.3456/opustest-789');
         $this->assertTrue($doi->isValidDoi());
@@ -214,7 +208,7 @@ class IdentifierTest extends TestCase
             '10.000/opus#987',
         ];
         foreach ($doiValuesToProbe as $value) {
-            $doi = new Identifier();
+            $doi = Identifier::new();
             $doi->setType('doi');
             $doi->setValue($value);
             $this->assertFalse($doi->isValidDoi(), 'expected ' . $value . ' to be an invalid DOI value');
@@ -499,7 +493,7 @@ class IdentifierTest extends TestCase
     {
         $doc = new Document();
 
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue($value);
         $doc->setIdentifier([$doi]);
@@ -553,7 +547,7 @@ class IdentifierTest extends TestCase
 
     public function testToArray()
     {
-        $identifier = new Identifier();
+        $identifier = Identifier::new();
         $identifier->setValue('123-4563-123');
         $identifier->setType('isbn');
         $identifier->setStatus('registered');
@@ -578,7 +572,7 @@ class IdentifierTest extends TestCase
             'RegistrationTs' => '2018-10-11 15:45:21',
         ];
 
-        $identifier = new Identifier();
+        $identifier = Identifier::new();
         $identifier->updateFromArray($data);
 
         $this->assertEquals('123-4563-123', $identifier->getValue());
@@ -590,7 +584,7 @@ class IdentifierTest extends TestCase
     public function testModifyingStatusDoesNotChangeServerDateModified()
     {
         $doc        = new Document();
-        $identifier = new Identifier();
+        $identifier = Identifier::new();
         $identifier->setType('old');
         $identifier->setValue('123-45678-123');
         $doc->addIdentifier($identifier);
@@ -619,7 +613,7 @@ class IdentifierTest extends TestCase
     public function testModifyingRegistrationTsDoesNotChangeServerDateModified()
     {
         $doc        = new Document();
-        $identifier = new Identifier();
+        $identifier = Identifier::new();
         $identifier->setType('old');
         $identifier->setValue('123-45678-123');
         $doc->addIdentifier($identifier);
@@ -659,7 +653,7 @@ class IdentifierTest extends TestCase
 
     public function testGetModelType()
     {
-        $identifier = new Identifier();
+        $identifier = Identifier::get();
         $this->assertEquals('identifier', $identifier->getModelType());
     }
 }
