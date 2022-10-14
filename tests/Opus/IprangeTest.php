@@ -26,17 +26,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest;
 
-use Opus\Iprange;
+use Opus\Common\Iprange;
 use OpusTest\TestAsset\TestCase;
 
 class IprangeTest extends TestCase
@@ -47,25 +43,11 @@ class IprangeTest extends TestCase
      */
     protected $object;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     *
-     * @access protected
-     */
     protected function setUp()
     {
-        $this->object = new Iprange();
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     *
-     * @access protected
-     */
-    protected function tearDown()
-    {
+        parent::setUp();
+        $this->clearTables(false, ['ipranges']);
+        $this->object = Iprange::new();
     }
 
     /**
@@ -88,5 +70,30 @@ class IprangeTest extends TestCase
         $this->markTestIncomplete(
             'This test has not been implemented yet.'
         );
+    }
+
+    public function testSetStartingIp()
+    {
+        $ipRange = Iprange::new();
+
+        $ipRange->setStartingIp('127.0.0.1');
+
+        $this->assertEquals('127.0.0.1', $ipRange->getStartingIp());
+    }
+
+    public function testStoreIprange()
+    {
+        $iprange = Iprange::new();
+        $iprange->setStartingIp('127.0.0.1');
+        $iprange->setEndingIp('127.0.0.100');
+        $iprange->setName('Test Range');
+        $rangeId = $iprange->store();
+
+        $iprange = Iprange::get($rangeId);
+
+        $this->assertEquals('127.0.0.1', $iprange->getStartingIp());
+        $this->assertEquals('127.0.0.100', $iprange->getEndingIp());
+        $this->assertEquals('Test Range', $iprange->getName());
+        $this->assertCount(0, $iprange->getRole());
     }
 }

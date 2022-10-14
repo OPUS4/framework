@@ -25,18 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
+use Opus\Common\IprangeInterface;
+use Opus\Common\IprangeRepositoryInterface;
+use Opus\Common\UserRole;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Zend_Validate_Hostname;
@@ -49,11 +46,9 @@ use function sprintf;
 /**
  * Domain model for iprange in the Opus framework
  *
- * @uses        \Opus\Model\Abstract
- *
  * phpcs:disable
  */
-class Iprange extends AbstractDb
+class Iprange extends AbstractDb implements IprangeInterface, IprangeRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -72,7 +67,7 @@ class Iprange extends AbstractDb
      */
     protected $externalFields = [
         'Role' => [
-            'model'   => UserRole::class,
+            'model'   => \Opus\UserRole::class,
             'through' => Model\Dependent\Link\IprangeRole::class,
             'fetch'   => 'lazy',
         ],
@@ -83,7 +78,7 @@ class Iprange extends AbstractDb
      *
      * @return array Array of Opus\Iprange objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, Db\Ipranges::class);
     }
@@ -175,11 +170,77 @@ class Iprange extends AbstractDb
 
     /**
      * Returns long name.
-     *
-     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {
         return $this->getName();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getStartingIp()
+    {
+        return $this->__call('getStartingip', func_get_args());
+    }
+
+    /**
+     * @param string $startingIp
+     * @return $this
+     */
+    public function setStartingIp($startingIp)
+    {
+        return $this->__call('setStartingip', func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEndingIp()
+    {
+        return $this->__call('getEndingip', func_get_args());
+    }
+
+    /**
+     * @param string $endingIp
+     * @return $this
+     */
+    public function setEndingIp($endingIp)
+    {
+        return $this->__call('setEndingip', func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return UserRole[]
+     */
+    public function getRole()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param UserRole[] $role
+     * @return $this
+     */
+    public function setRole($role)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }
