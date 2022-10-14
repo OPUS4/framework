@@ -53,7 +53,8 @@ class ModelFactory implements ModelFactoryInterface
 
     /** @var string[] Custom mapping of model types to model classes */
     protected $modelClasses = [
-        'Date' => Date::class,
+        'Date'      => Date::class,
+        'HashValue' => HashValues::class,
     ];
 
     /**
