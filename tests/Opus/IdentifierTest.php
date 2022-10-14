@@ -34,11 +34,11 @@ namespace OpusTest;
 
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DefaultGenerator;
-use Opus\Common\Identifier;
 use Opus\Identifier\DoiAlreadyExistsException;
 use Opus\Identifier\UrnAlreadyExistsException;
 use OpusTest\TestAsset\TestCase;

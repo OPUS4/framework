@@ -39,6 +39,8 @@ use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\DnbInstitute;
 use Opus\Common\EnrichmentKey;
+use Opus\Common\Identifier;
+use Opus\Common\IdentifierInterface;
 use Opus\Common\Licence;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
@@ -46,7 +48,6 @@ use Opus\Common\Patent;
 use Opus\Common\Subject;
 use Opus\Document;
 use Opus\Enrichment;
-use Opus\Identifier;
 use Opus\Identifier\Urn;
 use Opus\Model\DbException;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
@@ -625,7 +626,7 @@ class DocumentTest extends TestCase
         $doc = Document::new();
         $doc->setType("doctoral_thesis");
 
-        $isbn = new Identifier();
+        $isbn = Identifier::new();
         $isbn->setValue('ISBN');
 
         $doc->addIdentifierIsbn($isbn);
@@ -635,7 +636,7 @@ class DocumentTest extends TestCase
         $doc->delete();
 
         $this->expectException(NotFoundException::class);
-        new Identifier($id);
+        Identifier::get($id);
     }
 
     /**
@@ -876,7 +877,7 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
         $doc->setType("doctoral_thesis");
-        $doc->addIdentifierUrn(new Identifier());
+        $doc->addIdentifierUrn(Identifier::new());
         $id = $doc->store();
 
         $doc2 = new Document($id);
@@ -894,8 +895,8 @@ class DocumentTest extends TestCase
     public function testStoringOfMultipleIdentifierUrnField()
     {
         $doc = new Document();
-        $doc->addIdentifierUrn(new Identifier());
-        $doc->addIdentifierUrn(new Identifier());
+        $doc->addIdentifierUrn(Identifier::new());
+        $doc->addIdentifierUrn(Identifier::new());
         $doc->setType("doctoral_thesis");
 
         $this->assertCount(2, $doc->getIdentifier());
@@ -919,19 +920,19 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
 
-        $urn = new Identifier();
+        $urn = Identifier::new();
         $urn->setValue('urn');
         $doc->addIdentifierUrn($urn);
 
-        $isbn = new Identifier();
+        $isbn = Identifier::new();
         $isbn->setValue('isbn');
         $doc->addIdentifierIsbn($isbn);
 
-        $doi1 = new Identifier();
+        $doi1 = Identifier::new();
         $doi1->setValue('doi1');
         $doc->addIdentifierDoi($doi1);
 
-        $doi2 = new Identifier();
+        $doi2 = Identifier::new();
         $doi2->setValue('doi2');
         $doc->addIdentifierDoi($doi2);
 
@@ -980,7 +981,7 @@ class DocumentTest extends TestCase
         $doc = new Document();
         $doc->setType("doctoral_thesis");
 
-        $urnModel = new Identifier();
+        $urnModel = Identifier::new();
         $doc->setIdentifierUrn($urnModel);
         $id = $doc->store();
 
@@ -2460,7 +2461,7 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
         $doc->store();
-        $id = new Identifier();
+        $id = Identifier::new();
         $id->setType('doi');
         $id->setValue('someVal');
         $ids   = $doc->getIdentifier();
@@ -3936,7 +3937,7 @@ class DocumentTest extends TestCase
      */
     public function getIdentifierTypes()
     {
-        $identifier = new Identifier();
+        $identifier = Identifier::new();
 
         $types = array_keys($identifier->getField('Type')->getDefault());
 
@@ -3956,7 +3957,7 @@ class DocumentTest extends TestCase
         $doc = new Document();
         $doc->store();
 
-        $id = new Identifier();
+        $id = Identifier::new();
         $id->setType($type);
         $id->setValue('someVal');
 
@@ -3985,7 +3986,7 @@ class DocumentTest extends TestCase
         $doc = new Document();
         $doc->store();
 
-        $id = new Identifier();
+        $id = Identifier::new();
         $id->setType('doi');
         $id->setValue('someVal');
 
@@ -4003,15 +4004,15 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
 
-        $id = new Identifier();
+        $id = Identifier::new();
         $id->setType('doi');
         $id->setValue('someVal');
 
-        $id2 = new Identifier();
+        $id2 = Identifier::new();
         $id2->setType('doi');
         $id2->setValue('someVal2');
 
-        $id3 = new Identifier();
+        $id3 = Identifier::new();
         $id3->setType('issn');
         $id3->setValue('someVal3');
 
@@ -4032,11 +4033,11 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
 
-        $id = new Identifier();
+        $id = Identifier::new();
         $id->setType('doi');
         $id->setValue('someVal');
 
-        $id2 = new Identifier();
+        $id2 = Identifier::new();
         $id2->setType('doi');
         $id2->setValue('someVal2');
 
@@ -4055,7 +4056,7 @@ class DocumentTest extends TestCase
         $identifier = $doc->addIdentifierForType('doi');
 
         $this->assertNotNull($identifier);
-        $this->assertInstanceOf(Identifier::class, $identifier);
+        $this->assertInstanceOf(IdentifierInterface::class, $identifier);
         $this->assertEquals('doi', $identifier->getType());
     }
 
@@ -4066,7 +4067,7 @@ class DocumentTest extends TestCase
         $identifier = $doc->addIdentifierDoi();
 
         $this->assertNotNull($identifier);
-        $this->assertInstanceOf(Identifier::class, $identifier);
+        $this->assertInstanceOf(IdentifierInterface::class, $identifier);
         $this->assertEquals('doi', $identifier->getType());
     }
 
@@ -4074,19 +4075,19 @@ class DocumentTest extends TestCase
     {
         $doc = new Document();
 
-        $ident = new Identifier();
+        $ident = Identifier::new();
         $ident->setType('doi');
         $ident->setValue('doi-value1');
 
         $doc->addIdentifier($ident);
 
-        $ident = new Identifier();
+        $ident = Identifier::new();
         $ident->setType('issn');
         $ident->setValue('issn-value1');
 
         $doc->addIdentifier($ident);
 
-        $ident = new Identifier();
+        $ident = Identifier::new();
         $ident->setType('doi');
         $ident->setValue('doi-value2');
 

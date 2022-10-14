@@ -37,6 +37,7 @@ use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Common\Identifier;
 use Opus\Common\Log;
 use Opus\Common\Log\LogService;
 use Opus\Common\Model\NotFoundException;
@@ -44,7 +45,6 @@ use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DoiGeneratorException;
 use Opus\Doi\Generator\DoiGeneratorFactory;
-use Opus\Identifier;
 use Zend_Config;
 use Zend_Exception;
 use Zend_Log;
@@ -349,7 +349,7 @@ class DoiManager
      */
     private function isLocalDoi($value)
     {
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setValue($value);
         return $doi->isLocalDoi();
     }

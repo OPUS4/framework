@@ -25,20 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Document\Plugin
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Document\Plugin;
 
 use Opus\Common\Config;
+use Opus\Common\Identifier;
 use Opus\Document;
 use Opus\Document\Plugin\SequenceNumber;
-use Opus\Identifier;
+use Opus\ModelFactory;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -58,9 +55,11 @@ class SequenceNumberTest extends TestCase
 
     public function testExceptionOnInvalidModel()
     {
-        Config::set(new Zend_Config([]));
+        Config::set(new Zend_Config([
+            'modelFactory' => ModelFactory::class,
+        ]));
 
-        $model  = new Identifier();
+        $model  = Identifier::new();
         $plugin = new SequenceNumber();
 
         $this->expectException(Document\DocumentException::class);

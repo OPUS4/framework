@@ -58,8 +58,6 @@ use const FILTER_VALIDATE_BOOLEAN;
 /**
  * Plugin for generating identifier urn.
  *
- * @uses        \Opus\Model\Plugin\AbstractPlugin
- *
  * phpcs:disable
  */
 class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerInterface
@@ -136,7 +134,7 @@ class IdentifierUrn extends AbstractPlugin implements ServerStateChangeListenerI
 
         $urn       = new Urn($nid, $nss);
         $urn_value = $urn->getUrn($model->getId());
-        $urn_model = new Identifier();
+        $urn_model = Identifier::new();
         $urn_model->setValue($urn_value);
         $urn_model->setType('urn');
         $model->addIdentifier($urn_model);

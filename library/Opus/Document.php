@@ -48,6 +48,8 @@ use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
 use Opus\Common\EnrichmentKey;
+use Opus\Common\Identifier;
+use Opus\Common\IdentifierInterface;
 use Opus\Common\Model\DocumentLifecycleListener;
 use Opus\Common\Model\ModelException;
 use Opus\Common\ServerStateConstantsInterface;
@@ -310,7 +312,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
             'fetch'   => 'lazy',
         ],
         'Identifier'         => [
-            'model' => Identifier::class,
+            'model' => \Opus\Identifier::class,
             'fetch' => 'lazy',
         ],
         'Reference'          => [
@@ -725,7 +727,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
                 if (! empty($nid) && ! empty($nss)) {
                     $urn      = new Urn($nid, $nss);
                     $urnValue = $urn->getUrn($this->getId());
-                    $urnModel = new Identifier();
+                    $urnModel = Identifier::new();
                     $urnModel->setValue($urnValue);
                     $this->setIdentifierUrn($urnModel);
                 }
@@ -756,7 +758,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     private function isIdentifierSet($identifiers)
     {
         foreach ($identifiers as $identifier) {
-            if ($identifier instanceof Identifier) {
+            if ($identifier instanceof IdentifierInterface) {
                 $tmp = $identifier->getValue();
                 if (! empty($tmp)) {
                     return false;
@@ -774,7 +776,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     protected function _storeIdentifierUuid($value)
     {
         if ($value === null) {
-            $uuidModel = new Identifier();
+            $uuidModel = Identifier::new();
             $uuidModel->setValue(UUID::generate());
             $this->setIdentifierUuid($uuidModel);
         }
@@ -1287,7 +1289,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
      */
     public function addIdentifierForType($type, $identifier = null)
     {
-        if ($identifier instanceof Identifier) {
+        if ($identifier instanceof IdentifierInterface) {
             $identifier->setType($type);
             parent::addIdentifier($identifier);
         } else {

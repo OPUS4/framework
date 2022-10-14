@@ -33,6 +33,7 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\IdentifierInterface;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Doi\DoiException;
@@ -57,17 +58,6 @@ use function substr;
 /**
  * Domain model for document identifiers in the Opus framework
  *
- * @uses        \Opus\Model\Dependent\AbstractDependentModel
- *
- * @method void setValue(string $value)
- * @method string getValue()
- * @method void setType(string $type)
- * @method string getType()
- * @method void setStatus(string $status)
- * @method string getStatus()
- * @method void setRegistrationTs(string $timestamp)
- * @method string getRegistrationTs()
- *
  * TODO find way to remove DOI and URN functions to separate classes
  *
  * TODO desing issues - see below
@@ -80,7 +70,7 @@ use function substr;
  *
  * phpcs:disable
  */
-class Identifier extends AbstractDependentModel
+class Identifier extends AbstractDependentModel implements IdentifierInterface
 {
     /**
      * Primary key of the parent model.
@@ -366,5 +356,25 @@ class Identifier extends AbstractDependentModel
     public function getModelType()
     {
         return 'identifier';
+    }
+
+    public function getType()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setType($type)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getValue()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setValue($value)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

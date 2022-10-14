@@ -34,6 +34,7 @@ namespace OpusTest\Doi;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
+use Opus\Common\Identifier;
 use Opus\Common\Language;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Util\File as FileUtil;
@@ -42,7 +43,6 @@ use Opus\Document;
 use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Doi\DataCiteXmlGenerator;
 use Opus\File;
-use Opus\Identifier;
 use Opus\Person;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
@@ -285,7 +285,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         // setze zwei lokale DOIs anstatt einer
         $doc  = new Document($docId);
         $dois = $doc->getIdentifier();
-        $doi  = new Identifier();
+        $doi  = Identifier::new();
         $doi->setType('doi');
         $doi->setValue($dois[0]->getValue() . 'x');
         $dois[] = $doi;
@@ -485,7 +485,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc   = new Document();
         $docId = $doc->store();
 
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue('10.2345/opustest-' . $docId);
         $doc->setIdentifier([$doi]);
@@ -607,12 +607,12 @@ class DataCiteXmlGeneratorTest extends TestCase
         $docId    = $this->createDocWithRequiredFields();
         $document = new Document($docId);
 
-        $issn = new Identifier();
+        $issn = Identifier::new();
         $issn->setValue('123');
 
         $document->addIdentifierIssn($issn);
 
-        $issn2 = new Identifier();
+        $issn2 = Identifier::new();
         $issn2->setValue('321');
 
         $document->addIdentifierIssn($issn2);

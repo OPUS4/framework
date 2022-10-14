@@ -33,12 +33,12 @@ namespace OpusTest\Document\Plugin;
 
 use Opus\Common\Config;
 use Opus\Common\EnrichmentKey;
+use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Doi\DoiManager;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Enrichment;
-use Opus\Identifier;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -266,7 +266,7 @@ class IdentifierDoiTest extends TestCase
         $doc = new Document();
         $doc->setServerState('unpublished');
 
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue('1234');
         $dois   = [];

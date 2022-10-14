@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Identifier
- * @author      Sascha Szott <szott@zib.de>
  */
 
 namespace Opus\Identifier;

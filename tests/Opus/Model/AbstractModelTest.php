@@ -33,12 +33,12 @@ namespace OpusTest\Model;
 
 use Opus\Common\Date;
 use Opus\Common\Document;
+use Opus\Common\Identifier;
 use Opus\Common\Language;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
 use Opus\Document as DocumentImpl;
-use Opus\Identifier;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
 use Opus\Model\Properties;

@@ -27,11 +27,6 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Doi
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Doi;
@@ -41,12 +36,12 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\Identifier;
 use Opus\Document;
 use Opus\Doi\DoiException;
 use Opus\Doi\DoiManager;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Doi\RegistrationException;
-use Opus\Identifier;
 use Opus\Person;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
@@ -779,7 +774,7 @@ class DoiManagerTest extends TestCase
         $docId = $doc->store();
 
         $doc = new Document($docId);
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue($doiPrefix . $docId);
         if ($status !== null) {
