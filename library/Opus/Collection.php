@@ -1350,7 +1350,7 @@ class Collection extends AbstractDb implements CollectionInterface
      * @param int|array $roles CollectionRole IDs
      * @return array
      */
-    public static function find($term, $roles = null)
+    public function find($term, $roles = null)
     {
         $table = TableGateway::getInstance(Db\Collections::class);
 
