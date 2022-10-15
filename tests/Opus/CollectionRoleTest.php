@@ -33,6 +33,7 @@ namespace OpusTest;
 
 use Opus\Collection;
 use Opus\CollectionRole;
+use Opus\Common\CollectionInterface;
 use Opus\Common\Document;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
@@ -1061,7 +1062,7 @@ class CollectionRoleTest extends TestCase
 
         $result = $role->getCollectionByOaiSubset('open_access');
 
-        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertInstanceOf(CollectionInterface::class, $result);
         $this->assertEquals($col->getId(), $result->getId());
     }
 

@@ -36,7 +36,9 @@ namespace OpusTest;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Collection;
+use Opus\Common\CollectionInterface;
 use Opus\Common\CollectionRole;
+use Opus\Common\CollectionRoleInterface;
 use Opus\Common\Config;
 use Opus\Common\Model\NotFoundException;
 use Opus\Db\Collections;
@@ -56,12 +58,12 @@ use function sort;
 
 class CollectionTest extends TestCase
 {
-    /** @var CollectionRole */
+    /** @var CollectionRoleInterface */
     protected $roleFixture;
     protected $roleName    = "";
     protected $roleOaiName = "";
 
-    /** @var Collection */
+    /** @var CollectionInterface */
     protected $object;
 
     /**
@@ -1464,7 +1466,7 @@ class CollectionTest extends TestCase
         ]);
 
         $this->assertNotNull($col);
-        $this->assertInstanceOf(Collection::class, $col);
+        $this->assertInstanceOf(CollectionInterface::class, $col);
 
         $this->assertEquals('OPUS', $col->getName());
         $this->assertEquals('4', $col->getNumber());
@@ -1487,7 +1489,7 @@ class CollectionTest extends TestCase
         ]);
 
         $this->assertNotNull($col);
-        $this->assertInstanceOf(Collection::class, $col);
+        $this->assertInstanceOf(CollectionInterface::class, $col);
 
         $this->assertEquals('OPUS', $col->getName());
         $this->assertEquals('4', $col->getNumber());
@@ -1535,7 +1537,7 @@ class CollectionTest extends TestCase
         ]);
 
         $this->assertNotNull($col);
-        $this->assertInstanceOf(Collection::class, $col);
+        $this->assertInstanceOf(CollectionInterface::class, $col);
         $this->assertEquals($colId, $col->getId());
         $this->assertEquals($roleId, $col->getRoleId());
 
