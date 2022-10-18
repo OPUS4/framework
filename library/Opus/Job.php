@@ -25,18 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
 use Exception;
+use Opus\Common\JobInterface;
+use Opus\Common\JobRepositoryInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
@@ -52,15 +49,8 @@ use function sha1;
  * Job model used to manage job descriptions.
  *
  * phpcs:disable
- *
- * @method string getLabel()
- * @method void setLabel( string )
- * @method string getState()
- * @method void setState(string $state)
- * @method string getErrors()
- * @method void setErrors(string $errors)
  */
-class Job extends AbstractDb
+class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
 {
     const STATE_PROCESSING = 'processing';
 
@@ -146,7 +136,7 @@ class Job extends AbstractDb
      * @param null|string $state (optional) only retrieve jobs in given state (@see Opus\Job for state definitions)
      * @return int Number of entries in database.
      */
-    public static function getCount($state = null)
+    public function getCount($state = null)
     {
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->from($table, ['COUNT(id) AS count']);
@@ -168,7 +158,7 @@ class Job extends AbstractDb
      * @param null|string $state (optional) only retrieve jobs in given state (@see Opus\Job for state definitions)
      * @return int Number of entries in database.
      */
-    public static function getCountForLabel($label, $state = null)
+    public function getCountForLabel($label, $state = null)
     {
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()->from($table, ['COUNT(id) AS count']);
@@ -190,7 +180,7 @@ class Job extends AbstractDb
      * @param null|string $state (optional) only retrieve jobs in given state (@see Opus\Job for state definitions)
      * @return array Key / Value pairs of label / count for database entries.
      */
-    public static function getCountPerLabel($state = null)
+    public function getCountPerLabel($state = null)
     {
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $table->select()
@@ -218,7 +208,7 @@ class Job extends AbstractDb
      * @param null|array $ids (Optional) Set of IDs specifying the models to fetch.
      * @return array Array of Opus\Job objects.
      */
-    public static function getAll(?array $ids = null)
+    public function getAll($ids = null)
     {
         return self::getAllFrom(self::class, self::$tableGatewayClass, $ids);
     }
@@ -231,7 +221,7 @@ class Job extends AbstractDb
      * @param null|string $state (optional) only retrieve jobs in given state
      * @return array Set of Opus\Job objects.
      */
-    public static function getByLabels(array $labels, $limit = null, $state = null)
+    public function getByLabels($labels, $limit = null, $state = null)
     {
         if (count($labels) < 1) {
             return null;
@@ -295,9 +285,60 @@ class Job extends AbstractDb
      *
      * Used especially for setting up unit tests.
      */
-    public static function deleteAll()
+    public function deleteAll()
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
         $table->getAdapter()->query('DELETE from jobs');
+    }
+
+    /**
+     * @return string
+     */
+    public function getErrors()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $errors
+     * @return $this
+     */
+    public function setErrors($errors)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabel()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $label
+     * @return $this
+     */
+    public function setLabel($label)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getState()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $state
+     * @return $this
+     */
+    public function setState($state)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }
