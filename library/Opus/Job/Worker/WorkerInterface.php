@@ -21,15 +21,12 @@
 
 namespace Opus\Job\Worker;
 
-use Opus\Job;
+use Opus\Common\JobInterface;
 use Zend_Log;
 
 /**
  * Basic process interface as required to define
  * worker processes for Job_Runnner.
- *
- * @category    Framework
- * @package     Opus\Job
  */
 interface WorkerInterface
 {
@@ -43,10 +40,10 @@ interface WorkerInterface
     /**
      * Perfom work.
      *
-     * @param Job $job Job description and attached data.
+     * @param JobInterface $job Job description and attached data.
      * @return array Array of Jobs to be newly created.
      */
-    public function work(Job $job);
+    public function work($job);
 
     /**
      * Set logging facility.

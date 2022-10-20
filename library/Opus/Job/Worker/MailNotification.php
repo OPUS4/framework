@@ -33,8 +33,8 @@ namespace Opus\Job\Worker;
 
 use Opus\Common\Account;
 use Opus\Common\Config;
+use Opus\Common\JobInterface;
 use Opus\Common\Mail\SendMail;
-use Opus\Job;
 use Opus\Security\SecurityException;
 use Zend_Log;
 
@@ -81,10 +81,10 @@ class MailNotification extends AbstractWorker
     /**
      * Perfom work.
      *
-     * @param Opus\Job $job Job description and attached data.
+     * @param JobInterface $job Job description and attached data.
      * @return array Array of Jobs to be newly created.
      */
-    public function work(Job $job)
+    public function work($job)
     {
         $data    = $job->getData(true);
         $message = $data['message'];
