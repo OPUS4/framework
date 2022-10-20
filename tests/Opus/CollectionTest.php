@@ -1520,7 +1520,6 @@ class CollectionTest extends TestCase
 
     public function testFromArrayUsingExistingIdWithChangedValues()
     {
-        $role = $this->roleFixture;
         $root = $this->object;
 
         $root->setName('TestName');
@@ -1567,18 +1566,23 @@ class CollectionTest extends TestCase
 
     public function testFromArrayForNewCollectionUsingExistingRole()
     {
-        $role = CollectionRole::new();
+        $this->markTestIncomplete();
+    }
+
+    public function testFromArrayForExistingCollection()
+    {
+        $col1 = $this->object;
+
+        $col1->setName('RootCol');
+        $colId = $col1->store();
 
         $col = Collection::fromArray([
-            'Id'             => 99,
-            'Name'           => 'OPUS',
-            'Number'         => '4',
-            'OaiSubset'      => 'opus4',
-            'Visible'        => 1,
-            'VisiblePublish' => 1,
+            'Id' => $colId,
         ]);
 
-        $this->markTestIncomplete();
+        $this->assertNotNull($col);
+        $this->assertEquals($colId, $col->getId());
+        $this->assertEquals('RootCol', $col->getName());
     }
 
     public function testIsRoot()

@@ -34,6 +34,7 @@ namespace Opus;
 use Opus\Common\Config;
 use Opus\Common\LicenceInterface;
 use Opus\Common\LicenceRepositoryInterface;
+use Opus\Common\Model\NotFoundException;
 use Opus\Db\TableGateway;
 use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;
@@ -74,8 +75,8 @@ class Licence extends AbstractDb implements LicenceInterface, LicenceRepositoryI
     public function fetchByName($name)
     {
         $licences = TableGateway::getInstance(self::$tableGatewayClass);
-        $select = $licences->select()->where('name = ?', $name);
-        $row = $licences->fetchRow($select);
+        $select   = $licences->select()->where('name = ?', $name);
+        $row      = $licences->fetchRow($select);
 
         if (isset($row)) {
             return new Licence($row);
@@ -125,7 +126,7 @@ class Licence extends AbstractDb implements LicenceInterface, LicenceRepositoryI
         $descText = new Field('DescText');
         $descText->setTextarea(true);
 
-        $licenceLanguage = new Field('Language');
+        $licenceLanguage    = new Field('Language');
         $availableLanguages = Config::getInstance()->getAvailableLanguages();
         if ($availableLanguages !== null) {
             $licenceLanguage->setDefault($availableLanguages);
@@ -328,5 +329,32 @@ class Licence extends AbstractDb implements LicenceInterface, LicenceRepositoryI
     public function setPodAllowed($allowed)
     {
         return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param array $data
+     * @return mixed|Licence|Model\AbstractModel|null
+     * @throws Model\ModelException
+     */
+    public static function fromArray($data)
+    {
+        $licence = null;
+
+        if (isset($data['Id'])) {
+            try {
+                $licence = new Licence($data['Id']);
+
+                // TODO update from array not supported (handling of roleId)
+                // $col->updateFromArray($data);
+            } catch (NotFoundException $omnfe) {
+                // TODO handle it
+            }
+        }
+
+        if ($licence === null) {
+            $licence = parent::fromArray($data);
+        }
+
+        return $licence;
     }
 }
