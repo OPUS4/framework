@@ -25,25 +25,22 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
-use Opus\Date;
-use Opus\Patent;
+use Opus\Common\Date;
+use Opus\Common\Patent;
+use Opus\Common\PatentInterface;
 use OpusTest\TestAsset\TestCase;
 
 class PatentTest extends TestCase
 {
     public function testToArray()
     {
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setYearApplied(2017);
         $patent->setNumber('A23');
         $patent->setCountries('Germany, France');
@@ -81,7 +78,7 @@ class PatentTest extends TestCase
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf(Patent::class, $patent);
+        $this->assertInstanceOf(PatentInterface::class, $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
@@ -92,7 +89,7 @@ class PatentTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $patent = new Patent();
+        $patent = Patent::new();
 
         $patent->updateFromArray([
             'YearApplied' => 2015,
@@ -103,7 +100,7 @@ class PatentTest extends TestCase
         ]);
 
         $this->assertNotNull($patent);
-        $this->assertInstanceOf(Patent::class, $patent);
+        $this->assertInstanceOf(PatentInterface::class, $patent);
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());

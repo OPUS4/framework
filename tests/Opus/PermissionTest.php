@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,18 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus
- * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
-use Opus\Account;
+use Opus\Common\Account;
+use Opus\Common\AccountInterface;
+use Opus\Common\UserRole;
 use Opus\Permission;
-use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
 
 class PermissionTest extends TestCase
@@ -58,38 +56,38 @@ class PermissionTest extends TestCase
     protected function setUpDatabase()
     {
         // TODO setup accounts, roles, permissions
-        $role = new UserRole();
+        $role = UserRole::new();
         $role->setName('DOI');
         $role->appendAccessModule('admin');
         $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
-        $account = new Account();
+        $account = Account::new();
         $account->setLastName('Doe');
         $account->addRole($role);
         $account->setLogin('john');
         $account->setPassword('blabla');
         $account->store();
 
-        $role = new UserRole();
+        $role = UserRole::new();
         $role->setName('Manager');
         $role->appendAccessModule('sword');
         $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
-        $account = new Account();
+        $account = Account::new();
         $account->setLastName('Muster');
         $account->addRole($role);
         $account->setLogin('jane');
         $account->setPassword('fubar');
         $account->store();
 
-        $role = new UserRole();
+        $role = UserRole::new();
         $role->setName('LicenceManager');
         $role->appendAccessModule('licences');
         $role->store();
 
-        $account = new Account();
+        $account = Account::new();
         $account->setLastName('Schmidt');
         $account->addRole($role);
         $account->setLogin('jeff');
@@ -105,7 +103,7 @@ class PermissionTest extends TestCase
 
         $account = $accounts[0];
 
-        $this->assertInstanceOf(Account::class, $account);
+        $this->assertInstanceOf(AccountInterface::class, $account);
         $this->assertEquals('john', $account->getLogin());
     }
 
@@ -125,7 +123,7 @@ class PermissionTest extends TestCase
         $expectedAccounts = ['john' => 'john', 'jane' => 'jane'];
 
         foreach ($accounts as $account) {
-            $this->assertInstanceOf(Account::class, $account);
+            $this->assertInstanceOf(AccountInterface::class, $account);
             $login = $account->getLogin();
             $this->assertContains($login, $expectedAccounts);
             unset($expectedAccounts[$login]); // every account just once

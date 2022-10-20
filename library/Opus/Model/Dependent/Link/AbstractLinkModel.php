@@ -25,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Dependent\Link;
 
+use Opus\Common\Model\LinkModelInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractModel;
 use Opus\Model\Dependent\AbstractDependentModel;
@@ -46,7 +47,7 @@ use function substr;
  *
  * phpcs:disable
  */
-abstract class AbstractLinkModel extends AbstractDependentModel
+abstract class AbstractLinkModel extends AbstractDependentModel implements LinkModelInterface
 {
     /**
      * The model to link to.

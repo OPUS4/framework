@@ -25,28 +25,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Job
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  */
 
 namespace OpusTest\Job;
 
+use Opus\Common\Model\NotFoundException;
 use Opus\Document;
 use Opus\Job;
 use Opus\Job\Runner;
-use Opus\Model\NotFoundException;
 use OpusTest\TestAsset\TestCase;
 
 /**
  * Test cases for running Opus\Jobs.
- *
- * @category    Tests
- * @package     Opus\Job
- * @group       RunnerTest
  */
 class RunnerTest extends TestCase
 {

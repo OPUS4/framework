@@ -25,39 +25,27 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Gunar Maiwald <maiwald@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Sascha Szott <szott@zib.de>
  */
 
 namespace Opus;
 
+use Opus\Common\EnrichmentInterface;
+use Opus\Common\EnrichmentKey;
+use Opus\Common\EnrichmentRepositoryInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
+use function func_get_args;
+
 /**
  * Domain model for enrichments in the Opus framework
- *
- * @uses        \Opus\Model\Abstract
- *
- * @category    Framework
- * @package     Opus
- * @method void setKeyName(string $name)
- * @method string getKeyName()
- * @method void setValue(string $value)
- * @method string getValue()
  */
-class Enrichment extends AbstractDependentModel
+class Enrichment extends AbstractDependentModel implements EnrichmentInterface, EnrichmentRepositoryInterface
 {
     /**
      * Primary key of the parent model.
@@ -117,7 +105,7 @@ class Enrichment extends AbstractDependentModel
      *
      * @return string[]
      */
-    public static function getAllUsedEnrichmentKeyNames()
+    public function getAllUsedEnrichmentKeyNames()
     {
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
         $db     = $table->getAdapter();
@@ -126,5 +114,39 @@ class Enrichment extends AbstractDependentModel
         $select->columns('key_name');
         $select->distinct(true); // we do not want to consider keys more than once
         return $db->fetchCol($select);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getKeyName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $keyName
+     * @return $this
+     */
+    public function setKeyName($keyName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getValue()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $value
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

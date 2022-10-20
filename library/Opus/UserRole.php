@@ -26,37 +26,26 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
+use Opus\Common\Model\ModelException;
+use Opus\Common\UserRoleInterface;
+use Opus\Common\UserRoleRepositoryInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 
 use function count;
+use function func_get_args;
 
 /**
  * Domain model for licences in the Opus framework
- *
- * @uses        \Opus\Model\AbstractModel
- *
- * @category    Framework
- * @package     Opus
- * @method string getName()
- * @method void setName($name)
- *
- * phpcs:disable
  */
-class UserRole extends AbstractDb
+class UserRole extends AbstractDb implements UserRoleInterface, UserRoleRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -70,14 +59,14 @@ class UserRole extends AbstractDb
      *
      * @var array
      */
-    private $_pendingAccessResources = [];
+    private $pendingAccessResources = [];
 
     /**
      * Retrieve all Opus\Db\UserRoles instances from the database.
      *
      * @return array Array of Opus\UserRole objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, Db\UserRoles::class);
     }
@@ -98,12 +87,12 @@ class UserRole extends AbstractDb
      * null if name is null *or* nothing found.
      *
      * @param  null|string $name
-     * @return UserRole
+     * @return self|null
      */
-    public static function fetchByName($name = null)
+    public function fetchByName($name = null)
     {
         if (false === isset($name)) {
-            return;
+            return null;
         }
 
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
@@ -114,13 +103,13 @@ class UserRole extends AbstractDb
             return new UserRole($row);
         }
 
-        return;
+        return null;
     }
 
     /**
      * Returns name.
      *
-     * @see \Opus\Model\AbstractModel#getDisplayName()
+     * @return string|null
      */
     public function getDisplayName()
     {
@@ -135,7 +124,7 @@ class UserRole extends AbstractDb
     public function getAllAccountIds()
     {
         if ($this->isNewRecord()) {
-            return;
+            return [];
         }
 
         $table  = TableGateway::getInstance(Db\LinkAccountsRoles::class);
@@ -154,7 +143,7 @@ class UserRole extends AbstractDb
     public function getAllAccountNames()
     {
         if ($this->isNewRecord()) {
-            return;
+            return [];
         }
 
         $table   = TableGateway::getInstance(Db\LinkAccountsRoles::class);
@@ -187,12 +176,12 @@ class UserRole extends AbstractDb
     /**
      * Append (document_id) to list of allowed ressources.
      *
-     * @param string $documentId
+     * @param int $documentId
      * @return $this Provide fluent interface.
      */
     public function appendAccessDocument($documentId)
     {
-        $this->_pendingAccessResources[] = [
+        $this->pendingAccessResources[] = [
             'append',
             'document_id',
             $documentId,
@@ -203,12 +192,12 @@ class UserRole extends AbstractDb
     /**
      * Remove (document_id) from list of allowed ressources.
      *
-     * @param string $documentId
+     * @param int $documentId
      * @return $this Provide fluent interface.
      */
     public function removeAccessDocument($documentId)
     {
-        $this->_pendingAccessResources[] = [
+        $this->pendingAccessResources[] = [
             'remove',
             'document_id',
             $documentId,
@@ -240,7 +229,7 @@ class UserRole extends AbstractDb
      */
     public function appendAccessFile($fileId)
     {
-        $this->_pendingAccessResources[] = [
+        $this->pendingAccessResources[] = [
             'append',
             'file_id',
             $fileId,
@@ -256,7 +245,7 @@ class UserRole extends AbstractDb
      */
     public function removeAccessFile($fileId)
     {
-        $this->_pendingAccessResources[] = [
+        $this->pendingAccessResources[] = [
             'remove',
             'file_id',
             $fileId,
@@ -284,7 +273,7 @@ class UserRole extends AbstractDb
      */
     public function appendAccessModule($moduleName)
     {
-        $this->_pendingAccessResources[] = [
+        $this->pendingAccessResources[] = [
             'append',
             'module_name',
             $moduleName,
@@ -300,7 +289,7 @@ class UserRole extends AbstractDb
      */
     public function removeAccessModule($moduleName)
     {
-        $this->_pendingAccessResources[] = [
+        $this->pendingAccessResources[] = [
             'remove',
             'module_name',
             $moduleName,
@@ -311,7 +300,7 @@ class UserRole extends AbstractDb
     /**
      * Flush all pending AccessModule actions.
      */
-    private function _flushAccessResourceQueue()
+    private function flushAccessResourceQueue()
     {
         $resourceTables = [
             'document_id' => TableGateway::getInstance(Db\AccessDocuments::class),
@@ -320,7 +309,7 @@ class UserRole extends AbstractDb
         ];
         $roleId         = $this->getId();
 
-        foreach ($this->_pendingAccessResources as $entry) {
+        foreach ($this->pendingAccessResources as $entry) {
             $action       = $entry[0];
             $resourceName = $entry[1];
             $resourceId   = $entry[2];
@@ -337,32 +326,55 @@ class UserRole extends AbstractDb
                 $table->deleteWhereArray($data);
             }
         }
-        $this->_pendingAccessResources = [];
+        $this->pendingAccessResources = [];
     }
 
     /**
      * Overriding storing of internal fields: This is the place where we flush
      * the queued data.
+     *
+     * phpcs:disabled
      */
     protected function _postStoreInternalFields()
     {
         parent::_postStoreInternalFields();
 
-        $this->_flushAccessResourceQueue();
+        $this->flushAccessResourceQueue();
     }
 
     /**
      * Overriding isModified() method.  Returning TRUE if the pending queues
      * have been changed, otherwise call parent::isModified().
      *
+     * phpcs:enabled
+     *
      * @return bool
      */
     public function isModified()
     {
-        if (count($this->_pendingAccessResources) > 0) {
+        if (count($this->pendingAccessResources) > 0) {
             return true;
         }
 
         return parent::isModified();
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     * @throws ModelException
+     */
+    public function setName($name)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

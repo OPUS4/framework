@@ -25,23 +25,19 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model\Xml
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model\Xml;
 
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
+use Opus\Common\Model\FieldInterface;
 use Opus\Common\Model\ModelException;
-use Opus\Model\AbstractModel;
-use Opus\Model\Field;
+use Opus\Common\Model\ModelInterface;
 
 use function get_class;
 use function htmlspecialchars;
@@ -55,18 +51,22 @@ use const XML_ELEMENT_NODE;
  * Simple fields are expressed as child elements.
  *
  * TODO Version2 does not seem to be used - What was the intend?
- *
- * phpcs:disable
  */
-class Version2 extends VersionAbstract
+class Version2 extends AbstractVersion
 {
     public function __construct()
     {
-        $this->_version = '2.0';
+        $this->version = '2.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Field $field)
+    /**
+     * @param DOMDocument    $dom
+     * @param DOMNode        $rootNode
+     * @param FieldInterface $field
+     * @throws DOMException
+     */
+    public function mapSimpleField($dom, $rootNode, $field)
     {
         $fieldName   = $field->getName();
         $fieldValues = $this->getFieldValues($field);
@@ -83,11 +83,11 @@ class Version2 extends VersionAbstract
     /**
      * Recursively populates model's fields from an Xml DomElement.
      *
-     * @param  AbstractModel $model   The model to be populated.
-     * @param  DOMElement    $element The DomElement holding the field names and values.
-     * @return AbstractModel  $model   The populated model.
+     * @param  ModelInterface $model   The model to be populated.
+     * @param  DOMElement     $element The DomElement holding the field names and values.
+     * @return ModelInterface
      */
-    protected function _populateModelFromXml(AbstractModel $model, DOMElement $element)
+    protected function populateModelFromXml($model, $element)
     {
         $fieldList = $model->describe();
 
@@ -119,17 +119,17 @@ class Version2 extends VersionAbstract
                 // neither XML_ELEMENT_TEXT nor XML_ELEMENT_NODE
                 if (true === $fieldNode->hasChildNodes()) {
                     if (null !== $modelclass) {
-                        $submodel = $this->_createModelFromElement($fieldNode, $modelclass);
+                        $submodel = $this->createModelFromElement($fieldNode, $modelclass);
                         $callname = $accessor . $fieldName;
                         // TODO better handling of accessor methods
                         if ('add' === $accessor) {
                             // if we add values then we need to do this on the returned model
                             $tempModel = $model->$callname($submodel);
-                            $this->_populateModelFromXml($tempModel, $fieldNode);
+                            $this->populateModelFromXml($tempModel, $fieldNode);
                         } else {
                             // setting of values should be done on submodel
                             $model->$callname($submodel);
-                            $this->_populateModelFromXml($submodel, $fieldNode);
+                            $this->populateModelFromXml($submodel, $fieldNode);
                         }
                     } else {
                         $callname = $accessor . $fieldName;
@@ -146,9 +146,11 @@ class Version2 extends VersionAbstract
      * (non-PHPdoc)
      *
      * @see \Opus\Model\Xml\StrategyInterface#updateFromXml()
+     *
+     * @param string $xml
      */
     public function updateFromXml($xml)
     {
-        throw new ModelException('Method not implemented for strategy Opus\Model\Xml\Version2.');
+        throw new ModelException('Method not implemented for strategy ' . self::class);
     }
 }

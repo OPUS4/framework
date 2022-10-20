@@ -25,20 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Sascha Szott <szott@zib.de>
- * @author      Susanne Gottwald <gottwald@zib.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
 use Opus\Common\Config;
+use Opus\Common\SeriesInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
@@ -57,20 +51,9 @@ use const FILTER_VALIDATE_BOOLEAN;
 /**
  * Domain model for sets in the Opus framework
  *
- * @uses        \Opus\Model\AbstractModel
- *
- * @method void setTitle(string $title)
- * @method string getTitle()
- * @method void setInfobox(string $info)
- * @method string getInfobox()
- * @method void setVisible(boolean $visible)
- * @method boolean getVisible()
- * @method void setSortOrder(integer $pos)
- * @method integer getSortOrder()
- *
  * phpcs:disable
  */
-class Series extends AbstractDb
+class Series extends AbstractDb implements SeriesInterface
 {
     /**
      * Specify then table gateway.
@@ -137,7 +120,7 @@ class Series extends AbstractDb
      *
      * @return array Array of Opus\Series objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         $config = Config::get();
 
@@ -155,7 +138,7 @@ class Series extends AbstractDb
      *
      * @return array Array of Opus\Series objects sorted by sort_order in ascending order.
      */
-    public static function getAllSortedBySortKey()
+    public function getAllSortedBySortKey()
     {
         $config = Config::get();
 
@@ -179,7 +162,7 @@ class Series extends AbstractDb
      *
      * TODO return int
      */
-    public static function getMaxSortKey()
+    public function getMaxSortKey()
     {
         $db  = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchOne('SELECT MAX(sort_order) FROM document_series');
@@ -287,5 +270,73 @@ class Series extends AbstractDb
     public function getDisplayName()
     {
         return parent::getTitle();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTitle()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $title
+     * @return $this
+     */
+    public function setTitle($title)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInfobox()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $info
+     * @return $this
+     */
+    public function setInfobox($info)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return bool
+     */
+    public function getVisible()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param bool $visible
+     * @return $this
+     */
+    public function setVisible($visible)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return int
+     */
+    public function getSortOrder()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param int $pos
+     * @return $this
+     */
+    public function setSortOrder($pos)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

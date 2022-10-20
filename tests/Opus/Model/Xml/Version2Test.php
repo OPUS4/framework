@@ -25,14 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Model\Xml;
@@ -236,8 +230,6 @@ class Version2Test extends TestCase
      */
     public function testDeserializingComplexModel()
     {
-        $this->markTestIncomplete();
-
         $xml = '<?xml version="1.0"?>
             <Opus version="2.0">
               <Opus_Document>
@@ -245,6 +237,11 @@ class Version2Test extends TestCase
                   <Value>testtitel</Value>
                   <Language>ger</Language>
                 </TitleMain>
+                <CompletedDate>
+                    <Year>2020</Year>
+                    <Month>05</Month>
+                    <Day>19</Day>
+                </CompletedDate>
                 <PersonAuthor>
                   <AcademicTitle/>
                   <FirstName>Bob</FirstName>
@@ -280,19 +277,17 @@ class Version2Test extends TestCase
                   <DateOfBirth/>
                   <PlaceOfBirth/>
                 </PersonReferee>
-                <DateAccepted>2008-10-07+02:00</DateAccepted>
                 <Type>diploma_thesis</Type>
                 <Language/>
                 <Identifier>
                   <Type>other</Type>
                   <Value>urn:nbn:de:bsz:14-ds-1224410027677-29617</Value>
                 </Identifier>
-                <VgWortOpenKey/>
                 <File>
                   <PathName>1224410027677-2961.pdf</PathName>
                   <SortOrder/>
                   <Label>Volltextdokument (PDF)</Label>
-                  <FileType/>
+                  <MimeType/>
                   <MimeType>application/pdf</MimeType>
                   <Language/>
                   <FileSize>26298</FileSize>
@@ -311,5 +306,63 @@ class Version2Test extends TestCase
         $omx->setStrategy(new Version2());
         // build a model from xml
         $model = $omx->getModel();
+
+        $data = $model->toArray();
+
+        $this->assertEquals(
+            [
+                [
+                    'Value'    => 'testtitel',
+                    'Language' => 'ger',
+                    'Type'     => null,
+                ],
+            ],
+            $data['TitleMain']
+        );
+
+        $this->assertEquals(
+            [
+                'Year'          => '2020',
+                'Month'         => '05',
+                'Day'           => '19',
+                'Hour'          => null,
+                'Minute'        => null,
+                'Second'        => null,
+                'Timezone'      => null,
+                'UnixTimestamp' => 1589846400,
+            ],
+            $data['CompletedDate']
+        );
+
+        // TODO add more checks
+    }
+
+    public function testDateXml()
+    {
+        $document = Document::new();
+        $title    = Title::new();
+        $title->setLanguage('eng');
+        $title->setValue('Document Title');
+        $document->addTitleMain($title);
+        $document->setCompletedDate('2022-05-19');
+        $document->setBelongsToBibliography(true);
+        $docId = Document::get($document->store());
+
+        $xml = new Xml();
+        $xml->setStrategy(new Version2());
+        $xml->setModel($document);
+        $dom = $xml->getDomDocument();
+
+        $output = $dom->saveXml();
+
+        $elements = $dom->getElementsByTagName('CompletedDate');
+        $this->assertCount(1, $elements);
+
+        $xpath = $this->prepareXpathFromResultString($output);
+        $this->assertEquals('2022', $xpath->query('//CompletedDate/Year')->item(0)->textContent);
+        $this->assertEquals('05', $xpath->query('//CompletedDate/Month')->item(0)->textContent);
+        $this->assertEquals('19', $xpath->query('//CompletedDate/Day')->item(0)->textContent);
+        $this->assertEquals('', $xpath->query('//CompletedDate/Hour')->item(0)->textContent);
+        $this->assertEquals('1', $xpath->query('//BelongsToBibliography')->item(0)->textContent);
     }
 }

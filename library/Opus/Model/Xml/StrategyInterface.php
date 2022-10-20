@@ -27,20 +27,18 @@
  *
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  */
 
 namespace Opus\Model\Xml;
 
 use DOMDocument;
 use Opus\Common\Model\ModelException;
-use Opus\Model\AbstractModel;
+use Opus\Common\Model\ModelInterface;
 
 /**
  * General interface for Opus XML representations.
+ *
+ * TODO rename, I think interface applies Strategy pattern, but name should be more specific
  */
 interface StrategyInterface
 {
@@ -58,7 +56,7 @@ interface StrategyInterface
      * a new model is created by unserialising it from the XML data.
      *
      * @throws ModelException If an error occured during deserialisation.
-     * @return AbstractModel Deserialised or previously set Model.
+     * @return ModelInterface Deserialised or previously set Model.
      */
     public function getModel();
 

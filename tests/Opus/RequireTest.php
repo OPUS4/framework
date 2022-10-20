@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
@@ -42,9 +37,7 @@ use Opus\Common\Storage\File as OpusStorageFile;
 use Opus\Common\Validate\MateDecorator;
 use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Identifier\Urn;
-use Opus\Model\DateField;
 use Opus\Model\Field;
-use Opus\Model\UnixTimestampField;
 use Opus\Security\Realm;
 use Opus\Statistic\LocalCounter;
 use Opus\Translate\DatabaseAdapter;
@@ -117,8 +110,6 @@ class RequireTest extends TestCase
             Urn::class,
             Realm::class,
             Field::class,
-            UnixTimestampField::class,
-            DateField::class,
             OpusStorageFile::class,
             DatabaseAdapter::class,
             DataCiteXmlGenerationException::class,

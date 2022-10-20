@@ -26,13 +26,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
 use Exception;
+use Opus\Common\CollectionRoleInterface;
+use Opus\Common\CollectionRoleRepositoryInterface;
 use Opus\Common\Validate\CollectionRoleName;
 use Opus\Db\Collections;
 use Opus\Db\TableGateway;
@@ -96,7 +98,7 @@ use const PHP_INT_MAX;
  *
  * phpcs:disable
  */
-class CollectionRole extends AbstractDb
+class CollectionRole extends AbstractDb implements CollectionRoleInterface, CollectionRoleRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -215,7 +217,7 @@ class CollectionRole extends AbstractDb
     /**
      * Fixes ordering of all CollectionRoles by re-numbering position columns.
      */
-    public static function fixPositions()
+    public function fixPositions()
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
         $db    = $table->getAdapter();
@@ -227,8 +229,6 @@ class CollectionRole extends AbstractDb
                 . ' ORDER BY position, id ASC;';
         // echo "reorder: $reorder_query\n";
         $db->query($reorderQuery);
-
-        return;
     }
 
     /**
@@ -236,7 +236,7 @@ class CollectionRole extends AbstractDb
      *
      * @return int Highest used position number for collection roles
      */
-    public static function getLastPosition()
+    public function getLastPosition()
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
         $db    = $table->getAdapter();
@@ -276,7 +276,7 @@ class CollectionRole extends AbstractDb
         // TODO: This reorder-query is only nesseccary, if someone destroyed the
         // TODO: strict ordering.  If the table is strictly ordered, then the
         // TODO: code below will preserve this property.
-        self::fixPositions();
+        $this->fixPositions();
 
         // Find the current position of the current row in the new ordering.
         // Case 1: If row is new, shift all nodes plus one.
@@ -350,12 +350,12 @@ class CollectionRole extends AbstractDb
      * Returns null if name is null *or* nothing found.
      *
      * @param null|string $name Name of collection role to look for.
-     * @return CollectionRole
+     * @return CollectionRole|null
      */
-    public static function fetchByName($name = null)
+    public function fetchByName($name = null)
     {
         if (false === isset($name)) {
-            return;
+            return null;
         }
 
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
@@ -366,22 +366,22 @@ class CollectionRole extends AbstractDb
             return new CollectionRole($row);
         }
 
-        return;
+        return null;
     }
 
     /**
      * ALTERNATE CONSTRUCTOR: Retrieve Opus\CollectionRole instance by oaiName.
      * Returns null if name is null *or* nothing found.
      *
-     * TODO: Return Opus\Model\NotFoundException?
+     * TODO: Return Opus\Common\Model\NotFoundException?
      *
      * @param null|string $oaiName OaiName of collection role to look for.
-     * @return CollectionRole
+     * @return CollectionRole|null
      */
-    public static function fetchByOaiName($oaiName = null)
+    public function fetchByOaiName($oaiName = null)
     {
         if (false === isset($oaiName)) {
-            return;
+            return null;
         }
 
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
@@ -392,7 +392,7 @@ class CollectionRole extends AbstractDb
             return new CollectionRole($row);
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -402,7 +402,7 @@ class CollectionRole extends AbstractDb
      *
      * TODO: Modify self::getAllFrom to take parameters.
      */
-    public static function fetchAll()
+    public function fetchAll()
     {
         // $roles = self::getAllFrom('Opus\CollectionRole', self::$tableGatewayClass);
         $table = TableGateway::getInstance(self::$tableGatewayClass);
@@ -419,7 +419,7 @@ class CollectionRole extends AbstractDb
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
      * TODO: Code duplication from/in Opus\Collection!
      */
-    public static function createObjects($array)
+    protected static function createObjects($array)
     {
         $results = [];
 
@@ -505,7 +505,7 @@ class CollectionRole extends AbstractDb
      *
      * @return array Array-hash with (id, name, oai_name, count)
      */
-    public static function fetchAllOaiEnabledRoles()
+    public function fetchAllOaiEnabledRoles()
     {
         $select = "SELECT r.id, r.name, r.oai_name,
                           count(DISTINCT l.document_id) AS count
@@ -527,12 +527,12 @@ class CollectionRole extends AbstractDb
     }
 
     /**
-     * Return the ids of documents in an oai set.
+     * Checks if set contains documents.
      *
      * @see modules/oai/controllers/IndexController.php
      *
      * @param  string $oaiSetName The name of the oai set.
-     * @return array The ids of the documents in the set.
+     * @return bool True if set contains documents
      *
      * FIXME: Need Collection constructor-by-oaiSetName.
      * FIXME: Check OAI set names for invalid characters (i.e. ':')
@@ -588,13 +588,13 @@ class CollectionRole extends AbstractDb
      * FIXME: Don't use internal knowledge from database.
      * FIXME: Make this method non-static.
      */
-    public static function getDocumentIdsInSet($oaiSetName)
+    public function getDocumentIdsInSet($oaiSetName)
     {
         $colonPos   = strrpos($oaiSetName, ':');
         $oaiPrefix  = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
 
-        $role = self::fetchByOaiName($oaiPrefix);
+        $role = $this->fetchByOaiName($oaiPrefix);
         if ($oaiPrefix === null) {
             throw new Exception("Given OAI prefix does not exist in roles.");
         }

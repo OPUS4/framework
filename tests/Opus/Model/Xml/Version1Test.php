@@ -25,25 +25,22 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Model\Xml;
 
 use DOMDocument;
 use Opus\Common\Model\ModelException;
+use Opus\Document;
 use Opus\Model\AbstractModel;
 use Opus\Model\Field;
 use Opus\Model\Filter;
 use Opus\Model\Xml;
 use Opus\Model\Xml\Version1;
-use Opus\Uri\ResolverInterface;
+use Opus\Model\Xml\XlinkResolverInterface;
+use Opus\Title;
 use OpusTest\Model\Mock\AbstractModelMock;
 use OpusTest\Model\Mock\AbstractModelWithoutIdMock;
 use OpusTest\Model\Mock\ModelAbstractDbMock;
@@ -742,7 +739,7 @@ class Version1Test extends TestCase
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels()
     {
-        $mockResolver = $this->getMockBuilder(ResolverInterface::class)
+        $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)
             ->setProxyTarget(['get'])
             ->getMock();
 
@@ -790,7 +787,7 @@ class Version1Test extends TestCase
         $mockModel = new AbstractModelMock();
         $mockModel->setValue('after');
 
-        $mockResolver = $this->getMockBuilder(ResolverInterface::class)
+        $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)
             ->setMethods(['get'])
             ->getMock();
 
@@ -941,5 +938,43 @@ class Version1Test extends TestCase
         $this->assertFalse($filterDom->hasAttribute('Id'), 'unexpected attribute Id');
         $this->assertTrue($filterDom->hasAttribute('Value'), 'missing attribute Value');
         $this->assertEquals("test", $filterDom->getAttribute('Value'), 'Value != "test"');
+    }
+
+    public function testDateXml()
+    {
+        $document = Document::new();
+        $title    = Title::new();
+        $title->setLanguage('eng');
+        $title->setValue('Document Title');
+        $document->addTitleMain($title);
+        $document->setCompletedDate('2022-05-19');
+        $docId = Document::get($document->store());
+
+        $xml = new Xml();
+        $xml->setStrategy(new Version1());
+        $xml->setModel($document);
+        $dom = $xml->getDomDocument();
+
+        $output = $dom->saveXml();
+
+        $elements = $dom->getElementsByTagName('CompletedDate');
+        $this->assertCount(1, $elements);
+
+        $completedDate = $elements->item(0);
+        $this->assertTrue($completedDate->hasAttribute('Year'));
+        $this->assertEquals('2022', $completedDate->attributes->getNamedItem('Year')->nodeValue);
+        $this->assertTrue($completedDate->hasAttribute('Month'));
+        $this->assertEquals('05', $completedDate->attributes->getNamedItem('Month')->nodeValue);
+        $this->assertTrue($completedDate->hasAttribute('Day'));
+        $this->assertEquals('19', $completedDate->attributes->getNamedItem('Day')->nodeValue);
+
+        $this->assertTrue($completedDate->hasAttribute('Hour'));
+        $this->assertEquals('', $completedDate->attributes->getNamedItem('Hour')->nodeValue);
+        $this->assertTrue($completedDate->hasAttribute('Minute'));
+        $this->assertEquals('', $completedDate->attributes->getNamedItem('Minute')->nodeValue);
+
+        $this->assertTrue($completedDate->hasAttribute('Second'));
+        $this->assertTrue($completedDate->hasAttribute('Timezone'));
+        $this->assertTrue($completedDate->hasAttribute('UnixTimestamp'));
     }
 }

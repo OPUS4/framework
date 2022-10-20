@@ -25,20 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace Opus\Model\Xml;
 
 use DOMDocument;
-use Opus\Model\AbstractModel;
-use Opus\Uri\ResolverInterface;
+use Opus\Common\Model\ModelInterface;
 
 /**
  * Simple configuration object.
@@ -48,7 +42,7 @@ class Conf
     /**
      * Holds the current model either directly set or deserialized from XML.
      *
-     * @var AbstractModel
+     * @var ModelInterface
      */
     public $model;
 
@@ -83,7 +77,7 @@ class Conf
     /**
      * Holds Resolver instance to get contents of xlink referenced resources.
      *
-     * @var ResolverInterface
+     * @var XlinkResolverInterface
      */
     public $xlinkResolver;
 

@@ -27,15 +27,11 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Tests
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Model\Dependent\Link;
 
-use Opus\Date;
+use Opus\Common\Date;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Person;
 use OpusTest\TestAsset\TestCase;

@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,6 +36,8 @@ use InvalidArgumentException;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\NotFoundException;
+use Opus\Common\Model\PersistableInterface;
 use Opus\Common\Model\PluginsTrait;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
@@ -67,7 +69,7 @@ use function trim;
  *
  * phpcs:disable
  */
-abstract class AbstractDb extends AbstractModel implements ModificationTrackingInterface, ModelInterface
+abstract class AbstractDb extends AbstractModel implements ModificationTrackingInterface, ModelInterface, PersistableInterface
 {
     use DatabaseTrait;
     use PluginsTrait;
@@ -467,6 +469,8 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
     /**
      * @param string $fieldname Field name in camel case
      * @return string Column name with case-change replaced by underscores "_"
+     *
+     * TODO redundant in new DbFieldDescriptor class
      */
     public static function convertFieldnameToColumn($fieldname)
     {
@@ -769,28 +773,6 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
         }
 
         return $value;
-    }
-
-    /**
-     * Returns maximal length for field.
-     *
-     * @param $name
-     */
-    public static function getFieldMaxLength($name)
-    {
-        $column = self::convertFieldnameToColumn($name);
-
-        $table = TableGateway::getInstance(self::getTableGatewayClass());
-
-        $metadata = $table->info();
-
-        if (isset($metadata['metadata'][$column]['LENGTH'])) {
-            return $metadata['metadata'][$column]['LENGTH'];
-        } else {
-            $class = static::class;
-            Log::get()->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
-            return null;
-        }
     }
 
     /**

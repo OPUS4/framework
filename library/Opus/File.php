@@ -25,20 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  */
 
 namespace Opus;
 
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\Date;
+use Opus\Common\FileInterface;
+use Opus\Common\FileRepositoryInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Storage\FileAccessException;
 use Opus\Common\Storage\FileNotFoundException;
@@ -65,17 +62,9 @@ use const FILTER_VALIDATE_BOOLEAN;
  * calculations. Therefore caching the hashes improves performance. The risk of a file being changed during the
  * existence of an Opus\File object is small.
  *
- * @uses        \Opus\Model\AbstractModel
- *
- * @category    Framework
- * @package     Opus\Model
- * @method boolean getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
- * @method boolean getVisibleInOai()
- * @method string getMimeType() retrieves value of field MimeType
- *
  * phpcs:disable
  */
-class File extends AbstractDependentModel
+class File extends AbstractDependentModel implements FileInterface, FileRepositoryInterface
 {
     /**
      * Plugins to load
@@ -184,7 +173,7 @@ class File extends AbstractDependentModel
                 ->addField($sortOrder);
     }
 
-    public static function fetchByDocIdPathName($docId, $pathName)
+    public function fetchByDocIdPathName($docId, $pathName)
     {
         $files  = TableGateway::getInstance(self::$tableGatewayClass);
         $select = $files->select()
@@ -471,5 +460,192 @@ class File extends AbstractDependentModel
     public function getModelType()
     {
         return 'file';
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getComment()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $comment
+     * @return $this
+     */
+    public function setComment($comment)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return int
+     */
+    public function getFileSize()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param int $size
+     * @return $this
+     */
+    public function setFileSize($size)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getHashValue()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $hash
+     * @return $this
+     */
+    public function setHashValue($hash)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabel()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $label
+     * @return $this
+     */
+    public function setLabel($label)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLanguage()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $lang
+     * @return $this
+     */
+    public function setLanguage($lang)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMimeType()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $mimeType
+     * @return $this
+     */
+    public function setMimeType($mimeType)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPathName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $pathName
+     * @return $this
+     */
+    public function setPathName($pathName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return Date|null
+     */
+    public function getServerDateSubmitted()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param Date|null $dateSubmitted
+     * @return $this
+     */
+    public function setServerDateSubmitted($dateSubmitted)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return int
+     */
+    public function getSortOrder()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param int $pos
+     * @return $this
+     */
+    public function setSortOrder($pos)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return bool
+     */
+    public function getVisibleInFrontdoor()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param bool $visible
+     * @return $this
+     */
+    public function setVisibleInFrontdoor($visible)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return bool
+     */
+    public function getVisibleInOai()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param bool $visible
+     * @return $this
+     */
+    public function setVisibleInOai($visible)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

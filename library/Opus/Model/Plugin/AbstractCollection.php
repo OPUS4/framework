@@ -25,15 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus\Model\Plugin;
 
-use Opus\Collection;
+use Opus\Common\CollectionInterface;
+use Opus\Common\Date;
 use Opus\Common\Model\Plugin\AbstractPlugin;
-use Opus\Date;
+use Opus\Common\Repository;
 use Opus\Db\Collections;
 use Opus\Db\TableGateway;
 use Opus\Document;
@@ -49,7 +50,7 @@ abstract class AbstractCollection extends AbstractPlugin
      * make sure documents related to Collection[Role]s in subtree are updated
      * (XML-Cache and server_date_published)
      *
-     * @param Collection $collection Starting point for recursive update to documents
+     * @param CollectionInterface $collection Starting point for recursive update to documents
      */
     protected function updateDocuments($collection)
     {
@@ -73,6 +74,9 @@ abstract class AbstractCollection extends AbstractPlugin
         $date = new Date();
         $date->setNow();
 
-        Document::setServerDateModifiedByIds($date, $documentFinder->ids());
+        Repository::getInstance()->getModelRepository(Document::class)->setServerDateModifiedForDocuments(
+            $date,
+            $documentFinder->ids()
+        );
     }
 }

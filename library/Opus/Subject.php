@@ -25,45 +25,29 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
 use Opus\Common\Config;
+use Opus\Common\SubjectInterface;
+use Opus\Common\SubjectRepositoryInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
+use function func_get_args;
+
 /**
  * Domain model for document subjects in the Opus framework
- *
- * @uses        \Opus\Model\AbstractModel
- *
- * @category    Framework
- * @package     Opus
- * @method void setLanguage(string $lang)
- * @method string getLanguage()
- * @method void setType(string $type)
- * @method string getType()
- * @method void setValue(string $value)
- * @method string getValue()
- * @method void setExternalKey(string $externalKey)
- * @method string getExternalKey()
  */
-class Subject extends AbstractDependentModel
+class Subject extends AbstractDependentModel implements SubjectInterface, SubjectRepositoryInterface
 {
-    const SWD = 'swd';
-
-    const PSYNDEX = 'psyndex';
-
+    const SWD          = 'swd';
+    const PSYNDEX      = 'psyndex';
     const UNCONTROLLED = 'uncontrolled';
 
     /**
@@ -126,7 +110,7 @@ class Subject extends AbstractDependentModel
      * @param int    $limit Maximum number of returned results
      * @return array
      */
-    public static function getMatchingSubjects($term, $type = 'swd', $limit = 20)
+    public function getMatchingSubjects($term, $type = 'swd', $limit = 20)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -159,5 +143,74 @@ class Subject extends AbstractDependentModel
         }
 
         return $values;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getExternalKey()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $externalKey
+     * @return $this
+     */
+    public function setExternalKey($externalKey)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws Common\Model\ModelException
+     */
+    public function getLanguage()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $lang
+     * @return $this
+     */
+    public function setLanguage($lang)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function setType($type)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getValue()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $value
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

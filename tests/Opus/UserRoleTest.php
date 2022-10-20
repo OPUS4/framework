@@ -26,19 +26,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
+use Opus\Common\UserRole;
+use Opus\Common\UserRoleInterface;
 use Opus\Document;
-use Opus\UserRole;
 use OpusTest\TestAsset\TestCase;
 use Zend_Db_Statement_Exception;
 
@@ -48,10 +44,6 @@ use function strlen;
 
 /**
  * Test cases for Opus\UserRole.
- *
- * @package Opus
- * @category Tests
- * @group RoleTests
  */
 class UserRoleTest extends TestCase
 {
@@ -61,7 +53,7 @@ class UserRoleTest extends TestCase
 
         $this->clearTables(false, ['user_roles', 'documents', 'access_documents']);
 
-        $ur = new UserRole();
+        $ur = UserRole::new();
         $ur->setName('unit-test');
         $ur->store();
     }
@@ -84,7 +76,7 @@ class UserRoleTest extends TestCase
     public function testFetchByNameSuccessIfExists()
     {
         $ur = UserRole::fetchByName('unit-test');
-        $this->assertInstanceOf(UserRole::class, $ur);
+        $this->assertInstanceOf(UserRoleInterface::class, $ur);
         $this->assertEquals('unit-test', $ur->getName());
     }
 
@@ -116,7 +108,7 @@ class UserRoleTest extends TestCase
     {
         $ur = UserRole::fetchByName('unit-test');
 
-        $doc   = new Document();
+        $doc   = Document::new();
         $docId = $doc->store();
 
         $ur->appendAccessDocument($docId)->store();
@@ -140,7 +132,7 @@ class UserRoleTest extends TestCase
         } catch (Zend_Db_Statement_Exception $e) {
         }
 
-        $d     = new Document();
+        $d     = Document::new();
         $docId = $d->store();
 
         $ur->appendAccessDocument($docId)->store();

@@ -25,25 +25,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Document\Plugin
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Document\Plugin;
 
 use Opus\Common\Config;
+use Opus\Common\EnrichmentKey;
+use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Doi\DoiManager;
 use Opus\Doi\Generator\DefaultGenerator;
 use Opus\Enrichment;
-use Opus\EnrichmentKey;
-use Opus\Identifier;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -75,7 +70,7 @@ class IdentifierDoiTest extends TestCase
 
     private function setupEnrichmentKey()
     {
-        $enrichmentKey = new EnrichmentKey();
+        $enrichmentKey = EnrichmentKey::new();
         $enrichmentKey->setName(self::ENRICHMENT_KEY_NAME);
         $enrichmentKey->store();
     }
@@ -271,7 +266,7 @@ class IdentifierDoiTest extends TestCase
         $doc = new Document();
         $doc->setServerState('unpublished');
 
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue('1234');
         $dois   = [];

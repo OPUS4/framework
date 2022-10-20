@@ -27,17 +27,13 @@
  *
  * @copyright   Copyright (c) 2020, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Model;
 
 use InvalidArgumentException;
+use Opus\Common\Identifier;
 use Opus\Document;
-use Opus\Identifier;
 use Opus\Model\Properties;
 use Opus\Model\PropertiesException;
 use Opus\Model\UnknownModelTypeException;

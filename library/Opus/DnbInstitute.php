@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,16 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace Opus;
 
+use Opus\Common\DnbInstituteInterface;
+use Opus\Common\DnbInstituteRepositoryInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
@@ -43,30 +41,9 @@ use Zend_Validate_NotEmpty;
 /**
  * Domain model for DnbInstitute in the Opus framework
  *
- * @uses        \Opus\Model\Abstract
- *
- * @category    Framework
- * @package     Opus
- * @method void setName(string $name)
- * @method string getName()
- * @method void setDepartment(string $department)
- * @method string getDepartment()
- * @method void setAddress(string $address)
- * @method string getAddress()
- * @method void setCity(string $city)
- * @method string getCity()
- * @method void setPhone(string $phone)
- * @method string getPhone()
- * @method void setDnbContactId(string $contactId)
- * @method string getDnbContactId()
- * @method void setIsGrantor(boolean $isGrantor)
- * @method boolean getIsGrantor()
- * @method void setIsPublisher(boolean $isPublisher)
- * @method boolean getIsPublisher()
- *
  * phpcs:disable
  */
-class DnbInstitute extends AbstractDb
+class DnbInstitute extends AbstractDb implements DnbInstituteInterface, DnbInstituteRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -80,7 +57,7 @@ class DnbInstitute extends AbstractDb
      *
      * @return array Array of Opus\DnbInstitute objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, Db\DnbInstitutes::class);
     }
@@ -90,7 +67,7 @@ class DnbInstitute extends AbstractDb
      *
      * @return array A list of Opus\DnbInstitutes that act as grantors.
      */
-    public static function getGrantors()
+    public function getGrantors()
     {
         $table  = TableGateway::getInstance(Db\DnbInstitutes::class);
         $select = $table->select()
@@ -99,7 +76,7 @@ class DnbInstitute extends AbstractDb
         $rows   = $table->fetchAll($select);
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new DnbInstitute($row);
+            $result[] = DnbInstitute::get($row);
         }
         return $result;
     }
@@ -109,7 +86,7 @@ class DnbInstitute extends AbstractDb
      *
      * @return array A list of Opus\DnbInstitutes that act as publishers.
      */
-    public static function getPublishers()
+    public function getPublishers()
     {
         $table  = TableGateway::getInstance(Db\DnbInstitutes::class);
         $select = $table->select()
@@ -118,7 +95,7 @@ class DnbInstitute extends AbstractDb
         $rows   = $table->fetchAll($select);
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new DnbInstitute($row);
+            $result[] = DnbInstitute::get($row);
         }
         return $result;
     }
@@ -180,8 +157,6 @@ class DnbInstitute extends AbstractDb
 
     /**
      * Returns name.
-     *
-     * @see \Opus\Model\Abstract#getDisplayName()
      */
     public function getDisplayName()
     {
@@ -204,5 +179,141 @@ class DnbInstitute extends AbstractDb
         $rows = $database->fetchOne($select);
 
         return $rows !== false;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDepartment()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $department
+     * @return $this
+     */
+    public function setDepartment($department)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAddress()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $address
+     * @return $this
+     */
+    public function setAddress($address)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCity()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $city
+     * @return $this
+     */
+    public function setCity($city)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPhone()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $phone
+     * @return $this
+     */
+    public function setPhone($phone)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDnbContactId()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $dnbContactId
+     * @return $this
+     */
+    public function setDnbContactId($dnbContactId)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsGrantor()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param bool $isGrantor
+     * @return $this
+     */
+    public function setIsGrantor($isGrantor)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPublisher()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param bool $isPublisher
+     * @return $this
+     */
+    public function setIsPublisher($isPublisher)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

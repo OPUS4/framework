@@ -25,51 +25,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
-namespace Opus\Model;
+namespace Opus\Model\Xml;
 
 /**
- * phpcs:disable
+ * Interface for classes resolving URIs to concrete content specified by the URI.
+ *
+ * TODO What is this interface for? How could it be used? Use cases?
  */
-class UnixTimestampField extends DateField
+interface XlinkResolverInterface
 {
     /**
-     * Returns UNIX timestamp for Opus\Date, but does not allow setting value.
+     * Get content of a represented resource.
      *
-     * Only return a timestamp if the Opus\Date object is including a time and a timezone. If it is just a date return
-     * null.
-     *
-     * @param null $index
-     * @return mixed|null
+     * @param string $uri The URI pointing to a resource.
+     * @return mixed A representation of the specified resource.
      */
-    public function getValue($index = null)
-    {
-        $timestamp = $this->parent->getTimestamp();
-        if ($timestamp !== null && $timestamp > 0) {
-            return $timestamp;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * UnixTimestamp is an read-only field.
-     *
-     * This does not make sense initially, however the original code was written in a way that setting UnixTimestamp
-     * did not really have an effect. In order to maintain compatibility and support the new functionality of importing
-     * from an Array the field UnixTimestamp cannot be set anymore.
-     *
-     * @param $value
-     * @return Field|void
-     */
-    public function setValue($value)
-    {
-    }
+    public function get($uri);
 }

@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -34,11 +34,9 @@ namespace OpusTest\Model;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\Plugin\AbstractPlugin;
 use Opus\Db\TableGateway;
-use Opus\Document;
 use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\AbstractLinkModel;
 use Opus\Model\Field;
-use Opus\Person;
 use OpusTest\Model\Mock\AbstractDbMock;
 use OpusTest\Model\Mock\AbstractTableProvider;
 use OpusTest\Model\Mock\CheckFieldOrderDummyClass;
@@ -1041,20 +1039,5 @@ class AbstractDbTest extends TestCase
             $this->assertEquals($colname, AbstractDb::convertFieldnameToColumn($fieldname));
             $this->assertEquals($fieldname, AbstractDb::convertColumnToFieldname($colname));
         }
-    }
-
-    public function testGetFieldMaxLength()
-    {
-        $this->assertEquals(191, Person::getFieldMaxLength('LastName'));
-    }
-
-    public function testGetFieldMaxLengthUnknownField()
-    {
-        $this->assertNull(Person::getFieldMaxLength('LastName2'));
-    }
-
-    public function testGetFieldMaxLengthForNumeric()
-    {
-        $this->assertNull(Document::getFieldMaxLength('Id'));
     }
 }

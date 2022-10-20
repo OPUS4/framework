@@ -25,17 +25,14 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest;
 
-use Opus\DnbInstitute;
+use Opus\Common\DnbInstitute;
+use Opus\Common\DnbInstituteInterface;
 use Opus\Document;
 use Opus\Model\DbConstrainViolationException;
 use Opus\Model\DbException;
@@ -47,13 +44,6 @@ use function sleep;
 use function str_repeat;
 use function strlen;
 
-/**
- * Test cases for class Opus\File.
- *
- * @package Opus
- * @category Tests
- * @group DnbInstituteTests
- */
 class DnbInstituteTest extends TestCase
 {
     public function setUp()
@@ -72,7 +62,7 @@ class DnbInstituteTest extends TestCase
         $dnbContactId = 'F1111-1111';
         $isGrantor    = '1';
 
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbInstitute->setName($name)
                 ->setAddress($address)
                 ->setCity($city)
@@ -83,7 +73,7 @@ class DnbInstituteTest extends TestCase
         $id = $dnbInstitute->store();
 
         //load
-        $loadedInstitute = new DnbInstitute($id);
+        $loadedInstitute = DnbInstitute::get($id);
 
         $this->assertEquals($name, $loadedInstitute->getName(), 'Loaded other name, then stored.');
         $this->assertEquals($address, $loadedInstitute->getAddress(), 'Loaded other address, then stored.');
@@ -108,7 +98,7 @@ class DnbInstituteTest extends TestCase
     {
         $dnbInstitutes = [];
         for ($i = 1; $i <= 3; $i++) {
-            $dnbInstitute = new DnbInstitute();
+            $dnbInstitute = DnbInstitute::new();
             $dnbInstitute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
             $dnbInstitute->setCity('Calisota');
             $dnbInstitute->store();
@@ -124,7 +114,7 @@ class DnbInstituteTest extends TestCase
         $publishers = [];
         $grantors   = [];
         for ($i = 1; $i <= 10; $i++) {
-            $dnbInstitute = new DnbInstitute();
+            $dnbInstitute = DnbInstitute::new();
             $dnbInstitute->setName('Forschungsinstitut für Code Coverage Abt. ' . $i);
             $dnbInstitute->setCity('Calisota');
             if (0 === $i % 2) {
@@ -146,7 +136,7 @@ class DnbInstituteTest extends TestCase
      */
     public function testDisplayNameMatchesNameAndDepartmentIfSet()
     {
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbInstitute->setName('MyTestName');
         $this->assertEquals(
             $dnbInstitute->getName(),
@@ -166,7 +156,7 @@ class DnbInstituteTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbId        = $dnbInstitute->setName('Test')
                 ->setCity('Berlin')
                 ->setIsGrantor(1)
@@ -191,14 +181,14 @@ class DnbInstituteTest extends TestCase
      */
     public function testDepartmentIsStored()
     {
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbId        = $dnbInstitute->setName('Foo University')
                 ->setDepartment('Paranormal Research Institute')
                 ->setCity('Berlin')
                 ->setIsGrantor(1)
                 ->store();
 
-        $dnbReloaded = new DnbInstitute($dnbId);
+        $dnbReloaded = DnbInstitute::get($dnbId);
 
         $this->assertEquals('Paranormal Research Institute', $dnbReloaded->getDepartment());
     }
@@ -210,7 +200,7 @@ class DnbInstituteTest extends TestCase
     {
         $fields = ['Address', 'City', 'Phone', 'DnbContactId'];
 
-        $dnbInstitute = new DnbInstitute();
+        $dnbInstitute = DnbInstitute::new();
         $dnbId        = $dnbInstitute->setName('Test')
                 ->setCity('Berlin')
                 ->setIsGrantor(1)
@@ -246,7 +236,7 @@ class DnbInstituteTest extends TestCase
 
     public function testModifyingIsGrantorDoesNotUpdateServerDateModified()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
         $institute->setName('Test')
             ->setCity('Berlin')
             ->setIsGrantor(1)
@@ -272,7 +262,7 @@ class DnbInstituteTest extends TestCase
 
     public function testModifyingIsPublisherDoesNotUpdateServerDateModified()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
         $institute->setName('Test')
             ->setCity('Berlin')
             ->setIsPublisher(1)
@@ -298,7 +288,7 @@ class DnbInstituteTest extends TestCase
 
     public function testToArray()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $institute->setName('Solutions');
         $institute->setDepartment('Big Solutions');
@@ -337,7 +327,7 @@ class DnbInstituteTest extends TestCase
         ]);
 
         $this->assertNotNull($institute);
-        $this->assertInstanceOf(DnbInstitute::class, $institute);
+        $this->assertInstanceOf(DnbInstituteInterface::class, $institute);
 
         $this->assertEquals('Solutions', $institute->getName());
         $this->assertEquals('Big Solutions', $institute->getDepartment());
@@ -351,7 +341,7 @@ class DnbInstituteTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $institute->updateFromArray([
             'Name'         => 'Solutions',
@@ -365,7 +355,7 @@ class DnbInstituteTest extends TestCase
         ]);
 
         $this->assertNotNull($institute);
-        $this->assertInstanceOf(DnbInstitute::class, $institute);
+        $this->assertInstanceOf(DnbInstituteInterface::class, $institute);
 
         $this->assertEquals('Solutions', $institute->getName());
         $this->assertEquals('Big Solutions', $institute->getDepartment());
@@ -379,7 +369,7 @@ class DnbInstituteTest extends TestCase
 
     public function testIsUsed()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $institute->updateFromArray([
             'Name'         => 'Solutions',
@@ -415,7 +405,7 @@ class DnbInstituteTest extends TestCase
 
     public function testName191Chars()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $name = str_repeat('0123456789', 19);
 
@@ -430,14 +420,14 @@ class DnbInstituteTest extends TestCase
 
         $instituteId = $institute->store();
 
-        $institute = new DnbInstitute($instituteId);
+        $institute = DnbInstitute::get($instituteId);
 
         $this->assertEquals($name, $institute->getName());
     }
 
     public function testNameTooLong()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $name = str_repeat('0123456789', 19);
 
@@ -454,14 +444,14 @@ class DnbInstituteTest extends TestCase
 
         $instituteId = $institute->store();
 
-        $institute = new DnbInstitute($instituteId);
+        $institute = DnbInstitute::get($instituteId);
 
         $this->assertEquals($name, $institute->getName());
     }
 
     public function testNameAndDepartmentUnique()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $name  = str_repeat('0123456789', 19);
         $name .= '0';
@@ -480,7 +470,7 @@ class DnbInstituteTest extends TestCase
 
         $instituteId = $institute->store();
 
-        $institute = new DnbInstitute($instituteId);
+        $institute = DnbInstitute::get($instituteId);
 
         $this->assertEquals($name, $institute->getName());
         $this->assertEquals($department, $institute->getDepartment());
@@ -492,7 +482,7 @@ class DnbInstituteTest extends TestCase
         $department  = str_repeat('0123456789', 19);
         $department .= '0';
 
-        $institute2 = new DnbInstitute();
+        $institute2 = DnbInstitute::new();
 
         $institute2->updateFromArray([
             'Name'       => $name,
@@ -511,7 +501,7 @@ class DnbInstituteTest extends TestCase
      */
     public function testNameAndDepartmentUniqueCheckWithLastCharacter()
     {
-        $institute = new DnbInstitute();
+        $institute = DnbInstitute::new();
 
         $name  = str_repeat('0123456789', 19);
         $name .= '0';
@@ -530,7 +520,7 @@ class DnbInstituteTest extends TestCase
 
         $instituteId = $institute->store();
 
-        $institute = new DnbInstitute($instituteId);
+        $institute = DnbInstitute::get($instituteId);
 
         $this->assertEquals($name, $institute->getName());
         $this->assertEquals($department, $institute->getDepartment());
@@ -542,7 +532,7 @@ class DnbInstituteTest extends TestCase
         $department  = str_repeat('0123456789', 19);
         $department .= 'A';
 
-        $institute2 = new DnbInstitute();
+        $institute2 = DnbInstitute::new();
 
         $institute2->updateFromArray([
             'Name'       => $name,

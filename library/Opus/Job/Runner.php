@@ -27,14 +27,13 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
 namespace Opus\Job;
 
 use Exception;
-use Opus\Job;
+use Opus\Common\Job;
+use Opus\Common\JobInterface;
 use Opus\Job\Worker\WorkerInterface;
 use Zend_Log;
 
@@ -48,9 +47,6 @@ use function sleep;
 
 /**
  * Deliver jobs to worker objects.
- *
- * @category    Framework
- * @package     Opus\Job
  */
 class Runner
 {
@@ -161,10 +157,10 @@ class Runner
     /**
      * Execute a job and remove it from the jobs table on success.
      *
-     * @param Job $job Job description model.
+     * @param JobInterface $job Job description model.
      * @return bool Returns true if a job is consumend false if not
      */
-    protected function consume(Job $job)
+    protected function consume($job)
     {
         $label = $job->getLabel();
 

@@ -76,7 +76,10 @@ class LicenceTest extends TestCase
             $lic->setLinkLicence('http://long.org/licence');
             $lic->store();
         }
-        $result = Licence::getAll();
+
+        $licenceRepository = new Licence();
+
+        $result = $licenceRepository->getAll();
         $this->assertEquals(count($lics), count($result), 'Wrong number of objects retrieved.');
     }
 
@@ -178,7 +181,7 @@ class LicenceTest extends TestCase
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = Licence::fetchByName('CC BY 4.0');
+        $licence = $licence->fetchByName('CC BY 4.0');
 
         $this->assertNotNull($licence);
         $this->assertInstanceOf(Licence::class, $licence);
@@ -192,7 +195,7 @@ class LicenceTest extends TestCase
         $licence->setLinkLicence('link');
         $licence->store();
 
-        $licence = Licence::fetchByName('CC BY 3.0');
+        $licence = $licence->fetchByName('CC BY 3.0');
 
         $this->assertNull($licence);
     }

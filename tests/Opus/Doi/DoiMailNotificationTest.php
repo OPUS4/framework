@@ -27,21 +27,17 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Doi
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Doi;
 
 use Opus\Common\Config;
+use Opus\Common\Identifier;
+use Opus\Common\IdentifierInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\Doi\ConfigRecipientProvider;
 use Opus\Doi\DoiMailNotification;
-use Opus\Identifier;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -205,7 +201,7 @@ class DoiMailNotificationTest extends TestCase
     {
         $doc = new Document();
 
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue($doiValue);
         $doc->setIdentifier([$doi]);
@@ -215,7 +211,7 @@ class DoiMailNotificationTest extends TestCase
 
     /**
      * @param int $docId
-     * @return Identifier
+     * @return IdentifierInterface
      * @throws ModelException
      */
     private function getDoi($docId)

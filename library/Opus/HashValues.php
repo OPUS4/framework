@@ -25,16 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  */
 
 namespace Opus;
 
+use Opus\Common\HashValueInterface;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
@@ -42,11 +39,9 @@ use Zend_Validate_NotEmpty;
 /**
  * Domain model for hashvalues in the Opus framework
  *
- * @uses        \Opus\Model\AbstractModel
- *
  * phpcs:disable
  */
-class HashValues extends AbstractDependentModel
+class HashValues extends AbstractDependentModel implements HashValueInterface
 {
     /**
      * Primary key of the parent model.
@@ -124,4 +119,39 @@ class HashValues extends AbstractDependentModel
         // its not a new record, so we can hand over to the parent method
         return parent::getId();
     }
+
+    /**
+     * @return string|null
+     */
+    public function getType()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function setType($type)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getValue()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $value
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
 }

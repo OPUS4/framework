@@ -27,38 +27,23 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  */
 
 namespace Opus;
 
+use Opus\Common\Date;
+use Opus\Common\PatentInterface;
 use Opus\Common\Validate\Year;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
+use function func_get_args;
+
 /**
  * Domain model for patents in the Opus framework
- *
- * @uses        \Opus\Model\Abstract
- *
- * @category    Framework
- * @package     Opus
- * @method void setCountries(string $countries)
- * @method string getCountries()
- * @method void setDateGranted(Date $date)
- * @method Date getDateGranted()
- * @method void setNumber(string $number)
- * @method string getNumber()
- * @method void setYearApplied(integer $year)
- * @method integer getYearApplied()
- * @method void setApplication(string $application)
- * @method string getApplication()
  */
-class Patent extends AbstractDependentModel
+class Patent extends AbstractDependentModel implements PatentInterface
 {
     /**
      * Primary key of the parent model.
@@ -100,5 +85,90 @@ class Patent extends AbstractDependentModel
             ->addField($number)
             ->addField($yearApplied)
             ->addField($application);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCountries()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $countries
+     * @return $this
+     */
+    public function setCountries($countries)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return Date|null
+     */
+    public function getDateGranted()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param Date|null $date
+     * @return $this
+     */
+    public function setDateGranted($date)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNumber()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $number
+     * @return $this
+     */
+    public function setNumber($number)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getYearApplied()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param int $year
+     * @return $this
+     */
+    public function setYearApplied($year)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getApplication()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $application
+     * @return $this
+     */
+    public function setApplication($application)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

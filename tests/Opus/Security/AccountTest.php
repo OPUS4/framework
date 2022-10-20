@@ -25,18 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Security
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Security;
 
-use Opus\Account;
+use Opus\Common\Account;
 use Opus\Db\Accounts;
 use Opus\Db\TableGateway;
 use Opus\Security\SecurityException;
@@ -88,7 +83,7 @@ class AccountTest extends TestCase
      */
     public function testCreate()
     {
-        $account = new Account();
+        $account = Account::new();
     }
 
     /**
@@ -98,7 +93,7 @@ class AccountTest extends TestCase
      */
     public function testSetCredentials()
     {
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('bob')
             ->setPassword('secret');
     }
@@ -108,7 +103,7 @@ class AccountTest extends TestCase
      */
     public function testLoginNameIsSetAfterCreation()
     {
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('bob');
         $this->assertEquals('bob', $account->getLogin(), 'Login returned is not correct.');
     }
@@ -118,7 +113,7 @@ class AccountTest extends TestCase
      */
     public function testRecordExistsAfterCreation()
     {
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('bob');
         $account->setPassword('testpwd');
         $account->store();
@@ -131,10 +126,10 @@ class AccountTest extends TestCase
      */
     public function testCreatingAccountsWithSameLoginThrowsException()
     {
-        $account1 = new Account();
+        $account1 = Account::new();
         $account1->setLogin('bob');
         $account1->setPassword('testpwd');
-        $account2 = new Account();
+        $account2 = Account::new();
         $account2->setLogin('bob');
         $account2->setPassword('testpwd2');
 
@@ -149,7 +144,7 @@ class AccountTest extends TestCase
      */
     public function testCreateAndStoreWithoutLoginThrowsException()
     {
-        $account = new Account();
+        $account = Account::new();
         $this->expectException(SecurityException::class);
         $account->store();
     }
@@ -159,7 +154,7 @@ class AccountTest extends TestCase
      */
     public function testPasswordIsSha1Hashed()
     {
-        $account = new Account();
+        $account = Account::new();
         $account->setLogin('bob')
             ->setPassword('secret');
         $this->assertEquals(sha1('secret'), $account->getPassword(), 'Password hash is invalid.');
@@ -170,9 +165,9 @@ class AccountTest extends TestCase
      */
     public function testFindCreatedAccount()
     {
-        $account1 = new Account();
+        $account1 = Account::new();
         $account1->setLogin('bob')->setPassword('bobbob')->store();
-        $account2 = new Account(null, null, 'bob');
+        $account2 = Account::fetchAccountByLogin('bob');
         $this->assertEquals($account1->getLogin(), $account2->getLogin(), 'Found wrong account object.');
     }
 
@@ -182,10 +177,10 @@ class AccountTest extends TestCase
      */
     public function testChangeLoginNameToAlreadyExistingNameThrowsException()
     {
-        $bob = new Account();
+        $bob = Account::new();
         $bob->setLogin('bob')->setPassword('secret')->store();
 
-        $dave = new Account();
+        $dave = Account::new();
         $dave->setLogin('dave')->setPassword('secret')->store();
 
         $this->expectException(SecurityException::class);
@@ -197,7 +192,7 @@ class AccountTest extends TestCase
      */
     public function testNonAlphaNumericLoginsGetRejected()
     {
-        $dave = new Account();
+        $dave = Account::new();
         $this->expectException(SecurityException::class);
         $dave->setLogin('#~$??!');
     }
@@ -207,10 +202,10 @@ class AccountTest extends TestCase
      */
     public function testRetrieveAccountByLoginName()
     {
-        $bob = new Account();
+        $bob = Account::new();
         $bob->setLogin('bob')->setPassword('secret')->store();
 
-        $result = new Account(null, null, 'bob');
+        $result = Account::fetchAccountByLogin('bob');
         $this->assertEquals($bob->getId(), $result->getId(), 'Retrieved account does not match stored account.');
     }
 
@@ -219,10 +214,10 @@ class AccountTest extends TestCase
      */
     public function testRetrieveAccountByWrongLoginNameThrowsException()
     {
-        $bob = new Account();
+        $bob = Account::new();
         $bob->setLogin('bob')->setPassword('secret')->store();
 
         $this->expectException(SecurityException::class);
-        $result = new Account(null, null, 'bobby');
+        Account::fetchAccountByLogin('bobby');
     }
 }

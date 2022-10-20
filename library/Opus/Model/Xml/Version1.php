@@ -25,25 +25,21 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model\Xml
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Model\Xml;
 
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
-use Opus\Model\AbstractDb;
-use Opus\Model\AbstractModel;
-use Opus\Model\Dependent\Link\AbstractLinkModel;
-use Opus\Model\Field;
+use Opus\Common\Model\FieldInterface;
+use Opus\Common\Model\LinkModelInterface;
+use Opus\Common\Model\ModelException;
+use Opus\Common\Model\ModelInterface;
+use Opus\Common\Model\PersistableInterface;
 use Opus\Model\Filter;
 
 use function array_unique;
@@ -60,18 +56,21 @@ use function str_replace;
  * Simple fields are converted to attributes of element.
  *
  * TODO make XML independent of names of PHP classes
- *
- * phpcs:disable
  */
-class Version1 extends VersionAbstract
+class Version1 extends AbstractVersion
 {
     public function __construct()
     {
-        $this->_version = '1.0';
+        $this->version = '1.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Field $field)
+    /**
+     * @param DOMDocument    $dom
+     * @param DOMNode        $rootNode
+     * @param FieldInterface $field
+     */
+    public function mapSimpleField($dom, $rootNode, $field)
     {
         $fieldName   = $field->getName();
         $fieldValues = $this->getFieldValues($field);
@@ -81,11 +80,18 @@ class Version1 extends VersionAbstract
         $rootNode->setAttribute($fieldName, $fieldValues);
     }
 
-    protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
+    /**
+     * @param DOMDocument $dom
+     * @param string      $fieldName
+     * @param mixed       $value
+     * @return DOMElement|false
+     * @throws DOMException
+     */
+    protected function createFieldElement($dom, $fieldName, $value)
     {
         $childNode = $dom->createElement($fieldName);
-        if ($value instanceof AbstractDb) {
-            if ($value instanceof AbstractLinkModel) {
+        if ($value instanceof PersistableInterface) {
+            if ($value instanceof LinkModelInterface) {
                 $modelId = $value->getLinkedModelId();
             } else {
                 $modelId = $value->getId();
@@ -98,7 +104,14 @@ class Version1 extends VersionAbstract
         return $childNode;
     }
 
-    protected function createModelNode(DOMDocument $dom, AbstractModel $model)
+    /**
+     * @param DOMDocument    $dom
+     * @param ModelInterface $model
+     * @return DOMElement|false
+     * @throws DOMException
+     * @throws ModelException
+     */
+    protected function createModelNode($dom, $model)
     {
         $modelClass = get_class($model);
 
@@ -106,11 +119,11 @@ class Version1 extends VersionAbstract
 
         $childNode = $dom->createElement($modelClass);
 
-        if ($model instanceof AbstractDb) {
+        if ($model instanceof PersistableInterface) {
             $childNode->setAttribute('Id', $model->getId());
         } elseif (
             $model instanceof Filter &&
-            $model->getModel() instanceof AbstractDb
+            $model->getModel() instanceof PersistableInterface
         ) {
             $childNode->setAttribute('Id', $model->getId());
         }
@@ -121,11 +134,11 @@ class Version1 extends VersionAbstract
     /**
      * Recursively populates model's fields from an Xml DomElement.
      *
-     * @param  AbstractModel $model   The model to be populated.
-     * @param  DOMElement    $element The DomElement holding the field names and values.
-     * @return AbstractModel  $model   The populated model.
+     * @param  ModelInterface $model   The model to be populated.
+     * @param  DOMElement     $element The DomElement holding the field names and values.
+     * @return ModelInterface
      */
-    protected function _populateModelFromXml(AbstractModel $model, DOMElement $element)
+    protected function populateModelFromXml($model, $element)
     {
         $fieldList = $model->describe();
 
@@ -154,8 +167,8 @@ class Version1 extends VersionAbstract
                 $modelclass = $model->getField($fieldName)->getValueModelClass();
             }
 
-            $submodel = $this->_createModelFromElement($externalField, $modelclass);
-            $submodel = $this->_populateModelFromXml($submodel, $externalField);
+            $submodel = $this->createModelFromElement($externalField, $modelclass);
+            $submodel = $this->populateModelFromXml($submodel, $externalField);
             $callname = 'add' . $externalField->nodeName;
             $model->$callname($submodel);
         }
@@ -165,11 +178,11 @@ class Version1 extends VersionAbstract
     /**
      * Update a model from a given xml structure.
      *
-     * @param AbstractModel $model   Model for updating.
-     * @param DOMElement    $element Element with new data.
-     * @return AbstractModel
+     * @param ModelInterface $model   Model for updating.
+     * @param DOMElement     $element Element with new data.
+     * @return ModelInterface
      */
-    protected function _updateModelFromXml(AbstractModel $model, DOMElement $element)
+    protected function updateModelFromXml($model, $element)
     {
         $config = $this->getConfig();
         // When xlink:href given use resolver to obtain model
@@ -220,7 +233,7 @@ class Version1 extends VersionAbstract
                 } else {
                     $submodel = $fieldValue[$i];
                 }
-                $subModels[] = $this->_updateModelFromXml($submodel, $domElement);
+                $subModels[] = $this->updateModelFromXml($submodel, $domElement);
                 $i++;
             }
 
@@ -239,6 +252,8 @@ class Version1 extends VersionAbstract
      * (non-PHPdoc)
      *
      * @see \Opus\Model\Xml\StrategyInterface#updateFromXml()
+     *
+     * @param string $xml
      */
     public function updateFromXml($xml)
     {
@@ -248,7 +263,7 @@ class Version1 extends VersionAbstract
             preg_replace('/\\\\/', '_', get_class($config->model))
         )->item(0);
         if (null !== $modelElement) {
-            $this->_updateModelFromXml($config->model, $modelElement);
+            $this->updateModelFromXml($config->model, $modelElement);
         }
     }
 }

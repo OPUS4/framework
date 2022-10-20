@@ -25,31 +25,49 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2022, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Uri
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
-namespace Opus\Uri;
+namespace OpusTest\Db\Model;
 
-/**
- * Interface for classes resolving URIs to concrete content specified by the URI.
- *
- * @category    Framework
- * @package     Opus\Uri
- *
- * TODO NAMESPACE rename class
- */
-interface ResolverInterface
+use Opus\Common\Document;
+use Opus\Common\Person;
+use Opus\Common\UserRole;
+use OpusTest\TestAsset\TestCase;
+
+class DbFieldDescriptorTest extends TestCase
 {
-    /**
-     * Get content of a represented resource.
-     *
-     * @param string $uri The URI pointing to a resource.
-     * @return mixed A representation of the specified resource.
-     */
-    public function get($uri);
+    public function testGetMaxSize()
+    {
+        // TODO does not prove the information came from the datebase
+        //      modify configuration and check if database size is returned nevertheless?
+        $field = UserRole::describeField(UserRole::FIELD_NAME);
+
+        $this->assertEquals(100, $field->getMaxSize());
+    }
+
+    public function testGetMaxSizeForUserRoleName()
+    {
+        $field = UserRole::describeField(UserRole::FIELD_NAME);
+
+        $this->assertEquals(100, $field->getMaxSize());
+    }
+
+    public function testGetFieldMaxLength()
+    {
+        $field = Person::describeField(Person::FIELD_LAST_NAME);
+
+        $this->assertEquals(191, $field->getMaxSize());
+    }
+
+    public function testGetFieldMaxLengthUnknownField()
+    {
+        $this->assertNull(Person::describeField('LastName2'));
+    }
+
+    public function testGetFieldMaxLengthForNumeric()
+    {
+        $this->assertNull(Document::describeField(Document::FIELD_PUBLISHED_YEAR)->getMaxSize());
+    }
 }

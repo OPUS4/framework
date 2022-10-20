@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2014-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
  * @category    Framework
@@ -43,11 +43,17 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\CollectionRole;
 use Opus\Common\Config;
+use Opus\Common\Date;
 use Opus\Common\DocumentInterface;
+use Opus\Common\EnrichmentKey;
+use Opus\Common\Identifier;
+use Opus\Common\IdentifierInterface;
+use Opus\Common\Model\DocumentLifecycleListener;
 use Opus\Common\Model\ModelException;
+use Opus\Common\ServerStateConstantsInterface;
 use Opus\Common\Storage\FileNotFoundException;
-use Opus\Db\TableGateway;
 use Opus\Document\DocumentException;
 use Opus\Identifier\Urn;
 use Opus\Identifier\UUID;
@@ -55,7 +61,6 @@ use Opus\Model\AbstractDb;
 use Opus\Model\Dependent\Link\DocumentDnbInstitute;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
-use Zend_Date;
 
 use function array_filter;
 use function array_key_exists;
@@ -71,7 +76,6 @@ use function is_array;
 use function is_null;
 use function is_numeric;
 use function is_object;
-use function preg_match;
 use function reset;
 use function strtolower;
 use function substr;
@@ -198,21 +202,8 @@ use function usort;
  *
  * phpcs:disable
  */
-class Document extends AbstractDb implements DocumentInterface
+class Document extends AbstractDb implements DocumentInterface, ServerStateConstantsInterface
 {
-    const STATE_DELETED = 'deleted';
-
-    const STATE_INPROGRESS = 'inprogress';
-
-    const STATE_RESTRICTED = 'restricted';
-
-    const STATE_UNPUBLISHED = 'unpublished';
-
-    const STATE_PUBLISHED = 'published';
-
-    const STATE_TEMPORARY = 'temporary';
-
-    const STATE_AUDITED = 'audited';
 
     /**
      * Specify then table gateway.
@@ -238,6 +229,11 @@ class Document extends AbstractDb implements DocumentInterface
     private $oldServerState;
 
     private static $defaultPlugins;
+
+    /**
+     * @var DocumentLifecycleListener
+     */
+    private $documentLifecycleListener = null;
 
     /**
      * Plugins to load
@@ -316,7 +312,7 @@ class Document extends AbstractDb implements DocumentInterface
             'fetch'   => 'lazy',
         ],
         'Identifier'         => [
-            'model' => Identifier::class,
+            'model' => \Opus\Identifier::class,
             'fetch' => 'lazy',
         ],
         'Reference'          => [
@@ -491,6 +487,8 @@ class Document extends AbstractDb implements DocumentInterface
      */
     protected function init()
     {
+        $this->documentLifecycleListener = new DocumentLifecycleListener();
+
         $fields = [
             'BelongsToBibliography',
             'CompletedDate',
@@ -664,366 +662,6 @@ class Document extends AbstractDb implements DocumentInterface
     }
 
     /**
-     * Returns all document that are in a specific server (publication) state.
-     *
-     * @deprecated
-     *
-     * @param  string $state The state to check for.
-     * @throws Exception Thrown if an unknown state is encountered.
-     * @return array The list of documents in the specified state.
-     */
-    public static function getAllByState($state)
-    {
-        $finder = new DocumentFinder();
-        $finder->setServerState($state);
-        return self::getAll($finder->ids());
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order. Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByDoctype($sortReverse = '0')
-    {
-        return self::getAllDocumentsByDoctypeByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state    Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByDoctypeByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByType($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByPubDate($sortReverse = '0')
-    {
-        return self::getAllDocumentsByPubDateByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByPubDateByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByServerDatePublished($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document titles associated with the corresponding
-     * document id.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByAuthors($sortReverse = '0')
-    {
-        return self::getAllDocumentsByAuthorsByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     * This array is sorted by authors (first one only)
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByAuthorsByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByAuthorLastname($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document titles associated with the corresponding
-     * document id.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByTitles($sortReverse = '0')
-    {
-        return self::getAllDocumentsByTitlesByState(null, $sortReverse);
-    }
-
-    /**
-     * Retrieve an array of all document titles of a document in a certain server
-     * (publication) state associated with the corresponding document id.
-     *
-     * @deprecated
-     *
-     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByTitlesByState($state, $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderByTitleMain($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Returns an array of all document ids.
-     *
-     * @deprecated
-     *
-     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array Array of document ids.
-     */
-    public static function getAllIds($sortReverse = '0')
-    {
-        return self::getAllIdsByState(null, $sortReverse);
-    }
-
-    /**
-     * Returns all document that are in a specific server (publication) state.
-     *
-     * @deprecated
-     *
-     * @param string $state Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
-     * @return array The list of documents in the specified state.
-     */
-    public static function getAllIdsByState($state = 'published', $sortReverse = '0')
-    {
-        $finder = new DocumentFinder();
-        if (isset($state)) {
-            $finder->setServerState($state);
-        }
-        $finder->orderById($sortReverse != 1);
-        return $finder->ids();
-    }
-
-    /**
-     * Retrieve an array of all document_id titles associated with the given
-     * (identifier, value)
-     *
-     * @deprecated
-     *
-     * @param string   $value value of the identifer that should be queried in DB
-     * @param string [ $type] optional string describing the type of identifier (default is urn)
-     * @return array array with all ids of the entries.
-     */
-    public static function getDocumentByIdentifier($value, $type = 'urn')
-    {
-        $finder = new DocumentFinder();
-        $finder->setIdentifierTypeValue($type, $value);
-        return $finder->ids();
-    }
-
-    /**
-     * Returns all documents that are in publication state and whose ids are within the given range.
-     * Used by SolrIndexBuilder.
-     *
-     * @deprecated
-     *
-     * @param int $start The smallest document id to be considered.
-     * @param int $end The largest document id to be considered.
-     * @return array The list of document ids within the given range.
-     */
-    public static function getAllPublishedIds($start, $end)
-    {
-        $finder = new DocumentFinder();
-        $finder->setServerState('published');
-
-        if (isset($start)) {
-            $finder->setIdRangeStart($start);
-        }
-
-        if (isset($end)) {
-            $finder->setIdRangeEnd($end);
-        }
-
-        return $finder->ids();
-    }
-
-    /**
-     * Returns the earliest date (server_date_published) of all documents.
-     *
-     * @deprecated
-     *
-     * @return string|null /^\d{4}-\d{2}-\d{2}$/ on success, null otherwise
-     */
-    public static function getEarliestPublicationDate()
-    {
-        $table     = TableGateway::getInstance(Db\Documents::class);
-        $select    = $table->select()->from($table, 'min(server_date_published) AS min_date')
-                ->where('server_date_published IS NOT NULL')
-                ->where('TRIM(server_date_published) != \'\'');
-        $timestamp = $table->fetchRow($select)->toArray();
-
-        if (! isset($timestamp['min_date'])) {
-            return null;
-        }
-
-        $matches = [];
-        if (preg_match("/^(\d{4}-\d{2}-\d{2})T/", $timestamp['min_date'], $matches) > 0) {
-            return $matches[1];
-        }
-        return null;
-    }
-
-    /**
-     * Returns an array of ids for all document of the specified type.
-     *
-     * @deprecated
-     *
-     * @param  string $typename The name of the document type.
-     * @return array Array of document ids.
-     */
-    public static function getIdsForDocType($typename)
-    {
-        $finder = new DocumentFinder();
-        $finder->setType($typename);
-        return $finder->ids();
-    }
-
-    /**
-     * Returns an array of ids for all documents published between two dates.
-     *
-     * @deprecated
-     *
-     * @param  null|string $from (Optional) The earliest publication date to include.
-     * @param  null|string $until (Optional) The latest publication date to include.
-     * @return array Array of document ids.
-     */
-    public static function getIdsForDateRange($from = null, $until = null)
-    {
-        try {
-            if ($from === null) {
-                $from = new Zend_Date(self::getEarliestPublicationDate());
-            } else {
-                $from = new Zend_Date($from);
-            }
-        } catch (Exception $e) {
-            throw new Exception('Invalid date string supplied: ' . $from);
-        }
-        try {
-            if ($until === null) {
-                $until = new Zend_Date();
-            } else {
-                $until = new Zend_Date($until);
-            }
-        } catch (Exception $e) {
-            throw new Exception('Invalid date string supplied: ' . $until);
-        }
-
-        $searchRange = null;
-        if (true === $from->equals($until)) {
-            $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
-        } else {
-            // TODO FIXME
-            //
-            // For some strange reason a between does not include the
-            // latest day. E.g. if until date is 2009-05-10 then the
-            // result does not include data sets with 2009-05-10 only newer dates.
-            //
-            // If we add one day then is result as expected but maybe wrong?
-            //
-            // Between range looks like $from < $until and not $from <= $until
-            $until->addDay(1);
-            $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd')
-                . '%"';
-        }
-
-        $table = TableGateway::getInstance(Db\Documents::class);
-        // TODO server date publish really needed ?
-        // because server date modified is in any case setted to latest change date
-        $select = $table->select()
-                ->from($table, ['id'])
-                ->where('server_date_published ' . $searchRange)
-                ->orWhere('server_date_modified ' . $searchRange);
-
-        $rows = $table->fetchAll($select)->toArray();
-        $ids  = [];
-        foreach ($rows as $row) {
-            $ids[] = $row['id'];
-        }
-        return $ids;
-    }
-
-    /**
-     * Bulk update of ServerDateModified for documents matching selection
-     *
-     * @param Date  $date Opus\Date-Object holding the date to be set
-     * @param array $ids array of document ids
-     */
-    public static function setServerDateModifiedByIds($date, $ids)
-    {
-        // Update wird nur ausgeführt, wenn IDs übergeben werden
-        if ($ids === null || count($ids) === 0) {
-            return;
-        }
-
-        $table = TableGateway::getInstance(self::$tableGatewayClass);
-
-        $where = $table->getAdapter()->quoteInto('id IN (?)', $ids);
-
-        try {
-            $table->update(['server_date_modified' => "$date"], $where);
-        } catch (Exception $e) {
-            $logger = Log::get();
-            if ($logger !== null) {
-                $logger->err(__METHOD__ . ' ' . $e);
-            }
-        }
-    }
-
-    /**
      * Fetch all Opus\Collection objects for this document.
      *
      * @return array An array of Opus\Collection objects.
@@ -1089,7 +727,7 @@ class Document extends AbstractDb implements DocumentInterface
                 if (! empty($nid) && ! empty($nss)) {
                     $urn      = new Urn($nid, $nss);
                     $urnValue = $urn->getUrn($this->getId());
-                    $urnModel = new Identifier();
+                    $urnModel = Identifier::new();
                     $urnModel->setValue($urnValue);
                     $this->setIdentifierUrn($urnModel);
                 }
@@ -1120,7 +758,7 @@ class Document extends AbstractDb implements DocumentInterface
     private function isIdentifierSet($identifiers)
     {
         foreach ($identifiers as $identifier) {
-            if ($identifier instanceof Identifier) {
+            if ($identifier instanceof IdentifierInterface) {
                 $tmp = $identifier->getValue();
                 if (! empty($tmp)) {
                     return false;
@@ -1138,7 +776,7 @@ class Document extends AbstractDb implements DocumentInterface
     protected function _storeIdentifierUuid($value)
     {
         if ($value === null) {
-            $uuidModel = new Identifier();
+            $uuidModel = Identifier::new();
             $uuidModel->setValue(UUID::generate());
             $this->setIdentifierUuid($uuidModel);
         }
@@ -1342,37 +980,11 @@ class Document extends AbstractDb implements DocumentInterface
     {
         $result = parent::_preStore();
 
-        $date = new Date();
-        $date->setNow();
-        if (true === $this->isNewRecord()) {
-            if ($this->getServerDateCreated() === null) {
-                $this->setServerDateCreated($date);
-            }
-        }
-        $this->setServerDateModified($date);
-
-        if (true === $this->isNewRecord() || true === $this->isModified()) {
-            // Initially set ServerDatePublished if ServerState==='published'
-            if ($this->getServerState() === 'published') {
-                if ($this->getServerDatePublished() === null) {
-                    $this->setServerDatePublished($date);
-                }
-            }
+        if ($this->documentLifecycleListener !== null) {
+            $this->documentLifecycleListener->preStore($this);
         }
 
         return $result;
-    }
-
-    /**
-     * Fetch a list of all available document types.
-     *
-     * @deprecated
-     */
-    public static function fetchDocumentTypes()
-    {
-        $finder = new DocumentFinder();
-        $finder->setServerState('published');
-        return $finder->groupedTypes();
     }
 
     /**
@@ -1677,7 +1289,7 @@ class Document extends AbstractDb implements DocumentInterface
      */
     public function addIdentifierForType($type, $identifier = null)
     {
-        if ($identifier instanceof Identifier) {
+        if ($identifier instanceof IdentifierInterface) {
             $identifier->setType($type);
             parent::addIdentifier($identifier);
         } else {
@@ -1731,5 +1343,15 @@ class Document extends AbstractDb implements DocumentInterface
     public function getModelType()
     {
         return 'document';
+    }
+
+    /**
+     * @param DocumentLifecycleListener $listener
+     *
+     * TODO LAMINAS temporary hack to start separating database code from workflow event handling (business logic)
+     */
+    public function setLifecycleListener($listener)
+    {
+        $this->documentLifecycleListener = $listener;
     }
 }

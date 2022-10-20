@@ -25,19 +25,15 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Document_Plugin
- * @author      Sascha Szott <szott@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Document\Plugin;
 
 use Exception;
 use Opus\Common\Config;
+use Opus\Common\Identifier;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\Plugin\AbstractPlugin;
@@ -46,7 +42,6 @@ use Opus\Document;
 use Opus\Doi\DoiException;
 use Opus\Doi\DoiManager;
 use Opus\Doi\RegistrationException;
-use Opus\Identifier;
 
 use function filter_var;
 use function get_class;
@@ -183,7 +178,7 @@ class IdentifierDoi extends AbstractPlugin implements ServerStateChangeListenerI
             throw new Exception($message);
         }
 
-        $doi = new Identifier();
+        $doi = Identifier::new();
         $doi->setType('doi');
         $doi->setValue($doiValue);
 

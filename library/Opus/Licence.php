@@ -32,11 +32,13 @@
 namespace Opus;
 
 use Opus\Common\Config;
+use Opus\Common\LicenceInterface;
+use Opus\Common\LicenceRepositoryInterface;
+use Opus\Common\Model\NotFoundException;
 use Opus\Db\TableGateway;
 use Opus\DocumentFinder\DocumentFinderException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Opus\Model\NotFoundException;
 use Zend_Validate_NotEmpty;
 
 use function count;
@@ -44,40 +46,9 @@ use function count;
 /**
  * Domain model for licences in the Opus framework
  *
- * @uses        \Opus\Model\Abstract
- *
- * @category    Framework
- * @package     Opus
- * @method void setActive(boolean $active)
- * @method boolean getActive()
- * @method void setCommentInternal(string $comment)
- * @method string getCommentInternal
- * @method void setDescMarkup(string $markup)
- * @method string getDescMarkup()
- * @method void setDescText(string $description)
- * @method string getDescText()
- * @method void setLanguage(string $lang)
- * @method string getLanguage()
- * @method void setLinkLicence(string $url)
- * @method string getLinkLicence()
- * @method void setLinkLogo(string $url)
- * @method string getLinkLogo()
- * @method void setLinkSign(string $url)
- * @method string getLinkSign()
- * @method void setMimeType(string $mimeType)
- * @method string getMimeType()
- * @method void setName(string $name)
- * @method string getName()
- * @method void setNameLong(string $longName)
- * @method string getNameLong()
- * @method void setSortOrder(integer $position)
- * @method integer getSortOrder()
- * @method void setPodAllowed(boolean $allowed)
- * @method boolean getPodAllowed()
- *
  * phpcs:disable
  */
-class Licence extends AbstractDb
+class Licence extends AbstractDb implements LicenceInterface, LicenceRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -91,7 +62,7 @@ class Licence extends AbstractDb
      *
      * @return array Array of Opus\Licence objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, Db\DocumentLicences::class, null, 'sort_order');
     }
@@ -101,7 +72,7 @@ class Licence extends AbstractDb
      *
      * @return Licence
      */
-    public static function fetchByName($name)
+    public function fetchByName($name)
     {
         $licences = TableGateway::getInstance(self::$tableGatewayClass);
         $select   = $licences->select()->where('name = ?', $name);
@@ -228,6 +199,136 @@ class Licence extends AbstractDb
         $finder = new DocumentFinder();
         $finder->setDependentModel($this);
         return count($finder->ids());
+    }
+
+    public function getActive()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setActive($active)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getCommentInternal()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setCommentInternal($comment)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getLinkLicence()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setLinkLicence($link)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getLinkLogo()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setLinkLogo($link)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getLinkSign()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setLinkSign($link)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getMimeType()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setMimeType($mimeType)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getDescMarkup()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setDescMarkup($descriptionMarkup)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getDescText()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setDescText($description)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getLanguage()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setLanguage($lang)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setName($name)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getNameLong()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setNameLong($nameLong)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getSortOrder()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setSortOrder($position)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function getPodAllowed()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    public function setPodAllowed($allowed)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 
     /**

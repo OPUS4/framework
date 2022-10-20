@@ -25,24 +25,19 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Sascha Szott <szott@zib.de>
- * @author      Susanne Gottwald <gottwald@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
 use Opus\Common\Config;
+use Opus\Common\Document;
 use Opus\Common\Model\ModelException;
-use Opus\Document;
-use Opus\Model\NotFoundException;
+use Opus\Common\Model\NotFoundException;
+use Opus\Common\Series;
+use Opus\Common\SeriesInterface;
 use Opus\Model\Xml\Cache;
-use Opus\Series;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -69,12 +64,12 @@ class SeriesTest extends TestCase
      */
     public function testCreateRetrieveAndDeleteSeries()
     {
-        $this->assertEquals(0, count(Series::getAll()), 'Wrong number of objects retrieved.');
+        $this->assertEquals(0, count(Series::getModelRepository()->getAll()), 'Wrong number of objects retrieved.');
 
         $numberOfSetsToCreate = 3;
         $ids                  = [];
         for ($i = 0; $i < $numberOfSetsToCreate; $i++) {
-            $set = new Series();
+            $set = Series::new();
             $set->setTitle('New document set ' . $i);
             $set->store();
             array_push($ids, $set->getId());
@@ -88,7 +83,7 @@ class SeriesTest extends TestCase
 
         // cleanup
         foreach ($ids as $id) {
-            $s = new Series($id);
+            $s = Series::get($id);
             $s->delete();
         }
 
@@ -97,14 +92,14 @@ class SeriesTest extends TestCase
 
     public function testAssignSeriesToDocumentWithoutNumber()
     {
-        $d = new Document();
+        $d = Document::new();
         $d->store();
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $d = new Document($d->getId());
+        $d = Document::get($d->getId());
         $d->addSeries($s);
 
         // Regression test for OPUSVIER-2033
@@ -115,7 +110,7 @@ class SeriesTest extends TestCase
             // Nothing.
         }
 
-        $this->assertEquals(1, count(Series::getAll()), 'Wrong number of objects retrieved.');
+        $this->assertEquals(1, count(Series::getModelRepository()->getAll()), 'Wrong number of objects retrieved.');
 
         // cleanup
         $s->delete();
@@ -123,14 +118,14 @@ class SeriesTest extends TestCase
 
     public function testLinkSeriesInvalidWithoutNumber()
     {
-        $d = new Document();
+        $d = Document::new();
         $d->store();
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $d  = new Document($d->getId());
+        $d  = Document::get($d->getId());
         $ls = $d->addSeries($s);
 
         $this->assertTrue($s->isValid(), 'series should be valid');
@@ -145,11 +140,11 @@ class SeriesTest extends TestCase
         $doc = Document::new();
         $doc->store();
 
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('foo');
         $series->store();
 
-        $this->assertEquals(1, count(Series::getAll()), 'Wrong number of objects retrieved.');
+        $this->assertEquals(1, count(Series::getModelRepository()->getAll()), 'Wrong number of objects retrieved.');
 
         $doc = Document::get($doc->getId());
         $doc->addSeries($series)->setNumber('1');
@@ -172,49 +167,49 @@ class SeriesTest extends TestCase
      */
     public function testCreateSeriesWithoutTitle()
     {
-        $s = new Series();
+        $s = Series::new();
         $this->expectException(ModelException::class);
         $s->store();
     }
 
     public function testCreateSeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertTrue($s->getTitle() === 'foo');
     }
 
     public function testUpdateSeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $s->setTitle('bar');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertTrue($s->getTitle() === 'bar');
     }
 
     public function testDeleteSeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
         $id = $s->getId();
-        $s  = new Series($s->getId());
+        $s  = Series::get($s->getId());
         $this->assertTrue($s->getTitle() === 'foo');
 
         $s->delete();
 
         $this->expectException(NotFoundException::class);
-        $s = new Series($id);
+        $s = Series::get($id);
     }
 
     /**
@@ -222,11 +217,11 @@ class SeriesTest extends TestCase
      */
     public function testAssignDocumentToSeriesTwice()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $d->addSeries($s)->setNumber('2');
 
@@ -236,20 +231,20 @@ class SeriesTest extends TestCase
 
     public function testAssignDocumentToMultipleSeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $t = new Series();
+        $t = Series::new();
         $t->setTitle('bar');
         $t->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $d->addSeries($t)->setNumber('2');
         $d->store();
 
-        $d      = new Document($d->getId());
+        $d      = Document::get($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 2);
 
@@ -262,11 +257,11 @@ class SeriesTest extends TestCase
 
     public function testDeleteReferencedSeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $d->store();
 
@@ -274,17 +269,17 @@ class SeriesTest extends TestCase
 
         $s->delete();
 
-        $d = new Document($d->getId());
+        $d = Document::get($d->getId());
         $this->assertTrue(count($d->getSeries()) === 0);
     }
 
     public function testDeleteAllSeriesAssignments()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $d->store();
 
@@ -293,33 +288,33 @@ class SeriesTest extends TestCase
         $d->setSeries(null);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d = Document::get($d->getId());
         $this->assertTrue(count($d->getSeries()) === 0);
     }
 
     public function testDeleteOneSeriesAssignment()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $t = new Series();
+        $t = Series::new();
         $t->setTitle('bar');
         $t->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $d->addSeries($t)->setNumber('2');
         $d->store();
 
-        $d      = new Document($d->getId());
+        $d      = Document::get($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 2);
         array_pop($series);
         $d->setSeries($series);
         $d->store();
 
-        $d      = new Document($d->getId());
+        $d      = Document::get($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 1);
         $this->assertEquals('foo', $series[0]->getTitle());
@@ -330,31 +325,31 @@ class SeriesTest extends TestCase
     {
         $ids = [];
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('c');
         $s->store();
         array_push($ids, $s->getId());
 
-        $this->assertEquals(1, count(Series::getAll()));
+        $this->assertEquals(1, count(Series::getModelRepository()->getAll()));
         $series = Series::getAll();
         $this->assertEquals($series[0]->getId(), $ids[0]);
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('a');
         $s->store();
         array_push($ids, $s->getId());
 
-        $this->assertEquals(2, count(Series::getAll()));
+        $this->assertEquals(2, count(Series::getModelRepository()->getAll()));
         $series = Series::getAll();
         $this->assertEquals($series[0]->getId(), $ids[0]);
         $this->assertEquals($series[1]->getId(), $ids[1]);
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('b');
         $s->store();
         array_push($ids, $s->getId());
 
-        $this->assertEquals(3, count(Series::getAll()));
+        $this->assertEquals(3, count(Series::getModelRepository()->getAll()));
         $series = Series::getAll();
         $this->assertEquals($series[0]->getId(), $ids[0]);
         $this->assertEquals($series[1]->getId(), $ids[1]);
@@ -367,19 +362,19 @@ class SeriesTest extends TestCase
             'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE],
         ]));
 
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('c');
         $series->store();
 
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('a');
         $series->store();
 
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('b');
         $series->store();
 
-        $allSeries = Series::getAll();
+        $allSeries = Series::getModelRepository()->getAll();
 
         $this->assertEquals(3, count($allSeries));
         $this->assertEquals('a', $allSeries[0]->getTitle());
@@ -389,19 +384,19 @@ class SeriesTest extends TestCase
 
     public function testAssignVisibleStatus()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertTrue($s->getVisible() === '1');
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $s->setVisible('0');
         $s->store();
         $this->assertTrue($s->getVisible() === '0');
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $s->setVisible('1');
         $s->store();
         $this->assertTrue($s->getVisible() === '1');
@@ -411,17 +406,17 @@ class SeriesTest extends TestCase
 
     public function testAssignSortOrder()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertTrue($s->getSortOrder() === '0');
 
         $s->setSortOrder('10');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertTrue($s->getSortOrder() === '10');
 
         $s->delete();
@@ -432,13 +427,13 @@ class SeriesTest extends TestCase
         $testValues = [3, 1, 2, 5, 4, 0];
 
         foreach ($testValues as $value) {
-            $s = new Series();
+            $s = Series::new();
             $s->setTitle($value);
             $s->setSortOrder($value);
             $s->store();
         }
 
-        $series = Series::getAllSortedBySortKey();
+        $series = Series::getModelRepository()->getAllSortedBySortKey();
         $this->assertEquals(6, count($series));
 
         for ($i = 0; $i < count($series); $i++) {
@@ -455,13 +450,13 @@ class SeriesTest extends TestCase
         $testValues = [3, 1, 2, 5, 4, 0];
 
         foreach ($testValues as $value) {
-            $s = new Series();
+            $s = Series::new();
             $s->setTitle($value);
             $s->setSortOrder(5 - $value); // reverse order
             $s->store();
         }
 
-        $allSeries = Series::getAllSortedBySortKey();
+        $allSeries = Series::getModelRepository()->getAllSortedBySortKey();
 
         $this->assertEquals(6, count($allSeries));
 
@@ -475,13 +470,13 @@ class SeriesTest extends TestCase
         $testValues = [3, 1, 2, 5, 4, 0, 10];
 
         foreach ($testValues as $value) {
-            $s = new Series();
+            $s = Series::new();
             $s->setTitle($value);
             $s->setSortOrder($value);
             $s->store();
         }
 
-        $this->assertEquals(10, Series::getMaxSortKey());
+        $this->assertEquals(10, Series::getModelRepository()->getMaxSortKey());
     }
 
     public function testGetMaxSortKeyInEmptyTable()
@@ -494,24 +489,24 @@ class SeriesTest extends TestCase
      */
     public function testAssignDocumentsToMultipleSeriesWithSameNumber()
     {
-        $d = new Document();
+        $d = Document::new();
         $d->store();
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('a');
         $s->store();
 
         $d->addSeries($s)->setNumber(1);
         $d->store();
 
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('b');
         $s->store();
 
         $d->addSeries($s)->setNumber(1);
         $d->store();
 
-        $d = new Document($d->getId());
+        $d = Document::get($d->getId());
         $this->assertTrue(count($d->getSeries()) === 2);
     }
 
@@ -520,20 +515,20 @@ class SeriesTest extends TestCase
      */
     public function testAssignSeriesNumberTwice()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $docId1 = $d->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $docId2 = $d->store();
 
-        $doc1 = new Document($docId1);
-        $doc2 = new Document($docId2);
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
 
         $seriesLink1 = $doc1->getSeries(0);
         $seriesLink2 = $doc2->getSeries(0);
@@ -545,25 +540,25 @@ class SeriesTest extends TestCase
 
     public function testAssignDocSortOrderForDocuments()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('1');
         $d->store();
 
-        $d      = new Document($d->getId());
+        $d      = Document::get($d->getId());
         $series = $d->getSeries();
         $this->assertEquals(1, count($series));
         $this->assertEquals('1', $series[0]->getNumber());
         $this->assertEquals(0, $series[0]->getDocSortOrder());
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('2')->setDocSortOrder(1);
         $d->store();
 
-        $d      = new Document($d->getId());
+        $d      = Document::get($d->getId());
         $series = $d->getSeries();
         $this->assertEquals(1, count($series));
         $this->assertEquals('2', $series[0]->getNumber());
@@ -572,19 +567,19 @@ class SeriesTest extends TestCase
 
     public function testGetDocumentIds()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
-        $d1 = new Document();
+        $d1 = Document::new();
         $d1->addSeries($s)->setNumber('I')->setDocSortOrder('1');
         $d1->store();
 
-        $d2 = new Document();
+        $d2 = Document::new();
         $d2->addSeries($s)->setNumber('II')->setDocSortOrder('2');
         $d2->store();
 
-        $s   = new Series($s->getId());
+        $s   = Series::get($s->getId());
         $ids = $s->getDocumentIds();
         $this->assertEquals(2, count($ids));
         $this->assertEquals($d1->getId(), $ids[0]);
@@ -593,29 +588,29 @@ class SeriesTest extends TestCase
 
     public function testGetDocumentIdsForEmptySeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertEquals(0, count($s->getDocumentIds()));
     }
 
     public function testDocumentIdsSortedBySortKey()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
-        $d1 = new Document();
+        $d1 = Document::new();
         $d1->addSeries($s)->setNumber('I')->setDocSortOrder(1);
         $d1->store();
 
-        $d2 = new Document();
+        $d2 = Document::new();
         $d2->addSeries($s)->setNumber('II')->setDocSortOrder(2);
         $d2->store();
 
-        $s   = new Series($s->getId());
+        $s   = Series::get($s->getId());
         $ids = $s->getDocumentIdsSortedBySortKey();
         $this->assertEquals(2, count($ids));
         $this->assertEquals($d1->getId(), $ids[1]);
@@ -624,30 +619,30 @@ class SeriesTest extends TestCase
 
     public function testDocumentIdsSortedBySortKeyForEmptySeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
-        $s = new Series($s->getId());
+        $s = Series::get($s->getId());
         $this->assertEquals(0, count($s->getDocumentIdsSortedBySortKey()));
     }
 
     public function testIsNumberAvailableForEmptySeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('test');
         $s->store();
 
         $this->assertTrue($s->isNumberAvailable('foo'));
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('foo');
         $d->store();
 
         $this->assertFalse($s->isNumberAvailable('foo'));
         $this->assertTrue($s->isNumberAvailable('bar'));
 
-        $d = new Document($d->getId());
+        $d = Document::get($d->getId());
         $d->setSeries([]);
         $d->store();
 
@@ -656,7 +651,7 @@ class SeriesTest extends TestCase
 
     public function testGetNumberOfAssociatedDocumentsForEmptySeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
@@ -665,15 +660,15 @@ class SeriesTest extends TestCase
 
     public function testGetNumberOfAssociatedDocuments()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('123');
         $d->store();
 
-        $d = new Document();
+        $d = Document::new();
         $d->addSeries($s)->setNumber('456');
         $d->store();
 
@@ -682,7 +677,7 @@ class SeriesTest extends TestCase
 
     public function testGetNumberOfAssociatedPublishedDocumentsForEmptySeries()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
@@ -691,15 +686,15 @@ class SeriesTest extends TestCase
 
     public function testGetNumberOfAssociatedPublishedDocuments()
     {
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('foo');
         $series->store();
 
-        $doc1 = new Document();
+        $doc1 = Document::new();
         $doc1->addSeries($series)->setNumber('123');
         $doc1->store();
 
-        $doc2 = new Document();
+        $doc2 = Document::new();
         $doc2->addSeries($series)->setNumber('456');
         $doc2->store();
 
@@ -728,11 +723,11 @@ class SeriesTest extends TestCase
      */
     public function testInvalidateDocumentCache()
     {
-        $s = new Series();
+        $s = Series::new();
         $s->setTitle('foo');
         $s->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->addSeries($s)->setNumber('123');
         $docId = $doc->store();
 
@@ -745,11 +740,11 @@ class SeriesTest extends TestCase
 
     public function testGetDocumentForNumber()
     {
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('foo');
         $series->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->addSeries($series)->setNumber('III');
         $docId = $doc->store();
 
@@ -762,11 +757,11 @@ class SeriesTest extends TestCase
 
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields()
     {
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('foo');
         $series->store();
 
-        $document = new Document();
+        $document = Document::new();
         $document->addSeries($series)->setNumber(5);
         $docId = $document->store();
 
@@ -775,7 +770,7 @@ class SeriesTest extends TestCase
         $series->setSortOrder($series->getSortOrder() + 1);
         $series->store();
 
-        $docReloaded = new Document($docId);
+        $docReloaded = Document::get($docId);
 
         $this->assertEquals(
             (string) $serverDateModified,
@@ -786,18 +781,18 @@ class SeriesTest extends TestCase
 
     public function testGetDisplayName()
     {
-        $series = new Series();
+        $series = Series::new();
         $series->setTitle('TestTitle');
         $seriesId = $series->store();
 
-        $series = new Series($seriesId);
+        $series = Series::get($seriesId);
 
         $this->assertEquals('TestTitle', $series->getDisplayName());
     }
 
     public function testToArray()
     {
-        $series = new Series();
+        $series = Series::new();
 
         $series->setTitle('Schriftenreihe');
         $series->setInfobox('Beschreibung');
@@ -824,7 +819,7 @@ class SeriesTest extends TestCase
         ]);
 
         $this->assertNotNull($series);
-        $this->assertInstanceOf(Series::class, $series);
+        $this->assertInstanceOf(SeriesInterface::class, $series);
 
         $this->assertEquals('Schriftenreihe', $series->getTitle());
         $this->assertEquals('Beschreibung', $series->getInfobox());
@@ -834,7 +829,7 @@ class SeriesTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $series = new Series();
+        $series = Series::new();
 
         $series->updateFromArray([
             'Title'     => 'Schriftenreihe',
@@ -844,7 +839,7 @@ class SeriesTest extends TestCase
         ]);
 
         $this->assertNotNull($series);
-        $this->assertInstanceOf(Series::class, $series);
+        $this->assertInstanceOf(SeriesInterface::class, $series);
 
         $this->assertEquals('Schriftenreihe', $series->getTitle());
         $this->assertEquals('Beschreibung', $series->getInfobox());

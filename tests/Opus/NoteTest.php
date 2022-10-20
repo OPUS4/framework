@@ -90,7 +90,7 @@ class NoteTest extends TestCase
 
     public function testToArray()
     {
-        $note = new Note();
+        $note = Note::new();
         $note->setVisibility(Note::ACCESS_PUBLIC);
         $note->setMessage('a public message');
 
@@ -118,7 +118,7 @@ class NoteTest extends TestCase
 
     public function testUpdateFromArray()
     {
-        $note = new Note();
+        $note = Note::new();
 
         $note->updateFromArray([
             'Visibility' => 'private',

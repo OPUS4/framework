@@ -25,17 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 namespace OpusTest\Model\Dependent;
 
 use Opus\Common\Model\ModelException;
+use Opus\Common\Subject;
 use Opus\Document;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Plugin\InvalidateDocumentCache;
-use Opus\Subject;
 use OpusTest\TestAsset\TestCase;
 use Zend_Db_Table_Abstract;
 
@@ -245,7 +245,7 @@ class AbstractDependentModelTest extends TestCase
         $cachingEnabled = $document->hasPlugin(Document\Plugin\XmlCache::class);
 
         if ($cachingEnabled) {
-            $subject = new Subject(); // inherits from Opus\Model\Dependent\AbstractDependentModel
+            $subject = Subject::new(); // inherits from Opus\Model\Dependent\AbstractDependentModel
 
             $this->assertTrue($subject->hasPlugin(InvalidateDocumentCache::class));
         }

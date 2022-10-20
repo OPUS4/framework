@@ -25,19 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
+use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
+use Opus\Common\PersonInterface;
+use Opus\Common\PersonRepositoryInterface;
+use Opus\Common\Repository;
 use Opus\Db\LinkPersonsDocuments;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
@@ -96,34 +94,9 @@ use function trim;
  *
  * TODO use OPUS-ID for people without external identifier
  *
- * @uses        \Opus\Model\Abstract
- *
- * @category    Framework
- * @package     Opus
- * @method void setAcademicTitle(string $title)
- * @method string getAcademicTitle()
- * @method void setFirstName(string $firstName)
- * @method string getFirstName()
- * @method void setLastName(string $lastName)
- * @method string getLastName()
- * @method void setDateOfBirth(Date $date)
- * @method Date getDateOfBirth()
- * @method void setPlaceOfBirth(string $place)
- * @method string getPlaceOfBirth()
- * @method void setIdentifierOrcid(string $orcid)
- * @method string getIdentifierOrcid()
- * @method void setIdentifierGnd(string $gnd)
- * @method string getIdentifierGnd()
- * @method void setIdentifierMisc(string $misc)
- * @method string getIdentifierMisc()
- * @method void setEmail(string $email)
- * @method string getEmail()
- * @method void setOpusId(string $internalId)
- * @method string getOpusId()
- *
  * phpcs:disable
  */
-class Person extends AbstractDb
+class Person extends AbstractDb implements PersonInterface, PersonRepositoryInterface
 {
     /**
      * Specify then table gateway.
@@ -274,7 +247,7 @@ class Person extends AbstractDb
      * @param string $role Role name.
      * @return array List of Opus\Person Ids for Person models assigned to the specified Role.
      */
-    public static function getAllIdsByRole($role)
+    public function getAllIdsByRole($role)
     {
         // $documentsLinkTable = new Opus\Db\LinkPersonsDocuments();
         $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
@@ -296,7 +269,7 @@ class Person extends AbstractDb
      *
      * @return array Array of Opus\Person objects.
      */
-    public static function getAll()
+    public function getAll()
     {
         return self::getAllFrom(self::class, Db\Persons::class);
     }
@@ -310,7 +283,7 @@ class Person extends AbstractDb
      *
      * TODO return objects ?
      */
-    public static function getAllPersons($role = null, $start = 0, $limit = 0, $filter = null)
+    public function getAllPersons($role = null, $start = 0, $limit = 0, $filter = null)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -334,7 +307,7 @@ class Person extends AbstractDb
      * @param null $filter
      * @return mixed
      */
-    public static function getAllPersonsCount($role = null, $filter = null)
+    public function getAllPersonsCount($role = null, $filter = null)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -355,6 +328,8 @@ class Person extends AbstractDb
      * @param null $role
      * @param null $filter
      * @return Zend_Db_Select
+     *
+     * TODO should be protected, or?
      */
     public static function getAllPersonsSelect($role = null, $filter = null)
     {
@@ -409,7 +384,7 @@ class Person extends AbstractDb
      * TODO verify columns
      * TODO use object for person
      */
-    public static function getPersonRoles($person)
+    public function getPersonRoles($person)
     {
         $documentsLinkTable = TableGateway::getInstance(LinkPersonsDocuments::class);
 
@@ -448,7 +423,7 @@ class Person extends AbstractDb
      * @param $person array
      * @return array
      */
-    public static function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
+    public function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
     {
         $documentsTable = TableGateway::getInstance(Db\Documents::class);
 
@@ -531,7 +506,7 @@ class Person extends AbstractDb
      * @param $person
      * @return array
      */
-    public static function getPersonValues($person)
+    public function getPersonValues($person)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -584,7 +559,7 @@ class Person extends AbstractDb
      * @param null                                 $documents Array with ids of documents
      * @return array Array with IDs of persons
      */
-    public static function getPersons($person, $documents = null)
+    public function getPersons($person, $documents = null)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -611,7 +586,7 @@ class Person extends AbstractDb
         return $database->fetchCol($select);
     }
 
-    public static function getPersonsAndDocuments($person, $documents = null)
+    public function getPersonsAndDocuments($person, $documents = null)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -650,7 +625,7 @@ class Person extends AbstractDb
      *
      *                                       TODO update ServerDateModified for modified documents (How?)
      */
-    public static function updateAll($person, $changes, $documents = null)
+    public function updateAll($person, $changes, $documents = null)
     {
         if (empty($person)) {
             // TODO do logging?
@@ -697,12 +672,15 @@ class Person extends AbstractDb
                 $date = new Date();
                 $date->setNow();
 
-                Document::setServerDateModifiedByIds($date, $documentIds);
+                Repository::getInstance()->getModelRepository(Document::class)->setServerDateModifiedForDocuments(
+                    $date,
+                    $documentIds
+                );
             }
         }
     }
 
-    public static function getDocuments($personIds, $documents = null)
+    public function getDocuments($personIds, $documents = null)
     {
         $table = TableGateway::getInstance(self::$tableGatewayClass);
 
@@ -854,5 +832,195 @@ class Person extends AbstractDb
     public function getModelType()
     {
         return 'person';
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getFirstName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $firstName
+     * @return $this
+     * @throws ModelException
+     */
+    public function setFirstName($firstName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getLastName()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string $lastName
+     * @return $this
+     * @throws ModelException
+     */
+    public function setLastName($lastName)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getAcademicTitle()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $academicTitle
+     * @return $this
+     * @throws ModelException
+     */
+    public function setAcademicTitle($academicTitle)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return Date
+     * @throws ModelException
+     */
+    public function getDateOfBirth()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param Date $dateOfBirth
+     * @return $this
+     * @throws ModelException
+     */
+    public function setDateOfBirth($dateOfBirth)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getPlaceOfBirth()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $placeOfBirth
+     * @return $this
+     * @throws ModelException
+     */
+    public function setPlaceOfBirth($placeOfBirth)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getEmail()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $email
+     * @return $this
+     * @throws ModelException
+     */
+    public function setEmail($email)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getOpusId()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $opusId
+     * @return $this
+     * @throws ModelException
+     */
+    public function setOpusId($opusId)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getIdentifierOrcid()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $orcid
+     * @return $this
+     * @throws ModelException
+     */
+    public function setIdentifierOrcid($orcid)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getIdentifierGnd()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $identifier
+     * @return $this
+     * @throws ModelException
+     */
+    public function setIdentifiertGnd($gndId)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @return string|null
+     * @throws ModelException
+     */
+    public function getIdentifierMisc()
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * @param string|null $identifier
+     * @return $this
+     * @throws ModelException
+     */
+    public function setIdentifierMisc($identifier)
+    {
+        return $this->__call(__FUNCTION__, func_get_args());
     }
 }

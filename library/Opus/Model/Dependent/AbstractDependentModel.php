@@ -31,6 +31,7 @@
 
 namespace Opus\Model\Dependent;
 
+use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Model\AbstractDb;
 use Opus\Model\Plugin\InvalidateDocumentCache;
@@ -44,7 +45,7 @@ use function uniqid;
  *
  * phpcs:disable
  */
-abstract class AbstractDependentModel extends AbstractDb
+abstract class AbstractDependentModel extends AbstractDb implements DependentModelInterface
 {
     /**
      * Primary key of the parent model.

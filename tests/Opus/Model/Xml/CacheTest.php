@@ -19,7 +19,10 @@
 
 namespace OpusTest\Model\Xml;
 
+use DateInterval;
+use DateTime;
 use DOMDocument;
+use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
 use Opus\Db\DocumentXmlCache;
 use Opus\Document;
@@ -28,7 +31,6 @@ use Opus\Model\Xml\Cache;
 use Opus\Person;
 use Opus\TitleAbstract;
 use OpusTest\TestAsset\TestCase;
-use Zend_Date;
 
 use function array_key_exists;
 use function count;
@@ -77,11 +79,13 @@ class CacheTest extends TestCase
         // initial test setup
         $table = new DocumentXmlCache();
         for ($i = 0; $i < $this->maxEntries; $i++) {
+            $dateTime           = (new DateTime())->add(new DateInterval('PT' . rand(1, 59) . 'S'));
+            $docId              = $i + 1;
             $data               = [
-                'document_id'          => $i + 1,
-                'server_date_modified' => Zend_Date::now()->addSecond(rand(1, 59))->getIso(),
+                'document_id'          => $docId,
+                'server_date_modified' => (new Date($dateTime))->getIso(),
                 'xml_version'          => $i % 2 ? 1 : 2,
-                'xml_data'             => '<Opus><Opus_Document><Foo/></Opus_Document></Opus>',
+                'xml_data'             => "<Opus><Opus_Document id=\"$docId\"><Foo/></Opus_Document></Opus>",
             ];
             $this->allEntries[] = $data;
             $table->insert($data);
@@ -124,7 +128,11 @@ class CacheTest extends TestCase
         $cache        = new Cache();
         $cacheEntries = $cache->getAllEntries();
 
-        $this->assertEquals($this->maxEntries, count($cacheEntries), 'Expecting ' . $this->maxEntries . ' inside cache.');
+        $this->assertEquals(
+            $this->maxEntries,
+            count($cacheEntries),
+            'Expecting ' . $this->maxEntries . ' inside cache.'
+        );
         $this->assertEquals($this->allEntries, $cacheEntries, 'Getting unexpected cache entries.');
     }
 
@@ -147,7 +155,11 @@ class CacheTest extends TestCase
     public function testHasValidEntryReturnsFalseOnMissedCacheHitWithEmptyCache()
     {
         $cache        = new Cache();
-        $invalidEntry = $cache->hasValidEntry(0, 2, Zend_Date::now()->getIso());
+        $invalidEntry = $cache->hasValidEntry(
+            0,
+            2,
+            Date::getNow()->getIso()
+        );
 
         $this->assertFalse($invalidEntry, 'Expecting not a cache hit.');
     }
@@ -159,7 +171,11 @@ class CacheTest extends TestCase
 
         $cache        = new Cache();
         $maxEntries   = $this->maxEntries;
-        $invalidEntry = $cache->hasValidEntry($maxEntries++, 2, Zend_Date::now()->getIso());
+        $invalidEntry = $cache->hasValidEntry(
+            $maxEntries++,
+            2,
+            Date::getNow()->getIso()
+        );
 
         $this->assertFalse($invalidEntry, 'Expecting not a cache hit.');
     }
@@ -261,7 +277,7 @@ class CacheTest extends TestCase
     {
         $documentId         = 1;
         $xmlVersion         = 2;
-        $serverDateModified = Zend_Date::now()->getIso();
+        $serverDateModified = Date::getNow()->getIso();
         $dom                = new DOMDocument('1.0', 'utf-8');
         $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
@@ -281,8 +297,15 @@ class CacheTest extends TestCase
         $afterInput = $table->fetchAll()->count();
 
         $this->assertEquals($beforeInput + 1, $afterInput, 'Expecting one new cache entry.');
-        $this->assertTrue($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Could not verify cache entry.');
-        $this->assertEquals($dom->saveXML(), $cache->get($documentId, $xmlVersion)->saveXML(), 'Cached xml data differ from given data.');
+        $this->assertTrue(
+            $cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified),
+            'Could not verify cache entry.'
+        );
+        $this->assertEquals(
+            $dom->saveXML(),
+            $cache->get($documentId, $xmlVersion)->saveXML(),
+            'Cached xml data differ from given data.'
+        );
     }
 
     public function testRemoveCacheEntry()
@@ -303,7 +326,10 @@ class CacheTest extends TestCase
 
         $this->assertTrue($result, 'Remove call returned false instead of true.');
         $this->assertEquals($beforeRemove, $afterRemove + 1, 'Expecting one cache entry are removed.');
-        $this->assertFalse($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Expecting right cache entry is removed.');
+        $this->assertFalse(
+            $cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified),
+            'Expecting right cache entry is removed.'
+        );
     }
 
     /**
@@ -379,7 +405,7 @@ class CacheTest extends TestCase
     {
         $documentId         = 1;
         $xmlVersion         = 2;
-        $serverDateModified = Zend_Date::now()->getIso();
+        $serverDateModified = Date::getNow()->getIso();
         $dom                = new DOMDocument('1.0', 'utf-8');
         $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
@@ -414,7 +440,7 @@ class CacheTest extends TestCase
     {
         $documentId         = 1;
         $xmlVersion         = 2;
-        $serverDateModified = Zend_Date::now()->getIso();
+        $serverDateModified = Date::getNow()->getIso();
         $dom                = new DOMDocument('1.0', 'utf-8');
         $opus               = $dom->createElement('Opus');
         $dom->appendChild($opus);
@@ -432,7 +458,8 @@ class CacheTest extends TestCase
         $table           = new DocumentXmlCache();
         $beforeSecondPut = $table->fetchAll()->count();
 
-        $serverDateModified = Zend_Date::now()->addSecond(mt_rand(1, 59))->getIso();
+        $dateTime           = (new DateTime())->add(new DateInterval('PT' . mt_rand(1, 59) . 'S'));
+        $serverDateModified = (new Date($dateTime))->getIso();
         $subElement         = $dom->createElement('SubElement');
         $opusDocument->appendChild($subElement);
         $cache = new Cache();
@@ -446,7 +473,10 @@ class CacheTest extends TestCase
         $afterSecondPut = $table->fetchAll()->count();
 
         $this->assertEquals($beforeSecondPut, $afterSecondPut, 'Expecting no new cache entry.');
-        $this->assertTrue($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Expecting cache entry has new data.');
+        $this->assertTrue(
+            $cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified),
+            'Expecting cache entry has new data.'
+        );
         $this->assertEquals($dom->saveXML(), $cache->get($documentId, $xmlVersion)->saveXML(), '');
     }
 
@@ -512,5 +542,29 @@ class CacheTest extends TestCase
         $cache->removeAllEntriesForDependentModel($licence);
 
         $this->assertNull($cache->getData($docId, '1.0'));
+    }
+
+    public function testGetDataForDocuments()
+    {
+        $this->fillCache();
+
+        $cache = new Cache();
+
+        $data = $cache->getDataForDocuments([2, 4], '1');
+
+        $this->assertCount(2, $data);
+        $this->assertArrayHasKey(2, $data);
+        $this->assertArrayHasKey(4, $data);
+        $this->assertEquals('<Opus><Opus_Document id="2"><Foo/></Opus_Document></Opus>', $data[2]);
+        $this->assertEquals('<Opus><Opus_Document id="4"><Foo/></Opus_Document></Opus>', $data[4]);
+
+        $data = $cache->getDataForDocumentS([1, 3, 5], '2');
+        $this->assertCount(3, $data);
+        $this->assertArrayHasKey(1, $data);
+        $this->assertArrayHasKey(3, $data);
+        $this->assertArrayHasKey(5, $data);
+
+        $data = $cache->getDataForDocuments([1, 3, 5], '1');
+        $this->assertCount(0, $data);
     }
 }

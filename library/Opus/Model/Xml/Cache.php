@@ -14,7 +14,7 @@
  *
  * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
+ * @copyright   Copyright (c) 2010 OPUS 4 development team
  *
  * TODO add interface (database implementation just one option)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -25,23 +25,23 @@ namespace Opus\Model\Xml;
 use DOMDocument;
 use Opus\Common\Log;
 use Opus\Common\LoggingTrait;
+use Opus\Common\Model\DependentModelInterface;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Model\NotFoundException;
 use Opus\Common\Model\Xml\XmlCacheInterface;
 use Opus\Db\DocumentXmlCache;
 use Opus\Document;
 use Opus\DocumentFinder;
-use Opus\Model\NotFoundException;
 use Zend_Db_Select;
 use Zend_Db_Table;
 
 use function count;
+use function is_array;
 use function libxml_clear_errors;
 use function libxml_get_errors;
 
 /**
  * TODO NAMESPACE rename class
- *
- * phpcs:disable
  */
 class Cache implements XmlCacheInterface
 {
@@ -52,19 +52,19 @@ class Cache implements XmlCacheInterface
      *
      * @var DocumentXmlCache
      */
-    private $_table;
+    private $table;
 
     /**
      * Perform document reindexing after a new cache entry is created
      *
      * @var bool
      */
-    private $_reindexDocumentAfterAddingCacheEntry = true;
+    private $reindexDocumentAfterAddingCacheEntry = true;
 
     /**
      * Plugin for updating the index.
      *
-     * @var
+     * @var string
      *
      * TODO this is a temporary hack - see _postPut below
      */
@@ -72,7 +72,7 @@ class Cache implements XmlCacheInterface
 
     public function __construct()
     {
-        $this->_table = new DocumentXmlCache();
+        $this->table = new DocumentXmlCache();
     }
 
     /**
@@ -80,8 +80,8 @@ class Cache implements XmlCacheInterface
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
-     * @throws ModelException in case an XML processing error occurred
      * @return DOMDocument
+     * @throws ModelException In case an XML processing error occurred.
      */
     public function get($documentId, $xmlVersion)
     {
@@ -114,13 +114,17 @@ class Cache implements XmlCacheInterface
     /**
      * Returns document XML from cache.
      *
-     * @param $documentId int Database ID of document
-     * @param $xmlVersion string Version of XML
-     * @return null|string Document XML from cache
+     * @param int|int[] $documentId Database ID of document
+     * @param string    $xmlVersion Version of XML
+     * @return null|string|string[] Document XML from cache
      */
     public function getData($documentId, $xmlVersion)
     {
-        $rowSet = $this->_table->find($documentId, $xmlVersion);
+        if (is_array($documentId)) {
+            return $this->getDataForDocuments($documentId, $xmlVersion);
+        }
+
+        $rowSet = $this->table->find($documentId, $xmlVersion);
 
         $xmlData = null;
 
@@ -132,13 +136,31 @@ class Cache implements XmlCacheInterface
     }
 
     /**
+     * Returns a list of documents from cache.
+     *
+     * @param int[]  $documentIds ids of documents for export
+     * @param string $xmlVersion
+     * @return string[] Map of docId to  Document XML
+     */
+    public function getDataForDocuments($documentIds, $xmlVersion)
+    {
+        $db = $this->table->getAdapter();
+
+        $select = $this->table->select()->from('document_xml_cache', ['document_id', 'xml_data'])
+            ->where('document_id IN (?)', $documentIds)
+            ->where('xml_version = ?', $xmlVersion);
+
+        return $db->fetchPairs($select);
+    }
+
+    /**
      * Returns all cache entries as an array.
      *
      * @return array
      */
     public function getAllEntries()
     {
-        $rows = $this->_table->fetchAll();
+        $rows = $this->table->fetchAll();
 
         if ($rows->count() > 0) {
             $result = $rows->toArray();
@@ -158,7 +180,7 @@ class Cache implements XmlCacheInterface
      */
     public function hasCacheEntry($documentId, $xmlVersion)
     {
-        $rowSet = $this->_table->find($documentId, $xmlVersion);
+        $rowSet = $this->table->find($documentId, $xmlVersion);
 
         if (1 === $rowSet->count()) {
             return true;
@@ -177,12 +199,12 @@ class Cache implements XmlCacheInterface
      */
     public function hasValidEntry($documentId, $xmlVersion, $serverDateModified)
     {
-        $select = $this->_table->select()->from($this->_table);
+        $select = $this->table->select()->from($this->table);
         $select->where('document_id = ?', $documentId)
             ->where('xml_version = ?', $xmlVersion)
             ->where('server_date_modified = ?', $serverDateModified);
 
-        $row = $this->_table->fetchRow($select);
+        $row = $this->table->fetchRow($select);
 
         if (null === $row) {
             $result = false;
@@ -194,9 +216,10 @@ class Cache implements XmlCacheInterface
     }
 
     /**
-     * @param mixed $documentId
-     * @param mixed $xmlVersion
-     * @param mixed $serverDateModified
+     * @param int    $documentId
+     * @param string $xmlVersion
+     * @param mixed  $serverDateModified
+     * @param string $xmlData
      */
     public function put($documentId, $xmlVersion, $serverDateModified, $xmlData)
     {
@@ -217,9 +240,9 @@ class Cache implements XmlCacheInterface
             'xml_data'             => $xmlData->saveXML(),
         ];
 
-        $this->_table->insert($newValue);
+        $this->table->insert($newValue);
 
-        $this->_postPut($documentId);
+        $this->postPut($documentId);
     }
 
     /**
@@ -236,7 +259,7 @@ class Cache implements XmlCacheInterface
         if ($xmlVersion === null) {
             $this->removeAllEntriesWhereDocumentId($documentId);
         } else {
-            $rowSet = $this->_table->find($documentId, $xmlVersion);
+            $rowSet = $this->table->find($documentId, $xmlVersion);
 
             if (1 === $rowSet->count()) {
                 $result = $rowSet->current()->delete();
@@ -257,7 +280,7 @@ class Cache implements XmlCacheInterface
     public function removeAllEntriesWhereDocumentId($documentId)
     {
         $where = ['document_id' => $documentId];
-        $this->_table->deleteWhereArray($where);
+        $this->table->deleteWhereArray($where);
     }
 
     /**
@@ -269,7 +292,7 @@ class Cache implements XmlCacheInterface
     public function removeAllEntriesWhereSubSelect($select)
     {
         $where = 'document_id IN (' . $select->assemble() . ')';
-        $this->_table->delete($where);
+        $this->table->delete($where);
     }
 
     /**
@@ -284,7 +307,7 @@ class Cache implements XmlCacheInterface
     /**
      * Removes all entries that are linked to model.
      *
-     * @param $model
+     * @param DependentModelInterface $model
      */
     public function removeAllEntriesForDependentModel($model)
     {
@@ -305,9 +328,9 @@ class Cache implements XmlCacheInterface
      * TODO cache and index should be indenpendent from each other (refactor)
      *      Currently this is the easiest way to keep OPUS 4 working properly.
      */
-    protected function _postPut($documentId)
+    protected function postPut($documentId)
     {
-        if (! $this->_reindexDocumentAfterAddingCacheEntry || self::$indexPluginClass === null) {
+        if (! $this->reindexDocumentAfterAddingCacheEntry || self::$indexPluginClass === null) {
             return;
         }
 
@@ -324,6 +347,9 @@ class Cache implements XmlCacheInterface
         $indexPlugin->postStore($doc);
     }
 
+    /**
+     * @param string $pluginClass
+     */
     public static function setIndexPluginClass($pluginClass)
     {
         self::$indexPluginClass = $pluginClass;

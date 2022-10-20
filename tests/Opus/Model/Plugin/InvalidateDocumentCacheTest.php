@@ -38,12 +38,12 @@ namespace OpusTest\Model\Plugin;
 use DOMXPath;
 use Opus\CollectionRole;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Patent;
 use Opus\Document;
 use Opus\Document\Plugin\XmlCache;
 use Opus\Licence;
 use Opus\Model\Plugin\InvalidateDocumentCache;
 use Opus\Model\Xml\Cache;
-use Opus\Patent;
 use Opus\Person;
 use Opus\Series;
 use OpusTest\TestAsset\TestCase;
@@ -378,7 +378,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $plugin->postStore($this->collection);
         $docReloaded = new Document($docId);
         $this->assertTrue(
-            $docReloaded->getServerDateModified()->getZendDate()->isLater($doc->getServerDateModified()->getZendDate()),
+            $docReloaded->getServerDateModified()->isLater($doc->getServerDateModified()),
             'Expected serverDateModified to be updated.'
         );
     }
@@ -403,10 +403,8 @@ class InvalidateDocumentCacheTest extends TestCase
         $plugin->preDelete($licence);
         $docReloaded = new Document($docId);
         $this->assertTrue(
-            0 === $docReloaded->getServerDateModified()->getZendDate()->compare(
-                $doc->getServerDateModified()->getZendDate()
-            ),
-            'Expected serverDateModified to be updated.'
+            0 === $docReloaded->getServerDateModified()->compare($doc->getServerDateModified()),
+            'Expected serverDateModified not to be updated.'
         );
     }
 
@@ -415,21 +413,21 @@ class InvalidateDocumentCacheTest extends TestCase
         $this->markTestIncomplete('TODO - no assertions (used for manual debugging)');
         $doc = new Document();
 
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setApplication('Test Patent');
         $patent->setCountries('Germany');
         $patent->setNumber('1');
 
         $doc->addPatent($patent);
 
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setApplication('Another Test Patent');
         $patent->setCountries('Germany');
         $patent->setNumber('2');
 
         $doc->addPatent($patent);
 
-        $patent = new Patent();
+        $patent = Patent::new();
         $patent->setApplication('Third Test Patent');
         $patent->setCountries('Germany');
         $patent->setNumber('3');

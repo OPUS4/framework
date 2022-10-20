@@ -25,9 +25,9 @@
 
 namespace OpusTest;
 
+use Opus\Common\Job;
 use Opus\Db\Jobs;
 use Opus\Db\TableGateway;
-use Opus\Job;
 use OpusTest\TestAsset\TestCase;
 
 /**
@@ -49,7 +49,7 @@ class JobTest extends TestCase
      */
     public function testCreatedJobWritesSha1ToHashColumn()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('JobTest');
         $job->setData('somedata');
         $jobId = $job->store();
@@ -65,11 +65,11 @@ class JobTest extends TestCase
      */
     public function testEqualJobsHaveEqualHashes()
     {
-        $job1 = new Job();
+        $job1 = Job::new();
         $job1->setLabel('JobTest');
         $job1->setData('somedata');
 
-        $job2 = new Job();
+        $job2 = Job::new();
         $job2->setLabel('JobTest');
         $job2->setData('somedata');
 
@@ -81,7 +81,7 @@ class JobTest extends TestCase
      */
     public function testUniquenessTestReturnsTrueIfNoJobIsPresent()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('JobTest');
         $job->setData('somedata');
 
@@ -94,12 +94,12 @@ class JobTest extends TestCase
      */
     public function testUniquenessTestReturnsFalseIfJobWithSameHashIsPresent()
     {
-        $job1 = new Job();
+        $job1 = Job::new();
         $job1->setLabel('JobTest');
         $job1->setData('somedata');
         $job1->store();
 
-        $job2 = new Job();
+        $job2 = Job::new();
         $job2->setLabel('JobTest');
         $job2->setData('somedata');
 
@@ -108,12 +108,12 @@ class JobTest extends TestCase
 
     public function testDeleteAll()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('Job1');
         $job->setData('data1');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('Job2');
         $job->setData('data2');
         $job->store();
@@ -127,14 +127,14 @@ class JobTest extends TestCase
 
     public function testGetCount()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('Job1');
         $job->setData('data1');
         $job->store();
 
         $this->assertEquals(1, Job::getCount());
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('Job2');
         $job->setData('data2');
         $job->store();
@@ -144,21 +144,21 @@ class JobTest extends TestCase
 
     public function testGetCountForLabel()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('JobType1');
         $job->setData('data1');
         $job->store();
 
         $label = 'JobType2';
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel($label);
         $job->setData('data2');
         $job->store();
 
         $this->assertEquals(1, Job::getCountForLabel($label));
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel($label);
         $job->setData('data3');
         $job->store();
@@ -168,14 +168,14 @@ class JobTest extends TestCase
 
     public function testGetCountForLabelWithState()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('JobType1');
         $job->setData('data1');
         $job->store();
 
         $label = 'JobType2';
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel($label);
         $job->setState(Job::STATE_PROCESSING);
         $job->setData('data2');
@@ -185,7 +185,7 @@ class JobTest extends TestCase
         $this->assertEquals(1, Job::getCountForLabel($label, Job::STATE_PROCESSING));
         $this->assertEquals(0, Job::getCountForLabel($label, Job::STATE_UNDEFINED));
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel($label);
         $job->setState(Job::STATE_FAILED);
         $job->setData('data3');
@@ -200,13 +200,13 @@ class JobTest extends TestCase
     {
         $label = 'JobType2';
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel($label);
         $job->setState(Job::STATE_PROCESSING);
         $job->setData('data1');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel($label);
         $job->setState(null); // TODO cannot use Opus\Job::STATE_UNDEFINED
         $job->setData('data2');
@@ -218,22 +218,22 @@ class JobTest extends TestCase
 
     public function testGetCountPerLabel()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType1');
         $job->setData('data1');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType1');
         $job->setData('data2');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType2');
         $job->setData('data3');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType2');
         $job->setData('data4');
         $job->store();
@@ -248,23 +248,23 @@ class JobTest extends TestCase
 
     public function testGetCountPerLabelWithState()
     {
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType1');
         $job->setData('data1');
         $job->setState(Job::STATE_PROCESSING);
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType1');
         $job->setData('data2');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType2');
         $job->setData('data3');
         $job->store();
 
-        $job = new Job();
+        $job = Job::new();
         $job->setLabel('EventType2');
         $job->setData('data4');
         $job->store();
