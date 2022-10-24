@@ -38,10 +38,6 @@ use Zend_Auth_Result;
 
 /**
  * Test case for Opus\Security\AuthAdapter class.
- *
- * @category    Tests
- * @package     Opus\Security
- * @group       AuthAdapterTest
  */
 class AuthAdapterTest extends TestCase
 {

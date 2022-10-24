@@ -32,19 +32,15 @@
 namespace OpusTest\Security;
 
 use Opus\Common\Account;
+use Opus\Common\Security\SecurityException;
 use Opus\Db\Accounts;
 use Opus\Db\TableGateway;
-use Opus\Security\SecurityException;
 use OpusTest\TestAsset\TestCase;
 
 use function sha1;
 
 /**
  * Test case for Opus\Account.
- *
- * @category    Tests
- * @package     Opus\Security
- * @group       AccountTest
  */
 class AccountTest extends TestCase
 {

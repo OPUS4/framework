@@ -25,18 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Security
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace Opus\Security;
 
-use Opus\Account;
+use Opus\Common\Account;
+use Opus\Common\AccountInterface;
+use Opus\Common\Log;
+use Opus\Common\Security\SecurityException;
 use Zend_Auth_Adapter_Exception;
 use Zend_Auth_Adapter_Interface;
 use Zend_Auth_Result;
@@ -45,8 +43,6 @@ use function is_string;
 
 /**
  * A simple authentication adapter using the Opus\Account mechanism.
- *
- * phpcs:disable
  */
 class AuthAdapter implements Zend_Auth_Adapter_Interface
 {
@@ -55,21 +51,21 @@ class AuthAdapter implements Zend_Auth_Adapter_Interface
      *
      * @var string
      */
-    protected $_login;
+    protected $login;
 
     /**
      * Holds the password.
      *
      * @var string
      */
-    protected $_password;
+    protected $password;
 
     /**
      * Holds an actual Opus\Account implementation.
      *
-     * @var Account
+     * @var AccountInterface
      */
-    protected $_account;
+    protected $account;
 
     /**
      * Set the credential values for authentication.
@@ -81,7 +77,7 @@ class AuthAdapter implements Zend_Auth_Adapter_Interface
      */
     public function setCredentials($login, $password)
     {
-        if ((is_string($login) === false) or (is_string($password) === false)) {
+        if ((is_string($login) === false) || (is_string($password) === false)) {
             throw new Zend_Auth_Adapter_Exception('Credentials are not strings.');
         }
         if (empty($login) === true) {
@@ -90,8 +86,8 @@ class AuthAdapter implements Zend_Auth_Adapter_Interface
         if (empty($password) === true) {
             throw new Zend_Auth_Adapter_Exception('No password given.');
         }
-        $this->_login    = $login;
-        $this->_password = $password;
+        $this->login    = $login;
+        $this->password = $password;
         return $this;
     }
 
@@ -105,36 +101,36 @@ class AuthAdapter implements Zend_Auth_Adapter_Interface
     {
         // Try to get the account information
         try {
-            $account = new Account(null, null, $this->_login);
+            $account = Account::fetchAccountByLogin($this->login);
         } catch (SecurityException $ex) {
             return new Zend_Auth_Result(
                 Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND,
-                $this->_login,
+                $this->login,
                 ['auth_error_invalid_credentials']
             );
         }
 
         // Check if password is correcct, but for old hashes.  Neede for
         // migrating md5-hashed passwords to SHA1-hashes.
-        if ($account->isPasswordCorrectOldHash($this->_password) === true) {
-            Log::get()->warn('Migrating old password-hash for user: ' . $this->_login);
-            $account->setPassword($this->_password)->store();
-            $account = new Account(null, null, $this->_login);
+        if ($account->isPasswordCorrectOldHash($this->password) === true) {
+            Log::get()->warn('Migrating old password-hash for user: ' . $this->login);
+            $account->setPassword($this->password)->store();
+            $account = Account::fetchAccountByLogin($this->login);
         }
 
         // Check the password
-        $pass = $account->isPasswordCorrect($this->_password);
+        $pass = $account->isPasswordCorrect($this->password);
         if ($pass === true) {
             return new Zend_Auth_Result(
                 Zend_Auth_Result::SUCCESS,
-                $this->_login,
+                $this->login,
                 ['auth_login_success']
             );
         }
 
         return new Zend_Auth_Result(
             Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID,
-            $this->_login,
+            $this->login,
             ['auth_error_invalid_credentials']
         );
     }

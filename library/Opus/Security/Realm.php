@@ -25,21 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Model
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
 namespace Opus\Security;
 
 use Opus\Common\Config;
 use Opus\Common\Log;
+use Opus\Common\Security\RealmInterface;
+use Opus\Common\Security\SecurityException;
 use Opus\Db\Accounts;
 use Opus\Db\TableGateway;
 use Opus\Db\UserRoles;
@@ -60,10 +55,8 @@ use const FILTER_VALIDATE_BOOLEAN;
  * like the current User, IP address, and method to check rights.
  *
  * TODO NAMESPACE rename class?
- *
- * phpcs:disable
  */
-class Realm implements IRealm
+class Realm implements RealmInterface
 {
     /**
      * The current user roles (merged userRoles and ipaddressRoles).
@@ -92,7 +85,7 @@ class Realm implements IRealm
     /**
      * Set the current username.
      *
-     * @param string username username to be set.
+     * @param string $username username to be set.
      * @throws SecurityException Thrown if the supplied identity could not be found.
      * @return $this Fluent interface.
      */
@@ -110,7 +103,7 @@ class Realm implements IRealm
     /**
      * Set the current ip address.
      *
-     * @param string ipaddress ip address to be set.
+     * @param string $ipaddress ip address to be set.
      * @throws SecurityException Thrown if the supplied ip address is not a valid ip address.
      * @return $this Fluent interface.
      */
@@ -156,7 +149,7 @@ class Realm implements IRealm
     /**
      * Get the roles that are assigned to the specified username.
      *
-     * @param string username username to be set.
+     * @param string $username username to be set.
      * @throws SecurityException Thrown if the supplied identity could not be found.
      * @return array Array of assigned roles or an empty array.
      */
@@ -191,7 +184,7 @@ class Realm implements IRealm
     /**
      * Map an IP address to Roles.
      *
-     * @param string ipaddress ip address to be set.
+     * @param string $ipaddress ip address to be set.
      * @throws SecurityException Thrown if the supplied ip is not valid.
      * @return array Array of assigned roles or an empty array.
      */
@@ -221,15 +214,13 @@ class Realm implements IRealm
      * Returns all module resources to which the current user and ip address
      * has access.
      *
-     * @param $username     name of the account to get resources for.
-     *                      Defaults to currently logged in user
-     * @param $ipaddress    IP address to get resources for.
-     *                      Defaults to current remote address if available.
-     * @throws SecurityException Thrown if the supplied ip is not valid or
-     *                      user can not be determined
-     * @return array        array of module resource names
+     * @param string|null $username  name of the account to get resources for.
+     *                               Defaults to currently logged in user
+     * @param string|null $ipaddress IP address to get resources for.
+     *                               Defaults to current remote address if available.
+     * @return array Module resource names
+     * @throws SecurityException Thrown if the supplied ip is not valid or user can not be determined.
      */
-
     public static function getAllowedModuleResources($username = null, $ipaddress = null)
     {
         $resources = [];
@@ -263,7 +254,7 @@ class Realm implements IRealm
     /**
      * checks if the string provided is a valid ip address
      *
-     * @param string ipaddress ip address to validate.
+     * @param string $ipaddress ip address to validate.
      * @return bool Returns true if validation succeeded
      */
     private static function validateIpAddress($ipaddress)
@@ -278,16 +269,16 @@ class Realm implements IRealm
     /**
      * Checks, if the logged user is allowed to access (document_id).
      *
-     * @param null|string $document_id ID of the document to check
+     * @param null|string $documentId ID of the document to check
      * @return bool Returns true only if access is granted.
      */
-    public function checkDocument($document_id = null)
+    public function checkDocument($documentId = null)
     {
         if ($this->skipSecurityChecks()) {
             return true;
         }
 
-        if (empty($document_id)) {
+        if (empty($documentId)) {
             return false;
         }
 
@@ -297,7 +288,7 @@ class Realm implements IRealm
                                 ->from(['ad' => 'access_documents'], ['document_id'])
                                 ->join(['r' => 'user_roles'], 'ad.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->roles)
-                                ->where('ad.document_id = ?', $document_id)
+                                ->where('ad.document_id = ?', $documentId)
         );
         return 1 <= count($results) ? true : false;
     }
@@ -305,16 +296,16 @@ class Realm implements IRealm
     /**
      * Checks, if the logged user is allowed to access (file_id).
      *
-     * @param null|string $file_id ID of the file to check
+     * @param null|string $fileId ID of the file to check
      * @return bool Returns true only if access is granted.
      */
-    public function checkFile($file_id = null)
+    public function checkFile($fileId = null)
     {
         if ($this->skipSecurityChecks()) {
             return true;
         }
 
-        if (empty($file_id)) {
+        if (empty($fileId)) {
             return false;
         }
 
@@ -324,7 +315,7 @@ class Realm implements IRealm
                                 ->from(['af' => 'access_files'], ['file_id'])
                                 ->join(['r' => 'user_roles'], 'af.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->roles)
-                                ->where('af.file_id = ?', $file_id)
+                                ->where('af.file_id = ?', $fileId)
         );
         return 1 <= count($results) ? true : false;
     }
@@ -332,16 +323,16 @@ class Realm implements IRealm
     /**
      * Checks, if the logged user is allowed to access (module_name).
      *
-     * @param null|string $module_name Name of the module to check
+     * @param null|string $moduleName Name of the module to check
      * @return bool Returns true only if access is granted.
      */
-    public function checkModule($module_name = null)
+    public function checkModule($moduleName = null)
     {
         if ($this->skipSecurityChecks()) {
             return true;
         }
 
-        if (empty($module_name)) {
+        if (empty($moduleName)) {
             return false;
         }
 
@@ -351,7 +342,7 @@ class Realm implements IRealm
                                 ->from(['am' => 'access_modules'], ['module_name'])
                                 ->join(['r' => 'user_roles'], 'am.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->roles)
-                                ->where('am.module_name = ?', $module_name)
+                                ->where('am.module_name = ?', $moduleName)
         );
         return 1 <= count($results) ? true : false;
     }
@@ -359,10 +350,11 @@ class Realm implements IRealm
     /**
      * Checks if a user has access to a module.
      *
-     * @param $module_name Name of module
-     * @param $user Name of user
+     * @param string $moduleName Name of module
+     * @param string $user Name of user
+     * @return bool
      */
-    public static function checkModuleForUser($module_name, $user)
+    public static function checkModuleForUser($moduleName, $user)
     {
         $roles = self::getUsernameRoles($user);
 
@@ -372,7 +364,7 @@ class Realm implements IRealm
                 ->from(['am' => 'access_modules'], ['module_name'])
                 ->join(['r' => 'user_roles'], 'am.role_id = r.id', '')
                 ->where('r.name IN (?)', $roles)
-                ->where('am.module_name = ?', $module_name)
+                ->where('am.module_name = ?', $moduleName)
         );
         return 1 <= count($results) ? true : false;
     }
@@ -412,6 +404,11 @@ class Realm implements IRealm
      * If administrator is one of the current roles true will be returned ingoring everything else.
      *
      * @deprecated
+     *
+     * @param string      $privilege
+     * @param string|null $documentServerState
+     * @param int|null    $fileId
+     * @return bool
      */
     public function check($privilege, $documentServerState = null, $fileId = null)
     {
@@ -423,14 +420,14 @@ class Realm implements IRealm
     /**
      * Holds instance.
      *
-     * @var Realm.
+     * @var RealmInterface
      */
     private static $instance;
 
     /**
      * Delivers the singleton instance.
      *
-     * @return Realm
+     * @return RealmInterface
      */
     final public static function getInstance()
     {
@@ -452,13 +449,6 @@ class Realm implements IRealm
      * Singleton classes cannot be cloned!
      */
     final private function __clone()
-    {
-    }
-
-    /**
-     * Singleton classes should not be put to sleep!
-     */
-    final private function __sleep()
     {
     }
 }

@@ -27,16 +27,12 @@
  *
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Security
- * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  */
 
 namespace Opus\Security\AuthAdapter;
 
 use Exception;
-use Opus\Account;
+use Opus\Common\Account;
 use Opus\Security\AuthAdapter;
 use Zend_Auth;
 use Zend_Auth_Adapter_Exception;
@@ -57,8 +53,6 @@ use function str_replace;
 
 /**
  * A simple authentication adapter for LDAP using the Opus\Account mechanism.
- *
- * phpcs:disable
  */
 class Ldap extends AuthAdapter
 {
@@ -72,8 +66,8 @@ class Ldap extends AuthAdapter
     {
         $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
 
-        $log_path = $config->ldap->log_path;
-        $admins   = explode(',', $config->ldap->admin_accounts);
+        $logPath = $config->ldap->log_path;
+        $admins  = explode(',', $config->ldap->admin_accounts);
 
         $options = $config->ldap->toArray();
 
@@ -84,7 +78,7 @@ class Ldap extends AuthAdapter
             // first check local DB with parent class
             $result           = parent::authenticate();
             $user             = new Zend_Session_Namespace('loggedin');
-            $user->usernumber = $this->_login;
+            $user->usernumber = $this->login;
         } catch (Exception $e) {
             throw $e;
         }
@@ -92,16 +86,16 @@ class Ldap extends AuthAdapter
             try {
                 $auth = Zend_Auth::getInstance();
 
-                $adapter = new Zend_Auth_Adapter_Ldap($options, $this->_login, $this->_password);
+                $adapter = new Zend_Auth_Adapter_Ldap($options, $this->login, $this->password);
 
                 $result = $auth->authenticate($adapter);
 
                 // log the result if a log path has been defined in config.ini
-                if ($log_path) {
+                if ($logPath) {
                     $messages = $result->getMessages();
 
                     $logger = new Zend_Log();
-                    $logger->addWriter(new Zend_Log_Writer_Stream($log_path));
+                    $logger->addWriter(new Zend_Log_Writer_Stream($logPath));
                     $filter = new Zend_Log_Filter_Priority(Zend_Log::DEBUG);
                     $logger->addFilter($filter);
 
@@ -116,14 +110,14 @@ class Ldap extends AuthAdapter
                 // if authentication was successfull and user is not already in OPUS DB
                 // register user as publisher to OPUS database
                 try {
-                    $account = new Account(null, null, $this->_login);
+                    $account = Account::fetchAccountByLogin($this->login);
                 } catch (Exception $ex) {
                     if ($result->isValid() === true) {
                         $user             = new Zend_Session_Namespace('loggedin');
-                        $user->usernumber = $this->_login;
+                        $user->usernumber = $this->login;
                         $account          = new Account();
-                        $account->setLogin($this->_login);
-                        $account->setPassword($this->_password);
+                        $account->setLogin($this->login);
+                        $account->setPassword($this->password);
                         $account->store();
                         $roles = Opus_Role::getAll();
                         // look for the publisher role in OPUS DB
@@ -159,7 +153,7 @@ class Ldap extends AuthAdapter
                             $adminRole->addPrivilege($adminprivilege);
                             $adminRole->store();
                         }
-                        if (in_array($this->_login, $admins) === true) {
+                        if (in_array($this->login, $admins) === true) {
                             $account->addRole($adminRole);
                         } else {
                             $account->addRole($accessRole);
@@ -178,7 +172,7 @@ class Ldap extends AuthAdapter
     /**
      * gets userdata from LDAP
      *
-     * @return array data of currently logged in user
+     * @return array|false data of currently logged in user
      */
     public static function getUserdata()
     {
@@ -193,7 +187,7 @@ class Ldap extends AuthAdapter
 
         $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
 
-        $log_path        = $config->ldap->log_path;
+        $logPath         = $config->ldap->log_path;
         $multiOptions    = $config->ldap->toArray();
         $mappingSettings = $config->ldapmappings->toArray();
 
@@ -205,7 +199,7 @@ class Ldap extends AuthAdapter
         foreach ($multiOptions as $name => $options) {
             $mappingFirstName = $mappingSettings[$name]['firstName'];
             $mappingLastName  = $mappingSettings[$name]['lastName'];
-            $mappingEMail     = $mappingSettings[$name]['EMail'];
+            $mappingEmail     = $mappingSettings[$name]['EMail'];
             $permanentId      = $mappingSettings[$name]['personId'];
 
             $ldap->setOptions($options);
@@ -227,10 +221,10 @@ class Ldap extends AuthAdapter
                     } else {
                         $return['lastName'] = $searchresult[$mappingLastName];
                     }
-                    if (is_array($searchresult[$mappingEMail]) === true) {
-                        $return['email'] = $searchresult[$mappingEMail][0];
+                    if (is_array($searchresult[$mappingEmail]) === true) {
+                        $return['email'] = $searchresult[$mappingEmail][0];
                     } else {
-                        $return['email'] = $searchresult[$mappingEMail];
+                        $return['email'] = $searchresult[$mappingEmail];
                     }
                     if (is_array($searchresult[$permanentId]) === true) {
                         $return['personId'] = $searchresult[$permanentId][0];
