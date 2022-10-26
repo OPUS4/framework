@@ -38,7 +38,7 @@ use Opus\Common\Validate\MateDecorator;
 use Opus\Doi\DataCiteXmlGenerationException;
 use Opus\Identifier\Urn;
 use Opus\Model\Field;
-use Opus\Security\Realm;
+use Opus\Security\RealmStorage;
 use Opus\Statistic\LocalCounter;
 use Opus\Translate\DatabaseAdapter;
 use OpusDb_Mysqlutf8;
@@ -49,10 +49,6 @@ use function in_array;
 
 /**
  * Test cases to load all class files.
- *
- * @package Opus
- * @category Tests
- * @group RequireTest
  */
 class RequireTest extends TestCase
 {
@@ -108,7 +104,7 @@ class RequireTest extends TestCase
             Base::class,
             LocalCounter::class,
             Urn::class,
-            Realm::class,
+            RealmStorage::class,
             Field::class,
             OpusStorageFile::class,
             DatabaseAdapter::class,

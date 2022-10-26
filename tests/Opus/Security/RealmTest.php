@@ -32,6 +32,8 @@
 namespace OpusTest\Security;
 
 use Opus\Common\Config;
+use Opus\Common\Security\Realm;
+use Opus\Common\Security\RealmInterface;
 use Opus\Common\Security\SecurityException;
 use Opus\Db\AccessDocuments;
 use Opus\Db\AccessFiles;
@@ -44,7 +46,6 @@ use Opus\Db\LinkAccountsRoles;
 use Opus\Db\LinkIprangesRoles;
 use Opus\Db\TableGateway;
 use Opus\Db\UserRoles;
-use Opus\Security\Realm;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -183,7 +184,8 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
-        $this->assertInstanceOf(Realm::class, $realm, 'Expected object of type Opus\Security\Realm.');
+        $this->assertInstanceOf(RealmInterface::class, $realm, 'Expected object of type Opus\Security\Realm.');
+        $this->assertSame($realm, Realm::getInstance());
     }
 
     /**
