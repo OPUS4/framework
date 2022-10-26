@@ -352,7 +352,7 @@ class LocalCounter
         }
 
         //read last Access for this file id
-        $fileIdTime  = ( int )$xmlFileId->getAttribute('lastAccess');
+        $fileIdTime  = (int) $xmlFileId->getAttribute('lastAccess');
         $doubleClick = false;
 
         if ($fileIdTime === null || $time - $fileIdTime > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
