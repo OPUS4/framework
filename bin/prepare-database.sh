@@ -36,9 +36,28 @@
 # IMPORTANT: This script is also used by other OPUS 4 packages that require
 #            a database for testing.
 #
+# TODO dropping users prevents this script from being used to setup multiple databases with the same users (testing)
+#      For testing on GitHub dropping users doesn't matter because we start with a fresh database.
+# TODO create new database without creating new users
+#
+# TODO interactive mode
+# TODO MySQL root password entered interactively by default, so it does not appear in logs
+# TODO replace underlines in option names (dashes seem more common and are easier)
+#
+# TODO variable for MySQL client
+# TODO variables for host and port
+# TODO variable for MySQL "root" username
+#
+# TODO merge with setup.sh (get rid of setup.sh or remove redundancy)
+# TODO creating database.ini file with config ? (replacing/removing config.ini.template)
+#      config.ini OR database.ini should just be database options - Rest goes into test.ini and application.ini
+# TODO creating schema
+#
+# TODO make this script available in other projects in vendor/bin (setup in composer.json)
+#
 
 # Define variables and their default values
-root_pwd='root'
+# root_pwd='root'
 admin_name='opus4admin'
 admin_pwd='opusadminpwd'
 user_name='opus4'
@@ -75,6 +94,8 @@ if [ $# -gt 0 ]; then
     fi
 fi
 
+interactive_enabled=0
+
 # Parse any other command line options
 while [ $# -gt 0 ]; do
     if [[ $1 == "--"* ]]; then # only deal with long options
@@ -87,9 +108,40 @@ while [ $# -gt 0 ]; do
 
             # Process next option
             shift
+          else
+            if [[ $1 == "--interactive" ]]; then
+              interactive_enabled=1
+            fi
+        fi
+      else
+        if [[ $1 == "-i" ]]; then
+          interactive_enabled=1
         fi
     fi
     shift
 done
 
-export MYSQL_PWD=$root_pwd && mysql --default-character-set=utf8 -h 'localhost' -P '3306' -u 'root' -v -e "CREATE DATABASE IF NOT EXISTS $database_name DEFAULT CHARACTER SET = UTF8 DEFAULT COLLATE = UTF8_GENERAL_CI; DROP USER IF EXISTS '$admin_name'@'localhost'; CREATE USER '$admin_name'@'localhost' IDENTIFIED WITH mysql_native_password BY '$admin_pwd'; GRANT ALL PRIVILEGES ON $database_name.* TO '$admin_name'@'localhost'; DROP USER IF EXISTS '$user_name'@'localhost'; CREATE USER '$user_name'@'localhost' IDENTIFIED WITH mysql_native_password BY '$user_pwd'; GRANT SELECT,INSERT,UPDATE,DELETE ON $database_name.* TO '$user_name'@'localhost'; FLUSH PRIVILEGES;"
+if [[ -z $root_pwd ]]; then
+    if [ $interactive_enabled != 1 ]; then
+        root_pwd='root'
+      else
+        # Querying MySQL root password
+        [[ -z $root_pwd ]] && read -p "MySQL root user password: " -s root_pwd
+    fi
+fi
+
+# TODO remove following SQL permanently
+#     DROP USER IF EXISTS '$admin_name'@'localhost';
+#     DROP USER IF EXISTS '$user_name'@'localhost';
+
+sql=$(cat <<-ENDSTRING
+    CREATE DATABASE IF NOT EXISTS $database_name DEFAULT CHARACTER SET = UTF8 DEFAULT COLLATE = UTF8_GENERAL_CI;
+    CREATE USER IF NOT EXITS '$admin_name'@'localhost' IDENTIFIED WITH mysql_native_password BY '${admin_pwd}';
+    GRANT ALL PRIVILEGES ON $database_name.* TO '$admin_name'@'localhost';
+    CREATE IF NOT EXISTS USER '$user_name'@'localhost' IDENTIFIED WITH mysql_native_password BY '$user_pwd';
+    GRANT SELECT,INSERT,UPDATE,DELETE ON $database_name.* TO '$user_name'@'localhost';
+    FLUSH PRIVILEGES;
+ENDSTRING
+)
+
+export MYSQL_PWD=$root_pwd && mysql --default-character-set=utf8 -h 'localhost' -P '3306' -u 'root' -v -e "$sql"
