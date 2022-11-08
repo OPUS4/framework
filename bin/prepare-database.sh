@@ -36,8 +36,6 @@
 # IMPORTANT: This script is also used by other OPUS 4 packages that require
 #            a database for testing.
 #
-# TODO make interactive mode default (requires updating usage across all packages)
-#
 # TODO merge with setup.sh (get rid of setup.sh or remove redundancy)
 # TODO creating database.ini file with config ? (replacing/removing config.ini.template)
 #      config.ini OR database.ini should just be database options - Rest goes into test.ini and application.ini
@@ -48,7 +46,6 @@
 
 # Define variables and their default values
 sqluser='root'
-sqlpwd='root'
 admin='opus4admin'
 adminpwd='opusadminpwd'
 user='opus4'
@@ -62,13 +59,14 @@ mysql='mysql'
 display_help() {
     echo "Usage: $0 [OPTIONS]" >&2
     echo
+    echo "The script will ask for the SQL root password interactively, unless it is specified as option."
+    echo
     echo "Options (default values given in parentheses):"
     echo
     echo "  --help        (-h)    Print out help"
-    echo "  --interactive (-i)    Ask for SQL root password interactively"
     echo
     echo "  --sqluser             SQL root user      ($sqluser)"
-    echo "  --sqlpwd              SQL root password  ($sqlpwd)"
+    echo "  --sqlpwd              SQL root password"
     echo "  --admin               Admin name         ($admin)"
     echo "  --adminpwd            Admin password     ($adminpwd)"
     echo "  --user                User name          ($user)"
@@ -96,8 +94,6 @@ if [ $# -gt 0 ]; then
     fi
 fi
 
-interactive_enabled=0
-
 # Parse any other command line options
 while [ $# -gt 0 ]; do
     if [[ $1 == "--"* ]]; then # only deal with long options
@@ -110,27 +106,13 @@ while [ $# -gt 0 ]; do
 
             # Process next option
             shift
-          else
-            if [[ $1 == "--interactive" ]]; then
-              interactive_enabled=1
-            fi
-        fi
-      else
-        if [[ $1 == "-i" ]]; then
-          interactive_enabled=1
         fi
     fi
     shift
 done
 
-if [[ -z $sqlpwd ]]; then
-    if [ $interactive_enabled != 1 ]; then
-        sqlpwd='root'
-      else
-        # Querying MySQL root password
-        [[ -z $sqlpwd ]] && read -p "MySQL root user password: " -s sqlpwd
-    fi
-fi
+# Querying MySQL root password
+[[ -z $sqlpwd ]] && read -p "MySQL root user password: " -s sqlpwd
 
 sql=$(cat <<-ENDSTRING
     CREATE DATABASE IF NOT EXISTS $dbname DEFAULT CHARACTER SET = UTF8 DEFAULT COLLATE = UTF8_GENERAL_CI;

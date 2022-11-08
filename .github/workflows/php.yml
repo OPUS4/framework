@@ -32,7 +32,7 @@ jobs:
         run: sudo systemctl start mysql.service
 
       - name: Prepare database
-        run: bash bin/prepare-database.sh --adminpwd root --userpwd root
+        run: bash bin/prepare-database.sh --sqlpwd root --adminpwd root --userpwd root
 
       - name: Setup OPUS 4
         run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
