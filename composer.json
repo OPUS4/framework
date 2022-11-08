@@ -45,6 +45,9 @@
   "archive": {
     "exclude": ["/tests", "/nbproject"]
   },
+  "bin": [
+    "bin/prepare-database.sh"
+  ],
   "scripts": {
     "analysis": [
       "Composer\\Config::disableProcessTimeout",
