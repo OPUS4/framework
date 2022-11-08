@@ -46,7 +46,7 @@
     "exclude": ["/tests", "/nbproject"]
   },
   "bin": [
-    "bin/prepare-database.sh"
+    "bin/opus4db"
   ],
   "scripts": {
     "analysis": [
