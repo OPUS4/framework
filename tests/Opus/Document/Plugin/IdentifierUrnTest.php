@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Document\Plugin
- * @author      Julian Heise (heise@zib.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Document\Plugin;
@@ -50,7 +45,7 @@ use function substr;
 
 class IdentifierUrnTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -384,7 +384,7 @@ abstract class AbstractVersion implements StrategyInterface
             $fieldValues = $fieldValues->getName();
         }
 
-        return trim($fieldValues);
+        return trim($fieldValues ?? '');
     }
 
     /**

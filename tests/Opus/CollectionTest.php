@@ -60,7 +60,11 @@ class CollectionTest extends TestCase
 {
     /** @var CollectionRoleInterface */
     protected $roleFixture;
-    protected $roleName    = "";
+
+    /** @var string */
+    protected $roleName = "";
+
+    /** @var string */
     protected $roleOaiName = "";
 
     /** @var CollectionInterface */
@@ -69,7 +73,7 @@ class CollectionTest extends TestCase
     /**
      * SetUp method.  Inherits database cleanup from parent.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -90,7 +94,7 @@ class CollectionTest extends TestCase
         $this->roleFixture->store();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (is_object($this->roleFixture)) {
             $this->roleFixture->delete();

@@ -46,9 +46,10 @@ use Zend_Config;
  */
 class DoiMailNotificationTest extends TestCase
 {
+    /** @var DoiMailNotification */
     private $doiMailNotification;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -472,7 +472,7 @@ class Collection extends AbstractDb implements CollectionInterface
             $display = $role->getDisplayName();
         }*/
 
-        return trim($display);
+        return trim($display ?? '');
     }
 
     public function getDisplayNameForBrowsingContext($role = null)

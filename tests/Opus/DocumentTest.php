@@ -109,7 +109,7 @@ class DocumentTest extends TestCase
     /**
      * Set up test fixture.
      */
-    public function setUp()
+    public function setUp(): void
     {
         // Set up a mock language list.
         $list = ['de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch'];
@@ -120,7 +120,7 @@ class DocumentTest extends TestCase
         $this->clearTables(false);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $document = new Document();
         $document->setDefaultPlugins(null);

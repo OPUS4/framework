@@ -8,24 +8,18 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          stopOnFailure="false"
-         processIsolation="false"
-         syntaxCheck="true">
+         processIsolation="false">
 
     <testsuite name="FrameworkTests">
         <directory>./tests</directory>
     </testsuite>
 
     <logging>
-        <log type="junit" target="./build/logs/phpunit.xml" logIncompleteSkipped="true" />
+        <log type="junit" target="./build/logs/phpunit.xml" />
     </logging>
 
     <!-- Define directories/files filter for code coverage. -->
     <filter>
-        <!-- Per default, skip all files. -->
-        <blacklist>
-            <directory suffix=".php">.</directory>
-        </blacklist>
-
         <!-- Define directories to include. -->
         <whitelist>
             <directory suffix=".php">./library/Opus</directory>

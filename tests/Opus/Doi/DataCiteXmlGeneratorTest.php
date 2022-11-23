@@ -66,11 +66,16 @@ use const DIRECTORY_SEPARATOR;
 
 class DataCiteXmlGeneratorTest extends TestCase
 {
-    protected $srcPath  = '';
-    protected $destPath = '';
-    protected $path     = '';
+    /** @var string */
+    protected $srcPath = '';
 
-    public function setUp()
+    /** @var string */
+    protected $destPath = '';
+
+    /** @var string */
+    protected $path = '';
+
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -124,7 +129,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         ]));
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         FileUtil::deleteDirectory($this->path);
 

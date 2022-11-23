@@ -46,6 +46,7 @@ use Zend_Db_Table_Abstract;
  */
 class AbstractDbMock extends AbstractDb
 {
+    /** @var bool */
     public $postStoreHasBeenCalled = false;
 
     /**

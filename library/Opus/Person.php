@@ -782,7 +782,7 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
         foreach ($criteria as $fieldName => $critValue) {
             $value = $this->getField($fieldName)->getValue();
 
-            if (is_string($value)) {
+            if (is_string($value) && $critValue !== null) {
                 if (stristr($value, $critValue) === false) {
                     return false;
                 }
@@ -821,7 +821,7 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
         $person   = array_merge($defaults, $person);
 
         foreach ($person as $column => $value) {
-            if (strlen(trim($value)) > 0) {
+            if (strlen(trim($value ?? '')) > 0) {
                 $select->where("trim(p.$column) = ?", trim($value));
             } else {
                 $select->where("p.$column IS NULL");

@@ -88,7 +88,7 @@ class AbstractDbTest extends TestCase
     /**
      * Prepare the Database.
      */
-    public function setUp()
+    public function setUp(): void
     {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
@@ -112,7 +112,7 @@ class AbstractDbTest extends TestCase
     /**
      * Remove temporary table.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');

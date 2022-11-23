@@ -33,7 +33,6 @@ namespace Opus\Model;
 
 use Exception;
 use InvalidArgumentException;
-use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\NotFoundException;

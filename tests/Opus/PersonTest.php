@@ -57,10 +57,6 @@ use function trim;
 
 /**
  * Test cases for class Opus\Person.
- *
- * @package Opus
- * @category Tests
- * @group PersonTest
  */
 class PersonTest extends TestCase
 {
@@ -81,7 +77,7 @@ class PersonTest extends TestCase
     /**
      * Set up test data documents and persons.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

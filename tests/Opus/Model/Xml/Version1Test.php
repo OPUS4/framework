@@ -55,21 +55,17 @@ use function preg_replace;
 
 /**
  * Test creation XML (version1) from models and creation of models by valid XML respectivly.
- *
- * @category    Tests
- * @package     Opus\Model
- * @group XmlVersion1Test
  */
 class Version1Test extends TestCase
 {
     /**
      * Overwrite parent methods.
      */
-    public function setUp()
+    public function setUp(): void
     {
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 
@@ -268,7 +264,7 @@ class Version1Test extends TestCase
     public function testCreateFromXml($xml, $model, $msg)
     {
         $xmlHelper = new Xml();
-        if ($xml instanceof DomDocument) {
+        if ($xml instanceof DOMDocument) {
             $xmlHelper->setDomDocument($xml);
         } else {
             $xmlHelper->setXml($xml);

@@ -78,7 +78,7 @@ class CollectionRoleTest extends TestCase
     /**
      * Sets up the fixture.  Method is called before each test.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -155,7 +155,7 @@ class CollectionRoleTest extends TestCase
             'CollectionRole isNewRecord check failed on new record.'
         );
 
-        $roleId = $this->object->store();
+        $roleId = ( int )$this->object->store();
         $this->assertNotNull(
             $roleId,
             'CollectionRole roleId return value check on stored record.'
@@ -709,7 +709,7 @@ class CollectionRoleTest extends TestCase
 
         // Check if setPosition works properly.
         $numRoles       = count($collectionRoleRepository->fetchAll());
-        $checkPositions = [1, $numRoles, round((1 + $numRoles) / 2), 1];
+        $checkPositions = [1, $numRoles, intval(round((1 + $numRoles) / 2)), 1];
 
         foreach ($checkPositions as $position) {
             $this->object->setPosition($position);
@@ -718,7 +718,7 @@ class CollectionRoleTest extends TestCase
             // Reload object, otherwise the result will be trivial.
             $role = new CollectionRole($this->object->getId());
             $this->assertTrue(
-                $role->getPosition() === "$position",
+                $role->getPosition() === $position,
                 'CollectionRole position check failed.'
             );
         }
@@ -757,12 +757,12 @@ class CollectionRoleTest extends TestCase
         $this->assertTrue($role->getDisplayBrowsing() === 'Number, Name', 'CollectionRole display_browsing check failed.');
         $this->assertTrue($role->getDisplayFrontdoor() === 'Name', 'CollectionRole display_frontdoor check failed.');
 
-        $this->assertTrue($role->getVisible() === '1', 'CollectionRole visible check failed.');
-        $this->assertTrue($role->getVisibleBrowsingStart() === '1', 'CollectionRole visible_browsing_start check failed.');
-        $this->assertTrue($role->getVisibleFrontdoor() === '0', 'CollectionRole visible_frontdoor check failed.');
-        $this->assertTrue($role->getVisibleOai() === '1', 'CollectionRole visible_oai check failed.');
+        $this->assertTrue($role->getVisible() === 1, 'CollectionRole visible check failed.');
+        $this->assertTrue($role->getVisibleBrowsingStart() === 1, 'CollectionRole visible_browsing_start check failed.');
+        $this->assertTrue($role->getVisibleFrontdoor() === 0, 'CollectionRole visible_frontdoor check failed.');
+        $this->assertTrue($role->getVisibleOai() === 1, 'CollectionRole visible_oai check failed.');
 
-        $this->assertTrue($role->getPosition() === '1', 'CollectionRole position check failed.');
+        $this->assertTrue($role->getPosition() === 1, 'CollectionRole position check failed.');
     }
 
     /**

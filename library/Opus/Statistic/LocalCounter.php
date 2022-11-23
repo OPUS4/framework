@@ -79,6 +79,7 @@ class LocalCounter
      */
     private $doubleClickIntervalHtml = 10;
 
+    /** @var string[] */
     private $spiderList = [
         'Alexandria prototype project',
         'Arachmo',

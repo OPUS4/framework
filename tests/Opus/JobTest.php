@@ -38,7 +38,7 @@ use OpusTest\TestAsset\TestCase;
  */
 class JobTest extends TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         Job::deleteAll();
         parent::tearDown();

@@ -44,9 +44,6 @@ use function rand;
 
 /**
  * Search Hit model class.
- *
- * @category    Framework
- * @package     Opus\Model\Xml
  */
 class CacheTest extends TestCase
 {
@@ -64,7 +61,7 @@ class CacheTest extends TestCase
      */
     private $maxEntries = 5;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -280,7 +280,7 @@ class Properties
     {
         $adapter = $this->getAdapter();
 
-        if ($type !== null && (is_int($model) || ctype_digit($model))) {
+        if ($type !== null && (is_int($model) || (is_string($model) && ctype_digit($model)))) {
             $modelTypeId = $this->getModelTypeId($type);
             $modelId     = $model;
         } else {
@@ -344,7 +344,7 @@ class Properties
     {
         $adapter = $this->getAdapter();
 
-        if ($type !== null && (is_int($model) || ctype_digit($model))) {
+        if ($type !== null && (is_int($model) || (is_string($model) && ctype_digit($model)))) {
             $modelTypeId = $this->getModelTypeId($type);
             $modelId     = $model;
         } else {

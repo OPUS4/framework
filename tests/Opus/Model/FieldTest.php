@@ -58,11 +58,11 @@ class FieldTest extends TestCase
     /**
      * Overwrite parent methods.
      */
-    public function setUp()
+    public function setUp(): void
     {
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 

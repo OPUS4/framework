@@ -39,7 +39,7 @@ use OpusTest\TestAsset\TestCase;
 
 class PermissionTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

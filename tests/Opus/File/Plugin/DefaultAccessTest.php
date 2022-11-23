@@ -47,7 +47,7 @@ use function uniqid;
  */
 class DefaultAccessTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

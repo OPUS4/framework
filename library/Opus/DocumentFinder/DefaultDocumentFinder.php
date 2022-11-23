@@ -46,6 +46,7 @@ use function is_array;
  */
 class DefaultDocumentFinder implements DocumentFinderInterface
 {
+    /** @var DocumentFinder */
     private $finder;
 
     public function __construct()

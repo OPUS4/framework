@@ -43,7 +43,7 @@ use function sleep;
 
 class DeleteSubTreeTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

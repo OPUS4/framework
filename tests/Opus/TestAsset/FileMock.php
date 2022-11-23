@@ -25,12 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\File
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\TestAsset;
@@ -39,8 +35,10 @@ use Opus\File;
 
 class FileMock extends File
 {
+    /** @var bool */
     private $newRecord;
 
+    /** @var int */
     private $fileId;
 
     /**

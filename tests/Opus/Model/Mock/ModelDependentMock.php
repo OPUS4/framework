@@ -45,12 +45,16 @@ use Opus\Model\Dependent\AbstractDependentModel;
  */
 class ModelDependentMock extends AbstractDependentModel
 {
+    /** @var bool */
     public $deleteHasBeenCalled = false;
 
+    /** @var bool */
     public $doDeleteHasBeenCalled = false;
 
+    /** @var bool */
     public $setParentIdHasBeenCalled = false;
 
+    /** @var int */
     public $id;
 
     public function __construct()

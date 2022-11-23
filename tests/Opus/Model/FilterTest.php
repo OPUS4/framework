@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Model;
@@ -48,10 +43,6 @@ use function class_exists;
 
 /**
  * Test cases for class Opus\Model\Filter.
- *
- * @package Opus\Model
- * @category Tests
- * @group FilterTest
  */
 class FilterTest extends TestCase
 {
@@ -69,7 +60,7 @@ class FilterTest extends TestCase
      */
     protected $filter;
 
-    public function setUp()
+    public function setUp(): void
     {
         // TODO NAMESPACE is this good code? does it work?
 
@@ -98,7 +89,7 @@ class FilterTest extends TestCase
     /**
      * Overwrite parent methods.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 

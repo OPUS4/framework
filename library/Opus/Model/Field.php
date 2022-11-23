@@ -553,7 +553,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
             } catch (Exception $ex) {
                 throw new ModelException(
                     "Failed to cast value '$value' to class '{$this->valueModelClass}'. (Field {$this->name})",
-                    null,
+                    0,
                     $ex
                 );
             }
@@ -651,8 +651,8 @@ class Field implements ModificationTrackingInterface, FieldInterface
         // Check multiplicity constraint
         if (is_int($this->multiplicity) === true) {
             if (
-                (count($value) > $this->multiplicity)
-                or ((count($value) + count($this->value)) > $this->multiplicity)
+                (1 > $this->multiplicity)
+                || (1 + count($this->value)) > $this->multiplicity
             ) {
                 throw new InvalidArgumentException(
                     'Field ' . $this->name . ' cannot hold more then ' . $this->multiplicity . ' values.'

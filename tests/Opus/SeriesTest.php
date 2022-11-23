@@ -48,7 +48,7 @@ use function sleep;
 
 class SeriesTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -389,7 +389,7 @@ class SeriesTest extends TestCase
         $s->store();
 
         $s = Series::get($s->getId());
-        $this->assertTrue($s->getVisible() === '1');
+        $this->assertTrue($s->getVisible() === 1);
 
         $s = Series::get($s->getId());
         $s->setVisible('0');

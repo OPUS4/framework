@@ -46,12 +46,10 @@ use function strtotime;
  */
 class DateTest extends TestCase
 {
-    protected $localeBackup;
-
     /**
      * Prepare german locale setup.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         Zend_Locale::setDefault('de');

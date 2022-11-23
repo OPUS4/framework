@@ -41,7 +41,7 @@ use OpusTest\TestAsset\TestCase;
  */
 class AccountTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
