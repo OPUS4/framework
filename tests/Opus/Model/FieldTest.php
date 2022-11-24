@@ -478,7 +478,7 @@ class FieldTest extends TestCase
      */
     public function testAddingMoreValuesThenAllowedThrowsException()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $field = new Field('MyField');
         $field->setMultiplicity(3);
         $field->addValue([15, 16, 17, 18]);

@@ -411,13 +411,13 @@ class SeriesTest extends TestCase
         $s->store();
 
         $s = Series::get($s->getId());
-        $this->assertTrue($s->getSortOrder() === '0');
+        $this->assertTrue($s->getSortOrder() === 0);
 
-        $s->setSortOrder('10');
+        $s->setSortOrder(10);
         $s->store();
 
         $s = Series::get($s->getId());
-        $this->assertTrue($s->getSortOrder() === '10');
+        $this->assertTrue($s->getSortOrder() === 10);
 
         $s->delete();
     }

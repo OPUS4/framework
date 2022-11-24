@@ -1061,7 +1061,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
         $files = $this->getFile();
 
         $files = array_filter($files, function ($file) {
-            return $file->getVisibleInFrontdoor() === '1';
+            return $file->getVisibleInFrontdoor() === 1;
         });
 
         return count($files) > 0;

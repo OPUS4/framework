@@ -735,9 +735,7 @@ class Version1Test extends TestCase
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels()
     {
-        $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)
-            ->setProxyTarget(['get'])
-            ->getMock();
+        $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)->getMock();
 
         $xmlData = '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><OpusTest_Model_Mock_AbstractModelMock xlink:href="www.example.org/item/12" /></Opus>';
 

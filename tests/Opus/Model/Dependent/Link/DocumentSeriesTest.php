@@ -55,7 +55,7 @@ class DocumentSeriesTest extends TestCase
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertTrue($series[0]->getDocSortOrder() === '0');
+        $this->assertTrue($series[0]->getDocSortOrder() === 0);
 
         $d = new Document();
         $d->addSeries($s)->setNumber('II.');
@@ -63,7 +63,7 @@ class DocumentSeriesTest extends TestCase
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertTrue($series[0]->getDocSortOrder() === '1');
+        $this->assertTrue($series[0]->getDocSortOrder() === 1);
 
         $d = new Document();
         $d->addSeries($s)->setNumber('IV.')->setDocSortOrder(4);
@@ -71,7 +71,7 @@ class DocumentSeriesTest extends TestCase
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertTrue($series[0]->getDocSortOrder() === '4');
+        $this->assertTrue($series[0]->getDocSortOrder() === 4);
 
         $d = new Document();
         $d->addSeries($s)->setNumber('V.');
@@ -79,7 +79,7 @@ class DocumentSeriesTest extends TestCase
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertTrue($series[0]->getDocSortOrder() === '5');
+        $this->assertTrue($series[0]->getDocSortOrder() === 5);
 
         $d = new Document();
         $d->addSeries($s)->setNumber('III.')->setDocSortOrder(3);
@@ -87,22 +87,22 @@ class DocumentSeriesTest extends TestCase
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertTrue($series[0]->getDocSortOrder() === '3');
+        $this->assertTrue($series[0]->getDocSortOrder() === 3);
 
         $series[0]->setDocSortOrder(10);
         $d->store();
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertTrue($series[0]->getDocSortOrder() === '10');
+        $this->assertTrue($series[0]->getDocSortOrder() === 10);
 
         $series[0]->setDocSortOrder(null);
         $d->store();
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertFalse($series[0]->getDocSortOrder() === '11');
-        $this->assertTrue($series[0]->getDocSortOrder() === '6');
+        $this->assertFalse($series[0]->getDocSortOrder() === 11);
+        $this->assertTrue($series[0]->getDocSortOrder() === 6);
     }
 
     public function testToArray()

@@ -600,7 +600,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
      */
     private function _wrapValueInArrayIfRequired($value)
     {
-        if (is_array($value) or ! $this->hasMultipleValues()) {
+        if (is_array($value) || ! $this->hasMultipleValues()) {
             return $value;
         }
 
@@ -650,9 +650,11 @@ class Field implements ModificationTrackingInterface, FieldInterface
 
         // Check multiplicity constraint
         if (is_int($this->multiplicity) === true) {
+            $valueCount = is_array($value) ? count($value) : 1;
+
             if (
-                (1 > $this->multiplicity)
-                || (1 + count($this->value)) > $this->multiplicity
+                ($valueCount > $this->multiplicity)
+                || ($valueCount + count($this->value)) > $this->multiplicity
             ) {
                 throw new InvalidArgumentException(
                     'Field ' . $this->name . ' cannot hold more then ' . $this->multiplicity . ' values.'

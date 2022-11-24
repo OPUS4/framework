@@ -230,7 +230,7 @@ class Series extends AbstractDb implements SeriesInterface
             . 'WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
         );
-        return $count === '0';
+        return $count === 0;
     }
 
     /**

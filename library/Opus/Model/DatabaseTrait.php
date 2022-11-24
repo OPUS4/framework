@@ -123,7 +123,8 @@ trait DatabaseTrait
             // This is needed, because find takes as many parameters as
             // primary keys.  It *does* *not* accept arrays with all primary
             // key columns.
-            $rowset = call_user_func_array([&$tableGatewayModel, 'find'], $idTupel);
+            // removing keys from $idTupel because in PHP 8 they have to match parameter names
+            $rowset = call_user_func_array([&$tableGatewayModel, 'find'], array_values($idTupel));
 
             if (false === $rowset->count() > 0) {
                 throw new NotFoundException(

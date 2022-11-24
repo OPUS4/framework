@@ -119,14 +119,18 @@ class Version1 extends AbstractVersion
 
         $childNode = $dom->createElement($modelClass);
 
-        if ($model->getId() !== null) {
-            if ($model instanceof PersistableInterface) {
-                $childNode->setAttribute('Id', $model->getId());
-            } elseif (
-                $model instanceof Filter &&
-                $model->getModel() instanceof PersistableInterface
-            ) {
-                $childNode->setAttribute('Id', $model->getId());
+        if ($model instanceof PersistableInterface) {
+            $modelId = $model->getId();
+            if ($modelId !== null) {
+                $childNode->setAttribute('Id', $modelId);
+            }
+        } elseif (
+            $model instanceof Filter &&
+            $model->getModel() instanceof PersistableInterface
+        ) {
+            $modelId = $model->getId();
+            if ($modelId !== null) {
+                $childNode->setAttribute('Id', $modelId);
             }
         }
 
