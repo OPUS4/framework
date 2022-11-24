@@ -389,17 +389,17 @@ class SeriesTest extends TestCase
         $s->store();
 
         $s = Series::get($s->getId());
-        $this->assertTrue($s->getVisible() === 1);
+        $this->assertEquals(1, $s->getVisible());
 
         $s = Series::get($s->getId());
         $s->setVisible('0');
         $s->store();
-        $this->assertTrue($s->getVisible() === '0');
+        $this->assertEquals(0, $s->getVisible());
 
         $s = Series::get($s->getId());
         $s->setVisible('1');
         $s->store();
-        $this->assertTrue($s->getVisible() === '1');
+        $this->assertEquals(1, $s->getVisible());
 
         $s->delete();
     }
@@ -411,13 +411,13 @@ class SeriesTest extends TestCase
         $s->store();
 
         $s = Series::get($s->getId());
-        $this->assertTrue($s->getSortOrder() === 0);
+        $this->assertEquals(0, $s->getSortOrder());
 
         $s->setSortOrder(10);
         $s->store();
 
         $s = Series::get($s->getId());
-        $this->assertTrue($s->getSortOrder() === 10);
+        $this->assertEquals(10, $s->getSortOrder());
 
         $s->delete();
     }
