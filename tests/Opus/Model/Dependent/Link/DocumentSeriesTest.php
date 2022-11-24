@@ -94,7 +94,7 @@ class DocumentSeriesTest extends TestCase
 
         $d      = new Document($d->getId());
         $series = $d->getSeries();
-        $this->assertEquals(10,$series[0]->getDocSortOrder());
+        $this->assertEquals(10, $series[0]->getDocSortOrder());
 
         $series[0]->setDocSortOrder(null);
         $d->store();

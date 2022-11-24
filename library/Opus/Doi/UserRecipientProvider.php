@@ -61,7 +61,7 @@ class UserRecipientProvider implements NotificationRecipientProviderInterface
         foreach ($accounts as $account) {
             $email = $account->getEmail();
 
-            if (strlen(trim($email)) === 0) {
+            if (strlen(trim($email ?? '')) === 0) {
                 continue; // do not add to recipient list
             }
 
