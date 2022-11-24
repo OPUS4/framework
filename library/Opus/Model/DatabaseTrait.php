@@ -39,6 +39,7 @@ use Zend_Db_Table_Abstract;
 use Zend_Db_Table_Row;
 
 use function array_multisort;
+use function array_values;
 use function call_user_func_array;
 use function get_class;
 use function implode;
