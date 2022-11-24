@@ -225,7 +225,7 @@ class Series extends AbstractDb implements SeriesInterface
     public function isNumberAvailable($number)
     {
         $db    = Zend_Db_Table::getDefaultAdapter();
-        $count = $db->fetchOne(
+        $count = ( int )$db->fetchOne(
             'SELECT COUNT(*) AS rows_count FROM link_documents_series '
             . 'WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
