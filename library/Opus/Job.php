@@ -222,7 +222,7 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
      * @param array       $labels Set of labels to get Jobs for.
      * @param null|string $limit (optional) Number of jobs to retrieve
      * @param null|string $state (optional) only retrieve jobs in given state
-     * @return array Set of Opus\Job objects.
+     * @return array|null Set of Opus\Job objects.
      */
     public function getByLabels($labels, $limit = null, $state = null)
     {
