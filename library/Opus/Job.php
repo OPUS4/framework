@@ -47,8 +47,6 @@ use function sha1;
 
 /**
  * Job model used to manage job descriptions.
- *
- * phpcs:disable
  */
 class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
 {
@@ -123,9 +121,12 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
     public function getData($convertObjectsIntoAssociativeArrays = false)
     {
         $fieldData  = $this->_getField('Data')->getValue();
+        if ($fieldData === null) {
+            throw new Exception('No JSON data to decode.');
+        }
         $jsonDecode = json_decode($fieldData, $convertObjectsIntoAssociativeArrays);
-        if ((null != $fieldData) and (null === $jsonDecode)) {
-            throw new Exception('Json decoding failed.');
+        if (null === $jsonDecode) {
+            throw new Exception('JSON decoding failed.');
         }
         return $jsonDecode;
     }
