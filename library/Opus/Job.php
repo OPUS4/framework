@@ -40,6 +40,7 @@ use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
 use function count;
+use function func_get_args;
 use function json_decode;
 use function json_encode;
 use function serialize;
@@ -106,7 +107,7 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
     public function setData($value)
     {
         $jsonEncode = json_encode($value);
-        if ((null !== $value) and (null === $jsonEncode)) {
+        if ((null !== $value) && (null === $jsonEncode)) {
             throw new Exception('Json encoding failed.');
         }
         $this->_getField('Data')->setValue($jsonEncode);
@@ -115,12 +116,13 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
     /**
      * Intercept getter logic to do JSON decoding.
      *
-     * @throws Exception Thrown if json decoding failed.
+     * @param bool $convertObjectsIntoAssociativeArrays
      * @return mixed Value of field.
+     * @throws Exception Thrown if json decoding failed.
      */
     public function getData($convertObjectsIntoAssociativeArrays = false)
     {
-        $fieldData  = $this->_getField('Data')->getValue();
+        $fieldData = $this->_getField('Data')->getValue();
         if ($fieldData === null) {
             throw new Exception('No JSON data to decode.');
         }

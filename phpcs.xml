@@ -6,4 +6,9 @@
     <file>library</file>
     <file>tests</file>
 
+    <!-- Allow method names prefix with underscore (old code) for now. -->
+    <rule ref="PSR2.Methods.MethodDeclaration">
+        <severity>0</severity>
+    </rule>
+
 </ruleset>
