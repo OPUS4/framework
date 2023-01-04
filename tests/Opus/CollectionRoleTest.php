@@ -743,8 +743,7 @@ class CollectionRoleTest extends TestCase
         $this->assertNotNull($role->getId(), 'CollectionRole storing failed: should have an Id.');
 
         // Restore object, validate.
-        $roleId = $role->getId();
-        $role   = new CollectionRole($roleId);
+        $role = new CollectionRole($role->getId());
 
         $this->assertNotNull($role->getName(), 'CollectionRole name check failed.');
         $this->assertNotNull($role->getOaiName(), 'CollectionRole oai_name check failed.');

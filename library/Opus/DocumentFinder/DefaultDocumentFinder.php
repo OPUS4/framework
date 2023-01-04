@@ -34,6 +34,7 @@ namespace Opus\DocumentFinder;
 use Opus\Common\DocumentFinderInterface;
 use Opus\DocumentFinder;
 
+use function array_map;
 use function is_array;
 
 /**
@@ -59,7 +60,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
      */
     public function getIds()
     {
-        return $this->finder->ids();
+        return array_map('intval', $this->finder->ids());
     }
 
     /**

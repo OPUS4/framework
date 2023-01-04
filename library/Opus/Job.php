@@ -124,7 +124,7 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
     {
         $fieldData = $this->_getField('Data')->getValue();
         if ($fieldData === null) {
-            throw new Exception('No JSON data to decode.');
+            return []; // TODO WAS throw new Exception('No JSON data to decode.');
         }
         $jsonDecode = json_decode($fieldData, $convertObjectsIntoAssociativeArrays);
         if (null === $jsonDecode) {

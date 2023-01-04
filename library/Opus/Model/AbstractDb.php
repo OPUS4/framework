@@ -625,7 +625,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
     /**
      * Get the models primary key.
      *
-     * @return mixed
+     * @return int|string|array|null
      */
     public function getId()
     {
@@ -640,7 +640,12 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
         if (count($result) > 1) {
             return $result;
         } elseif (count($result) === 1) {
-            return $result[0];
+            $modelId = $result[0];
+            if ($modelId !== null && ctype_digit($modelId)) {
+                return (int) $modelId;
+            } else {
+                return $modelId;
+            }
         } else {
             return null;
         }
