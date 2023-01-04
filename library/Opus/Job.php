@@ -117,7 +117,7 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
      * Intercept getter logic to do JSON decoding.
      *
      * @param bool $convertObjectsIntoAssociativeArrays
-     * @return mixed Value of field.
+     * @return array Value of field.
      * @throws Exception Thrown if json decoding failed.
      */
     public function getData($convertObjectsIntoAssociativeArrays = false)
