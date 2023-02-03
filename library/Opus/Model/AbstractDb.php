@@ -641,7 +641,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
             return $result;
         } elseif (count($result) === 1) {
             $modelId = $result[0];
-            if ($modelId !== null && ctype_digit($modelId)) {
+            if (($modelId !== null && ! is_int($modelId) && ctype_digit($modelId))) {
                 return (int) $modelId;
             } else {
                 return $modelId;
