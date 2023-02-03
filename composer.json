@@ -14,9 +14,9 @@
     "ext-fileinfo": "*",
     "ext-json": "*",
     "ext-libxml": "*",
-    "shardj/zf1-future": "1.21.*",
-    "opus4-repo/opus4-common": "dev-4.7.2-zf1f",
-    "opus4-repo/opus4-doi": "dev-4.7.2-zf1f"
+    "opus4/zf1-future": "1.21.*",
+    "opus4-repo/opus4-common": "4.7.2.x-dev",
+    "opus4-repo/opus4-doi": "dev-master"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
