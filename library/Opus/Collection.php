@@ -1132,7 +1132,7 @@ class Collection extends AbstractDb implements CollectionInterface
     public function isRoot()
     {
         if ($this->isNewRecord()) {
-            return;
+            return false;
         }
 
         return $this->primaryTableRow->getTable()->isRoot(
