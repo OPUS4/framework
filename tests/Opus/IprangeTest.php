@@ -43,7 +43,7 @@ class IprangeTest extends TestCase
      */
     protected $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->clearTables(false, ['ipranges']);

@@ -115,7 +115,7 @@ class DatabaseBootstrap extends Base
                 $result = $query->fetch();
 
                 if (is_array($result) && array_key_exists('version', $result)) {
-                    $version         = $result['version'];
+                    $version         = (int) $result['version'];
                     $expectedVersion = Version::getSchemaVersion();
 
                     if ($version !== $expectedVersion) {

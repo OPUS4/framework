@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,10 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus\Translate
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2021, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -37,22 +34,25 @@ namespace OpusTest\Translate;
 use Opus\Translate\Dao;
 use Opus\Translate\DatabaseAdapter;
 use OpusTest\TestAsset\TestCase;
+use Zend_Cache_Core;
 use Zend_Translate;
 
 class DatabaseAdapterTest extends TestCase
 {
+    /** @var Zend_Cache_Core */
     private $cache;
 
+    /** @var Dao */
     private $translations;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->cache        = Zend_Translate::getCache();
         $this->translations = new Dao();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Zend_Translate::setCache($this->cache);
         parent::tearDown();

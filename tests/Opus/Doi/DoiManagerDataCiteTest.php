@@ -45,7 +45,7 @@ class DoiManagerDataCiteTest extends TestCase
     /**
      * TODO determine 'skipping' based on configuration (environment)
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->markTestSkipped(

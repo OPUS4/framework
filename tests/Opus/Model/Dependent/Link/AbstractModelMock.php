@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  */
 
 namespace OpusTest\Model\Dependent\Link;
@@ -39,12 +35,10 @@ use Opus\Model\AbstractModel;
 
 /**
  * Mock model.
- *
- * @category    Tests
- * @package     Opus\Model
  */
 class AbstractModelMock extends AbstractModel
 {
+    /** @var bool */
     private $mockValid = true;
 
     /**

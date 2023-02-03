@@ -33,7 +33,6 @@ namespace Opus\Model;
 
 use Exception;
 use InvalidArgumentException;
-use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
 use Opus\Common\Model\NotFoundException;
@@ -626,7 +625,7 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
     /**
      * Get the models primary key.
      *
-     * @return mixed
+     * @return int|string|array|null
      */
     public function getId()
     {
@@ -641,7 +640,12 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
         if (count($result) > 1) {
             return $result;
         } elseif (count($result) === 1) {
-            return $result[0];
+            $modelId = $result[0];
+            if (($modelId !== null && ! is_int($modelId) && ctype_digit($modelId))) {
+                return (int) $modelId;
+            } else {
+                return $modelId;
+            }
         } else {
             return null;
         }

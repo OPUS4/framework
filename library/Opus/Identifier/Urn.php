@@ -99,14 +99,14 @@ class Urn
     public function __construct($nid, $nss)
     {
         $nidRegex = '/^[a-zA-Z0-9][a-zA-z0-9\-]+$/';
-        if (preg_match($nidRegex, $nid) !== 0) {
+        if ($nid !== null && preg_match($nidRegex, $nid) !== 0) {
             $this->nid = $nid;
         } else {
             throw new InvalidArgumentException('Used invalid namespace identifier. See RFC 2141.');
         }
 
         $nssRegex = '/^[a-zA-z0-9\(\)\+,\-\.:=@;\$_!\*\'%\/\?#]+$/';
-        if (preg_match($nssRegex, $nss) !== 0) {
+        if ($nss !== null && preg_match($nssRegex, $nss) !== 0) {
             $this->nss = $nss;
         } else {
             throw new InvalidArgumentException('Used invalid namespace specific string. See RFC 2141.');
@@ -191,7 +191,7 @@ class Urn
             // identify last digit, which is the check digit
             // TODO: (Thoralf)  Not supported by every PHP
             // $check_digit = ($quotient{mb_strlen($quotient)-1});
-            return $quotient{strlen($quotient) - 1};
+            return $quotient[strlen($quotient) - 1];
         }
     }
 

@@ -555,8 +555,8 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
      *
      * TODO filter by role?
      *
-     * @param $person Criteria for matching persons
-     * @param null                                 $documents Array with ids of documents
+     * @param array      $person Criteria for matching persons
+     * @param array|null $documents Array with ids of documents
      * @return array Array with IDs of persons
      */
     public function getPersons($person, $documents = null)
@@ -619,8 +619,8 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
      *
      * Optionally the scope can be limited to specified set of documents.
      *
-     * @param $person Criteria for matching persons
-     * @param $changes Map of column names and new values
+     * @param array $person Criteria for matching persons
+     * @param array $changes Map of column names and new values
      * @param null                                       $documents Array with document Ids
      *
      *                                       TODO update ServerDateModified for modified documents (How?)
@@ -709,7 +709,7 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
     /**
      * Converts map with field names into array with column names.
      *
-     * @param $changes Map of field names and values
+     * @param array $changes Map of field names and values
      * @return array Map of column names and values
      */
     public static function convertChanges($changes)
@@ -782,7 +782,7 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
         foreach ($criteria as $fieldName => $critValue) {
             $value = $this->getField($fieldName)->getValue();
 
-            if (is_string($value)) {
+            if (is_string($value) && $critValue !== null) {
                 if (stristr($value, $critValue) === false) {
                     return false;
                 }
@@ -821,7 +821,7 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
         $person   = array_merge($defaults, $person);
 
         foreach ($person as $column => $value) {
-            if (strlen(trim($value)) > 0) {
+            if (strlen(trim($value ?? '')) > 0) {
                 $select->where("trim(p.$column) = ?", trim($value));
             } else {
                 $select->where("p.$column IS NULL");
@@ -1000,7 +1000,7 @@ class Person extends AbstractDb implements PersonInterface, PersonRepositoryInte
      * @return $this
      * @throws ModelException
      */
-    public function setIdentifiertGnd($gndId)
+    public function setIdentifierGnd($gndId)
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }

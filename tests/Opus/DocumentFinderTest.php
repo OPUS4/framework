@@ -55,14 +55,10 @@ use function time;
 
 /**
  * Test cases for class Opus\DocumentFinder.
- *
- * @package Opus
- * @category Tests
- * @group DocumentTest
  */
 class DocumentFinderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

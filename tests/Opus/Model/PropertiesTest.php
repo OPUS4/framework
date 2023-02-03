@@ -49,9 +49,10 @@ use Zend_Db_Adapter_Exception;
  */
 class PropertiesTest extends TestCase
 {
+    /** @var Properties */
     protected $properties;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

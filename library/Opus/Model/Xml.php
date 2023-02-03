@@ -292,7 +292,7 @@ class Xml
         $logger = Log::get();
 
         if (null === $this->cache) {
-            $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
+            $logger->debug(__METHOD__ . ' skipping cache for ' . ($model !== null ? get_class($model) : 'NULL'));
             return null;
         }
 

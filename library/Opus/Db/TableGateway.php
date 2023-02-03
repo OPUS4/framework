@@ -171,14 +171,14 @@ abstract class TableGateway extends Zend_Db_Table_Abstract
     /**
      * Singleton classes cannot be cloned!
      */
-    final private function __clone()
+    private function __clone()
     {
     }
 
     /**
      * Singleton classes should not be put to sleep!
      */
-    final private function __sleep()
+    public function __sleep()
     {
     }
 }

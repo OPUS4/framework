@@ -94,7 +94,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
     /**
      * Specifiy whether the field is required or not.
      *
-     * @var unknown_type
+     * @var bool
      */
     protected $mandatory = false;
 
@@ -180,6 +180,9 @@ class Field implements ModificationTrackingInterface, FieldInterface
      * @var array Associative array mapping object hashes to array('model' => $instance, 'token' => $deleteToken);
      */
     protected $pendingDeletes = [];
+
+    /** @var null|string */
+    private $type;
 
     /**
      * Create an new field instance and set the given name.
@@ -553,7 +556,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
             } catch (Exception $ex) {
                 throw new ModelException(
                     "Failed to cast value '$value' to class '{$this->valueModelClass}'. (Field {$this->name})",
-                    null,
+                    0,
                     $ex
                 );
             }
@@ -576,8 +579,8 @@ class Field implements ModificationTrackingInterface, FieldInterface
 
         // Caller requested a specific array index
         if ($index !== null) {
-            if (true === is_array($this->value)) {
-                if (true === isset($this->value[$index])) {
+            if (is_array($this->value)) {
+                if (isset($this->value[$index])) {
                     return $this->value[$index];
                 } else {
                     throw new InvalidArgumentException('Unvalid index: ' . $index);
@@ -585,6 +588,10 @@ class Field implements ModificationTrackingInterface, FieldInterface
             } else {
                 throw new InvalidArgumentException('Invalid index (' . $index . '). Requested value is not an array.');
             }
+        }
+
+        if ($this->value !== null && $this->getType() === 'int') {
+            return (int) $this->value;
         }
 
         return $this->value;
@@ -600,7 +607,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
      */
     private function _wrapValueInArrayIfRequired($value)
     {
-        if (is_array($value) or ! $this->hasMultipleValues()) {
+        if (is_array($value) || ! $this->hasMultipleValues()) {
             return $value;
         }
 
@@ -650,9 +657,11 @@ class Field implements ModificationTrackingInterface, FieldInterface
 
         // Check multiplicity constraint
         if (is_int($this->multiplicity) === true) {
+            $valueCount = is_array($value) ? count($value) : 1;
+
             if (
-                (count($value) > $this->multiplicity)
-                or ((count($value) + count($this->value)) > $this->multiplicity)
+                ($valueCount > $this->multiplicity)
+                || ($valueCount + count($this->value)) > $this->multiplicity
             ) {
                 throw new InvalidArgumentException(
                     'Field ' . $this->name . ' cannot hold more then ' . $this->multiplicity . ' values.'
@@ -920,5 +929,21 @@ class Field implements ModificationTrackingInterface, FieldInterface
     public function isCheckbox()
     {
         return $this->checkbox;
+    }
+
+    /**
+     * @param null|string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }

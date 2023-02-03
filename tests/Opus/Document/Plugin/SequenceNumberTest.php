@@ -43,7 +43,7 @@ use function count;
 
 class SequenceNumberTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         Config::get()->merge(new Zend_Config([

@@ -343,9 +343,9 @@ class Account extends AbstractDb implements AccountInterface, AccountRepositoryI
      */
     public function getFullName()
     {
-        $name = $this->getFirstName();
+        $name = $this->getFirstName() ?? '';
 
-        $lastName = $this->getLastName();
+        $lastName = $this->getLastName() ?? '';
 
         if (strlen($name) > 0 && strlen($lastName) > 0) {
             $name .= ' ';

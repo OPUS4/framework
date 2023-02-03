@@ -97,7 +97,7 @@ class Version1 extends AbstractVersion
                 $modelId = $value->getId();
             }
             // Ignore compound keys.
-            if (false === is_array($modelId)) {
+            if (false === is_array($modelId) && $modelId !== null) {
                 $childNode->setAttribute('Id', $modelId);
             }
         }
@@ -120,12 +120,18 @@ class Version1 extends AbstractVersion
         $childNode = $dom->createElement($modelClass);
 
         if ($model instanceof PersistableInterface) {
-            $childNode->setAttribute('Id', $model->getId());
+            $modelId = $model->getId();
+            if ($modelId !== null) {
+                $childNode->setAttribute('Id', $modelId);
+            }
         } elseif (
             $model instanceof Filter &&
             $model->getModel() instanceof PersistableInterface
         ) {
-            $childNode->setAttribute('Id', $model->getId());
+            $modelId = $model->getId();
+            if ($modelId !== null) {
+                $childNode->setAttribute('Id', $modelId);
+            }
         }
 
         return $childNode;

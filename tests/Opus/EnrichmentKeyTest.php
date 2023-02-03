@@ -53,7 +53,7 @@ class EnrichmentKeyTest extends TestCase
     /** @var EnrichmentKeyInterface */
     private $referencedEnrichmentKey;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

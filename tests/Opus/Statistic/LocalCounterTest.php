@@ -25,14 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Statistic
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Statistic;
@@ -50,10 +44,6 @@ use function unlink;
 
 /**
  * Test for Opus\Statistic\LocalCounter.
- *
- * @package Opus\Statistic
- * @category Tests
- * @group LocalCounterTest
  */
 class LocalCounterTest extends TestCase
 {
@@ -68,7 +58,7 @@ class LocalCounterTest extends TestCase
      * Provide clean documents and statistics table and remove temporary files.
      * Create document for counting.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -90,7 +80,7 @@ class LocalCounterTest extends TestCase
     /**
      * Clean up tables, remove temporary files.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

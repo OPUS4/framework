@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Collection
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest;
@@ -41,22 +37,22 @@ use function rand;
 
 /**
  * Test cases for class Opus\CollectionNode.
- *
- * @category    Tests
- * @package     Opus\Collection
- * @group       CollectionTests
  */
 class CollectionNodeTest extends TestCase
 {
     /** @var Opus\CollectionRole */
     protected $roleFixture;
-    protected $roleName    = "";
+
+    /** @var string */
+    protected $roleName = "";
+
+    /** @var string  */
     protected $roleOaiName = "";
 
     /** @var Opus\CollectionNode */
     protected $fixture;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

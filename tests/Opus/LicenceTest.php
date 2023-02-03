@@ -48,14 +48,10 @@ use function sleep;
 
 /**
  * Test cases for class Opus\Licence.
- *
- * @package Opus
- * @category Tests
- * @group LicenceTest
  */
 class LicenceTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

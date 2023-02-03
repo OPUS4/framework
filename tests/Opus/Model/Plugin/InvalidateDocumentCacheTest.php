@@ -36,6 +36,7 @@
 namespace OpusTest\Model\Plugin;
 
 use DOMXPath;
+use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Patent;
@@ -54,18 +55,16 @@ use function sleep;
 
 /**
  * Plugin creating and deleting xml cache entries.
- *
- * @uses        Opus\Model\Plugin\AbstractPlugin
- *
- * @category    Framework
- * @package     Opus\Document\Plugin
  */
 class InvalidateDocumentCacheTest extends TestCase
 {
+    /** @var Collection */
     protected $collection;
+
+    /** @var CollectionRole */
     protected $collectionRole;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

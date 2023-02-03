@@ -47,6 +47,7 @@ use function is_callable;
  */
 abstract class AbstractSimpleTestCase extends TestCase
 {
+    /** @var Zend_Config */
     private $configBackup;
 
     // TODO get rid of this two constants - filter_var() can handle it
@@ -102,7 +103,7 @@ abstract class AbstractSimpleTestCase extends TestCase
         );
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -115,7 +116,7 @@ abstract class AbstractSimpleTestCase extends TestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Config::set($this->configBackup);
 

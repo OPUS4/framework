@@ -56,14 +56,14 @@ class RequireTest extends TestCase
      * Overwrite standard setUp method, no database connection needed.  Will
      * create a file listing of class files instead.
      */
-    public function setUp()
+    public function setUp(): void
     {
     }
 
     /**
      * Overwrite standard tearDown method, no cleanup needed.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 

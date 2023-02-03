@@ -37,6 +37,7 @@ use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Zend_Db_Table;
+use Zend_Db_Table_Row_Abstract;
 use Zend_Validate_Int;
 use Zend_Validate_NotEmpty;
 
@@ -105,7 +106,7 @@ class Series extends AbstractDb implements SeriesInterface
      * of Opus\Series.
      *
      * @param int $id
-     * @return TableGateway
+     * @return Zend_Db_Table_Row_Abstract
      */
     public static function createRowWithCustomId($id)
     {
@@ -213,7 +214,7 @@ class Series extends AbstractDb implements SeriesInterface
             [$this->getId(), $number]
         );
 
-        return count($documentId) === 1 ? $documentId[0] : null;
+        return count($documentId) === 1 ? (int) $documentId[0] : null;
     }
 
     /**
@@ -225,12 +226,12 @@ class Series extends AbstractDb implements SeriesInterface
     public function isNumberAvailable($number)
     {
         $db    = Zend_Db_Table::getDefaultAdapter();
-        $count = $db->fetchOne(
+        $count = ( int )$db->fetchOne(
             'SELECT COUNT(*) AS rows_count FROM link_documents_series '
             . 'WHERE series_id = ? AND number = ?',
             [$this->getId(), $number]
         );
-        return $count === '0';
+        return $count === 0;
     }
 
     /**
