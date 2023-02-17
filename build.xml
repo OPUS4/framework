@@ -17,21 +17,10 @@
     <property name="dbUserPassword" value="" />
     <property name="dbAdminName" value="opus4admin" />
     <property name="dbAdminPassword" value="" />
-    <property name="solrDefaultHost" value="localhost" />
-    <property name="solrDefaultPort" value="8983" />
-    <property name="solrDefaultPath" value="/solr/opus4" />
-    <property name="solrIndexHost" value="localhost" />
-    <property name="solrIndexPort" value="8983" />
-    <property name="solrIndexPath" value="/solr/opus4" />
-    <property name="solrExtractHost" value="localhost" />
-    <property name="solrExtractPort" value="8983" />
-    <property name="solrExtractPath" value="/solr/opus4" />
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
 
     <target name="build" depends="prepare,lint,analyse-code,pdepend,phpdoc,phpcb" />
-
-    <target name="build-fast" depends="prepare,lint,phpunit-fast"/>
 
     <target name="clean">
         <delete dir="${basedir}/build/logs" />
@@ -69,15 +58,6 @@
                 <filter token="db.admin.name" value="${dbAdminName}" />
                 <filter token="db.admin.password" value="${dbAdminPassword}" />
                 <filter token="db.name" value="${dbName}" />
-                <filter token="searchengine.default.host" value="${solrDefaultHost}" />
-                <filter token="searchengine.default.port" value="${solrDefaultPort}" />
-                <filter token="searchengine.default.path" value="${solrDefaultPath}" />
-                <filter token="searchengine.index.host" value="${solrIndexHost}" />
-                <filter token="searchengine.index.port" value="${solrIndexPort}" />
-                <filter token="searchengine.index.app" value="${solrIndexPath}" />
-                <filter token="searchengine.extract.host" value="${solrExtractHost}" />
-                <filter token="searchengine.extract.port" value="${solrExtractPort}" />
-                <filter token="searchengine.extract.app" value="${solrExtractPath}" />
             </filterset>
         </copy>
     </target>
@@ -149,7 +129,7 @@
         </exec>
     </target>
 
-    <target name="pdepend" depends="phpunit" description="Generates software metrics charts.">
+    <target name="pdepend"  description="Generates software metrics charts.">
         <exec executable="${bindir}/pdepend" dir="${basedir}" logerror="on">
             <arg value="--coverage-report=${basedir}/build/logs/phpunit.coverage.xml" />
             <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml" />
@@ -176,26 +156,6 @@
     <target name="create-database">
         <exec executable="php" dir="${basedir}/db" failonerror="on">
             <arg line="createdb.php" />
-        </exec>
-    </target>
-
-    <target name="phpunit" depends="create-database">
-        <exec executable="${bindir}/phpunit" dir="${basedir}" failonerror="on">
-            <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
-            <arg line="--coverage-clover ${basedir}/build/logs/phpunit.coverage.xml" />
-            <arg line="--coverage-html ${basedir}/build/coverage" />
-            <arg line="--configuration phpunit.xml" />
-            <arg value="${testpath}" />
-        </exec>
-    </target>
-
-    <target name="phpunit-fast" depends="create-database">
-        <tstamp />
-        <exec executable="${bindir}/phpunit" dir="${basedir}" failonerror="on">
-            <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
-            <arg line="--configuration phpunit.xml" />
-            <arg value="${testpath}" />
-            <redirector output="build/testresult-${DSTAMP}-${TSTAMP}.txt" alwayslog="true" />
         </exec>
     </target>
 
