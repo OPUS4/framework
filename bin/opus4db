@@ -58,10 +58,10 @@ config_file="$application_path/database.ini"
 
 # Define variables and their default values
 sqluser='root'
-admin='opus4admin'
-adminpwd='opusadminpwd'
-user='opus4'
-userpwd='opususerpwd'
+admin="${OPUS4_DEV_DB_ADMIN:-opus4admin}"
+adminpwd="${OPUS4_DEV_DB_ADMIN_PWD:-opusadminpwd}"
+user="${OPUS4_DEV_DB_USER:-opus4}"
+userpwd="${OPUS4_DEV_DB_USER_PWD:-opususerpwd}"
 dbname='opusdb'
 host='localhost'
 port='3306'
