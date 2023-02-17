@@ -44,6 +44,14 @@
 # TODO make this script available in other projects in vendor/bin (setup in composer.json)
 #
 
+script_home="$(dirname "$0")"
+script_path="`readlink -f "$0"`"
+
+application_path="$(dirname $(dirname "$script_path"))"
+
+# TODO specify full path for config_file (root directory of project)
+config_file="$application_path/database.ini"
+
 # Define variables and their default values
 sqluser='root'
 admin='opus4admin'
@@ -64,6 +72,7 @@ display_help() {
     echo "Options (default values given in parentheses):"
     echo
     echo "  --help        (-h)    Print out help"
+    echo "  --init                Will initialise database schema"
     echo
     echo "  --sqluser             SQL root user      ($sqluser)"
     echo "  --sqlpwd              SQL root password"
@@ -125,3 +134,26 @@ ENDSTRING
 )
 
 export MYSQL_PWD=$sqlpwd && mysql --default-character-set=utf8 -h $host -P $port -u $sqluser -v -e "$sql"
+
+cat <<EOF >$config_file
+; Database connection parameters for running unit tests.
+
+[production]
+db.params.host = '$host'
+db.params.port = '$port'
+
+; TODO use regular OPUS user account for tests
+db.params.username = '$admin'
+db.params.password = '$adminpwd'
+db.params.dbname = '$dbname'
+
+; TODO resolve need to specify credentials twice (unless regular user is used above)
+opusdb.params.admin.name = '$admin'
+opusdb.params.admin.password = '$adminpwd'
+
+[testing : production]
+EOF
+
+# TODO resolve path when used in vendor/bin
+# TODO run createdb without creating database or database.ini (as a reset)
+# php $basedir/../db/createdb.php

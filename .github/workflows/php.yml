@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['7.1', '7.4', '8.1']
+        php-versions: ['8.1']
 
     name: PHP ${{ matrix.php-versions }} Test
 
@@ -44,7 +44,7 @@ jobs:
         run: bash bin/opus4db --sqlpwd root --adminpwd root --userpwd root
 
       - name: Setup OPUS 4
-        run: ant prepare-workspace prepare-config create-database lint -DdbUserPassword=root -DdbAdminPassword=root
+        run: ant prepare-workspace create-database lint
 
       - name: Tests
         run: php composer.phar test
