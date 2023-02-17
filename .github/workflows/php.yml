@@ -40,11 +40,14 @@ jobs:
       - name: Start MySQL
         run: sudo systemctl start mysql.service
 
+      - name: Prepare workspace
+        run: ant prepare-workspace
+
       - name: Prepare database
         run: bash bin/opus4db --sqlpwd root --adminpwd root --userpwd root
 
-      - name: Setup OPUS 4
-        run: ant prepare-workspace create-database lint
+      - name: Check PHP files
+        run: ant lint
 
       - name: Tests
         run: php composer.phar test
