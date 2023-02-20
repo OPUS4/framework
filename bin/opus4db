@@ -37,59 +37,86 @@
 #            a database for testing.
 #
 # TODO merge with setup.sh (get rid of setup.sh or remove redundancy)
-# TODO creating database.ini file with config ? (replacing/removing config.ini.template)
-#      config.ini OR database.ini should just be database options - Rest goes into test.ini and application.ini
-# TODO creating schema
 #
-# TODO make this script available in other projects in vendor/bin (setup in composer.json)
-#
+
+script_home="$(dirname "$0")"
+script_path="`readlink -f "$0"`"
+script_name="$(basename "$0")"
+
+if [[ "$script_home" == *"/vendor/"* ]]; then
+    # Framework used as dependency in other Composer project
+    application_path="$(dirname $(dirname $(dirname $(dirname "$script_home"))))"
+    framework_path="$(dirname "$script_home")"
+else
+    # Script used in Framework project
+    application_path="$(dirname $(dirname "$script_path"))"
+    framework_path=$application_path
+fi
+
+# Full path to configuration file
+config_file="$application_path/database.ini"
 
 # Define variables and their default values
 sqluser='root'
-admin='opus4admin'
-adminpwd='opusadminpwd'
-user='opus4'
-userpwd='opususerpwd'
+admin="${OPUS4_DEV_DB_ADMIN:-opus4admin}"
+adminpwd="${OPUS4_DEV_DB_ADMIN_PWD:-opusadminpwd}"
+user="${OPUS4_DEV_DB_USER:-opus4}"
+userpwd="${OPUS4_DEV_DB_USER_PWD:-opususerpwd}"
 dbname='opusdb'
 host='localhost'
 port='3306'
 mysql='mysql'
 
+initEnabled=0
+createEnabled=0
+configEnabled=0
+
 # Print command line help to stderr
-display_help() {
-    echo "Usage: $0 [OPTIONS]" >&2
-    echo
-    echo "The script will ask for the SQL root password interactively, unless it is specified as option."
-    echo
-    echo "Options (default values given in parentheses):"
-    echo
-    echo "  --help        (-h)    Print out help"
-    echo
-    echo "  --sqluser             SQL root user      ($sqluser)"
-    echo "  --sqlpwd              SQL root password"
-    echo "  --admin               Admin name         ($admin)"
-    echo "  --adminpwd            Admin password     ($adminpwd)"
-    echo "  --user                User name          ($user)"
-    echo "  --userpwd             User password      ($userpwd)"
-    echo "  --dbname              Database name      ($dbname)"
-    echo "  --host                MySQL host         ($host)"
-    echo "  --port                MySQL port         ($port)"
-    echo "  --mysql               MySQL client       ($mysql)"
-    echo
-    echo "Examples:"
-    echo
-    echo "  $0"
-    echo "  $0 --help"
-    echo "  $0 --adminpwd ADMINPWD --userpwd USERPWD"
-    echo "  $0 -i --dbname opusdbtest"
-    echo
-    exit 1
+displayHelp() {
+  DEFAULT='\033[0;33m' # Purple color for default values
+  OPTION='\033[1;32m'  # Green
+  NC='\033[0m'         # No Color
+
+  echo "Usage: $script_name [OPTIONS]" >&2
+  echo
+  echo -e "The script will ask for the SQL root password interactively, unless it is"
+  echo -e "specified using option ${OPTION}--sqlpwd${NC}. Using this option will automatically enable"
+  echo -e "${OPTION}--init${NC}, ${OPTION}--config${NC} and ${OPTION}--database${NC}. This is used for testing on GitHub and for"
+  echo -e "setting up Vagrant-VMs."
+  echo
+  echo "Options:"
+  echo
+  echo -e "  ${OPTION}--help${NC}        (${OPTION}-h${NC})    Print out help"
+  echo -e "  ${OPTION}--init${NC}        (${OPTION}-i${NC})    Initialize database schema"
+  echo -e "  ${OPTION}--config${NC}      (${OPTION}-c${NC})    Write config (database.ini)"
+  echo -e "  ${OPTION}--database${NC}    (${OPTION}-d${NC})    Create database"
+  echo
+  echo -e "                                           DEFAULT"
+  echo -e "  ${OPTION}--sqluser${NC}             SQL root user      (${DEFAULT}$sqluser${NC})"
+  echo -e "  ${OPTION}--sqlpwd${NC}              SQL root password"
+  echo -e "  ${OPTION}--admin${NC}               Admin name         (${DEFAULT}$admin${NC})"
+  echo -e "  ${OPTION}--adminpwd${NC}            Admin password     (${DEFAULT}$adminpwd${NC})"
+  echo -e "  ${OPTION}--user${NC}                User name          (${DEFAULT}$user${NC})"
+  echo -e "  ${OPTION}--userpwd${NC}             User password      (${DEFAULT}$userpwd${NC})"
+  echo -e "  ${OPTION}--dbname${NC}              Database name      (${DEFAULT}$dbname${NC})"
+  echo -e "  ${OPTION}--host${NC}                MySQL host         (${DEFAULT}$host${NC})"
+  echo -e "  ${OPTION}--port${NC}                MySQL port         (${DEFAULT}$port${NC})"
+  echo -e "  ${OPTION}--mysql${NC}               MySQL client       (${DEFAULT}$mysql${NC})"
+  echo
+  echo "Examples:"
+  echo
+  echo -e "  $script_name"
+  echo -e "  $script_name ${OPTION}--help"${NC}
+  echo -e "  $script_name ${OPTION}--adminpwd${NC} ${DEFAULT}ADMINPWD${NC} ${OPTION}--userpwd${NC} ${DEFAULT}USERPWD${NC}"
+  echo -e "  $script_name ${OPTION}-i --dbname${NC} ${DEFAULT}opusdbtest${NC}"
+  echo
+  exit 1
 }
 
 # Display command line help if '-h' or '--help' is given as first option
 if [ $# -gt 0 ]; then
     if [[ $1 == "-h" || $1 == "--help" ]]; then
-        display_help
+        displayHelp
         exit 0
     fi
 fi
@@ -97,7 +124,7 @@ fi
 # Parse any other command line options
 while [ $# -gt 0 ]; do
     if [[ $1 == "--"* ]]; then # only deal with long options
-        if [[ -n "$2" && $2 != "--"* ]]; then # ignore options without a value
+        if [[ -n "$2" && $2 != "-"* ]]; then # ignore options without a value
             # Create variable name from option name
             v="${1/--/}" # uses parameter expansion removing '--'
 
@@ -106,13 +133,35 @@ while [ $# -gt 0 ]; do
 
             # Process next option
             shift
+        else
+          v="${1/--/}"
+          case $v in
+            "init") initEnabled=1;;
+            "config") configEnabled=1;;
+            "database") createEnabled=1;;
+          esac
         fi
+    else
+      case $1 in
+        "-i") initEnabled=1;;
+        "-c") configEnabled=1;;
+        "-d") createEnabled=1;;
+      esac
     fi
     shift
 done
 
-# Querying MySQL root password
-[[ -z $sqlpwd ]] && read -p "MySQL root user password: " -s sqlpwd
+# if SQL root password is set as parameter enable all steps TODO perhaps changes this later
+if [[ $sqlpwd ]]; then
+  initEnabled=1
+  configEnabled=1
+  createEnabled=1
+fi
+
+createDatabase()
+{
+    # Querying MySQL root password
+    [[ -z $sqlpwd ]] && read -p "MySQL root user password: " -s sqlpwd
 
 sql=$(cat <<-ENDSTRING
     CREATE DATABASE IF NOT EXISTS $dbname DEFAULT CHARACTER SET = UTF8 DEFAULT COLLATE = UTF8_GENERAL_CI;
@@ -122,6 +171,56 @@ sql=$(cat <<-ENDSTRING
     GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname.* TO '$user'@'localhost';
     FLUSH PRIVILEGES;
 ENDSTRING
-)
+    )
 
-export MYSQL_PWD=$sqlpwd && mysql --default-character-set=utf8 -h $host -P $port -u $sqluser -v -e "$sql"
+    export MYSQL_PWD=$sqlpwd && mysql --default-character-set=utf8 -h $host -P $port -u $sqluser -v -e "$sql"
+}
+
+createConfigFile()
+{
+cat <<EOF >$config_file
+; Database connection parameters for running unit tests.
+
+[production]
+db.params.host = '$host'
+db.params.port = '$port'
+
+; TODO use regular OPUS user account for tests
+db.params.username = '$admin'
+db.params.password = '$adminpwd'
+db.params.dbname = '$dbname'
+
+; TODO resolve need to specify credentials twice (unless regular user is used above)
+opusdb.params.admin.name = '$admin'
+opusdb.params.admin.password = '$adminpwd'
+
+[testing : production]
+EOF
+}
+
+initSchema()
+{
+  export APPLICATION_PATH=$application_path && php "$framework_path/db/createdb.php"
+}
+
+if [[ $createEnabled == 0 && $configEnabled == 0 && $initEnabled == 0 ]]; then
+  displayHelp
+  exit 0
+fi
+
+if [[ $createEnabled == "1" ]]; then
+  echo "Create database ..."
+  createDatabase
+fi
+
+if [[ $configEnabled == "1" ]]; then
+  echo "Create config file ..."
+  createConfigFile
+fi
+
+if [[ $initEnabled == "1" ]]; then
+  # requires database and config file
+  echo "Initialize database schema ..."
+  initSchema
+fi
+

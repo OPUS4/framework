@@ -86,7 +86,7 @@ require_once $frameworkPath . '/library/OpusDb/Mysqlutf8.php';
 //       files will then be used for initialization (in the given order).
 $configFiles = array_filter([
     $frameworkPath . '/tests/application.ini',
-    APPLICATION_PATH . '/tests/config.ini',
+    APPLICATION_PATH . '/database.ini',
     APPLICATION_PATH . '/test/config.ini',
 ], 'file_exists');
 
