@@ -78,7 +78,7 @@ class AbstractType implements TypeInterface
     }
 
     /**
-     * @param mixed $value
+     * @param mixed|null $value
      * @return Zend_Form_Element
      */
     public function getFormElement($value = null)
@@ -198,7 +198,7 @@ class AbstractType implements TypeInterface
     }
 
     /**
-     * @return null
+     * @return string|null
      */
     public function getOptionsAsString()
     {
@@ -207,11 +207,9 @@ class AbstractType implements TypeInterface
 
     /**
      * @param string $string
-     * @return null
      */
     public function setOptionsFromString($string)
     {
-        return null;
     }
 
     /**

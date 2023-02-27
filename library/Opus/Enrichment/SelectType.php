@@ -69,7 +69,7 @@ class SelectType extends AbstractType
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getValidation()
     {

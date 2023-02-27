@@ -45,7 +45,7 @@ class BooleanType extends AbstractType
     }
 
     /**
-     * @param mixed $value
+     * @param mixed|null $value
      * @return Zend_Form_Element
      */
     public function getFormElement($value = null)

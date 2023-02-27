@@ -68,7 +68,7 @@ class RegexType extends AbstractType
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getValidation()
     {
@@ -92,7 +92,7 @@ class RegexType extends AbstractType
     }
 
     /**
-     * @param mixed $value
+     * @param mixed|null $value
      * @return Zend_Form_Element
      * @throws Zend_Validate_Exception
      */
