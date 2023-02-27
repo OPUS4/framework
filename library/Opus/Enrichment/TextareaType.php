@@ -27,19 +27,15 @@
  *
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
 namespace Opus\Enrichment;
 
-/**
- * phpcs:disable
- */
 class TextareaType extends AbstractType
 {
+    /**
+     * @return string
+     */
     public function getFormElementName()
     {
         return 'Textarea';

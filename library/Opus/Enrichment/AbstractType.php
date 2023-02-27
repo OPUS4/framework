@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2019-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -49,7 +49,7 @@ use function substr;
 use function ucfirst;
 
 /**
- * phpcs:disable
+ * TODO declare as abstract and make functions abstract that have to be implemented by child classes
  */
 class AbstractType implements TypeInterface
 {
@@ -61,16 +61,26 @@ class AbstractType implements TypeInterface
         return substr(static::class, strlen('Opus\Enrichment\\')); // TODO better, dynamic way
     }
 
+    /**
+     * @return string
+     */
     public function getDescription()
     {
         return 'admin_enrichmenttype_' . strtolower($this->getName()) . '_description';
     }
 
+    /**
+     * @return string
+     */
     public function getFormElementName()
     {
         return 'Text';
     }
 
+    /**
+     * @param mixed $value
+     * @return Zend_Form_Element
+     */
     public function getFormElement($value = null)
     {
         // Standardverhalten Text-Element, das nicht leer sein darf
@@ -90,7 +100,7 @@ class AbstractType implements TypeInterface
      * Mappt JSON als String, das in der Datenbank gespeichert ist, oder
      * alternativ ein Array auf die internen Felder des vorliegenden Enrichment-Typs
      *
-     * @param $options entweder String oder Array
+     * @param string|array $options entweder String oder Array
      */
     public function setOptions($options)
     {
@@ -124,7 +134,7 @@ class AbstractType implements TypeInterface
      * Erzeugt aus allen registrierten Options ein gefülltes JSON-Objekt, das
      * als String zurückgegeben wird.
      *
-     * @return JSON
+     * @return string|null
      */
     public function getOptions()
     {
@@ -132,7 +142,7 @@ class AbstractType implements TypeInterface
         foreach ($this->getOptionProperties() as $optionProperty) {
             $methodName     = 'get' . lcfirst($optionProperty);
             $attributeValue = $this->$methodName();
-            if ($attributeValue != null) {
+            if ($attributeValue !== null) {
                 if ($options === null) {
                     $options = [];
                 }
@@ -154,6 +164,9 @@ class AbstractType implements TypeInterface
 
     /**
      * Ermittelt die Klassennamen aller im System verfügbaren EnrichmentTypes.
+     *
+     * @param bool $rawNames
+     * @return array
      */
     public static function getAllEnrichmentTypes($rawNames = false)
     {
@@ -184,21 +197,34 @@ class AbstractType implements TypeInterface
         return $result;
     }
 
+    /**
+     * @return null
+     */
     public function getOptionsAsString()
     {
         return null;
     }
 
+    /**
+     * @param string $string
+     * @return null
+     */
     public function setOptionsFromString($string)
     {
         return null;
     }
 
+    /**
+     * @return false
+     */
     public function isStrictValidation()
     {
         return false;
     }
 
+    /**
+     * @return array
+     */
     public function getOptionProperties()
     {
         return [];

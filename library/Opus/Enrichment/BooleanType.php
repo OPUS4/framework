@@ -27,26 +27,27 @@
  *
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
 namespace Opus\Enrichment;
 
 use Admin_Form_Document_Enrichment;
+use Zend_Form_Element;
 
-/**
- * phpcs:disable
- */
 class BooleanType extends AbstractType
 {
+    /**
+     * @return string
+     */
     public function getFormElementName()
     {
         return 'Checkbox';
     }
 
+    /**
+     * @param mixed $value
+     * @return Zend_Form_Element
+     */
     public function getFormElement($value = null)
     {
         $form    = new Admin_Form_Document_Enrichment();

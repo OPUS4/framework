@@ -27,15 +27,13 @@
  *
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
 namespace Opus\Enrichment;
 
 use Opus\Common\Log;
+use Zend_Form_Element;
+use Zend_Validate_Exception;
 use Zend_Validate_Regex;
 
 use function array_key_exists;
@@ -45,20 +43,25 @@ use function is_array;
 use function is_bool;
 use function preg_match;
 
-/**
- * phpcs:disable
- */
 class RegexType extends AbstractType
 {
+    /** @var string|null */
     private $regex;
 
+    /** @var string */
     private $validation = 'none';
 
+    /**
+     * @return string|null
+     */
     public function getRegex()
     {
         return $this->regex;
     }
 
+    /**
+     * @param string|null $regex
+     */
     public function setRegex($regex)
     {
         $this->regex = $regex;
@@ -88,6 +91,11 @@ class RegexType extends AbstractType
         }
     }
 
+    /**
+     * @param mixed $value
+     * @return Zend_Form_Element
+     * @throws Zend_Validate_Exception
+     */
     public function getFormElement($value = null)
     {
         $element = parent::getFormElement();
@@ -102,47 +110,60 @@ class RegexType extends AbstractType
         return $element;
     }
 
+    /**
+     * @return string|null
+     */
     public function getOptionsAsString()
     {
         return $this->regex;
     }
 
-    public function setOptionsFromString($string)
+    /**
+     * @param string|array|null $options
+     * @throws Zend_Exception
+     */
+    public function setOptionsFromString($options)
     {
-        if ($string === null) {
+        if ($options === null) {
             return; // nothing to check
         }
 
-        if (is_array($string)) {
-            $this->setValidation(array_key_exists('validation', $string) && $string['validation'] === '1');
-            $string = $string['options'];
+        if (is_array($options)) {
+            $this->setValidation(array_key_exists('validation', $options) && $options['validation']);
+            $options = $options['options'];
         }
 
         // check if given option string is a valid regular expression
 
         // turn off error reporting and save current value for later restore
-        $old_error = error_reporting(0);
+        $oldError = error_reporting(0);
 
         // add '/' delimiters to string that will be validated as a regex
-        $stringToCheck = '/' . $string . '/';
+        $stringToCheck = '/' . $options . '/';
 
         if (preg_match($stringToCheck, null) === false) {
             $error = error_get_last();
             $log   = Log::get();
-            $log->warn('given type option regex ' . $string . ' is not valid: ' . $error);
+            $log->warn('given type option regex ' . $options . ' is not valid: ' . $error);
         } else {
-            $this->regex = $string;
+            $this->regex = $options;
         }
 
         // restore previous error reporting level
-        error_reporting($old_error);
+        error_reporting($oldError);
     }
 
+    /**
+     * @return bool
+     */
     public function isStrictValidation()
     {
         return $this->validation === 'strict';
     }
 
+    /**
+     * @return string[]
+     */
     public function getOptionProperties()
     {
         return ['regex', 'validation'];

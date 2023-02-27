@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
 namespace Opus\Enrichment;
@@ -40,25 +36,25 @@ interface TypeInterface
     /**
      * Name für Anzeige, z.B. Auswahl beim Anlegen eines neuen EnrichmentKeys
      *
-     * @return mixed
+     * @return string
      */
     public function getName();
 
     /**
-     * Für Anzeige (Rückgabe eines Übersetzungsschlüssels), um den Typ und
-     * die Art der Konfiguration näher zu erläutern. Wenn keine Beschreibung
-     * gewünscht wird, so muss diese Methode null oder den Leerstring zurückliefern.
+     * Für Anzeige (Rueckgabe eines Uebersetzungsschluessels), um den Typ und
+     * die Art der Konfiguration naeher zu erlaeutern. Wenn keine Beschreibung
+     * gewuenscht wird, so muss diese Methode null oder den Leerstring zurueckliefern.
      *
-     * @return mixed
+     * @return string
      */
     public function getDescription();
 
     /**
      * Name des Formularelements, das das Rendering im Dokument-Metadatenformular
-     * festlegt (z.B. Checkbox, Textfeld, Selectfeld, Textarea, etc.). Sollte
+     * festlegt (z.B. Checkbox, Textfeld, Select-Feld, Textarea, etc.). Sollte
      * mit einem Grossbuchstaben beginnen.
      *
-     * @return mixed
+     * @return string
      */
     public function getFormElementName();
 
@@ -66,12 +62,12 @@ interface TypeInterface
      * Erzeugt eine Formularelement (inkl. Validatoren) für die Eingabe des
      * Enrichment-Werts.
      *
-     * Die Prüfung des eingegebenen Wertes erfolgt nur innerhalb der Application,
+     * Die Pruefung des eingegebenen Wertes erfolgt nur innerhalb der Application,
      * aber nicht auf Framework-Ebene. Somit kann nicht verhindert werden, dass
-     * über die Framework-API nicht valide Enrichment-Werte für einen Enrichment-
+     * ueber die Framework-API nicht valide Enrichment-Werte für einen Enrichment-
      * Key in der Datenbank gespeichert werden.
      *
-     * Ist der übergebene Wert nicht null, so wird der Wert auch gleich in das
+     * Ist der uebergebene Wert nicht null, so wird der Wert auch gleich in das
      * erzeugte Formularelement eingetragen.
      *
      * @param null|string $value anzuzeigender Wert des Enrichments
@@ -86,7 +82,7 @@ interface TypeInterface
     public function getOptions();
 
     /**
-     * Übersetzt die vom Benutzer eingegebene textuelle Typkonfiguration auf die
+     * Uebersetzt die vom Benutzer eingegebene textuelle Typkonfiguration auf die
      * interne Felder
      *
      * @param string|array $string
@@ -94,10 +90,9 @@ interface TypeInterface
     public function setOptionsFromString($string);
 
     /**
-     * Erzeugt eine textuelle Repräsentation der Typkonfiguration, die dem Benutzer
-     * angezeigt werden kann.
+     * Erzeugt eine textuelle Repraesentation der Typkonfiguration, die dem Benutzer angezeigt werden kann.
      *
-     * @return mixed
+     * @return string
      */
     public function getOptionsAsString();
 
@@ -109,7 +104,7 @@ interface TypeInterface
     public function isStrictValidation();
 
     /**
-     * liefert die Namen der Properties, die für die Erzeugung des JSON relevant sind
+     * Liefert die Namen der Properties, die für die Erzeugung des JSON relevant sind.
      *
      * @return mixed
      */

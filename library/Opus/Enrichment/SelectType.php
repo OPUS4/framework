@@ -27,15 +27,13 @@
  *
  * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
 namespace Opus\Enrichment;
 
 use Admin_Form_Document_Enrichment;
+use Zend_Form_Element;
+use Zend_Validate_Exception;
 use Zend_Validate_InArray;
 
 use function array_key_exists;
@@ -46,25 +44,25 @@ use function is_bool;
 use function strtok;
 use function trim;
 
-/**
- * phpcs:disable
- */
 class SelectType extends AbstractType
 {
-    /**
-     * enthält die zur Auswahl stehenden Werte
-     *
-     * @var
-     */
+    /** @var string[] Enthält die zur Auswahl stehenden Werte */
     private $values;
 
+    /** @var string */
     private $validation = 'none';
 
+    /**
+     * @return string[]
+     */
     public function getValues()
     {
         return $this->values;
     }
 
+    /**
+     * @param string[]|null $values
+     */
     public function setValues($values)
     {
         $this->values = $values;
@@ -93,11 +91,19 @@ class SelectType extends AbstractType
         }
     }
 
+    /**
+     * @return string
+     */
     public function getFormElementName()
     {
         return 'Select';
     }
 
+    /**
+     * @param string|null $value
+     * @return Zend_Form_Element
+     * @throws Zend_Validate_Exception
+     */
     public function getFormElement($value = null)
     {
         $form    = new Admin_Form_Document_Enrichment();
@@ -123,6 +129,8 @@ class SelectType extends AbstractType
 
     /**
      * Liefert einen String, in dem die einzelnen Optionen zeilenweise stehen.
+     *
+     * @return string
      */
     public function getOptionsAsString()
     {
@@ -144,7 +152,7 @@ class SelectType extends AbstractType
      * Übersetzt die Optionen im übergebenen String auf das interne Array.
      * Hierbei wird die Eingabe zeilenweise ausgewertet, d.h. ein Wert pro Zeile.
      *
-     * @param $string Optionen aus der Eingabe
+     * @param string $string Optionen aus der Eingabe
      */
     public function setOptionsFromString($string)
     {
@@ -166,11 +174,17 @@ class SelectType extends AbstractType
         }
     }
 
+    /**
+     * @return bool
+     */
     public function isStrictValidation()
     {
         return $this->validation === 'strict';
     }
 
+    /**
+     * @return string[]
+     */
     public function getOptionProperties()
     {
         return ['values', 'validation'];
