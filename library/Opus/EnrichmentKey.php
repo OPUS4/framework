@@ -33,9 +33,10 @@ namespace Opus;
 
 use Opus\Common\EnrichmentKeyInterface;
 use Opus\Common\EnrichmentKeyRepositoryInterface;
+use Opus\Common\Model\AbstractFieldType;
+use Opus\Common\Model\FieldTypeInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
-use Opus\Enrichment\TypeInterface;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 use Throwable;
@@ -183,7 +184,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, Enrich
      * für den Enrichment-Key kein Typ festgelegt wurde (bei Altdaten) oder der
      * Typ aus einem anderen Grund nicht geladen werden konnte.
      *
-     * @return TypeInterface
+     * @return FieldTypeInterface
      */
     public function getEnrichmentType()
     {
@@ -191,7 +192,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, Enrich
             return null;
         }
 
-        $typeClass = 'Opus\Enrichment\\' . $this->getType();
+        $typeClass = AbstractFieldType::TYPES_NAMESPACE . '\\' . $this->getType();
         try {
             $typeObj = new $typeClass();
         } catch (Throwable $ex) {
