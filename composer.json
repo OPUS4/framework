@@ -63,7 +63,7 @@
       "Composer\\Config::disableProcessTimeout",
       "phpunit --log-junit build/phpunit.xml --colors=always"
     ],
-    "cs-check": "phpcs -n --extensions=php,phtml,css,js,inc -v",
+    "cs-check": "phpcs -n -p --extensions=php,phtml,css,js,inc",
     "cs-fix": "phpcbf --extensions=php,phtml,css,js,inc -v",
     "cs-report": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml -v",
     "phpmd": "phpmd library xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
