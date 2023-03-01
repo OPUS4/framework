@@ -33,13 +33,12 @@ namespace Opus;
 
 use Opus\Common\EnrichmentKeyInterface;
 use Opus\Common\EnrichmentKeyRepositoryInterface;
-use Opus\Common\Model\AbstractFieldType;
 use Opus\Common\Model\FieldTypeInterface;
+use Opus\Common\Model\FieldTypes;
 use Opus\Common\Model\ModelException;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Throwable;
 use Zend_Db_Select_Exception;
 use Zend_Db_Table_Row_Exception;
 use Zend_Validate_NotEmpty;
@@ -117,12 +116,12 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, Enrich
      * null if name is null *or* nothing found.
      *
      * @param  null|string $name
-     * @return EnrichmentKey
+     * @return EnrichmentKey|null
      */
     public function fetchByName($name = null)
     {
         if (false === isset($name)) {
-            return;
+            return null;
         }
 
         $table  = TableGateway::getInstance(self::$tableGatewayClass);
@@ -133,7 +132,7 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, Enrich
             return new EnrichmentKey($row);
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -165,7 +164,9 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, Enrich
     /**
      * Returns a printable version of the current options if set, otherwise null.
      *
-     * @return
+     * @return string|null
+     *
+     * TODO does not belong in Model class (should be view helper)
      */
     public function getOptionsPrintable()
     {
@@ -176,31 +177,20 @@ class EnrichmentKey extends AbstractDb implements EnrichmentKeyInterface, Enrich
         }
 
         $typeObj->setOptions($this->getOptions());
+
         return $typeObj->getOptionsAsString();
     }
 
     /**
-     * Gibt ein Objekt des zugehörigen Enrichment-Types zurück, oder null, wenn
-     * für den Enrichment-Key kein Typ festgelegt wurde (bei Altdaten) oder der
-     * Typ aus einem anderen Grund nicht geladen werden konnte.
-     *
-     * @return FieldTypeInterface
+     * @return FieldTypeInterface|null
      */
     public function getEnrichmentType()
     {
-        if ($this->getType() === null || $this->getType() === '') {
-            return null;
+        $fieldType = FieldTypes::getType($this->getType());
+        if ($fieldType !== null) {
+            $fieldType->setOptions($this->getOptions());
         }
-
-        $typeClass = AbstractFieldType::TYPES_NAMESPACE . '\\' . $this->getType();
-        try {
-            $typeObj = new $typeClass();
-        } catch (Throwable $ex) {
-            $this->getLogger()->err('could not find enrichment type class ' . $typeClass);
-            return null;
-        }
-        $typeObj->setOptions($this->getOptions());
-        return $typeObj;
+        return $fieldType;
     }
 
     /**
