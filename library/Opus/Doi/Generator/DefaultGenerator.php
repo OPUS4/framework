@@ -105,7 +105,7 @@ class DefaultGenerator implements DoiGeneratorInterface
      */
     public function getPrefix()
     {
-        if (! isset($this->config->doi->prefix) or strlen(trim($this->config->doi->prefix)) === 0) {
+        if (! isset($this->config->doi->prefix) || strlen(trim($this->config->doi->prefix)) === 0) {
             throw new DoiGeneratorException(
                 'configuration setting doi.prefix is missing - DOI cannot be generated'
             );

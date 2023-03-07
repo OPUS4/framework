@@ -493,8 +493,8 @@ class Collection extends AbstractDb implements CollectionInterface
      */
     public function getNumberAndName($delimiter = ' ')
     {
-        $name   = trim($this->getName());
-        $number = trim($this->getNumber());
+        $name   = trim($this->getName() ?? '');
+        $number = trim($this->getNumber() ?? '');
         if ($number === '') {
             return $name;
         }

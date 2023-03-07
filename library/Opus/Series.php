@@ -205,7 +205,7 @@ class Series extends AbstractDb implements SeriesInterface
      */
     public function getDocumentIdForNumber($number)
     {
-        if (strlen(trim($number)) === 0) {
+        if ($number === null || strlen(trim($number)) === 0) {
             return null;
         }
         $adapter    = Zend_Db_Table::getDefaultAdapter();
