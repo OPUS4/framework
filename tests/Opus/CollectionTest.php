@@ -60,7 +60,11 @@ class CollectionTest extends TestCase
 {
     /** @var CollectionRoleInterface */
     protected $roleFixture;
-    protected $roleName    = "";
+
+    /** @var string */
+    protected $roleName = "";
+
+    /** @var string */
     protected $roleOaiName = "";
 
     /** @var CollectionInterface */
@@ -69,7 +73,7 @@ class CollectionTest extends TestCase
     /**
      * SetUp method.  Inherits database cleanup from parent.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -90,7 +94,7 @@ class CollectionTest extends TestCase
         $this->roleFixture->store();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (is_object($this->roleFixture)) {
             $this->roleFixture->delete();
@@ -290,6 +294,15 @@ class CollectionTest extends TestCase
         $this->object->store();
 
         $collection = Collection::get($this->object->getId());
+
+        $this->assertEquals($this->roleFixture->getId(), $collection->getRoleId());
+
+        $role = $collection->getRole();
+
+        $this->assertEquals($this->roleFixture->getId(), $role->getId());
+        $this->assertEquals('Name', $role->getDisplayBrowsing());
+        $this->assertEquals('Number', $role->getDisplayFrontdoor());
+
         $this->assertEquals('fooblablub', $collection->getDisplayName('browsing'));
         $this->assertEquals('thirteen', $collection->getDisplayName('frontdoor'));
     }
@@ -1647,5 +1660,26 @@ class CollectionTest extends TestCase
         $this->assertCount(2, Collection::find('TestCol'));
         $this->assertCount(1, Collection::find('TestCol', $role1->getId()));
         $this->assertCount(2, Collection::find('TestCol', [$role1->getId(), $role2->getId()]));
+    }
+
+    public function testGetRoleName()
+    {
+        $roleName = 'TestRole';
+
+        $role = CollectionRole::new();
+        $role->setName($roleName);
+        $role->setOaiName('TestRoleOai');
+
+        $root = $role->addRootCollection();
+        $root->setName('RootCol');
+
+        $roleId = $role->store();
+
+        $role = CollectionRole::get($roleId);
+        $this->assertEquals($roleName, $role->getName());
+
+        $root = $role->getRootCollection();
+        $this->assertEquals($roleId, $root->getRoleId());
+        $this->assertEquals($roleName, $root->getRoleName());
     }
 }

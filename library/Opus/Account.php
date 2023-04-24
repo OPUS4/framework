@@ -37,11 +37,11 @@ use Opus\Common\AccountInterface;
 use Opus\Common\AccountRepositoryInterface;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Security\SecurityException;
 use Opus\Common\UserRoleInterface;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
-use Opus\Security\SecurityException;
 use Zend_Db_Table_Abstract;
 use Zend_Db_Table_Row;
 use Zend_Validate;
@@ -343,9 +343,9 @@ class Account extends AbstractDb implements AccountInterface, AccountRepositoryI
      */
     public function getFullName()
     {
-        $name = $this->getFirstName();
+        $name = $this->getFirstName() ?? '';
 
-        $lastName = $this->getLastName();
+        $lastName = $this->getLastName() ?? '';
 
         if (strlen($name) > 0 && strlen($lastName) > 0) {
             $name .= ' ';

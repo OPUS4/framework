@@ -66,11 +66,16 @@ use const DIRECTORY_SEPARATOR;
 
 class DataCiteXmlGeneratorTest extends TestCase
 {
-    protected $srcPath  = '';
-    protected $destPath = '';
-    protected $path     = '';
+    /** @var string */
+    protected $srcPath = '';
 
-    public function setUp()
+    /** @var string */
+    protected $destPath = '';
+
+    /** @var string */
+    protected $path = '';
+
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -124,7 +129,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         ]));
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         FileUtil::deleteDirectory($this->path);
 
@@ -742,10 +747,13 @@ class DataCiteXmlGeneratorTest extends TestCase
         $size  = intval(round($file->getFileSize() / 1024));
         $size2 = intval(round($file2->getFileSize() / 1024));
 
+        $mimeType1 = $file->getMimeType();
+        $mimeType2 = $file2->getMimeType();
+
         $sizesXpath1  = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
         $sizesXpath2  = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
-        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
-        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"$mimeType1\"]");
+        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"$mimeType2\"]");
 
         $this->assertEquals(1, $sizesXpath1->length);
         $this->assertEquals(1, $sizesXpath2->length);
@@ -780,6 +788,9 @@ class DataCiteXmlGeneratorTest extends TestCase
         $doc->addFile($file2);
         $doc->store();
 
+        $mimeType1 = $file->getMimeType();
+        $mimeType2 = $file2->getMimeType();
+
         $generator = new DataCiteXmlGenerator();
         $xml       = $generator->getXml($doc);
 
@@ -790,8 +801,8 @@ class DataCiteXmlGeneratorTest extends TestCase
 
         $sizesXpath1  = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
         $sizesXpath2  = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
-        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
-        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"$mimeType1\"]");
+        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"$mimeType2\"]");
 
         $this->assertEquals(1, $sizesXpath1->length);
         $this->assertEquals(0, $sizesXpath2->length);
@@ -834,10 +845,13 @@ class DataCiteXmlGeneratorTest extends TestCase
         $size  = intval(round($file->getFileSize() / 1024));
         $size2 = intval(round($file2->getFileSize() / 1024));
 
+        $mimeType1 = $file->getMimeType();
+        $mimeType2 = $file2->getMimeType();
+
         $sizesXpath1  = $xpath->query("//ns:size[2][text()=\"$size KB\"]");
         $sizesXpath2  = $xpath->query("//ns:size[1][text()=\"$size2 KB\"]");
-        $formatXpath1 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
-        $formatXpath2 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+        $formatXpath1 = $xpath->query("//ns:format[2][text()=\"$mimeType1\"]");
+        $formatXpath2 = $xpath->query("//ns:format[1][text()=\"$mimeType2\"]");
 
         $this->assertEquals(1, $sizesXpath2->length);
         $this->assertEquals(0, $sizesXpath1->length);

@@ -213,7 +213,7 @@ abstract class AbstractVersion implements StrategyInterface
 
         $this->config->dom = new DOMDocument('1.0', 'UTF-8');
         $root              = $this->config->dom->createElement('Opus');
-        $root->setAttribute('version', $this->getVersion());
+        $root->setAttribute('version', $this->version); // TODO use $this->getVersion()
         $this->config->dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
@@ -384,7 +384,7 @@ abstract class AbstractVersion implements StrategyInterface
             $fieldValues = $fieldValues->getName();
         }
 
-        return trim($fieldValues);
+        return trim($fieldValues ?? '');
     }
 
     /**

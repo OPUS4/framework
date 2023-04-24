@@ -25,7 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2022, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,9 +36,7 @@ use Opus\Common\Model\Plugin\AbstractPlugin;
 
 class AbstractPluginMock extends AbstractPlugin
 {
-    /**
-     * Array containing names of methods that have been called
-     */
+    /** @var string[] Array containing names of methods that have been called */
     public $calledHooks = [];
 
     /**

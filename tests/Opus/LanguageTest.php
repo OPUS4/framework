@@ -44,7 +44,7 @@ use function count;
 
 class LanguageTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -35,9 +35,9 @@ use DOMDocument;
 use InvalidArgumentException;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelInterface;
+use Opus\Common\Security\SecurityException;
 use Opus\Model\Xml\StrategyInterface;
 use Opus\Model\Xml\Version1;
-use Opus\Security\SecurityException;
 
 use function array_diff;
 use function array_intersect;

@@ -25,13 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Model
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
  */
 
 namespace OpusTest\Model\Dependent\Link;
@@ -48,21 +43,17 @@ use function in_array;
 
 /**
  * Test cases for Opus\Model\Dependent\Link\AbstractLinkModel
- *
- * @category    Tests
- * @package     Opus\Model
- * @group       DependentLinkAbstractTest
  */
 class AbstractLinkModelTest extends TestCase
 {
     /**
      * Overwrite parent methods.
      */
-    public function setUp()
+    public function setUp(): void
     {
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 

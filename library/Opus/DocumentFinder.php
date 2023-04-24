@@ -96,7 +96,7 @@ class DocumentFinder
     {
         $this->_select->reset('columns');
         $this->_select->distinct(true)->columns("count(id)");
-        return $this->_db->fetchOne($this->_select);
+        return ( int )$this->_db->fetchOne($this->_select);
     }
 
     /**

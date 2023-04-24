@@ -48,7 +48,7 @@ class IdentifierDoiTest extends TestCase
 {
     const ENRICHMENT_KEY_NAME = 'opus.doi.autoCreate';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -60,7 +60,7 @@ class IdentifierDoiTest extends TestCase
         ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // cleanup mock DoiManager
         DoiManager::setInstance(null);

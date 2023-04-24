@@ -36,6 +36,7 @@ use DOMDocument;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\CollectionInterface;
+use Opus\Common\CollectionRoleInterface;
 use Opus\Common\Config;
 use Opus\Common\Model\NotFoundException;
 use Opus\Db\TableGateway;
@@ -154,11 +155,14 @@ class Collection extends AbstractDb implements CollectionInterface
      */
     protected function init()
     {
+        $roleId = new Field('RoleId');
+        $roleId->setType('int');
+        $this->addField($roleId);
+
         $fields = [
             'Number',
             'Name',
             'OaiSubset',
-            'RoleId',
             'Role',
             'RoleName',
             'RoleDisplayFrontdoor',
@@ -446,7 +450,7 @@ class Collection extends AbstractDb implements CollectionInterface
      */
     public function getDisplayName($context = 'browsing', $role = null)
     {
-        if ($role !== null && (! $role instanceof CollectionRole || $role->getId() !== $this->getRoleId())) {
+        if ($role !== null && (! $role instanceof CollectionRoleInterface || $role->getId() !== $this->getRoleId())) {
             throw new InvalidArgumentException('given Collection Role is not compatible');
         }
 
@@ -472,7 +476,7 @@ class Collection extends AbstractDb implements CollectionInterface
             $display = $role->getDisplayName();
         }*/
 
-        return trim($display);
+        return trim($display ?? '');
     }
 
     public function getDisplayNameForBrowsingContext($role = null)
@@ -489,8 +493,8 @@ class Collection extends AbstractDb implements CollectionInterface
      */
     public function getNumberAndName($delimiter = ' ')
     {
-        $name   = trim($this->getName());
-        $number = trim($this->getNumber());
+        $name   = trim($this->getName() ?? '');
+        $number = trim($this->getNumber() ?? '');
         if ($number === '') {
             return $name;
         }
@@ -1128,7 +1132,7 @@ class Collection extends AbstractDb implements CollectionInterface
     public function isRoot()
     {
         if ($this->isNewRecord()) {
-            return;
+            return false;
         }
 
         return $this->primaryTableRow->getTable()->isRoot(

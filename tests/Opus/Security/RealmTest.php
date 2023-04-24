@@ -25,19 +25,16 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2020, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Security
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Security;
 
 use Opus\Common\Config;
+use Opus\Common\Security\Realm;
+use Opus\Common\Security\RealmInterface;
+use Opus\Common\Security\SecurityException;
 use Opus\Db\AccessDocuments;
 use Opus\Db\AccessFiles;
 use Opus\Db\AccessModules;
@@ -49,8 +46,6 @@ use Opus\Db\LinkAccountsRoles;
 use Opus\Db\LinkIprangesRoles;
 use Opus\Db\TableGateway;
 use Opus\Db\UserRoles;
-use Opus\Security\Realm;
-use Opus\Security\SecurityException;
 use OpusTest\TestAsset\TestCase;
 use Zend_Config;
 
@@ -60,14 +55,10 @@ use function md5;
 
 /**
  * Test for Opus\Security\Realm.
- *
- * @package Opus\Security
- * @category Tests
- * @group RealmTest
  */
 class RealmTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -86,7 +77,7 @@ class RealmTest extends TestCase
         ]);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
     }
@@ -193,7 +184,8 @@ class RealmTest extends TestCase
     {
         $realm = Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
-        $this->assertInstanceOf(Realm::class, $realm, 'Expected object of type Opus\Security\Realm.');
+        $this->assertInstanceOf(RealmInterface::class, $realm, 'Expected object of type Opus\Security\Realm.');
+        $this->assertSame($realm, Realm::getInstance());
     }
 
     /**

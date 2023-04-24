@@ -40,6 +40,7 @@ use Opus\Model\Field;
 use Zend_Validate_NotEmpty;
 
 use function count;
+use function func_get_args;
 use function json_decode;
 use function json_encode;
 use function serialize;
@@ -47,8 +48,6 @@ use function sha1;
 
 /**
  * Job model used to manage job descriptions.
- *
- * phpcs:disable
  */
 class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
 {
@@ -108,7 +107,7 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
     public function setData($value)
     {
         $jsonEncode = json_encode($value);
-        if ((null !== $value) and (null === $jsonEncode)) {
+        if ((null !== $value) && (null === $jsonEncode)) {
             throw new Exception('Json encoding failed.');
         }
         $this->_getField('Data')->setValue($jsonEncode);
@@ -117,15 +116,19 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
     /**
      * Intercept getter logic to do JSON decoding.
      *
+     * @param bool $convertObjectsIntoAssociativeArrays
+     * @return array Value of field.
      * @throws Exception Thrown if json decoding failed.
-     * @return mixed Value of field.
      */
     public function getData($convertObjectsIntoAssociativeArrays = false)
     {
-        $fieldData  = $this->_getField('Data')->getValue();
+        $fieldData = $this->_getField('Data')->getValue();
+        if ($fieldData === null) {
+            return []; // TODO WAS throw new Exception('No JSON data to decode.');
+        }
         $jsonDecode = json_decode($fieldData, $convertObjectsIntoAssociativeArrays);
-        if ((null != $fieldData) and (null === $jsonDecode)) {
-            throw new Exception('Json decoding failed.');
+        if (null === $jsonDecode) {
+            throw new Exception('JSON decoding failed.');
         }
         return $jsonDecode;
     }
@@ -219,7 +222,7 @@ class Job extends AbstractDb implements JobInterface, JobRepositoryInterface
      * @param array       $labels Set of labels to get Jobs for.
      * @param null|string $limit (optional) Number of jobs to retrieve
      * @param null|string $state (optional) only retrieve jobs in given state
-     * @return array Set of Opus\Job objects.
+     * @return array|null Set of Opus\Job objects.
      */
     public function getByLabels($labels, $limit = null, $state = null)
     {

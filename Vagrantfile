@@ -31,18 +31,17 @@ $composer = <<SCRIPT
 SCRIPT
 
 $database = <<SCRIPT
-/vagrant/bin/prepare-database.sh
+/vagrant/bin/opus4db
+SCRIPT
+
+$init_schema = <<SCRIPT
+php db/createdb.php
 SCRIPT
 
 $prepare_tests = <<SCRIPT
 cd /vagrant
 ant prepare-workspace
-# TODO currently the admin account is always used for tests
-if test ! -f tests/config.ini; then
-  ant prepare-config -DdbUserName=opus4admin -DdbUserPassword=opusadminpwd -DdbAdminName=opus4admin -DdbAdminPassword=opusadminpwd
-fi
 bin/composer update
-php db/createdb.php
 SCRIPT
 
 $environment = <<SCRIPT
@@ -68,8 +67,9 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "Install required software...", type: "shell", inline: $software
   config.vm.provision "Install Composer...", type: "shell", privileged: false, inline: $composer
-  config.vm.provision "Setup database...", type: "shell", inline: $database
   config.vm.provision "Prepare tests...", type: "shell", privileged: false, inline: $prepare_tests
+  config.vm.provision "Setup database...", type: "shell", inline: $database
+  config.vm.provision "Init database...", type: "shell", privileged: false, inline: $init_schema
   config.vm.provision "Setup environment...", type: "shell", inline: $environment
   config.vm.provision "Help", type: "shell", privileged: false, inline: $help
 end

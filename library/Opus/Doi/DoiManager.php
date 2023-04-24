@@ -37,6 +37,7 @@ use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
 use Opus\Common\Config;
+use Opus\Common\DocumentInterface;
 use Opus\Common\Identifier;
 use Opus\Common\Log;
 use Opus\Common\Log\LogService;
@@ -155,10 +156,11 @@ class DoiManager
      * Liefert im Erfolgsfall die registrierte DOI zurück. Liefert null zurück, wenn das Dokument keine lokale
      * DOI besitzt, die registriert werden kann.
      *
-     * @param $doc   Document oder ID eines Opus\Document als String
-     * @param $store wenn true, dann wird am Ende der Methode store() auf dem übergebenen $doc aufgerufen
-     *               wenn die Methode im Kontext eines Store-Plugins aufgerufen wird, dann erfolgt der Aufruf
-     *               von store() an anderer Stelle (sonst gibt es eine Endlosschleife)
+     * @param DocumentInterface $doc   Document oder ID eines Opus\Document als String
+     * @param bool              $store Wenn true, dann wird am Ende der Methode store() auf dem übergebenen $doc
+     *                                 aufgerufen. Wenn die Methode im Kontext eines Store-Plugins aufgerufen wird,
+     *                                 dann erfolgt der Aufruf von store() an anderer Stelle (sonst gibt es eine
+     *                                 Endlosschleife).
      * @throws DoiException wenn das referenzierte Dokument nicht in der Datenbank existiert
      * @throws RegistrationException wenn bei dem Versuch der Registrierung bei DataCite ein Fehler auftritt
      */
@@ -345,7 +347,7 @@ class DoiManager
     /**
      * Liefert true, wenn der übergebene Wert den Wert einer lokale DOI darstellt; andernfalls false.
      *
-     * @param $value Wert einer DOI, der auf Lokalität geprüft werden soll
+     * @param string $value Wert einer DOI, der auf Lokalität geprüft werden soll
      */
     private function isLocalDoi($value)
     {
@@ -362,9 +364,10 @@ class DoiManager
      * alle Dokumente unabhängig von ihrem ServerState betrachtet werden, so muss als Aufrufargument null übergeben
      * werden.
      *
-     * @param $filterServerState Filter für Attribut ServerState (es werden nur Dokumente mit dem angegeben ServerState
-     *                           bei der Registrierung betrachtet); um alle Dokumente unabhängig vom ServerState zu
-     *                           betrachten, muss der Wert null übergeben werden (Default: published)
+     * @param string $filterServerState Filter für Attribut ServerState (es werden nur Dokumente mit dem angegeben
+     *                                  ServerState bei der Registrierung betrachtet); um alle Dokumente unabhängig vom
+     *                                  ServerState zu betrachten, muss der Wert null übergeben werden (Default:
+     *                                  published)
      * @return DoiManagerStatus
      */
     public function registerPending($filterServerState = 'published')
@@ -464,10 +467,10 @@ class DoiManager
      * Ist eine Prüfung nicht möglich, so gibt die Methode null zurück, z.B. wenn das Dokument mit der übergebenen ID
      * gar keine DOI hat.
      *
-     * @param $docId ID des zu überprüfenden OPUS-Dokuments
-     * @param $allowReverification wenn true, dann werden DOIs, die bereits geprüft wurden, erneut geprüft
-     * @param $beforeDate Nur DOIs prüfen, deren Registrierung vor dem übergebenen Zeitpunkt liegt
-     * @param null|DoiManagerStatus                                                                         $managerStatus Objekt zum Ablegen von Statusinformationen der DOI-Prüfung
+     * @param int                   $docId ID des zu überprüfenden OPUS-Dokuments
+     * @param bool                  $allowReverification wenn true, dann werden DOIs, die bereits geprüft wurden, erneut geprüft
+     * @param string                $beforeDate Nur DOIs prüfen, deren Registrierung vor dem übergebenen Zeitpunkt liegt
+     * @param null|DoiManagerStatus $managerStatus Objekt zum Ablegen von Statusinformationen der DOI-Prüfung
      */
     public function verify($docId, $allowReverification = true, $beforeDate = null, $managerStatus = null)
     {
@@ -659,12 +662,13 @@ class DoiManager
      * Erzeugt auf Basis der konfigurierten DOI-Generator-Klasse einen DOI-Wert für das übergebene Dokument.
      * Gibt den Wert zurück oder wirft eine Exception, wenn die Generierung nicht möglich ist.
      *
-     * @param $doc Document, für das ein DOI-Wert generiert werden soll oder ID eines Dokuments
-     *             für eine ID (string), wird versucht das zugehörige Opus\Document aus der Datenbank zu laden
+     * @param Document|int $doc Document für das ein DOI-Wert generiert werden soll oder ID eines Dokuments fuer eine
+     *                          ID (string), wird versucht das zugehörige Opus\Document aus der Datenbank zu laden
      * @throws DoiException
      */
     public function generateNewDoi($doc)
     {
+        // TODO DESIGN move getting generator into separate function
         $generator = null;
         try {
             $generator = DoiGeneratorFactory::create();

@@ -1054,17 +1054,23 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     /**
      * Only consider files which are visible in frontdoor.
      *
-     * @return bool|void
+     * @return bool
      */
     public function hasFulltext()
     {
         $files = $this->getFile();
 
-        $files = array_filter($files, function ($file) {
-            return $file->getVisibleInFrontdoor() === '1';
-        });
+        if (! is_array($files)) {
+            return false;
+        }
 
-        return count($files) > 0;
+        foreach ($files as $file) {
+            if ($file->getVisibleInFrontdoor()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

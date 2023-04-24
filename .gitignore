@@ -13,9 +13,8 @@ db/config.sh
 vendor
 
 # Local test files
-tests/build
-tests/config.ini
-tests/config.ini.backup
+database.ini*
+.phpunit.result.cache
 
 # IntelliJ IDEA files
 .idea

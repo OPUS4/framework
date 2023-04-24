@@ -32,33 +32,30 @@
 namespace OpusTest\Security;
 
 use Opus\Common\Account;
+use Opus\Common\Security\SecurityException;
 use Opus\Db\Accounts;
 use Opus\Db\TableGateway;
-use Opus\Security\SecurityException;
 use OpusTest\TestAsset\TestCase;
+use Zend_Db_Table;
 
 use function sha1;
 
 /**
  * Test case for Opus\Account.
- *
- * @category    Tests
- * @package     Opus\Security
- * @group       AccountTest
  */
 class AccountTest extends TestCase
 {
     /**
      * Table adapter to accounts table.
      *
-     * @var\Zend_Db_Table
+     * @var Zend_Db_Table
      */
     protected $accounts;
 
     /**
      * Set up table adapter.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

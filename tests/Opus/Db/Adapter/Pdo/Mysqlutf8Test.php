@@ -41,6 +41,7 @@ use Exception;
 use Opus\Common\Config;
 use OpusTest\TestAsset\TestCase;
 use Zend_Db;
+use Zend_Db_Adapter_Abstract;
 use Zend_Db_Table;
 
 /**
@@ -52,12 +53,12 @@ use Zend_Db_Table;
  */
 class Mysqlutf8Test extends TestCase
 {
-    /** @var\Zend_Db_Adapter_Abstract */
+    /** @var Zend_Db_Adapter_Abstract */
     protected $dbaBackup;
 
     /** Ensure a clean database table.
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -78,7 +79,7 @@ class Mysqlutf8Test extends TestCase
     /**
      * Tear down database changed.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         // Close connection for clean transaction state.
         $dba = Zend_Db_Table::getDefaultAdapter();

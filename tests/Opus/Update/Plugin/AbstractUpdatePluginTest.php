@@ -27,24 +27,22 @@
  *
  * @copyright   Copyright (c) 2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Update
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Update\Plugin;
 
 use Opus\Update\Plugin\AbstractUpdatePlugin;
 use OpusTest\TestAsset\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 use const PHP_EOL;
 
 class AbstractUpdatePluginTest extends TestCase
 {
+    /** @var MockObject */
     private $stub;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

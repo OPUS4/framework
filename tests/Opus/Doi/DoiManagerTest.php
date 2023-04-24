@@ -56,7 +56,7 @@ use const DIRECTORY_SEPARATOR;
 
 class DoiManagerTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

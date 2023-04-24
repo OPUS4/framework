@@ -41,11 +41,19 @@ $frameworkPath = dirname(__FILE__, 2);
 defined('FRAMEWORK_PATH')
     || define('FRAMEWORK_PATH', realpath($frameworkPath));
 
+if (strpos($frameworkPath, 'vendor/opus4-repo/framework') === false) {
+    // Script used in opus4-repo/framework
+    $applicationPath = $frameworkPath;
+} else {
+    // Script used in project depending on opus4-repo/framework
+    $applicationPath = dirname($frameworkPath, 3);
+}
+
 // Define path to application directory
 defined('APPLICATION_PATH')
     || define(
         'APPLICATION_PATH',
-        getenv('APPLICATION_PATH') ? getenv('APPLICATION_PATH') : realpath($frameworkPath)
+        getenv('APPLICATION_PATH') ? getenv('APPLICATION_PATH') : $applicationPath
     );
 
 // Define application environment
@@ -78,7 +86,7 @@ require_once $frameworkPath . '/library/OpusDb/Mysqlutf8.php';
 //       files will then be used for initialization (in the given order).
 $configFiles = array_filter([
     $frameworkPath . '/tests/application.ini',
-    APPLICATION_PATH . '/tests/config.ini',
+    APPLICATION_PATH . '/database.ini',
     APPLICATION_PATH . '/test/config.ini',
 ], 'file_exists');
 

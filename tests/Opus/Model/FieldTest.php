@@ -58,11 +58,11 @@ class FieldTest extends TestCase
     /**
      * Overwrite parent methods.
      */
-    public function setUp()
+    public function setUp(): void
     {
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 
@@ -478,7 +478,7 @@ class FieldTest extends TestCase
      */
     public function testAddingMoreValuesThenAllowedThrowsException()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $field = new Field('MyField');
         $field->setMultiplicity(3);
         $field->addValue([15, 16, 17, 18]);

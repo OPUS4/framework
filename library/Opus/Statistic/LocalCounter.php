@@ -26,13 +26,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus\Statistic
- * @author      Tobias Leidinger <tobias.leidinger@gmail.com>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus\Statistic;
@@ -41,9 +36,9 @@ use DOMDocument;
 use Exception;
 use Opus\Common\Config;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Security\Realm;
 use Opus\Db\DocumentStatistics;
 use Opus\Db\TableGateway;
-use Opus\Security\Realm;
 
 use function array_key_exists;
 use function date;
@@ -60,15 +55,13 @@ use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Controller for Opus Applications.
- *
- * phpcs:disable
  */
 class LocalCounter
 {
     /**
      * Holds instance of the class
      *
-     * @var LocalCounter
+     * @var self
      */
     private static $localCounter;
 
@@ -86,6 +79,7 @@ class LocalCounter
      */
     private $doubleClickIntervalHtml = 10;
 
+    /** @var string[] */
     private $spiderList = [
         'Alexandria prototype project',
         'Arachmo',
@@ -130,7 +124,7 @@ class LocalCounter
     }
 
     /**
-     * @return LocalCounter
+     * @return self
      */
     public static function getInstance()
     {
@@ -143,8 +137,8 @@ class LocalCounter
     /**
      * check whether user agent contains one of the spiders from the counter list
      *
-     * @param $userAgent $_SERVER['user_agent'] string
-     * @return bool is spieder?
+     * @param string $userAgent $_SERVER['user_agent'] string
+     * @return bool is spider?
      */
     private function checkSpider($userAgent)
     {
@@ -158,27 +152,39 @@ class LocalCounter
         return false;
     }
 
+    /**
+     * @param int $redirectStatus
+     * @return bool
+     */
     private function isRedirectStatusOk($redirectStatus)
     {
         return $redirectStatus === 200 || $redirectStatus === 304;
     }
 
+    /**
+     * @param int $documentId
+     */
     public function countFrontdoor($documentId)
     {
         $this->count($documentId, -1, 'frontdoor');
     }
 
+    /**
+     * @param int $documentId
+     * @param int $fileId
+     */
     public function countFiles($documentId, $fileId)
     {
         $this->count($documentId, $fileId, 'files');
     }
 
     /**
-     * @param $documentId
-     * @param $fileId
+     * @param int         $documentId
+     * @param int         $fileId
+     * @param string      $type
      * @param string|null $ip TODO not used
-     * @param $userAgent
-     * @param $redirectStatus
+     * @param string|null $userAgent
+     * @param int|null    $redirectStatus
      * @return int new counter value for given doc_id - month -year triple or FALSE if double click or spider
      */
     public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null)
@@ -187,7 +193,7 @@ class LocalCounter
             return 0;
         }
 
-        if ($type != 'frontdoor' && $type != 'files') {
+        if ($type !== 'frontdoor' && $type !== 'files') {
             //print('type not defined');
             return 0;
         }
@@ -276,17 +282,17 @@ class LocalCounter
     /**
      * log click to temp file and return whether it was a double click or not
      *
-     * @param $documentId id of documents table
-     * @param $fileId id of document_files table
-     * @param $time
+     * @param int $documentId id of documents table
+     * @param int $fileId id of document_files table
+     * @param int $time
      * @return bool is it a double click
      */
     public function logClick($documentId, $fileId, $time)
     {
-        $ip = '';
+        $ip       = '';
         $clientIp = Realm::getInstance()->getIp();
         if ($clientIp !== null) {
-           $ip = $clientIp;
+            $ip = $clientIp;
         }
 
         $tempDir = Config::getInstance()->getTempPath();
@@ -312,7 +318,7 @@ class LocalCounter
 
         //if global file access timestamp too old, the whole log file can be removed
         $xmlTime = $dom->getElementsByTagName("time")->item(0);
-        if ($xmlTime != null && ($time - $xmlTime->nodeValue) > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
+        if ($xmlTime !== null && ($time - $xmlTime->nodeValue) > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
             $xmlAccess = $dom->getElementsByTagName("access")->item(0);
             $dom->removeChild($xmlAccess);
             $xmlAccess = $dom->createElement('access');
@@ -320,7 +326,7 @@ class LocalCounter
         }
 
         $xmlTime = $xmlAccess->getElementsByTagName('time')->item(0);
-        if ($xmlTime != null) {
+        if ($xmlTime !== null) {
             $xmlAccess->removeChild($xmlTime);
         }
         $xmlTime = $dom->createElement('time', $time);
@@ -341,22 +347,24 @@ class LocalCounter
 
         //get file id, create if not exists
         $xmlFileId = $xmlIp->getElementsByTagName('file' . $fileId)->item(0);
-        if ($xmlFileId == null) {
+        if ($xmlFileId === null) {
             $xmlFileId = $dom->createElement('file' . $fileId);
             $xmlIp->appendChild($xmlFileId);
         }
 
         //read last Access for this file id
-        $fileIdTime  = $xmlFileId->getAttribute('lastAccess');
+        $fileIdTime  = (int) $xmlFileId->getAttribute('lastAccess');
         $doubleClick = false;
 
-        if ($fileIdTime == null || $time - $fileIdTime > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
+        if ($fileIdTime === null || $time - $fileIdTime > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
             /*no lastAccess set (new entry for this id) or lastAccess too far away
              -> create entry with actual time -> return no double click*/
+            // TODO should there be code here?
+            $doubleClick = false;
         } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalHtml) && (($filetype === 'html') || ($fileId === -1))) {
             //html file double click
             $doubleClick = true;
-        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype === 'pdf') && ($fileId != -1)) {
+        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype === 'pdf') && ($fileId !== -1)) {
             //pdf file double click
             $doubleClick = true;
         }
@@ -371,6 +379,12 @@ class LocalCounter
         return $doubleClick;
     }
 
+    /**
+     * @param int         $documentId
+     * @param string      $datatype
+     * @param null|string $year
+     * @return array
+     */
     public function readMonths($documentId, $datatype = 'files', $year = null)
     {
         if ($year === null) {
@@ -378,7 +392,7 @@ class LocalCounter
             $year = date('Y', time());
         }
 
-        if ($datatype != 'files' && $datatype != 'frontdoor') {
+        if ($datatype !== 'files' && $datatype !== 'frontdoor') {
             $datatype = 'files';
         }
         $ods    = TableGateway::getInstance(DocumentStatistics::class);
@@ -401,9 +415,14 @@ class LocalCounter
         return $result;
     }
 
+    /**
+     * @param int    $documentId
+     * @param string $datatype
+     * @return array|int[]
+     */
     public function readYears($documentId, $datatype = 'files')
     {
-        if ($datatype != 'files' && $datatype != 'frontdoor') {
+        if ($datatype !== 'files' && $datatype !== 'frontdoor') {
             $datatype = 'files';
         }
         $ods = TableGateway::getInstance(DocumentStatistics::class);
@@ -432,9 +451,14 @@ class LocalCounter
         return $result;
     }
 
+    /**
+     * @param int    $documentId
+     * @param string $datatype
+     * @return int|string
+     */
     public function readTotal($documentId, $datatype = 'files')
     {
-        if ($datatype != 'files' && $datatype != 'frontdoor') {
+        if ($datatype !== 'files' && $datatype !== 'frontdoor') {
             $datatype = 'files';
         }
         $ods = TableGateway::getInstance(DocumentStatistics::class);

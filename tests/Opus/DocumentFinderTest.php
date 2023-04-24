@@ -36,13 +36,13 @@ use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
+use Opus\Common\Security\SecurityException;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DefaultDocumentFinder;
 use Opus\File;
 use Opus\Licence;
 use Opus\Person;
-use Opus\Security\SecurityException;
 use Opus\Title;
 use OpusTest\TestAsset\TestCase;
 
@@ -55,14 +55,10 @@ use function time;
 
 /**
  * Test cases for class Opus\DocumentFinder.
- *
- * @package Opus
- * @category Tests
- * @group DocumentTest
  */
 class DocumentFinderTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

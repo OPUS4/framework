@@ -11,9 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# @author      Thomas Urban <thomas.urban@cepharum.de>
-# @author      Jens Schwidder <schwidder@zib.de>
-# @copyright   Copyright (c) 2010-2016, OPUS 4 development team
+# @copyright   Copyright (c) 2010, OPUS 4 development team
 # @license     http://www.gnu.org/licenses/gpl.html General Public License
 
 #
@@ -29,7 +27,6 @@
 
 set -e
 
-SCRIPT_NAME="$(basename "$0")"
 SCRIPT_NAME_FULL="`readlink -f "$0"`"
 SCRIPT_PATH="`dirname "$SCRIPT_NAME_FULL"`"
 

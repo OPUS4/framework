@@ -27,10 +27,6 @@
  *
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Update\Plugin
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest\Update\Plugin;
@@ -40,9 +36,10 @@ use OpusTest\TestAsset\TestCase;
 
 class DatabaseCharsetTest extends TestCase
 {
+    /** @var DatabaseCharset */
     private $plugin;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

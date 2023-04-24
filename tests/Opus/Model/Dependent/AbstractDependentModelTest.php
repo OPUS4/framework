@@ -37,7 +37,10 @@ use Opus\Document;
 use Opus\Model\Dependent\AbstractDependentModel;
 use Opus\Model\Plugin\InvalidateDocumentCache;
 use OpusTest\TestAsset\TestCase;
+use Zend_Db_Adapter;
+use Zend_Db_Table;
 use Zend_Db_Table_Abstract;
+use Zend_Db_Table_Row;
 
 use function class_exists;
 
@@ -60,28 +63,28 @@ class AbstractDependentModelTest extends TestCase
     /**
      * \Zend_Db_Table mockup.
      *
-     * @var\Zend_Db_Table
+     * @var Zend_Db_Table
      */
     private $mockTableGateway;
 
     /**
      * \Zend_Db_Table_Row mockup
      *
-     * @var\Zend_Db_Table_Row
+     * @var Zend_Db_Table_Row
      */
     private $mockTableRow;
 
     /**
      * \Zend_Db_Adapter mockup
      *
-     * @var\Zend_Db_Adapter
+     * @var Zend_Db_Adapter
      */
     private $mockAdapter;
 
     /**
      * Set up test instance and mock environment.
      */
-    public function setUp()
+    public function setUp(): void
     {
         if (false === class_exists('Opus_Model_Dependent_AbstractTest_MockTableGateway', false)) {
             eval('
@@ -168,7 +171,7 @@ class AbstractDependentModelTest extends TestCase
     /**
      * Overwrite parent methods.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 

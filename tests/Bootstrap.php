@@ -64,7 +64,8 @@ $configFiles = array_filter([
     $frameworkPath . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'application.ini',
     APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'test.ini',
     APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'test.ini',
-    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini',
+    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'database.ini',
     APPLICATION_PATH . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'config.ini',
 ], 'file_exists');
 
