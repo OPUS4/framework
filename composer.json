@@ -15,8 +15,8 @@
     "ext-json": "*",
     "ext-libxml": "*",
     "opus4/zf1-future": "1.21.*",
-    "opus4-repo/opus4-common": "4.7.2.x-dev",
-    "opus4-repo/opus4-doi": "dev-master"
+    "opus4-repo/opus4-common": "^4.8",
+    "opus4-repo/opus4-doi": "^4.8"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -63,7 +63,7 @@
       "Composer\\Config::disableProcessTimeout",
       "phpunit --log-junit build/phpunit.xml --colors=always"
     ],
-    "cs-check": "phpcs -n --extensions=php,phtml,css,js,inc -v",
+    "cs-check": "phpcs -n -p --extensions=php,phtml,css,js,inc",
     "cs-fix": "phpcbf --extensions=php,phtml,css,js,inc -v",
     "cs-report": "phpcs -n --report=checkstyle --report-file=build/checkstyle.xml -v",
     "phpmd": "phpmd library xml cleancode,unusedcode,design,naming --reportfile build/phpmd.xml --ignore-violations-on-exit",
