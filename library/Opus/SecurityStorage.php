@@ -29,7 +29,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus\Security;
+namespace Opus;
 
 use Opus\Common\Log;
 use Opus\Common\Security\Realm;
@@ -46,10 +46,8 @@ use function sprintf;
 /**
  * This singleton class encapsulates all security specific information
  * like the current User, IP address, and method to check rights.
- *
- * TODO rename to RealmStorage
  */
-class RealmStorage implements RealmStorageInterface
+class SecurityStorage implements RealmStorageInterface
 {
     /**
      * Get the roles that are assigned to the specified username.
