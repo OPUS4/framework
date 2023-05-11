@@ -27,22 +27,12 @@
  *
  * @copyright   Copyright (c) 2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
- * @author      Michael Lang <lang@zib.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace Opus;
 
 use Exception;
+use Opus\Common\Collection;
 use Opus\Common\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Date;
@@ -462,7 +452,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
             'fetch' => 'lazy',
         ],
         'Collection'         => [
-            'model' => Collection::class,
+            'model' => \Opus\Collection::class,
             'fetch' => 'lazy',
         ],
         'ThesisPublisher'    => [
@@ -674,7 +664,7 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
             $ids = Collection::fetchCollectionIdsByDocumentId($this->getId());
 
             foreach ($ids as $id) {
-                $collection    = new Collection($id);
+                $collection    = Collection::new($id);
                 $collections[] = $collection;
             }
         }

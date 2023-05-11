@@ -322,6 +322,33 @@ class Collection extends AbstractDb implements CollectionInterface
     }
 
     /**
+     * @param int  $destColId
+     * @param bool $updateLastModified
+     */
+    public function moveDocuments($destColId, $updateLastModified = true)
+    {
+        // TODO: Implement moveDocuments() method.
+    }
+
+    /**
+     * @param int  $destColId
+     * @param bool $updateLastModified
+     */
+    public function copyDocuments($destColId, $updateLastModified = true)
+    {
+        // TODO: Implement copyDocuments() method.
+    }
+
+    /**
+     * @param int[] $docIds
+     * @param bool  $updateLastModified
+     */
+    public function removeDocuments($docIds, $updateLastModified = true)
+    {
+        // TODO: Implement removeDocuments() method.
+    }
+
+    /**
      * Method to fetch IDs of all documents in server_state published.
      */
     public function getPublishedDocumentIds()
@@ -447,6 +474,9 @@ class Collection extends AbstractDb implements CollectionInterface
      * Returns custom string representation depending on role settings.
      *
      * @return string
+     *
+     * TODO DESIGN WHy is there a $role parameter? The collection should know its CollectionRole and why should using
+     *      a different role be possible?
      */
     public function getDisplayName($context = 'browsing', $role = null)
     {
@@ -574,31 +604,6 @@ class Collection extends AbstractDb implements CollectionInterface
     }
 
     /**
-     * Removes document from current collection by deleting from the relation
-     * table "link_documents_collections".
-     *
-     * @param null|int $documentId
-     *
-     * TODO: Move method to Opus\Db\LinkDocumentsCollections.
-     * TODO: Usable return value.
-     */
-    public static function unlinkCollectionsByDocumentId($documentId = null)
-    {
-        if ($documentId === null) {
-            return;
-        }
-
-        $table = TableGateway::getInstance(Db\LinkDocumentsCollections::class);
-        $db    = $table->getAdapter();
-
-        $condition = [
-            'document_id = ?' => $documentId,
-        ];
-
-        return $db->delete("link_documents_collections", $condition);
-    }
-
-    /**
      * Checks if document is linked to current collection.
      *
      * @param  null|int $documentId
@@ -676,107 +681,6 @@ class Collection extends AbstractDb implements CollectionInterface
         return parent::toXml($excludeFields, $strategy);
     }
 
-    /**
-     * Returns all collection for given (role_id, collection number) as array
-     * with Opus\Collection objects.  Always returning an array, even if the
-     * result set has zero or one element.
-     *
-     * @param  int    $roleId
-     * @param  string $number
-     * @return array   Array of Opus\Collection objects.
-     */
-    public static function fetchCollectionsByRoleNumber($roleId, $number)
-    {
-        if (! isset($number)) {
-            throw new Exception("Parameter 'number' is required.");
-        }
-
-        if (! isset($roleId)) {
-            throw new Exception("Parameter 'role_id' is required.");
-        }
-
-        $table  = TableGateway::getInstance(self::$tableGatewayClass);
-        $select = $table->select()->where('role_id = ?', $roleId)
-                        ->where('number = ?', "$number");
-        $rows   = $table->fetchAll($select);
-
-        return self::createObjects($rows);
-    }
-
-    /**
-     * Returns all collection for given (role_id, collection name) as array
-     * with Opus\Collection objects.  Always returning an array, even if the
-     * result set has zero or one element.
-     *
-     * @param  int    $roleId
-     * @param  string $name
-     * @return array   Array of Opus\Collection objects.
-     */
-    public static function fetchCollectionsByRoleName($roleId, $name)
-    {
-        if (! isset($name)) {
-            throw new Exception("Parameter 'name' is required.");
-        }
-
-        if (! isset($roleId)) {
-            throw new Exception("Parameter 'role_id' is required.");
-        }
-
-        $table  = TableGateway::getInstance(self::$tableGatewayClass);
-        $select = $table->select()->where('role_id = ?', $roleId)
-                        ->where('name = ?', $name);
-        $rows   = $table->fetchAll($select);
-
-        return self::createObjects($rows);
-    }
-
-    /**
-     * Returns all collection for given (role_id) as array
-     * with Opus\Collection objects.  Always returning an array, even if the
-     * result set has zero or one element.
-     *
-     * @param  int $roleId
-     * @return array   Array of Opus\Collection objects.
-     */
-    public static function fetchCollectionsByRoleId($roleId)
-    {
-        if (! isset($roleId)) {
-            throw new Exception("Parameter 'role_id' is required.");
-        }
-
-        $table  = TableGateway::getInstance(self::$tableGatewayClass);
-        $select = $table->select()->where('role_id = ?', $roleId);
-        $rows   = $table->fetchAll($select);
-
-        return self::createObjects($rows);
-    }
-
-    /**
-     * Returns all collection_ids for a given document_id.
-     *
-     * @param  int $documentId
-     * @return array  Array of collection Ids.
-     *
-     * FIXME: This method belongs to Opus\Db\Link\Documents\Collections
-     */
-    public static function fetchCollectionIdsByDocumentId($documentId)
-    {
-        if (! isset($documentId)) {
-            return [];
-        }
-
-        // FIXME: self::$tableGatewayClass not possible in static methods.
-        $table = TableGateway::getInstance(Db\Collections::class);
-
-        // FIXME: Don't use internal knowledge of foreign models/tables.
-        // FIXME: Don't return documents if collection is hidden.
-        $select = $table->getAdapter()->select()
-                        ->from("link_documents_collections AS ldc", "collection_id")
-                        ->where('ldc.document_id = ?', $documentId)
-                        ->distinct();
-
-        return $table->getAdapter()->fetchCol($select);
-    }
 
     /**
      * Mass-constructur.
@@ -1347,35 +1251,5 @@ class Collection extends AbstractDb implements CollectionInterface
         }
 
         return $col;
-    }
-
-    /**
-     * @param string $term Search term for matching collections
-     * @param int|array $roles CollectionRole IDs
-     * @return array
-     */
-    public function find($term, $roles = null)
-    {
-        $table = TableGateway::getInstance(Db\Collections::class);
-
-        $database = $table->getAdapter();
-
-        $quotedTerm = $database->quote("%$term%");
-
-        $select = $table->select()
-            ->from("collections", ['Id' => 'id', 'RoleId' => 'role_id', 'Name' => 'name', 'Number' => 'number'])
-            ->where("name LIKE $quotedTerm OR number LIKE $quotedTerm")
-            ->distinct()
-            ->order(['role_id', 'number', 'name']);
-
-        if ($roles !== null) {
-            if (! is_array($roles)) {
-                $select->where('role_id = ?', $roles );
-            } else {
-                $select->where( 'role_id IN (?)', $roles);
-            }
-        }
-
-        return $database->fetchAll($select);
     }
 }
