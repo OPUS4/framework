@@ -49,6 +49,7 @@ class CollectionRepository implements CollectionRepositoryInterface
      *
      * TODO: Move method to Opus\Db\LinkDocumentsCollections.
      * TODO: Usable return value.
+     * TODO TEST not tested yet
      */
     public function unlinkCollectionsByDocumentId($documentId = null)
     {
@@ -74,6 +75,8 @@ class CollectionRepository implements CollectionRepositoryInterface
      * @param  int    $roleId
      * @param  string $number
      * @return array   Array of Opus\Collection objects.
+     *
+     * TODO TEST not tested
      */
     public function fetchCollectionsByRoleNumber($roleId, $number)
     {
@@ -101,6 +104,8 @@ class CollectionRepository implements CollectionRepositoryInterface
      * @param  int    $roleId
      * @param  string $name
      * @return array   Array of Opus\Collection objects.
+     *
+     * TODO TEST not tested
      */
     public function fetchCollectionsByRoleName($roleId, $name)
     {
@@ -127,6 +132,8 @@ class CollectionRepository implements CollectionRepositoryInterface
      *
      * @param  int $roleId
      * @return array   Array of Opus\Collection objects.
+     *
+     * TODO TEST not tested
      */
     public function fetchCollectionsByRoleId($roleId)
     {
@@ -148,6 +155,7 @@ class CollectionRepository implements CollectionRepositoryInterface
      * @return array  Array of collection Ids.
      *
      * FIXME: This method belongs to Opus\Db\Link\Documents\Collections
+     * TODO TEST not tested
      */
     public function fetchCollectionIdsByDocumentId($documentId)
     {
