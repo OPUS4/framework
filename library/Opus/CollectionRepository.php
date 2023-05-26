@@ -57,7 +57,7 @@ class CollectionRepository implements CollectionRepositoryInterface
     public function unlinkCollectionsByDocumentId($documentId = null)
     {
         if ($documentId === null) {
-            return null; // TODO throw exception -> can $documentId really be null?
+            return 0; // TODO throw exception?
         }
 
         $table = TableGateway::getInstance(Db\LinkDocumentsCollections::class);
@@ -180,8 +180,8 @@ class CollectionRepository implements CollectionRepositoryInterface
     }
 
     /**
-     * @param string $term Search term for matching collections
-     * @param int|array $roles CollectionRole IDs
+     * @param string         $term Search term for matching collections
+     * @param int|array|null $roles CollectionRole IDs
      * @return array
      */
     public function find($term, $roles = null)
