@@ -63,7 +63,6 @@ use function explode;
 use function implode;
 use function in_array;
 use function is_array;
-use function is_null;
 use function is_numeric;
 use function is_object;
 use function reset;
@@ -660,11 +659,11 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     {
         $collections = [];
 
-        if (false === is_null($this->isNewRecord())) {
+        if (! $this->isNewRecord()) {
             $ids = Collection::fetchCollectionIdsByDocumentId($this->getId());
 
             foreach ($ids as $id) {
-                $collection    = Collection::new($id);
+                $collection    = Collection::get($id);
                 $collections[] = $collection;
             }
         }

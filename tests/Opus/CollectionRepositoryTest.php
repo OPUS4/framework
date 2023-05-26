@@ -33,6 +33,7 @@ namespace OpusTest;
 
 use Opus\Common\Collection;
 use Opus\Common\CollectionRole;
+use Opus\Common\Document;
 use OpusTest\TestAsset\TestCase;
 
 use function count;
@@ -104,5 +105,36 @@ class CollectionRepositoryTest extends TestCase
         $this->assertCount(2, Collection::find('TestCol'));
         $this->assertCount(1, Collection::find('TestCol', $role1->getId()));
         $this->assertCount(2, Collection::find('TestCol', [$role1->getId(), $role2->getId()]));
+    }
+
+    public function testFetchCollectionIdsByDocumentId()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('OaiTestRole');
+        $root = $role->addRootCollection();
+
+        $col1 = Collection::new();
+        $col1->setName('Col1');
+        $root->addLastChild($col1);
+
+        $col2 = Collection::new();
+        $col2->setName('Col2');
+        $root->addLastChild($col2);
+
+        $role->store();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $doc->addCollection($col2);
+        $doc->store();
+
+        $repository = Collection::getModelRepository();
+
+        $colIds = $repository->fetchCollectionIdsByDocumentId($doc->getId());
+
+        $this->assertCount(2, $colIds);
+        $this->assertContains($col1->getId(), $colIds);
+        $this->assertContains($col2->getId(), $colIds);
     }
 }

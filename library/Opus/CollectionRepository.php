@@ -40,6 +40,9 @@ use function is_array;
 
 class CollectionRepository implements CollectionRepositoryInterface
 {
+    /** @var string Table class for collections. */
+    public const COLLECTIONS_TABLE_CLASS = Db\Collections::class;
+
     /**
      * Removes document from current collection by deleting from the relation
      * table "link_documents_collections".
@@ -88,7 +91,7 @@ class CollectionRepository implements CollectionRepositoryInterface
             throw new Exception("Parameter 'role_id' is required.");
         }
 
-        $table  = TableGateway::getInstance(self::$tableGatewayClass);
+        $table  = TableGateway::getInstance(self::COLLECTIONS_TABLE_CLASS);
         $select = $table->select()->where('role_id = ?', $roleId)
             ->where('number = ?', "$number");
         $rows   = $table->fetchAll($select);
@@ -117,7 +120,7 @@ class CollectionRepository implements CollectionRepositoryInterface
             throw new Exception("Parameter 'role_id' is required.");
         }
 
-        $table  = TableGateway::getInstance(self::$tableGatewayClass);
+        $table  = TableGateway::getInstance(self::COLLECTIONS_TABLE_CLASS);
         $select = $table->select()->where('role_id = ?', $roleId)
             ->where('name = ?', $name);
         $rows   = $table->fetchAll($select);
@@ -141,7 +144,7 @@ class CollectionRepository implements CollectionRepositoryInterface
             throw new Exception("Parameter 'role_id' is required.");
         }
 
-        $table  = TableGateway::getInstance(self::$tableGatewayClass);
+        $table  = TableGateway::getInstance(self::COLLECTIONS_TABLE_CLASS);
         $select = $table->select()->where('role_id = ?', $roleId);
         $rows   = $table->fetchAll($select);
 
@@ -164,7 +167,7 @@ class CollectionRepository implements CollectionRepositoryInterface
         }
 
         // FIXME: self::$tableGatewayClass not possible in static methods.
-        $table = TableGateway::getInstance(Db\Collections::class);
+        $table = TableGateway::getInstance(self::COLLECTIONS_TABLE_CLASS);
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
@@ -183,7 +186,7 @@ class CollectionRepository implements CollectionRepositoryInterface
      */
     public function find($term, $roles = null)
     {
-        $table = TableGateway::getInstance(Db\Collections::class);
+        $table = TableGateway::getInstance(self::COLLECTIONS_TABLE_CLASS);
 
         $database = $table->getAdapter();
 
