@@ -41,6 +41,7 @@ use Opus\Common\Config;
 use Opus\Common\Date;
 use Opus\Common\Model\NotFoundException;
 use Opus\Common\Repository;
+use Opus\Db\LinkDocumentsCollections;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\DbException;
@@ -332,7 +333,50 @@ class Collection extends AbstractDb implements CollectionInterface
      */
     public function moveDocuments($destColId, $updateLastModified = true)
     {
-        // TODO: Implement moveDocuments() method.
+        $table = TableGateway::getInstance(self::getTableGatewayClass());
+        $database = $table->getAdapter();
+
+        $destCol = Collection::get($destColId);
+        $destRoleId = $destCol->getRoleId();
+
+        $sourceDocuments = $this->getDocumentIds();
+        $destDocuments = $destCol->getDocumentIds();
+
+        // only move documents that do not already exist in destination collection
+        $documents = array_diff($sourceDocuments, $destDocuments);
+
+        $where = [
+            'document_id IN (?)' => $documents,
+            'collection_id = ?' => $this->getId(),
+            'role_id = ?' => $this->getRoleId()
+        ];
+
+        $updateData = [
+            'collection_id' => $destColId,
+            'role_id' => $destRoleId
+        ];
+
+        try {
+            $database->beginTransaction();
+
+            $database->update('link_documents_collections', $updateData, $where);
+
+            // Remove all documents from collection
+            $database->delete('link_documents_collections', [
+                'collection_id = ?' => $this->getId(),
+                'role_id = ?' => $this->getRoleId()
+            ]);
+
+            // Update last modified for all (re)moved documents
+            if ($sourceDocuments !== null && $updateLastModified) {
+                $this->updateDocumentsDateModified($sourceDocuments);
+            }
+
+            $database->commit();
+        } catch (Zend_Db_Adapter_Exception $e) {
+            $database->rollBack(); // finish transaction without doing anything
+            throw new DbException($e);
+        }
     }
 
     /**
@@ -341,7 +385,39 @@ class Collection extends AbstractDb implements CollectionInterface
      */
     public function copyDocuments($destColId, $updateLastModified = true)
     {
-        // TODO: Implement copyDocuments() method.
+        $table = TableGateway::getInstance(LinkDocumentsCollections::class);
+        $database = $table->getAdapter();
+
+        $destCol = Collection::get($destColId);
+        $destRoleId = $destCol->getRoleId();
+
+        $sourceDocuments = $this->getDocumentIds();
+        $destDocuments   = $destCol->getDocumentIds();
+
+        $documents = array_diff($sourceDocuments, $destDocuments);
+
+        try {
+            $database->beginTransaction();
+
+            // TODO DB use single INSERT for performance
+            foreach($documents as $docId) {
+                $insertData = [
+                    'document_id' => $docId,
+                    'collection_id' => $destColId,
+                    'role_id' => $destRoleId
+                ];
+                $table->insertIgnoreDuplicate($insertData);
+            }
+
+            if ($documents !== null && $updateLastModified) {
+                $this->updateDocumentsDateModified($documents);
+            }
+
+            $database->commit();
+        } catch (Zend_Db_Adapter_Exception $e) {
+            $database->rollBack(); // finish transaction without doing anything
+            throw new DbException($e);
+        }
     }
 
     /**

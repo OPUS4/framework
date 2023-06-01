@@ -77,7 +77,12 @@ class CollectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->clearTables(true, ['collections_roles', 'collections', 'link_documents_collections']);
+        $this->clearTables(true, [
+            'documents',
+            'collections_roles',
+            'collections',
+            'link_documents_collections',
+        ]);
 
         $this->roleName    = "role-name-" . rand();
         $this->roleOaiName = "role-oainame-" . rand();
@@ -1795,5 +1800,247 @@ class CollectionTest extends TestCase
 
         $this->assertEquals($lastModified, $doc->getServerDateModified());
         $this->assertEquals($lastModified2, $doc2->getServerDateModified());
+    }
+
+    public function testCopyDocuments()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $role->store();
+
+        $doc1 = Document::new();
+        $doc1->addCollection($col1);
+        $docId1        = $doc1->store();
+        $lastModified1 = $doc1->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc2->getServerDateModified();
+
+        $this->assertCount(2, $col1->getDocumentIds());
+        $this->assertCount(0, $col2->getDocumentIds());
+
+        sleep(2);
+
+        $col1->copyDocuments($col2->getId());
+
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
+
+        $this->assertCount(2, $col1->getDocumentIds());
+        $this->assertCount(2, $col2->getDocumentIds());
+        $this->assertEquals($col1->getDocumentIds(), $col2->getDocumentIds());
+        $this->assertEquals(-1, $lastModified1->compare($doc1->getServerDateModified()));
+        $this->assertEquals(-1, $lastModified2->compare($doc2->getServerDateModified()));
+    }
+
+    public function testCopyDocumentsDoNotUpdateLastModified()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $role->store();
+
+        $doc1 = Document::new();
+        $doc1->addCollection($col1);
+        $docId1        = $doc1->store();
+        $lastModified1 = $doc1->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc2->getServerDateModified();
+
+        $this->assertCount(2, $col1->getDocumentIds());
+        $this->assertCount(0, $col2->getDocumentIds());
+
+        sleep(2);
+
+        $col1->copyDocuments($col2->getId(), false);
+
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
+
+        $this->assertCount(2, $col1->getDocumentIds());
+        $this->assertCount(2, $col2->getDocumentIds());
+        $this->assertEquals($col1->getDocumentIds(), $col2->getDocumentIds());
+        $this->assertEquals(0, $lastModified1->compare($doc1->getServerDateModified()));
+        $this->assertEquals(0, $lastModified2->compare($doc2->getServerDateModified()));
+    }
+
+    public function testCopyDocumentsIgnoreDuplicates()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $role->store();
+
+        $doc1 = Document::new();
+        $doc1->addCollection($col1);
+        $docId1        = $doc1->store();
+        $lastModified1 = $doc1->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $doc2->addCollection($col2); // Document 2 ist already present in second collection
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc2->getServerDateModified();
+
+        $this->assertCount(2, $col1->getDocumentIds());
+        $this->assertCount(1, $col2->getDocumentIds());
+
+        sleep(2);
+
+        $col1->copyDocuments($col2->getId());
+
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
+
+        $this->assertCount(2, $col1->getDocumentIds());
+        $this->assertCount(2, $col2->getDocumentIds());
+        $this->assertEquals($col1->getDocumentIds(), $col2->getDocumentIds());
+        $this->assertEquals(-1, $lastModified1->compare($doc1->getServerDateModified()));
+        $this->assertEquals(0, $lastModified2->compare($doc2->getServerDateModified())); // was not copied
+    }
+
+    public function testMoveDocuments()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $role->store();
+
+        $doc1 = Document::new();
+        $doc1->addCollection($col1);
+        $docId1        = $doc1->store();
+        $lastModified1 = $doc1->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc2->getServerDateModified();
+
+        $documentIds = $col1->getDocumentIds();
+
+        $this->assertCount(2, $documentIds);
+        $this->assertCount(0, $col2->getDocumentIds());
+
+        sleep(2);
+
+        $col1->moveDocuments($col2->getId());
+
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
+
+        $this->assertCount(0, $col1->getDocumentIds());
+        $this->assertCount(2, $col2->getDocumentIds());
+        $this->assertEquals($documentIds, $col2->getDocumentIds());
+        $this->assertEquals(-1, $lastModified1->compare($doc1->getServerDateModified()));
+        $this->assertEquals(-1, $lastModified2->compare($doc2->getServerDateModified()));
+    }
+
+    public function testMoveDocumentsDoNotUpdateLastModified()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $role->store();
+
+        $doc1 = Document::new();
+        $doc1->addCollection($col1);
+        $docId1        = $doc1->store();
+        $lastModified1 = $doc1->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc2->getServerDateModified();
+
+        $documentIds = $col1->getDocumentIds();
+
+        $this->assertCount(2, $documentIds);
+        $this->assertCount(0, $col2->getDocumentIds());
+
+        sleep(2);
+
+        $col1->moveDocuments($col2->getId(), false);
+
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
+
+        $this->assertCount(0, $col1->getDocumentIds());
+        $this->assertCount(2, $col2->getDocumentIds());
+        $this->assertEquals($documentIds, $col2->getDocumentIds());
+        $this->assertEquals($lastModified1, $doc1->getServerDateModified());
+        $this->assertEquals($lastModified2, $doc2->getServerDateModified());
+    }
+
+    public function testMoveDocumentsIgnoreDuplicates()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $role->store();
+
+        $doc1 = Document::new();
+        $doc1->addCollection($col1);
+        $docId1        = $doc1->store();
+        $lastModified1 = $doc1->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $doc2->addCollection($col2);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc2->getServerDateModified();
+
+        $documentIds = $col1->getDocumentIds();
+
+        $this->assertCount(2, $documentIds);
+        $this->assertCount(1, $col2->getDocumentIds());
+
+        sleep(2);
+
+        $col1->moveDocuments($col2->getId());
+
+        $doc1 = Document::get($docId1);
+        $doc2 = Document::get($docId2);
+
+        $this->assertCount(0, $col1->getDocumentIds());
+        $this->assertCount(2, $col2->getDocumentIds());
+        $this->assertEquals($documentIds, $col2->getDocumentIds());
+        $this->assertEquals(-1, $lastModified1->compare($doc1->getServerDateModified()));
+        $this->assertEquals(-1, $lastModified2->compare($doc2->getServerDateModified()));
     }
 }
