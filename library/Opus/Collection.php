@@ -38,11 +38,15 @@ use InvalidArgumentException;
 use Opus\Common\CollectionInterface;
 use Opus\Common\CollectionRoleInterface;
 use Opus\Common\Config;
+use Opus\Common\Date;
 use Opus\Common\Model\NotFoundException;
+use Opus\Common\Repository;
 use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
+use Opus\Model\DbException;
 use Opus\Model\Field;
 use Opus\Model\Xml\StrategyInterface;
+use Zend_Db_Adapter_Exception;
 
 use function array_diff;
 use function array_merge;
@@ -312,7 +316,8 @@ class Collection extends AbstractDb implements CollectionInterface
         $table = TableGateway::getInstance(Db\LinkDocumentsCollections::class);
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
-        // FIXME: Don't return documents if collection is hidden.
+        // FIXME: Don't return documents if collection is hidden. Does that make sense?
+        //        It would make this a special purpose function, which should be reflected in the name.
         $select = $table->select()
                         ->from("link_documents_collections AS ldc", "document_id")
                         ->where('collection_id = ?', $this->getId())
@@ -340,12 +345,59 @@ class Collection extends AbstractDb implements CollectionInterface
     }
 
     /**
-     * @param int[] $docIds
-     * @param bool  $updateLastModified
+     * @param int[]|null $docIds
+     * @param bool       $updateLastModified
      */
-    public function removeDocuments($docIds, $updateLastModified = true)
+    public function removeDocuments($docIds = null, $updateLastModified = true)
     {
-        // TODO: Implement removeDocuments() method.
+        $table = TableGateway::getInstance(self::getTableGatewayClass());
+        $database = $table->getAdapter();
+
+        if ($docIds === null) {
+            $where = [
+                'collection_id = ?' => $this->getId(),
+                'role_id = ?' => $this->getRoleId()
+            ];
+        } else {
+            $where = [
+                'document_id IN (?)' => $docIds,
+                'collection_id = ?' => $this->getId(),
+                'role_id = ?' => $this->getRoleId()
+            ];
+        }
+
+        if ($docIds === null && $updateLastModified) {
+            $docIds = $this->getDocumentIds();
+        }
+
+        try {
+            $database->beginTransaction();
+
+            $database->delete('link_documents_collections', $where);
+
+            if ($docIds !== null && $updateLastModified) {
+                $this->updateDocumentsDateModified($docIds);
+            }
+
+            $database->commit();
+        } catch (Zend_Db_Adapter_Exception $e) {
+            $database->rollBack(); // finish transaction without doing anything
+            throw new DbException($e);
+        }
+    }
+
+    /**
+     * @param int[] $documents
+     */
+    protected function updateDocumentsDateModified($documents)
+    {
+        $date = new Date();
+        $date->setNow();
+
+        Repository::getInstance()->getModelRepository(Document::class)->setServerDateModifiedForDocuments(
+            $date,
+            $documents
+        );
     }
 
     /**

@@ -77,7 +77,7 @@ class CollectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->clearTables(true, ['collections_roles', 'collections']);
+        $this->clearTables(true, ['collections_roles', 'collections', 'link_documents_collections']);
 
         $this->roleName    = "role-name-" . rand();
         $this->roleOaiName = "role-oainame-" . rand();
@@ -1635,5 +1635,165 @@ class CollectionTest extends TestCase
         $root = $role->getRootCollection();
         $this->assertEquals($roleId, $root->getRoleId());
         $this->assertEquals($roleName, $root->getRoleName());
+    }
+
+    public function testRemoveDocuments()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $col3 = $root->addLastChild();
+        $col3->setName('col3');
+        $role->store();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $doc->addCollection($col2);
+        $doc->addCollection($col3);
+        $docId        = $doc->store();
+        $dateModified = $doc->getServerDateModified();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $docId2        = $doc->store();
+        $dateModified2 = $doc->getServerDateModified();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $docId3        = $doc->store();
+        $dateModified3 = $doc->getServerDateModified();
+
+        $doc         = Document::get($docId);
+        $collections = $doc->getCollection();
+        $this->assertCount(3, $collections);
+
+        sleep(2);
+
+        $col1->removeDocuments([$docId, $docId3]);
+
+        $doc         = Document::get($docId);
+        $collections = $doc->getCollection();
+        $this->assertCount(2, $collections);
+        $newDateModified = $doc->getServerDateModified();
+        $this->assertNotEquals($dateModified, $newDateModified);
+        $this->assertEquals(-1, $dateModified->compare($newDateModified));
+
+        $documents = $col1->getDocumentIds();
+        $this->assertCount(1, $documents);
+        $this->assertContains($docId2, $documents);
+
+        $doc2             = Document::get($docId2);
+        $newDateModified2 = $doc2->getServerDateModified();
+        $this->assertEquals($dateModified2, $newDateModified2);
+
+        $doc3             = Document::get($docId3);
+        $newDateModified3 = $doc3->getServerDateModified();
+        $this->assertNotEquals($dateModified3, $newDateModified3);
+        $this->assertEquals(-1, $dateModified3->compare($newDateModified3));
+    }
+
+    public function testRemoveDocumentsDoNotUpdateLastModified()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $role->store();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $docId        = $doc->store();
+        $dateModified = $doc->getServerDateModified();
+
+        sleep(2);
+
+        $col1->removeDocuments([$docId], false);
+
+        $doc         = Document::get($docId);
+        $collections = $doc->getCollection();
+        $this->assertCount(0, $collections);
+        $newDateModified = $doc->getServerDateModified();
+        $this->assertEquals($dateModified, $newDateModified);
+    }
+
+    public function testRemoveDocumentsAll()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $role->store();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $docId        = $doc->store();
+        $lastModified = $doc->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc->getServerDateModified();
+
+        $documents = $col1->getDocumentIds();
+        $this->assertCount(2, $documents);
+
+        sleep(2);
+
+        $col1->removeDocuments();
+
+        $documents = $col1->getDocumentIds();
+        $this->assertCount(0, $documents);
+
+        $doc  = Document::get($docId);
+        $doc2 = Document::get($docId2);
+
+        $this->assertNotEquals($lastModified, $doc->getServerDateModified());
+        $this->assertNotEquals($lastModified2, $doc2->getServerDateModified());
+    }
+
+    public function testRemoveDocumentsAllDoNotUpdateLastModified()
+    {
+        $role = CollectionRole::new();
+        $role->setName('TestRole');
+        $role->setOaiName('TestRoleOai');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $role->store();
+
+        $doc = Document::new();
+        $doc->addCollection($col1);
+        $docId        = $doc->store();
+        $lastModified = $doc->getServerDateModified();
+
+        $doc2 = Document::new();
+        $doc2->addCollection($col1);
+        $docId2        = $doc2->store();
+        $lastModified2 = $doc->getServerDateModified();
+
+        $documents = $col1->getDocumentIds();
+        $this->assertCount(2, $documents);
+
+        sleep(2);
+
+        $col1->removeDocuments(null, false);
+
+        $documents = $col1->getDocumentIds();
+        $this->assertCount(0, $documents);
+
+        $doc  = Document::get($docId);
+        $doc2 = Document::get($docId2);
+
+        $this->assertEquals($lastModified, $doc->getServerDateModified());
+        $this->assertEquals($lastModified2, $doc2->getServerDateModified());
     }
 }
