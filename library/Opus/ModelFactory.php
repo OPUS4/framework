@@ -48,7 +48,8 @@ class ModelFactory implements ModelFactoryInterface
 {
     /** @var string[] Mapping of model types to separate DocumentRepository classes */
     protected $repositoryClasses = [
-        'Document' => DocumentRepository::class,
+        'Document'   => DocumentRepository::class,
+        'Collection' => CollectionRepository::class,
     ];
 
     /** @var string[] Custom mapping of model types to model classes */
