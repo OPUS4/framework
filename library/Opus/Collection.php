@@ -359,7 +359,9 @@ class Collection extends AbstractDb implements CollectionInterface
         try {
             $database->beginTransaction();
 
-            $database->update('link_documents_collections', $updateData, $where);
+            if (count($documents) > 0) {
+                $database->update('link_documents_collections', $updateData, $where);
+            }
 
             // Remove all documents from collection
             $database->delete('link_documents_collections', [
