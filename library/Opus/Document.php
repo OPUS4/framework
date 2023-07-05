@@ -1349,4 +1349,64 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
     {
         $this->documentLifecycleListener = $listener;
     }
+
+    /**
+     * @param string      $value
+     * @param string|null $type
+     * @param bool        $caseSensitive
+     * @return bool
+     */
+    public function hasSubject($value, $type = null, $caseSensitive = false)
+    {
+        $subjects = $this->getSubject();
+
+        foreach($subjects as $subject) {
+            if ($type !== null && $subject->getType() !== $type) {
+                continue;
+            }
+
+            if ($caseSensitive) {
+                if (strcmp($value, $subject->getValue()) === 0) {
+                    return true;
+                }
+            } else {
+                if (strcasecmp($value, $subject->getValue()) === 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string      $value
+     * @param string|null $type
+     * @param bool        $caseSensitive
+     */
+    public function removeSubject($value, $type = null, $caseSensitive = false)
+    {
+        $subjects = $this->getSubject();
+
+        $remainingSubjects = [];
+
+        foreach($subjects as $subject) {
+            if ($type !== null && $subject->getType() !== $type) {
+                $remainingSubjects[] = $subject;
+                continue;
+            }
+
+            if ($caseSensitive) {
+                if (strcmp($value, $subject->getValue()) !== 0) {
+                    $remainingSubjects[] = $subject;
+                }
+            } else {
+                if (strcasecmp($value, $subject->getValue()) !== 0) {
+                    $remainingSubjects[] = $subject;
+                }
+            }
+        }
+
+        $this->setSubject($remainingSubjects);
+    }
 }
