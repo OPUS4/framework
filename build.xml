@@ -22,12 +22,14 @@
 
     <target name="build" depends="prepare,lint,analyse-code,pdepend,phpdoc,phpcb" />
 
-    <target name="clean">
-        <delete dir="${basedir}/build/logs" />
-        <delete dir="${basedir}/build/api" />
-        <delete dir="${basedir}/build/coverage" />
-        <delete dir="${basedir}/build/pdepend" />
-        <delete dir="${basedir}/build/code-browser" />
+    <target name="clean" depends="delete-build, clean-workspace, prepare-workspace">
+    </target>
+
+    <target name="delete-build">
+        <delete dir="${basedir}/build" />
+    </target>
+
+    <target name="clean-workspace">
         <delete includeEmptyDirs="true" failonerror="false">
             <fileset dir="${workspaceDir}/cache" includes="**/*" />
         </delete>
