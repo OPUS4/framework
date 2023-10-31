@@ -1783,7 +1783,7 @@ class CollectionTest extends TestCase
         $doc2 = Document::new();
         $doc2->addCollection($col1);
         $docId2        = $doc2->store();
-        $lastModified2 = $doc->getServerDateModified();
+        $lastModified2 = $doc2->getServerDateModified();
 
         $documents = $col1->getDocumentIds();
         $this->assertCount(2, $documents);
