@@ -9,10 +9,16 @@ UPDATE `document_identifiers`
     SET `typestr` = CAST(`type` as CHAR);
 
 ALTER TABLE `document_identifiers`
+    DROP INDEX `fk_document_identifiers_documents_type`;
+
+ALTER TABLE `document_identifiers`
     DROP COLUMN `type`;
 
 ALTER TABLE `document_identifiers`
     RENAME COLUMN `typestr` TO `type`;
+
+ALTER TABLE `document_identifiers`
+    ADD INDEX `fk_document_identifiers_documents_type` (`document_id` ASC, `type` ASC);
 
 -- Update database version
 
