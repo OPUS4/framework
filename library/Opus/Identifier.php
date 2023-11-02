@@ -109,6 +109,7 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
         'Arxiv'     => 'arxiv',
         'Pubmed'    => 'pmid',
         'Ismn'      => 'ismn',
+        'UnionCat'  => 'union-cat',
     ];
 
     /**
