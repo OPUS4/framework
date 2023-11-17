@@ -152,7 +152,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
-     * @param int $collectionId
+     * @param int|int[] $collectionId
      * @return $this
      */
     public function setCollectionId($collectionId)
