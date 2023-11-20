@@ -39,6 +39,7 @@ use OpusTest\TestAsset\TestCase;
 
 use function count;
 use function sleep;
+use function var_dump;
 
 /**
  * Test cases for class Opus\Licence.
@@ -384,10 +385,10 @@ class LicenceTest extends TestCase
 
     public function testAddLicence()
     {
-        $licence = Licence::fromArray([
+        $licence   = Licence::fromArray([
             'NameLong'    => 'Licence',
             'Name'        => 'CC BY',
-            'LinkLicence' => 'https://www.kobv.de/licence1'
+            'LinkLicence' => 'https://www.kobv.de/licence1',
         ]);
         $licenceId = $licence->store();
 
