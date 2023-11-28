@@ -42,6 +42,8 @@ use Opus\Common\Identifier;
 use Opus\Common\Log;
 use Opus\Common\Log\LogService;
 use Opus\Common\Model\NotFoundException;
+use Opus\Db\DocumentIdentifiers;
+use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\Doi\Generator\DoiGeneratorException;
@@ -850,5 +852,42 @@ class DoiManager
         $filePath = $path . $filename;
 
         file_put_contents($filePath, $xml);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAllDoiValues()
+    {
+        $table = TableGateway::getInstance(DocumentIdentifiers::class);
+
+        $database = $table->getAdapter();
+
+        $select = $table->select()
+            ->from('document_identifiers', 'value')
+            ->distinct(true)
+            ->where('type = ?', 'doi');
+
+        return $database->fetchCol($select);
+    }
+
+    /**
+     * Returns DOIs that are linked to multiple documents.
+     *
+     * @return string[]
+     */
+    public function getDuplicateDoiValues()
+    {
+        $table = TableGateway::getInstance(DocumentIdentifiers::class);
+
+        $database = $table->getAdapter();
+
+        $select = $table->select()
+            ->from('document_identifiers', 'value')
+            ->group('value')
+            ->having('count(value) > 1')
+            ->where('type = ?', 'doi');
+
+        return $database->fetchCol($select);
     }
 }

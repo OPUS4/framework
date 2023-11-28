@@ -908,4 +908,98 @@ class DoiManagerTest extends TestCase
             $manager->getLandingPageUrlOfDoc($docId)
         );
     }
+
+    public function testGetAllDoiValues()
+    {
+        $doiValues = [
+            '10.0000/1111',
+            '10.0000/2222',
+            '10.0000/3333',
+        ];
+
+        foreach ($doiValues as $doi) {
+            $doc        = Document::new();
+            $identifier = $doc->addIdentifier();
+            $identifier->setType('doi');
+            $identifier->setValue($doi);
+            $doc->store();
+        }
+
+        // other identifier type than DOI
+        $identifier = $doc->addIdentifier();
+        $identifier->setType('isbn');
+        $identifier->setValue('isbn-value');
+
+        // duplicate DOI identifier
+        $identifier = $doc->addIdentifier();
+        $identifier->setType('doi');
+        $identifier->setValue('10.0000/3333');
+
+        $doc->store();
+
+        $manager = new DoiManager();
+
+        $values = $manager->getAllDoiValues();
+
+        $this->assertCount(3, $values);
+        $this->assertEquals($doiValues, $values);
+    }
+
+    public function testGetAllDoiValuesNonFound()
+    {
+        $manager = new DoiManager();
+
+        $values = $manager->getAllDoiValues();
+
+        $this->assertIsArray($values);
+        $this->assertEmpty($values);
+    }
+
+    public function testGetDuplicateDoiValues()
+    {
+        $doi1 = '10.1000/1111';
+        $doi2 = '10.1000/2222';
+
+        $doc = Document::new();
+        $doi = $doc->addIdentifier();
+        $doi->setType('doi');
+        $doi->setValue($doi1);
+        $doc->store();
+
+        $doc = Document::new();
+        $doi = $doc->addIdentifier();
+        $doi->setType('doi');
+        $doi->setValue($doi1);
+        $doc->store();
+
+        $doc = Document::new();
+        $doi = $doc->addIdentifier();
+        $doi->setType('doi');
+        $doi->setValue($doi2);
+        $doc->store();
+
+        // other identifier type than DOI
+        $doc        = Document::new();
+        $identifier = $doc->addIdentifier();
+        $identifier->setType('isbn');
+        $identifier->setValue('isbn-value');
+        $doc->store();
+
+        $manager = new DoiManager();
+
+        $values = $manager->getDuplicateDoiValues();
+
+        $this->assertCount(1, $values);
+        $this->assertEquals($doi1, $values[0]);
+    }
+
+    public function testGetDuplicateDoiValuesNonFound()
+    {
+        $manager = new DoiManager();
+
+        $values = $manager->getDuplicateDoiValues();
+
+        $this->assertIsArray($values);
+        $this->assertEmpty($values);
+    }
 }
