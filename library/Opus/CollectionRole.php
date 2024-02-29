@@ -527,6 +527,40 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
     }
 
     /**
+     * Checks if collection role contains documents visible in OAI.
+     *
+     * @return bool
+     */
+    public function containsDocumentsVisibleInOai()
+    {
+        $roleId = $this->getId();
+
+        $select = "SELECT count(DISTINCT l.document_id) 
+            FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+            WHERE l.document_id = d.id
+                AND d.server_state = 'published'
+                AND c.role_id = {$roleId}
+                AND (c.visible = 1 OR c.parent_id IS NULL)
+                AND r.visible = 1
+                AND r.visible_oai = 1
+                AND r.oai_name IS NOT NULL
+                AND r.oai_name != ''";
+
+        $db     = Zend_Db_Table::getDefaultAdapter();
+        $result = $db->fetchOne($select);
+
+        return $result > 0;
+    }
+
+    /**
+     * @param int $docId
+     * @return bool
+     */
+    public function isDocumentVisibleInOai($docId)
+    {
+    }
+
+    /**
      * Checks if set contains documents.
      *
      * @see modules/oai/controllers/IndexController.php
