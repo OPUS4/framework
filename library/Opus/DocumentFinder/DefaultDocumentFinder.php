@@ -335,4 +335,14 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     {
         return $this->finder->groupedServerYearPublished();
     }
+
+    /**
+     * @param string $state
+     * @return $this
+     */
+    public function setPublicationState($state)
+    {
+        $this->finder->setPublicationState($state);
+        return $this;
+    }
 }
