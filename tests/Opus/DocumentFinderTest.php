@@ -36,6 +36,7 @@ use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Date;
 use Opus\Common\Model\ModelException;
+use Opus\Common\PublicationState;
 use Opus\Common\Security\SecurityException;
 use Opus\Document;
 use Opus\DocumentFinder;
@@ -929,5 +930,25 @@ class DocumentFinderTest extends TestCase
         $docs = $finder->getIds();
         $this->assertContains($publishedId, $docs, 'published list (sorted, 1) should contain published');
         $this->assertNotContains($unpublishedId, $docs, 'published list (sorted, 1) should not contain unpublished');
+    }
+
+    public function testSetPublicationState()
+    {
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::SUBMITTED);
+        $docId = $doc->store();
+
+        $finder = new DefaultDocumentFinder();
+
+        $finder->setPublicationState(PublicationState::DRAFT);
+        $result = $finder->getIds();
+        $this->assertNotContains($docId, $result);
+
+        $finder = new DefaultDocumentFinder();
+
+        $finder->setPublicationState(PublicationState::SUBMITTED);
+        $result = $finder->getIds();
+        $this->assertCount(1, $result);
+        $this->assertContains($docId, $result);
     }
 }
