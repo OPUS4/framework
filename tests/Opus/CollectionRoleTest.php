@@ -253,7 +253,7 @@ class CollectionRoleTest extends TestCase
 
         $data = $role->toArray();
 
-        $this->assertInternalType('array', $data);
+        $this->assertIsArray($data);
         $this->assertCount(count($role->describe()), $data); // one entry for every field
         $this->assertEquals([
             'Name'                 => $role->getName(),
@@ -288,7 +288,7 @@ class CollectionRoleTest extends TestCase
 
         $data = $role->toArray();
 
-        $this->assertInternalType('array', $data);
+        $this->assertIsArray($data);
         $this->assertCount(count($role->describe()), $data); // one entry for every field
         $this->assertEquals([
             'Name'                 => $role->getName(),
@@ -335,7 +335,7 @@ class CollectionRoleTest extends TestCase
 
         $data = $role->toArray();
 
-        $this->assertInternalType('array', $data);
+        $this->assertIsArray($data);
         $this->assertEquals([
             'Name'                 => $role->getName(),
             'OaiName'              => $role->getOaiName(),
@@ -455,13 +455,13 @@ class CollectionRoleTest extends TestCase
     {
         // List of set names on unstored object
         $setnames = $this->object->getOaiSetNames();
-        $this->assertTrue(is_array($setnames), "Expected OaiSetNames array.");
+        $this->assertIsArray($setnames);
         $this->assertEmpty($setnames);
 
         // List of set names on stored object
         $this->object->store();
         $setnames = $this->object->getOaiSetNames();
-        $this->assertTrue(is_array($setnames), "Expected OaiSetNames array.");
+        $this->assertIsArray($setnames);
         $this->assertEmpty($setnames);
     }
 
@@ -481,7 +481,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(1, $setnames);
         $this->assertEquals('test', $setnames[0]['oai_subset']);
     }
@@ -513,7 +513,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(2, $setnames);
         $this->assertEquals('col1', $setnames[0]['oai_subset']);
         $this->assertEquals(1, $setnames[0]['count']);
@@ -545,7 +545,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(1, $setnames);
         $this->assertEquals('test', $setnames[0]['oai_subset']);
         $this->assertEquals(2, $setnames[0]['count']);
@@ -567,7 +567,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(0, $setnames);
     }
 
@@ -589,7 +589,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(0, $setnames);
     }
 
@@ -615,7 +615,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(1, $setnames);
         $this->assertEquals('docs', $setnames[0]['oai_subset']);
     }
@@ -642,7 +642,7 @@ class CollectionRoleTest extends TestCase
 
         $setnames = $role->getAllOaiSetNames();
 
-        $this->assertInternalType('array', $setnames);
+        $this->assertIsArray($setnames);
         $this->assertCount(2, $setnames);
         $this->assertEquals('empty', $setnames[0]['oai_subset']);
         $this->assertEquals('docs', $setnames[1]['oai_subset']);
@@ -685,8 +685,8 @@ class CollectionRoleTest extends TestCase
         $oaiSetName = $this->object->getOaiName();
         $sets       = $collectionRoleRepository->getDocumentIdsInSet("$oaiSetName:foo");
 
-        $this->assertTrue(is_array($sets), "Expected array return value.");
-        $this->assertTrue(count($sets) === 0, "Expected empty array.");
+        $this->assertIsArray($sets);
+        $this->assertCount(0, $sets);
     }
 
     /**
@@ -869,12 +869,12 @@ class CollectionRoleTest extends TestCase
         $collection = $root->addLastChild();
         $this->object->store();
 
-        $d = Document::new();
-        $d->setServerState('published');
-        $d->addCollection($collection);
-        $docId = $d->store();
+        $doc = Document::new();
+        $doc->setServerState('published');
+        $doc->addCollection($collection);
+        $docId = $doc->store();
 
-        $serverDateModifiedBeforeDelete = $d->getServerDateModified();
+        $serverDateModifiedBeforeDelete = $doc->getServerDateModified();
 
         $xmlCache = new Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
@@ -884,8 +884,8 @@ class CollectionRoleTest extends TestCase
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
-        $d                       = Document::get($docId);
-        $serverDateModifiedAfter = $d->getServerDateModified();
+        $doc                     = Document::get($docId);
+        $serverDateModifiedAfter = $doc->getServerDateModified();
         $this->assertTrue($serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
 
@@ -942,7 +942,7 @@ class CollectionRoleTest extends TestCase
 
         $roles = $collectionRoleRepository->fetchAllOaiEnabledRoles();
 
-        $this->assertInternalType('array', $roles);
+        $this->assertIsArray($roles);
         $this->assertCount(0, $roles);
 
         $role->setOaiName('role');
@@ -951,7 +951,7 @@ class CollectionRoleTest extends TestCase
 
         $roles = $collectionRoleRepository->fetchAllOaiEnabledRoles();
 
-        $this->assertInternalType('array', $roles);
+        $this->assertIsArray($roles);
         $this->assertCount(0, $roles);
 
         $doc = Document::new();
@@ -961,7 +961,7 @@ class CollectionRoleTest extends TestCase
 
         $roles = $collectionRoleRepository->fetchAllOaiEnabledRoles();
 
-        $this->assertInternalType('array', $roles);
+        $this->assertIsArray($roles);
         $this->assertCount(1, $roles);
         $this->assertEquals('role', $roles[0]['oai_name']);
     }
@@ -987,7 +987,7 @@ class CollectionRoleTest extends TestCase
 
         $roles = $collectionRoleRepository->fetchAllOaiEnabledRoles();
 
-        $this->assertInternalType('array', $roles);
+        $this->assertIsArray($roles);
         $this->assertEmpty($roles);
     }
 
@@ -1013,7 +1013,7 @@ class CollectionRoleTest extends TestCase
 
         $roles = $this->getCollectionRoleRepository()->fetchAllOaiEnabledRoles();
 
-        $this->assertInternalType('array', $roles);
+        $this->assertIsArray($roles);
         $this->assertCount(1, $roles);
     }
 
@@ -1036,7 +1036,7 @@ class CollectionRoleTest extends TestCase
 
         $roles = $this->getCollectionRoleRepository()->fetchAllOaiEnabledRoles();
 
-        $this->assertInternalType('array', $roles);
+        $this->assertIsArray($roles);
         $this->assertCount(1, $roles);
     }
 
@@ -1080,7 +1080,7 @@ class CollectionRoleTest extends TestCase
         $result = $collectionRoleRepository->getLastPosition();
 
         $this->assertNotNull($result);
-        $this->assertInternalType('int', $result);
+        $this->assertIsInt($result);
         $this->assertEquals(0, $result);
 
         $role->setPosition(10);
