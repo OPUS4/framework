@@ -25,54 +25,75 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus;
+namespace OpusTest;
 
-use function version_compare;
+use Opus\Common\Config;
+use Opus\Common\Document;
+use Opus\Model\DbException;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * Provide Opus Framework Version.
+ * Test cases for class Opus\Document and field PublicationState.
  */
-class Version
+class DocumentPublicationStateTest extends TestCase
 {
     /**
-     * Opus Framework version identification - see compareVersion()
-     *
-     * TODO Is this still used anywhere? Apparently it has not been updated for recent version.
+     * Set up test fixture.
      */
-    public const VERSION = '4.7.1';
-
-    /**
-     * Version of database schema.
-     */
-    public const SCHEMA_VERSION = 22;
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus\Version::VERSION of the Zend Framework.
-     *
-     * @param  string $version  A version string (e.g. "0.7.1").
-     * @return int -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     */
-    public static function compareVersion($version)
+    public function setUp(): void
     {
-        return version_compare($version, self::VERSION);
+        // Set up a mock language list.
+        $list = ['de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch'];
+        Config::getInstance()->setAvailableLanguages($list);
+
+        parent::setUp();
+
+        $this->clearTables(false);
     }
 
-    /**
-     * Returns required database schema version.
-     *
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
+    public function tearDown(): void
     {
-        return self::SCHEMA_VERSION;
+        $document = Document::new();
+        $document->setDefaultPlugins(null);
+
+        parent::tearDown();
+    }
+
+    public function testDefaultPublicationStateNull()
+    {
+        $doc = Document::new();
+
+        $doc = Document::get($doc->store());
+
+        $this->assertNull($doc->getPublicationState());
+    }
+
+    public function testStorePublicationState()
+    {
+        $doc = Document::new();
+
+        $doc->setPublicationState('submittedVersion');
+
+        $docId = $doc->store();
+
+        $doc = Document::get($docId);
+
+        $this->assertEquals('submittedVersion', $doc->getPublicationState());
+    }
+
+    public function testStorePublicationStateInvalidValue()
+    {
+        $doc = Document::new();
+
+        $doc->setPublicationState('invalidState');
+
+        $this->expectException(DbException::class);
+        $this->expectExceptionMessage('truncated for column \'publication_state\'');
+
+        $doc->store();
     }
 }

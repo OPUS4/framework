@@ -799,4 +799,16 @@ class DocumentFinder
         $this->setSubSelectNotExists($select);
         return $this;
     }
+
+    /**
+     * Add PublicationState constraints to be applied on the result set.
+     *
+     * @param  string $state
+     * @return $this Fluent interface.
+     */
+    public function setPublicationState($state)
+    {
+        $this->_select->where('d.publication_state = ?', $state);
+        return $this;
+    }
 }
