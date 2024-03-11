@@ -33,6 +33,7 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\CollectionInterface;
 use Opus\Common\CollectionRoleInterface;
 use Opus\Common\CollectionRoleRepositoryInterface;
 use Opus\Common\Validate\CollectionRoleName;
@@ -553,8 +554,40 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
     }
 
     /**
+     * Returns IDs of all documents visible in OAI for CollectionRole.
+     *
+     * @return int[]
+     *
+     * TODO optionally include only collections with oai_name (needed?)
+     * TODO this does not consider inheriting visibility from parent collections
+     */
+    public function getDocumentsVisibleInOai()
+    {
+        $roleId = $this->getId();
+
+        $select = "SELECT DISTINCT l.document_id 
+            FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+            WHERE l.document_id = d.id
+                AND d.server_state = 'published'
+                AND c.role_id = {$roleId}
+                AND c.id = l.collection_id
+                AND (c.visible = 1 OR c.parent_id IS NULL)
+                AND r.visible = 1
+                AND r.visible_oai = 1
+                AND r.oai_name IS NOT NULL
+                AND r.oai_name != ''";
+
+        $db     = Zend_Db_Table::getDefaultAdapter();
+        $result = $db->fetchCol($select);
+
+        return $result;
+    }
+
+    /**
      * @param int $docId
      * @return bool
+     *
+     * TODO Where is this function necessary? (I do not remember.)
      */
     public function isDocumentVisibleInOai($docId)
     {
@@ -674,7 +707,7 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
         if ($result === false) {
             return null;
         } else {
-            return new Collection($result);
+            return Collection::get($result);
         }
     }
 
@@ -685,22 +718,22 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
     /**
      * Fetch-method for field "RootCollection".
      *
-     * @return Collection
+     * @return Collection|null
      */
     protected function _fetchRootCollection()
     {
         if ($this->isNewRecord()) {
-            return;
+            return null;
         }
 
         $collections = TableGateway::getInstance(Collections::class);
         $root        = $collections->getRootNode($this->getId());
 
         if (! isset($root)) {
-            return;
+            return null;
         }
 
-        return new Collection($root);
+        return Collection::get($root);
     }
 
     /**
@@ -728,8 +761,8 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
      * Extend magic add-method.  Add $collection if given; otherwise
      * create.
      *
-     * @param null|Collection $collection (optional) collection object to add
-     * @return Collection
+     * @param null|CollectionInterface $collection (optional) collection object to add
+     * @return CollectionInterface
      */
     public function addRootCollection($collection = null)
     {

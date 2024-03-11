@@ -38,6 +38,10 @@ use Opus\Db\TableGateway;
 
 use function is_array;
 
+/**
+ * TODO rename functions, maybe merge some (use option to switch between search criteria)
+ *      fetchCollectionsByRoleNumber -> fetchCollectionsByRoleAndNumber (easier to understand)
+ */
 class CollectionRepository implements CollectionRepositoryInterface
 {
     /** @var string Table class for collections. */
