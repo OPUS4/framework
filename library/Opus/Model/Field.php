@@ -590,8 +590,13 @@ class Field implements ModificationTrackingInterface, FieldInterface
             }
         }
 
-        if ($this->value !== null && $this->getType() === 'int') {
-            return (int) $this->value;
+        if ($this->value !== null || $this->getType() === 'bool') {
+            switch ($this->getType()) {
+                case 'int':
+                    return (int) $this->value;
+                case 'bool':
+                    return (bool) $this->value;
+            }
         }
 
         return $this->value;

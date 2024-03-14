@@ -173,7 +173,6 @@ class Collection extends AbstractDb implements CollectionInterface
             'RoleDisplayFrontdoor',
             'RoleVisibleFrontdoor',
             'DisplayFrontdoor',
-            'VisiblePublish',
         ];
 
         foreach ($fields as $field) {
@@ -181,8 +180,14 @@ class Collection extends AbstractDb implements CollectionInterface
             $this->addField($field);
         }
 
+        $visiblePublish = new Field('VisiblePublish');
+        $visiblePublish->setCheckbox(true);
+        $visiblePublish->setType('bool');
+        $this->addField($visiblePublish);
+
         $visible = new Field('Visible');
         $visible->setCheckbox(true);
+        $visible->setType('bool');
         $this->addField($visible);
 
         // Add a field to hold collection specific theme.
