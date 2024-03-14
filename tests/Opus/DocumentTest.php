@@ -2424,7 +2424,7 @@ class DocumentTest extends TestCase
         $persons = $doc->getPerson();
 
         $this->assertNotNull($persons);
-        $this->assertInternalType('array', $persons);
+        $this->assertIsArray($persons);
         $this->assertCount(1, $persons);
 
         $person = new Person();
@@ -2438,7 +2438,7 @@ class DocumentTest extends TestCase
         $persons = $doc->getPerson();
 
         $this->assertNotNull($persons);
-        $this->assertInternalType('array', $persons);
+        $this->assertIsArray($persons);
         $this->assertCount(2, $persons);
 
         // remove all persons
@@ -2450,7 +2450,7 @@ class DocumentTest extends TestCase
         $persons = $doc->getPerson();
 
         $this->assertNotNull($persons);
-        $this->assertInternalType('array', $persons);
+        $this->assertIsArray($persons);
         $this->assertCount(0, $persons);
     }
 
@@ -2497,7 +2497,7 @@ class DocumentTest extends TestCase
 
         $enrichment = $doc->getEnrichment();
 
-        $this->assertInternalType('array', $enrichment);
+        $this->assertIsArray($enrichment);
         $this->assertCount(1, $enrichment);
         $this->assertEquals($keyName, $enrichment[0]->getKeyName());
         $this->assertEquals('test-value', $enrichment[0]->getValue());
@@ -2665,7 +2665,7 @@ class DocumentTest extends TestCase
 
         $enrichments = $doc->getEnrichment();
 
-        $this->assertInternalType('array', $enrichments);
+        $this->assertIsArray($enrichments);
         $this->assertCount(3, $enrichments);
 
         $this->assertEquals($keyName, $enrichments[0]->getKeyName());
@@ -2679,7 +2679,7 @@ class DocumentTest extends TestCase
 
         $enrichments = $doc->getEnrichment($keyName);
 
-        $this->assertInternalType('array', $enrichments);
+        $this->assertIsArray($enrichments);
         $this->assertCount(2, $enrichments);
 
         $this->assertEquals($keyName, $enrichments[0]->getKeyName());
@@ -2690,7 +2690,7 @@ class DocumentTest extends TestCase
 
         $values = $doc->getEnrichmentValue($keyName);
 
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
         $this->assertCount(2, $values);
         $this->assertContains('test-value', $values);
         $this->assertContains('test-value-2', $values);

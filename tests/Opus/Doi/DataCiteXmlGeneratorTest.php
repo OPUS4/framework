@@ -211,7 +211,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $generator = new DataCiteXmlGenerator(false);
         $result    = $generator->checkRequiredFields($doc, true);
 
-        $this->assertInternalType('bool', $result);
+        $this->assertIsBool($result);
         $this->assertFalse($result);
     }
 
