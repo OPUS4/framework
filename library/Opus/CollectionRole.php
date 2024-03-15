@@ -472,6 +472,43 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
     }
 
     /**
+     * Return all visible collections.
+     *
+     * @return array|null
+     */
+    public function getVisibleCollections()
+    {
+        if ($this->getId() === null) {
+            return [];
+        }
+
+        $select = <<<SQL
+SELECT `col`.`id` 
+  FROM `collections` as `col`
+  WHERE col.role_id = ?
+  AND col.visible = 1
+  AND col.id NOT IN (
+    SELECT DISTINCT node.id 
+      FROM `collections` AS `node`      
+      INNER JOIN `collections` AS `parent`
+        ON (node.left_id BETWEEN parent.left_id AND parent.right_id)
+          AND parent.id != node.id
+          AND parent.visible = 0
+          AND node.role_id = parent.role_id
+          AND node.role_id = ?
+  )
+SQL;
+
+        // TODO consider presents of documents
+        // TODO consider oai_subset name present (optional)
+
+        $db     = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->quoteInto($select, $this->getId());
+
+        return $db->fetchCol($select);
+    }
+
+    /**
      * Fetches all oai subset names for this role.
      *
      * @return array

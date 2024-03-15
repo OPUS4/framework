@@ -1331,6 +1331,84 @@ class CollectionRoleTest extends TestCase
     }
 
     /**
+     * @throws ModelException
+     *
+     * TODO Is this behaviour a bug? The first store() stores the new collections. The second store does not update the
+     *      modified collections. It probably makes sense because it would otherwise require loading and checking all
+     *      collections of a collection role during the store operation.
+     */
+    public function testStoreDoesNotStoreModifiedCollections()
+    {
+        $role = new CollectionRole();
+        $role->setName('role-name');
+        $role->setOaiName('role-oai-name');
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $role->store();
+
+        $role = new CollectionRole($role->getId());
+
+        $this->assertEquals('role-name', $role->getName());
+
+        $root = $role->getRootCollection();
+
+        $collections = $root->getChildren();
+
+        $this->assertCount(1, $collections);
+        $col1 = $collections[0];
+
+        $this->assertEquals('col1', $col1->getName());
+
+        $col1->setName('col1modified');
+
+        $role->store();
+
+        $col1 = Collection::get($col1->getId());
+
+        $this->assertNotEquals('col1modified', $col1->getName());
+        $this->assertEquals('col1', $col1->getName());
+    }
+
+    public function testGetVisibleCollections()
+    {
+        $role = new CollectionRole();
+        $role->setName('role-name');
+        $role->setOaiName('role-oai-name');
+        $root = $role->addRootCollection();
+        $root->setVisible(true);
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col1->setVisible(false);
+        $col2 = $col1->addLastChild();
+        $col2->setName('col2');
+        $col2->setVisible(true);
+        $col3 = $root->addLastChild();
+        $col3->setName('col1b');
+        $col3->setVisible(true);
+        $role->store();
+
+        $collections = $role->getVisibleCollections();
+
+        $this->assertIsArray($collections);
+        $this->assertCount(2, $collections);
+        $this->assertContains($root->getId(), $collections);
+        $this->assertContains($col3->getId(), $collections);
+
+        $col1->setVisible(true);
+        $col1->store();
+
+        $collections = $role->getVisibleCollections();
+
+        $this->assertIsArray($collections);
+        $this->assertCount(4, $collections);
+        $this->assertContains($root->getId(), $collections);
+        $this->assertContains($col1->getId(), $collections);
+        $this->assertContains($col2->getId(), $collections);
+        $this->assertContains($col3->getId(), $collections);
+    }
+
+    /**
      * @return CollectionRole
      */
     protected function getCollectionRoleRepository()
