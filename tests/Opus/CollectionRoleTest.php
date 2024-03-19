@@ -593,9 +593,34 @@ class CollectionRoleTest extends TestCase
         $this->assertCount(0, $setnames);
     }
 
-    public function testGetOaiSetNamesChildCollectionNotVisible()
+    public function testGetOaiSetNamesChildCollectionsNotVisible()
     {
-        $this->markTestIncomplete('implement test');
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $col1 = $root->addLastChild();
+        $col1->setOaiSubset('col1');
+        $col1->setVisible(0);
+        $col2 = $root->addLastChild();
+        $col2->setOaiSubset('col2');
+        $col2->setVisible(0);
+        $role->store();
+
+        $doc = Document::new();
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $doc->addCollection($col1);
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setServerstate(Document::STATE_PUBLISHED);
+        $doc->addCollection($col2);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertIsArray($setnames);
+        $this->assertCount(0, $setnames);
     }
 
     public function testGetOaiSetNamesDoNotIncludeEmptyCollections()
@@ -1256,7 +1281,7 @@ class CollectionRoleTest extends TestCase
         $colRole->setOaiName('open_access');
         $colRole->setVisible(true);
         $colRole->setVisibleOai(true);
-        $roleId = $colRole->store();
+        $colRole->store();
 
         // no collections or linked documents
         $this->assertFalse($colRole->containsDocumentsVisibleInOai());
