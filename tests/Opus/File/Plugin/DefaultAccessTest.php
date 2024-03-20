@@ -74,7 +74,7 @@ class DefaultAccessTest extends TestCase
         $messages = $logger->getMessages();
 
         $this->assertEquals(1, count($messages));
-        $this->assertContains('#1 argument must be instance of Opus\File', $messages[0]);
+        $this->assertStringContainsString('#1 argument must be instance of Opus\File', $messages[0]);
     }
 
     public function testPostStoreIgnoreOldModel()
@@ -114,7 +114,7 @@ class DefaultAccessTest extends TestCase
         $messages = $logger->getMessages();
 
         $this->assertEquals(1, count($messages));
-        $this->assertContains('\'guest\' role does not exist!', $messages[0]);
+        $this->assertStringContainsString('\'guest\' role does not exist!', $messages[0]);
     }
 
     /**

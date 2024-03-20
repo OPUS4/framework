@@ -1024,7 +1024,7 @@ class PersonTest extends TestCase
 
         foreach ($values as $key => $value) {
             if ($key !== 'id') {
-                $this->assertNotInternalType('array', $value);
+                $this->assertIsNotArray($value);
             }
         }
 

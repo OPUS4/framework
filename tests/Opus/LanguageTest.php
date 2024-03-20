@@ -177,7 +177,7 @@ class LanguageTest extends TestCase
         try {
             $lang->store();
         } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
+            $this->assertStringContainsString('Data truncated for column \'scope\'', $omde->getMessage());
         }
 
         $lang = Language::get($lang->getId());
@@ -226,7 +226,7 @@ class LanguageTest extends TestCase
         try {
             $lang->store();
         } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
+            $this->assertStringContainsString('Data truncated for column \'type\'', $omde->getMessage());
         }
 
         $lang = Language::get($lang->getId());

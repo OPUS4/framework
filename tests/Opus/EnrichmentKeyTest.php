@@ -246,7 +246,7 @@ class EnrichmentKeyTest extends TestCase
     public function testGetAll()
     {
         foreach (EnrichmentKey::getAll() as $name) {
-             $this->assertNotContains(EnrichmentKey::class, (string) $name);
+             $this->assertStringNotContainsString(EnrichmentKey::class, (string) $name);
         }
     }
 
