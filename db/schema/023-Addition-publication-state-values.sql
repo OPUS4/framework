@@ -1,0 +1,16 @@
+START TRANSACTION;
+
+-- Add additional values to field PublicationState
+
+ALTER TABLE `documents`
+    MODIFY COLUMN `publication_state` ENUM(
+        'draft', 'acceptedVersion', 'submittedVersion', 'publishedVersion', 'updatedVersion',
+        'proof', 'authorsVersion', 'correctedVersion'
+    ) COMMENT 'Version of publication.';
+
+-- Update database version
+
+TRUNCATE TABLE `schema_version`;
+INSERT INTO `schema_version` (`version`) VALUES (23);
+
+COMMIT;
