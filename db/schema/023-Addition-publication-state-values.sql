@@ -5,8 +5,16 @@ START TRANSACTION;
 ALTER TABLE `documents`
     MODIFY COLUMN `publication_state` ENUM(
         'draft', 'acceptedVersion', 'submittedVersion', 'publishedVersion', 'updatedVersion',
-        'proof', 'authorsVersion', 'correctedVersion'
+        'proof', 'authorsVersion', 'correctedVersion', 'enhancedVersion'
     ) COMMENT 'Version of publication.';
+
+UPDATE `documents` SET `publication_state` = 'enhancedVersion' WHERE `publication_state` = 'updatedVersion';
+
+ALTER TABLE `documents`
+    MODIFY COLUMN `publication_state` ENUM(
+        'draft', 'acceptedVersion', 'submittedVersion', 'publishedVersion',
+        'proof', 'authorsVersion', 'correctedVersion', 'enhancedVersion'
+        ) COMMENT 'Version of publication.';
 
 -- Update database version
 
