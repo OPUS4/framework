@@ -337,7 +337,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
-     * @param string $state
+     * @param string|string[] $state
      * @return $this
      */
     public function setPublicationState($state)
