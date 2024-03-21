@@ -12,8 +12,8 @@ UPDATE `documents` SET `publication_state` = 'enhancedVersion' WHERE `publicatio
 
 ALTER TABLE `documents`
     MODIFY COLUMN `publication_state` ENUM(
-        'draft', 'acceptedVersion', 'submittedVersion', 'publishedVersion',
-        'proof', 'authorsVersion', 'correctedVersion', 'enhancedVersion'
+        'draft', 'authorsVersion', 'submittedVersion', 'acceptedVersion', 'proof', 'publishedVersion',
+        'correctedVersion', 'enhancedVersion'
         ) COMMENT 'Version of publication.';
 
 -- Update database version
