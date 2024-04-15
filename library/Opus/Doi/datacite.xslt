@@ -285,6 +285,9 @@
     <xsl:template match="PersonAuthor">
         <xsl:element name="creator">
             <xsl:element name="creatorName">
+                <xsl:attribute name="nameType">
+                    <xsl:text>Personal</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="@LastName"/>
                 <xsl:if test="@LastName and @FirstName">
                     <xsl:text>, </xsl:text>
@@ -301,9 +304,11 @@
                     <xsl:value-of select="@LastName"/>
                 </xsl:element>
             </xsl:if>
-
             <xsl:if test="@IdentifierOrcid != ''">
                 <xsl:apply-templates select="@IdentifierOrcid"/>
+            </xsl:if>
+            <xsl:if test="@IdentifierGnd != ''">
+                <xsl:apply-templates select="@IdentifierGnd"/>
             </xsl:if>
         </xsl:element>
     </xsl:template>
@@ -312,6 +317,9 @@
         <xsl:if test="../@CreatingCorporation != ''">
             <xsl:element name="creator">
                 <xsl:element name="creatorName">
+                    <xsl:attribute name="nameType">
+                        <xsl:text>Organizational</xsl:text>
+                    </xsl:attribute>
                     <xsl:value-of select="."/>
                 </xsl:element>
             </xsl:element>
@@ -324,6 +332,9 @@
                 <xsl:text>Editor</xsl:text>
             </xsl:attribute>
             <xsl:element name="contributorName">
+                <xsl:attribute name="nameType">
+                    <xsl:text>Personal</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="@LastName"/>
                 <xsl:text>, </xsl:text>
                 <xsl:value-of select="@FirstName"/>
@@ -331,12 +342,18 @@
             <xsl:if test="@IdentifierOrcid != ''">
                 <xsl:apply-templates select="@IdentifierOrcid"/>
             </xsl:if>
+            <xsl:if test="@IdentifierGnd != ''">
+                <xsl:apply-templates select="@IdentifierGnd"/>
+            </xsl:if>
         </xsl:element>
     </xsl:template>
 
     <xsl:template match="PersonEditor" mode="creator">
         <xsl:element name="creator">
             <xsl:element name="creatorName">
+                <xsl:attribute name="nameType">
+                    <xsl:text>Personal</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="@LastName"/>
                 <xsl:if test="@LastName and @FirstName">
                     <xsl:text>, </xsl:text>
@@ -354,44 +371,11 @@
                     <xsl:value-of select="@LastName"/>
                 </xsl:element>
             </xsl:if>
-
             <xsl:if test="@IdentifierOrcid != ''">
                 <xsl:apply-templates select="@IdentifierOrcid"/>
             </xsl:if>
-        </xsl:element>
-    </xsl:template>
-
-    <xsl:template match="PersonEditor" mode="creator">
-        <xsl:element name="creator">
-            <xsl:element name="creatorName">
-                <xsl:value-of select="@LastName"/>
-                <xsl:if test="@LastName and @FirstName">
-                    <xsl:text>, </xsl:text>
-                </xsl:if>
-                <xsl:value-of select="@FirstName"/>
-                <xsl:text> (Ed.)</xsl:text>
-            </xsl:element>
-            <xsl:if test="@FirstName">
-                <xsl:element name="givenName">
-                    <xsl:value-of select="@FirstName"/>
-                </xsl:element>
-            </xsl:if>
-            <xsl:if test="@LastName">
-                <xsl:element name="familyName">
-                    <xsl:value-of select="@LastName"/>
-                </xsl:element>
-            </xsl:if>
-
-            <xsl:if test="@IdentifierOrcid != ''">
-                <xsl:element name="nameIdentifier">
-                    <xsl:attribute name="schemeURI">
-                        <xsl:text>https://orcid.org/</xsl:text>
-                    </xsl:attribute>
-                    <xsl:attribute name="nameIdentifierScheme">
-                        <xsl:text>ORCID</xsl:text>
-                    </xsl:attribute>
-                    <xsl:value-of select="@IdentifierOrcid"/>
-                </xsl:element>
+            <xsl:if test="@IdentifierGnd != ''">
+                <xsl:apply-templates select="@IdentifierGnd"/>
             </xsl:if>
         </xsl:element>
     </xsl:template>
@@ -717,15 +701,13 @@
                 <xsl:attribute name="xml:lang">
                     <xsl:text>de</xsl:text>
                 </xsl:attribute>
-                <xsl:attribute name="schemeURI">
-                    <xsl:text>https://dewey.info/</xsl:text>
-                </xsl:attribute>
                 <xsl:attribute name="subjectScheme">
-                    <xsl:text>dewey</xsl:text>
+                    <xsl:text>ddc</xsl:text>
                 </xsl:attribute>
                 <xsl:if test="@Number">
-                    <xsl:value-of select="@Number"/>
-                    <xsl:text> </xsl:text>
+                    <xsl:attribute name="classificationCode">
+                        <xsl:value-of select="@Number"/>
+                    </xsl:attribute>
                 </xsl:if>
                 <xsl:value-of select="@Name"/>
             </xsl:element>
@@ -768,6 +750,19 @@
             <xsl:attribute name="nameIdentifierScheme">
                 <xsl:text>ORCID</xsl:text>
             </xsl:attribute>
+            <xsl:value-of select="."/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="@IdentifierGnd">
+        <xsl:element name="nameIdentifier">
+            <xsl:attribute name="schemeURI">
+                <xsl:text>https://d-nb.info/gnd/</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="nameIdentifierScheme">
+                <xsl:text>GND</xsl:text>
+            </xsl:attribute>
+            <xsl:text>https://d-nb.info/gnd/</xsl:text>
             <xsl:value-of select="."/>
         </xsl:element>
     </xsl:template>
