@@ -1274,7 +1274,7 @@ class CollectionRoleTest extends TestCase
         $collRole->store();
     }
 
-    public function testContainsDocumentsVisibleInOai()
+    public function testHasOaiDocuments()
     {
         $colRole = new CollectionRole();
         $colRole->setName('open_access');
@@ -1284,21 +1284,21 @@ class CollectionRoleTest extends TestCase
         $colRole->store();
 
         // no collections or linked documents
-        $this->assertFalse($colRole->containsDocumentsVisibleInOai());
+        $this->assertFalse($colRole->hasOaiDocuments());
 
         $root = $colRole->addRootCollection();
         $colRole->store();
 
         // no linked documents in root collection
-        $this->assertFalse($colRole->containsDocumentsVisibleInOai());
+        $this->assertFalse($colRole->hasOaiDocuments());
 
         $doc = Document::new();
         $doc->setServerState(Document::STATE_PUBLISHED);
         $doc->setCollection([$root]);
-        $docId = $doc->store();
+        $doc->store();
 
         // visible document in root collection
-        $this->assertTrue($colRole->containsDocumentsVisibleInOai());
+        $this->assertTrue($colRole->hasOaiDocuments());
 
         $col = $root->addFirstChild();
         $col->setVisible(true);
@@ -1307,17 +1307,47 @@ class CollectionRoleTest extends TestCase
         $doc->setCollection([$col]);
         $doc->store();
 
-        // sub collection contains one visible document
-        $this->assertTrue($colRole->containsDocumentsVisibleInOai());
+        // visible document in sub collection
+        $this->assertTrue($colRole->hasOaiDocuments());
 
         $col->setVisible(false);
         $colRole->store();
 
         // sub collection is not visible
-        $this->assertTrue($colRole->containsDocumentsVisibleInOai());
+        $this->assertFalse($colRole->hasOaiDocuments());
+
+        // Add second, visible document
+        $doc = Document::new();
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $doc->setCollection($root);
+        $doc->store();
+
+        $this->assertTrue($colRole->hasOaiDocuments());
     }
 
-    public function testGetDocumentsVisibleInOai()
+    public function testHasOaiDocumentsInRootCollection()
+    {
+        $colRole = new CollectionRole();
+        $colRole->setName('open_access');
+        $colRole->setOaiName('open_access');
+        $colRole->setVisible(true);
+        $colRole->setVisibleOai(true);
+        $colRole->addRootCollection();
+
+        // Save and reload objects
+        $colRole = new CollectionRole($colRole->store());
+        $root    = $colRole->getRootCollection();
+
+        $doc = Document::new();
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $doc->setCollection([$root]);
+        $doc->store();
+
+        // visible document in root collection
+        $this->assertTrue($colRole->hasOaiDocuments());
+    }
+
+    public function testGetOaiDocuments()
     {
         $colRole = new CollectionRole();
         $colRole->setName('open_access');
@@ -1342,7 +1372,7 @@ class CollectionRoleTest extends TestCase
         $doc2->setCollection([$col1]);
         $docId2 = $doc2->store();
 
-        $documents = $colRole->getDocumentsVisibleInOai();
+        $documents = $colRole->getOaiDocuments();
 
         $this->assertIsArray($documents);
         $this->assertCount(2, $documents);
@@ -1350,9 +1380,39 @@ class CollectionRoleTest extends TestCase
         $this->assertContains($docId2, $documents);
     }
 
-    public function testGetDocumentsVisibleInOaiParentColNotVisible()
+    public function testGetOaiDocumentsWithParentCollectionNotVisible()
     {
-        $this->markTestIncomplete('implement');
+        $colRole = new CollectionRole();
+        $colRole->setName('open_access');
+        $colRole->setOaiName('open_access');
+        $colRole->setVisible(true);
+        $colRole->setVisibleOai(true);
+        $root = $colRole->addRootCollection();
+        $root->setVisible(true);
+
+        $col1 = $root->addFirstChild();
+        $col1->setVisible(false);
+
+        $col2 = $col1->addFirstChild();
+        $col2->setVisible(true);
+
+        $colRole->store();
+
+        $doc1 = Document::new();
+        $doc1->setServerState(Document::STATE_PUBLISHED);
+        $doc1->setCollection([$root]);
+        $docId1 = $doc1->store();
+
+        $doc2 = Document::new();
+        $doc2->setServerState(Document::STATE_PUBLISHED);
+        $doc2->setCollection([$col2]);
+        $doc2->store();
+
+        $documents = $colRole->getOaiDocuments();
+
+        $this->assertIsArray($documents);
+        $this->assertCount(1, $documents);
+        $this->assertContains($docId1, $documents);
     }
 
     /**
@@ -1431,6 +1491,22 @@ class CollectionRoleTest extends TestCase
         $this->assertContains($col1->getId(), $collections);
         $this->assertContains($col2->getId(), $collections);
         $this->assertContains($col3->getId(), $collections);
+    }
+
+    public function testAddRootCollectionCreatesVisibleRoot()
+    {
+        $colRole = new CollectionRole();
+        $colRole->setName('open_access');
+        $colRole->setOaiName('open_access');
+        $colRole->setVisible(true);
+        $colRole->setVisibleOai(true);
+        $colRole->addRootCollection();
+
+        // Save and reload objects
+        $colRole = new CollectionRole($colRole->store());
+        $root    = $colRole->getRootCollection();
+
+        $this->assertTrue($root->getVisible());
     }
 
     /**

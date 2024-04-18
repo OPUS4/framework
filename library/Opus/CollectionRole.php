@@ -98,6 +98,8 @@ use const PHP_INT_MAX;
  * @method string getLanguage()
  *
  * phpcs:disable
+ *
+ * TODO CollectionRole object should not contain all the OAI logic (DB queries, it ties object and DB too close together)
  */
 class CollectionRole extends AbstractDb implements CollectionRoleInterface, CollectionRoleRepositoryInterface
 {
@@ -475,8 +477,47 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
      * Return all visible collections.
      *
      * @return array|null
+     *
+     * TODO support parameter $requireOaiName ?
+     * TODO support parameter $requireDocuments ?
      */
     public function getVisibleCollections()
+    {
+        if ($this->getId() === null) {
+            return [];
+        }
+
+        $select = <<<SQL
+SELECT `col`.`id` 
+  FROM `collections` as `col`
+  WHERE col.role_id = ?
+  AND col.visible = 1
+  AND col.id NOT IN (
+    SELECT DISTINCT node.id 
+      FROM `collections` AS `node`      
+      INNER JOIN `collections` AS `parent`
+        ON (node.left_id BETWEEN parent.left_id AND parent.right_id)
+          AND parent.id != node.id
+          AND parent.visible = 0
+          AND node.role_id = parent.role_id
+          AND node.role_id = ?
+  )
+SQL;
+
+        // TODO consider presents of documents
+        // TODO consider oai_subset name present (optional)
+
+        $db     = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->quoteInto($select, $this->getId());
+
+        return $db->fetchCol($select);
+    }
+
+    /**
+     * Return visible collections with oai_name (optional) and documents.
+     * @return void
+     */
+    public function getOaiCollections($requireOaiName = false)
     {
         if ($this->getId() === null) {
             return [];
@@ -569,23 +610,34 @@ SQL;
      *
      * @return bool
      */
-    public function containsDocumentsVisibleInOai()
+    public function hasOaiDocuments()
     {
         $roleId = $this->getId();
 
-        $select = "SELECT count(DISTINCT l.document_id) 
-            FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
-            WHERE l.document_id = d.id
-                AND d.server_state = 'published'
-                AND c.role_id = {$roleId}
-                AND (c.visible = 1 OR c.parent_id IS NULL)
-                AND r.visible = 1
-                AND r.visible_oai = 1
-                AND r.oai_name IS NOT NULL
-                AND r.oai_name != ''";
+        $db = Zend_Db_Table::getDefaultAdapter();
 
-        $db     = Zend_Db_Table::getDefaultAdapter();
-        $result = $db->fetchOne($select);
+        $visibleCollections = $this->getVisibleCollections();
+
+        if (count($visibleCollections) > 0) {
+            $quotedCollections = $db->quote($visibleCollections);
+
+            $select = "SELECT count(DISTINCT l.document_id) 
+                FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+                WHERE l.document_id = d.id
+                    AND d.server_state = 'published'
+                    AND c.role_id = {$roleId}
+                    AND (c.visible = 1 OR c.parent_id IS NULL)
+                    AND l.collection_id IN ({$quotedCollections})
+                    AND r.visible = 1
+                    AND r.visible_oai = 1
+                    AND r.oai_name IS NOT NULL
+                    AND r.oai_name != ''";
+
+            $result = $db->fetchOne($select);
+        } else {
+            $result = 0;
+        }
+
 
         return $result > 0;
     }
@@ -596,28 +648,37 @@ SQL;
      * @return int[]
      *
      * TODO optionally include only collections with oai_name (needed?)
-     * TODO this does not consider inheriting visibility from parent collections
      */
-    public function getDocumentsVisibleInOai()
+    public function getOaiDocuments()
     {
         $roleId = $this->getId();
 
-        $select = "SELECT DISTINCT l.document_id 
-            FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
-            WHERE l.document_id = d.id
-                AND d.server_state = 'published'
-                AND c.role_id = {$roleId}
-                AND c.id = l.collection_id
-                AND (c.visible = 1 OR c.parent_id IS NULL)
-                AND r.visible = 1
-                AND r.visible_oai = 1
-                AND r.oai_name IS NOT NULL
-                AND r.oai_name != ''";
+        $db = Zend_Db_Table::getDefaultAdapter();
 
-        $db     = Zend_Db_Table::getDefaultAdapter();
-        $result = $db->fetchCol($select);
+        $visibleCollections = $this->getVisibleCollections();
 
-        return $result;
+        if (count($visibleCollections) > 0) {
+            $quotedCollections = $db->quote($visibleCollections);
+
+            $select = "SELECT DISTINCT l.document_id 
+                FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+                WHERE l.document_id = d.id
+                    AND d.server_state = 'published'
+                    AND c.role_id = {$roleId}
+                    AND c.id = l.collection_id
+                    AND (c.visible = 1 OR c.parent_id IS NULL)
+                    AND l.collection_id IN ({$quotedCollections})
+                    AND r.visible = 1
+                    AND r.visible_oai = 1
+                    AND r.oai_name IS NOT NULL
+                    AND r.oai_name != ''";
+
+            $result = $db->fetchCol($select);
+
+            return $result;
+        } else {
+            return [];
+        }
     }
 
     /**
