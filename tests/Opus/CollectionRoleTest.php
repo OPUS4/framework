@@ -1509,6 +1509,84 @@ class CollectionRoleTest extends TestCase
         $this->assertTrue($root->getVisible());
     }
 
+    public function testIsDocumentVisibleInOai()
+    {
+        $colRole = new CollectionRole();
+        $colRole->setName('open_access');
+        $colRole->setOaiName('open_access');
+        $colRole->setVisible(true);
+        $colRole->setVisibleOai(true);
+        $root = $colRole->addRootCollection();
+
+        $colRole->store();
+
+        $doc = Document::new();
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $doc->setCollection([$root]);
+        $docId = $doc->store();
+
+        $this->assertTrue($colRole->isDocumentVisibleInOai($docId));
+
+        $col1 = $root->addFirstChild();
+        $col1->setName('col1');
+        $col1->setVisible(true);
+        $colRole->store();
+        $doc->setCollection([$col1]);
+        $doc->store();
+
+        $this->assertTrue($colRole->isDocumentVisibleInOai($docId));
+
+        $col2 = $root->addLastChild();
+        $col2->setName('col2');
+        $col2->setVisible(false);
+        $colRole->store();
+        $doc->setCollection([$col2]);
+        $doc->store();
+
+        $this->assertFalse($colRole->isDocumentVisibleInOai($docId));
+
+        $doc->setCollection([$col1, $col2]);
+        $doc->store();
+
+        $this->assertTrue($colRole->isDocumentVisibleInOai($docId));
+    }
+
+    public function testIsDocumentVisibleInOaiDocumentNotLinked()
+    {
+        $colRole = new CollectionRole();
+        $colRole->setName('open_access');
+        $colRole->setOaiName('open_access');
+        $colRole->setVisible(true);
+        $colRole->setVisibleOai(true);
+        $colRole->store();
+
+        $doc = Document::new();
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId = $doc->store();
+
+        $this->assertFalse($colRole->isDocumentVisibleInOai($docId));
+    }
+
+    public function testIsDocumentVisibleInOaiNoVisibleCollection()
+    {
+        $colRole = new CollectionRole();
+        $colRole->setName('open_access');
+        $colRole->setOaiName('open_access');
+        $colRole->setVisible(true);
+        $colRole->setVisibleOai(true);
+        $root = $colRole->addRootCollection();
+        $root->setVisible(false);
+
+        $colRole->store();
+
+        $doc = Document::new();
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $doc->setCollection([$root]);
+        $docId = $doc->store();
+
+        $this->assertFalse($colRole->isDocumentVisibleInOai($docId));
+    }
+
     /**
      * @return CollectionRole
      */

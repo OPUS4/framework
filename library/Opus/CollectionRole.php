@@ -682,13 +682,44 @@ SQL;
     }
 
     /**
+     * Checks if document is linked to collection role and visible in OAI.
+     *
+     * The document needs to be linked to a collection that is visible in OAI.
+     *
      * @param int $docId
      * @return bool
-     *
-     * TODO Where is this function necessary? (I do not remember.)
      */
     public function isDocumentVisibleInOai($docId)
     {
+        $roleId = $this->getId();
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $visibleCollections = $this->getVisibleCollections();
+
+        if (count($visibleCollections) > 0) {
+            $quotedCollections = $db->quote($visibleCollections);
+
+            $select = "SELECT l.document_id 
+                FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+                WHERE d.id = {$docId} 
+                    AND l.document_id = d.id
+                    AND d.server_state = 'published'
+                    AND c.role_id = {$roleId}
+                    AND c.id = l.collection_id
+                    AND (c.visible = 1 OR c.parent_id IS NULL)
+                    AND l.collection_id IN ({$quotedCollections})
+                    AND r.visible = 1
+                    AND r.visible_oai = 1
+                    AND r.oai_name IS NOT NULL
+                    AND r.oai_name != ''";
+
+            $result = $db->fetchOne($select);
+
+            return $result !== false;
+        } else {
+            return false;
+        }
     }
 
     /**
