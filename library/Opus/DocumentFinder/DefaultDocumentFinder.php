@@ -345,4 +345,12 @@ class DefaultDocumentFinder implements DocumentFinderInterface
         $this->finder->setPublicationState($state);
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function getPublicationStateCount()
+    {
+        return $this->finder->getPublicationStateCount();
+    }
 }

@@ -815,4 +815,17 @@ class DocumentFinder
         }
         return $this;
     }
+
+    /**
+     * Returns count of documents in used publication states.
+     *
+     * @return array
+     */
+    public function getPublicationStateCount()
+    {
+        $this->_select->reset('columns');
+        $this->_select->columns(['publication_state', 'count(DISTINCT id)']);
+        $this->_select->group('publication_state');
+        return $this->_db->fetchPairs($this->_select);
+    }
 }

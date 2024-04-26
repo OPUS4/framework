@@ -983,4 +983,66 @@ class DocumentFinderTest extends TestCase
         $this->assertContains($docId1, $result);
         $this->assertContains($docId2, $result);
     }
+
+    public function testGetPublicationStateCount()
+    {
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::SUBMITTED);
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::SUBMITTED);
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::DRAFT);
+        $doc->store();
+
+        $finder = new DefaultDocumentFinder();
+
+        $result = $finder->getPublicationStateCount();
+
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertArrayHasKey(PublicationState::SUBMITTED, $result);
+        $this->assertEquals(2, $result[PublicationState::SUBMITTED]);
+        $this->assertArrayHasKey(PublicationState::DRAFT, $result);
+        $this->assertEquals(1, $result[PublicationState::DRAFT]);
+    }
+
+    public function testGetPublicationStateCountNoDocuments()
+    {
+        $finder = new DefaultDocumentFinder();
+
+        $result = $finder->getPublicationStateCount();
+
+        $this->assertIsArray($result);
+        $this->assertCount(0, $result);
+    }
+
+    public function testGetPublicationStateCountForPublishedDocuments()
+    {
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::SUBMITTED);
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::SUBMITTED);
+        $doc->store();
+
+        $doc = Document::new();
+        $doc->setPublicationState(PublicationState::DRAFT);
+        $doc->store();
+
+        $finder = new DefaultDocumentFinder();
+
+        $finder->setServerState(Document::STATE_PUBLISHED);
+        $result = $finder->getPublicationStateCount();
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey(PublicationState::SUBMITTED, $result);
+        $this->assertEquals(1, $result[PublicationState::SUBMITTED]);
+    }
 }
