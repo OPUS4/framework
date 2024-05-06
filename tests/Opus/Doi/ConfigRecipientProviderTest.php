@@ -44,7 +44,7 @@ class ConfigRecipientProviderTest extends TestCase
 
         $recipients = $provider->getRecipients();
 
-        $this->assertInternalType('array', $recipients);
+        $this->assertIsArray($recipients);
         $this->assertCount(0, $recipients);
 
         Config::get()->merge(new Zend_Config([

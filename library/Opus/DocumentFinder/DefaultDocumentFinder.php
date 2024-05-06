@@ -337,12 +337,20 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
-     * @param string $state
+     * @param string|string[] $state
      * @return $this
      */
     public function setPublicationState($state)
     {
         $this->finder->setPublicationState($state);
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPublicationStateCount()
+    {
+        return $this->finder->getPublicationStateCount();
     }
 }

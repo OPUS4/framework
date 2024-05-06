@@ -865,8 +865,8 @@ class Version1Test extends TestCase
         $xmlString = $dom->saveXML();
 
         // first, check that the string contains all required substrings.
-        $this->assertContains('foo...', $xmlString);
-        $this->assertContains('...bar', $xmlString);
+        $this->assertStringContainsString('foo...', $xmlString);
+        $this->assertStringContainsString('...bar', $xmlString);
 
         // second, check that xml string does *not* contain invalid characters.
         $this->assertNotRegExp('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $xmlString);
@@ -879,8 +879,8 @@ class Version1Test extends TestCase
         $model = $xml->getModel();
         $this->assertInstanceOf(AbstractModelMock::class, $model);
 
-        $this->assertContains('foo...', $model->getValue());
-        $this->assertContains('...bar', $model->getValue());
+        $this->assertStringContainsString('foo...', $model->getValue());
+        $this->assertStringContainsString('...bar', $model->getValue());
     }
 
     /**

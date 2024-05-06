@@ -516,7 +516,7 @@ class CacheTest extends TestCase
 
         $xmlData = $row->xml_data;
 
-        $this->assertContains('John', $xmlData, 'Cache should contain author.');
+        $this->assertStringContainsString('John', $xmlData, 'Cache should contain author.');
     }
 
     public function testRemoveAllEntriesForDependentModel()

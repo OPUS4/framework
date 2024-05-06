@@ -696,7 +696,7 @@ class DocumentFinder
     }
 
     /**
-     * Only return documents with at leat one file marked as visible in oai.
+     * Only return documents with at least one file marked as visible in oai.
      *
      * @return $this Fluent interface.
      */
@@ -803,12 +803,29 @@ class DocumentFinder
     /**
      * Add PublicationState constraints to be applied on the result set.
      *
-     * @param  string $state
+     * @param  string|string[] $state
      * @return $this Fluent interface.
      */
     public function setPublicationState($state)
     {
-        $this->_select->where('d.publication_state = ?', $state);
+        if (is_array($state)) {
+            $this->_select->where('d.publication_state IN (?)', $state);
+        } else {
+            $this->_select->where('d.publication_state = ?', $state);
+        }
         return $this;
+    }
+
+    /**
+     * Returns count of documents in used publication states.
+     *
+     * @return array
+     */
+    public function getPublicationStateCount()
+    {
+        $this->_select->reset('columns');
+        $this->_select->columns(['publication_state', 'count(DISTINCT id)']);
+        $this->_select->group('publication_state');
+        return $this->_db->fetchPairs($this->_select);
     }
 }

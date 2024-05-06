@@ -25,54 +25,57 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace Opus;
+namespace OpusTest;
 
-use function version_compare;
+use Opus\Common\Config\ConfigException;
+use Opus\Common\Model\ModelException;
+use Opus\Common\PublicationState;
+use Opus\Common\Repository;
+use Opus\Db\TableGateway;
+use OpusTest\TestAsset\TestCase;
+use Zend_Db_Table_Exception;
+
+use function array_map;
+use function explode;
+use function preg_match;
+use function trim;
 
 /**
- * Provide Opus Framework Version.
+ * Test cases for class Opus\Person.
  */
-class Version
+class PublicationStateTest extends TestCase
 {
-    /**
-     * Opus Framework version identification - see compareVersion()
-     *
-     * TODO Is this still used anywhere? Apparently it has not been updated for recent version.
-     */
-    public const VERSION = '4.7.1';
-
-    /**
-     * Version of database schema.
-     */
-    public const SCHEMA_VERSION = 23;
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus\Version::VERSION of the Zend Framework.
-     *
-     * @param  string $version  A version string (e.g. "0.7.1").
-     * @return int -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     */
-    public static function compareVersion($version)
+    public function testPublicationStateValuesMatchEnumDefinition()
     {
-        return version_compare($version, self::VERSION);
+        $enumValues = $this->getEnumValues();
+
+        $publicationState = new PublicationState();
+
+        $this->assertEqualsCanonicalizing($publicationState->getAllValues(), $enumValues);
     }
 
     /**
-     * Returns required database schema version.
-     *
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
+     * @return string[]
+     * @throws ConfigException
+     * @throws ModelException
+     * @throws Zend_Db_Table_Exception
      */
-    public static function getSchemaVersion()
+    protected function getEnumValues()
     {
-        return self::SCHEMA_VERSION;
+        $tableGatewayClass = Repository::getInstance()->getModelFactory()->getTableGatewayClass('Document');
+
+        $metadata = TableGateway::getInstance($tableGatewayClass)->info();
+
+        $dataType = $metadata['metadata']['publication_state']['DATA_TYPE'];
+
+        preg_match('/enum\\((.*)\\)/', $dataType, $matches);
+
+        return array_map(function ($value) {
+            return trim($value, ' \'');
+        }, explode(',', $matches[1]));
     }
 }

@@ -117,7 +117,7 @@ class DoiManagerTest extends TestCase
         $path    = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus-doi.log';
         $content = file_get_contents($path);
 
-        $this->assertContains($debugMessage, $content);
+        $this->assertStringContainsString($debugMessage, $content);
     }
 
     public function testRegisterMissingArg()

@@ -2043,4 +2043,28 @@ class CollectionTest extends TestCase
         $this->assertEquals(-1, $lastModified1->compare($doc1->getServerDateModified()));
         $this->assertEquals(-1, $lastModified2->compare($doc2->getServerDateModified()));
     }
+
+    public function testGetVisibleReturnsBoolValue()
+    {
+        $root = $this->object;
+
+        $this->assertIsBool($root->getVisible());
+        $this->assertFalse($root->getVisible());
+
+        $root->setVisible(true);
+
+        $this->assertTrue($root->getVisible());
+    }
+
+    public function testGetVisiblePublishReturnsBoolValue()
+    {
+        $root = $this->object;
+
+        $this->assertIsBool($root->getVisiblePublish());
+        $this->assertFalse($root->getVisiblePublish());
+
+        $root->setVisiblePublish(true);
+
+        $this->assertTrue($root->getVisiblePublish());
+    }
 }

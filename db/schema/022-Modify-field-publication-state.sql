@@ -1,6 +1,6 @@
 START TRANSACTION;
 
--- Replace identifier type ENUM with VARCHAR to allow any type
+-- Modify allowed values for field PublicationState
 
 ALTER TABLE `documents`
     MODIFY COLUMN `publication_state` ENUM(
