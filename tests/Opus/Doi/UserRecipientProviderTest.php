@@ -120,7 +120,7 @@ class UserRecipientProviderTest extends TestCase
 
         $recipients = $provider->getRecipients();
 
-        $this->assertInternalType('array', $recipients);
+        $this->assertIsArray($recipients);
         $this->assertCount(0, $recipients);
     }
 
@@ -130,7 +130,7 @@ class UserRecipientProviderTest extends TestCase
 
         $recipients = $provider->getRecipients();
 
-        $this->assertInternalType('array', $recipients);
+        $this->assertIsArray($recipients);
         $this->assertCount(0, $recipients);
     }
 }

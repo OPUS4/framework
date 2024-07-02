@@ -33,6 +33,7 @@
 namespace Opus;
 
 use Exception;
+use Opus\Common\CollectionInterface;
 use Opus\Common\CollectionRoleInterface;
 use Opus\Common\CollectionRoleRepositoryInterface;
 use Opus\Common\Validate\CollectionRoleName;
@@ -97,6 +98,8 @@ use const PHP_INT_MAX;
  * @method string getLanguage()
  *
  * phpcs:disable
+ *
+ * TODO CollectionRole object should not contain all the OAI logic (DB queries, it ties object and DB too close together)
  */
 class CollectionRole extends AbstractDb implements CollectionRoleInterface, CollectionRoleRepositoryInterface
 {
@@ -471,6 +474,82 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
     }
 
     /**
+     * Return all visible collections.
+     *
+     * @return array|null
+     *
+     * TODO support parameter $requireOaiName ?
+     * TODO support parameter $requireDocuments ?
+     */
+    public function getVisibleCollections()
+    {
+        if ($this->getId() === null) {
+            return [];
+        }
+
+        $select = <<<SQL
+SELECT `col`.`id` 
+  FROM `collections` as `col`
+  WHERE col.role_id = ?
+  AND col.visible = 1
+  AND col.id NOT IN (
+    SELECT DISTINCT node.id 
+      FROM `collections` AS `node`      
+      INNER JOIN `collections` AS `parent`
+        ON (node.left_id BETWEEN parent.left_id AND parent.right_id)
+          AND parent.id != node.id
+          AND parent.visible = 0
+          AND node.role_id = parent.role_id
+          AND node.role_id = ?
+  )
+SQL;
+
+        // TODO consider presents of documents
+        // TODO consider oai_subset name present (optional)
+
+        $db     = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->quoteInto($select, $this->getId());
+
+        return $db->fetchCol($select);
+    }
+
+    /**
+     * Return visible collections with oai_name (optional) and documents.
+     * @return void
+     */
+    public function getOaiCollections($requireOaiName = false)
+    {
+        if ($this->getId() === null) {
+            return [];
+        }
+
+        $select = <<<SQL
+SELECT `col`.`id` 
+  FROM `collections` as `col`
+  WHERE col.role_id = ?
+  AND col.visible = 1
+  AND col.id NOT IN (
+    SELECT DISTINCT node.id 
+      FROM `collections` AS `node`      
+      INNER JOIN `collections` AS `parent`
+        ON (node.left_id BETWEEN parent.left_id AND parent.right_id)
+          AND parent.id != node.id
+          AND parent.visible = 0
+          AND node.role_id = parent.role_id
+          AND node.role_id = ?
+  )
+SQL;
+
+        // TODO consider presents of documents
+        // TODO consider oai_subset name present (optional)
+
+        $db     = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->quoteInto($select, $this->getId());
+
+        return $db->fetchCol($select);
+    }
+
+    /**
      * Fetches all oai subset names for this role.
      *
      * @return array
@@ -524,6 +603,123 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
 
         $db = Zend_Db_Table::getDefaultAdapter();
         return $db->fetchAll($select);
+    }
+
+    /**
+     * Checks if collection role contains documents visible in OAI.
+     *
+     * @return bool
+     */
+    public function hasOaiDocuments()
+    {
+        $roleId = $this->getId();
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $visibleCollections = $this->getVisibleCollections();
+
+        if (count($visibleCollections) > 0) {
+            $quotedCollections = $db->quote($visibleCollections);
+
+            $select = "SELECT count(DISTINCT l.document_id) 
+                FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+                WHERE l.document_id = d.id
+                    AND d.server_state = 'published'
+                    AND c.role_id = {$roleId}
+                    AND (c.visible = 1 OR c.parent_id IS NULL)
+                    AND l.collection_id IN ({$quotedCollections})
+                    AND r.visible = 1
+                    AND r.visible_oai = 1
+                    AND r.oai_name IS NOT NULL
+                    AND r.oai_name != ''";
+
+            $result = $db->fetchOne($select);
+        } else {
+            $result = 0;
+        }
+
+
+        return $result > 0;
+    }
+
+    /**
+     * Returns IDs of all documents visible in OAI for CollectionRole.
+     *
+     * @return int[]
+     *
+     * TODO optionally include only collections with oai_name (needed?)
+     */
+    public function getOaiDocuments()
+    {
+        $roleId = $this->getId();
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $visibleCollections = $this->getVisibleCollections();
+
+        if (count($visibleCollections) > 0) {
+            $quotedCollections = $db->quote($visibleCollections);
+
+            $select = "SELECT DISTINCT l.document_id 
+                FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+                WHERE l.document_id = d.id
+                    AND d.server_state = 'published'
+                    AND c.role_id = {$roleId}
+                    AND c.id = l.collection_id
+                    AND (c.visible = 1 OR c.parent_id IS NULL)
+                    AND l.collection_id IN ({$quotedCollections})
+                    AND r.visible = 1
+                    AND r.visible_oai = 1
+                    AND r.oai_name IS NOT NULL
+                    AND r.oai_name != ''";
+
+            $result = $db->fetchCol($select);
+
+            return $result;
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Checks if document is linked to collection role and visible in OAI.
+     *
+     * The document needs to be linked to a collection that is visible in OAI.
+     *
+     * @param int $docId
+     * @return bool
+     */
+    public function isDocumentVisibleInOai($docId)
+    {
+        $roleId = $this->getId();
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $visibleCollections = $this->getVisibleCollections();
+
+        if (count($visibleCollections) > 0) {
+            $quotedCollections = $db->quote($visibleCollections);
+
+            $select = "SELECT l.document_id 
+                FROM link_documents_collections AS l, collections_roles AS r, collections AS c, documents AS d
+                WHERE d.id = {$docId} 
+                    AND l.document_id = d.id
+                    AND d.server_state = 'published'
+                    AND c.role_id = {$roleId}
+                    AND c.id = l.collection_id
+                    AND (c.visible = 1 OR c.parent_id IS NULL)
+                    AND l.collection_id IN ({$quotedCollections})
+                    AND r.visible = 1
+                    AND r.visible_oai = 1
+                    AND r.oai_name IS NOT NULL
+                    AND r.oai_name != ''";
+
+            $result = $db->fetchOne($select);
+
+            return $result !== false;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -640,7 +836,7 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
         if ($result === false) {
             return null;
         } else {
-            return new Collection($result);
+            return Collection::get($result);
         }
     }
 
@@ -651,22 +847,22 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
     /**
      * Fetch-method for field "RootCollection".
      *
-     * @return Collection
+     * @return Collection|null
      */
     protected function _fetchRootCollection()
     {
         if ($this->isNewRecord()) {
-            return;
+            return null;
         }
 
         $collections = TableGateway::getInstance(Collections::class);
         $root        = $collections->getRootNode($this->getId());
 
         if (! isset($root)) {
-            return;
+            return null;
         }
 
-        return new Collection($root);
+        return Collection::get($root);
     }
 
     /**
@@ -694,8 +890,8 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
      * Extend magic add-method.  Add $collection if given; otherwise
      * create.
      *
-     * @param null|Collection $collection (optional) collection object to add
-     * @return Collection
+     * @param null|CollectionInterface $collection (optional) collection object to add
+     * @return CollectionInterface
      */
     public function addRootCollection($collection = null)
     {

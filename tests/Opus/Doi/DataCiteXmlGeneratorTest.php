@@ -211,7 +211,7 @@ class DataCiteXmlGeneratorTest extends TestCase
         $generator = new DataCiteXmlGenerator(false);
         $result    = $generator->checkRequiredFields($doc, true);
 
-        $this->assertInternalType('bool', $result);
+        $this->assertIsBool($result);
         $this->assertFalse($result);
     }
 
@@ -477,8 +477,8 @@ class DataCiteXmlGeneratorTest extends TestCase
         $generator = new DataCiteXmlGenerator();
         $result    = $generator->getXml($doc);
 
-        $this->assertNotContains("<publicationYear>2008</publicationYear>", $result);
-        $this->assertContains("<publicationYear>$year</publicationYear>", $result);
+        $this->assertStringNotContainsString("<publicationYear>2008</publicationYear>", $result);
+        $this->assertStringContainsString("<publicationYear>$year</publicationYear>", $result);
     }
 
     /**

@@ -177,7 +177,7 @@ class LanguageTest extends TestCase
         try {
             $lang->store();
         } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
+            $this->assertStringContainsString('Data truncated for column \'scope\'', $omde->getMessage());
         }
 
         $lang = Language::get($lang->getId());
@@ -226,7 +226,7 @@ class LanguageTest extends TestCase
         try {
             $lang->store();
         } catch (DbException $omde) {
-            $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
+            $this->assertStringContainsString('Data truncated for column \'type\'', $omde->getMessage());
         }
 
         $lang = Language::get($lang->getId());
@@ -391,7 +391,7 @@ class LanguageTest extends TestCase
 
         $languages = Language::getUsedLanguages();
 
-        $this->assertInternalType('array', $languages);
+        $this->assertIsArray($languages);
         $this->assertCount(2, $languages);
         $this->assertEquals(['deu', 'eng'], $languages);
     }
@@ -412,7 +412,7 @@ class LanguageTest extends TestCase
         Language::getLanguageRepository()->clearCache();
         $languages = Language::getUsedLanguages();
 
-        $this->assertInternalType('array', $languages);
+        $this->assertIsArray($languages);
         $this->assertCount(1, $languages);
         $this->assertEquals(['fra'], $languages);
     }
@@ -435,7 +435,7 @@ class LanguageTest extends TestCase
 
         $languages = Language::getUsedLanguages();
 
-        $this->assertInternalType('array', $languages);
+        $this->assertIsArray($languages);
         $this->assertCount(1, $languages);
         $this->assertEquals(['spa'], $languages);
     }
@@ -457,7 +457,7 @@ class LanguageTest extends TestCase
 
         $languages = Language::getUsedLanguages();
 
-        $this->assertInternalType('array', $languages);
+        $this->assertIsArray($languages);
         $this->assertCount(1, $languages);
         $this->assertEquals(['rus'], $languages);
     }
@@ -483,7 +483,7 @@ class LanguageTest extends TestCase
 
         $languages = Language::getUsedLanguages();
 
-        $this->assertInternalType('array', $languages);
+        $this->assertIsArray($languages);
         $this->assertCount(1, $languages);
         $this->assertEquals(['fra'], $languages);
     }
@@ -501,7 +501,7 @@ class LanguageTest extends TestCase
 
         $languages = Language::getUsedLanguages();
 
-        $this->assertInternalType('array', $languages);
+        $this->assertIsArray($languages);
         $this->assertCount(1, $languages);
         $this->assertEquals(['fra'], $languages);
     }

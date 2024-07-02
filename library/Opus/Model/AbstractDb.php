@@ -323,6 +323,11 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
                 // map field values: Cannot process array-valued fields
                 $fieldValue = $field->getValue();
 
+                // store bool values as 0 or 1
+                if ($field->getType() === 'bool') {
+                    $fieldValue = (int) $fieldValue;
+                }
+
                 if ($fieldValue !== null) {
                     $fieldValue = trim($fieldValue);
                 }

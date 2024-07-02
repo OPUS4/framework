@@ -77,7 +77,7 @@ class DefaultAccess extends AbstractPlugin
             $roleName = $config->securityPolicy->files->defaultAccessRole;
 
             // Empty name -> don't set any role for access
-            if (strlen(trim($roleName)) > 0) {
+            if ($roleName !== null && strlen(trim($roleName)) > 0) {
                 $accessRole = UserRole::fetchByName($roleName);
 
                 if ($accessRole === null) {

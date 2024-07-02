@@ -283,7 +283,7 @@ class DatabaseTest extends TestCase
 
         // TODO this only works if there are no gaps in the numbering
         $this->assertEquals(count($scripts), $database->getLatestVersion());
-        $this->assertInternalType('int', $database->getLatestVersion());
+        $this->assertIsInt($database->getLatestVersion());
     }
 
     public function testImportSchema()

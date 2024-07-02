@@ -55,7 +55,7 @@ class VersionTest extends TestCase
     {
         $version = Version::getSchemaVersion();
 
-        $this->assertInternalType('int', $version);
+        $this->assertIsInt($version);
         $this->assertGreaterThan(0, $version);
     }
 

@@ -152,7 +152,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     }
 
     /**
-     * @param int $collectionId
+     * @param int|int[] $collectionId
      * @return $this
      */
     public function setCollectionId($collectionId)
@@ -334,5 +334,23 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     public function getYearsPublished()
     {
         return $this->finder->groupedServerYearPublished();
+    }
+
+    /**
+     * @param string|string[] $state
+     * @return $this
+     */
+    public function setPublicationState($state)
+    {
+        $this->finder->setPublicationState($state);
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPublicationStateCount()
+    {
+        return $this->finder->getPublicationStateCount();
     }
 }
