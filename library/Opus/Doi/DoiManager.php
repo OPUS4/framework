@@ -59,7 +59,6 @@ use function file_exists;
 use function file_put_contents;
 use function get_class;
 use function is_dir;
-use function is_numeric;
 use function is_string;
 use function ltrim;
 use function mkdir;
