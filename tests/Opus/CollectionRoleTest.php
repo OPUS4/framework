@@ -1241,7 +1241,7 @@ class CollectionRoleTest extends TestCase
     /**
      * @return string[][]
      */
-    public function invalidCollectionRoleNameDataProvider()
+    public static function invalidCollectionRoleNameDataProvider()
     {
         return [
             ['a b '],

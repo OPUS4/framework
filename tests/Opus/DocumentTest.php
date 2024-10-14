@@ -4000,7 +4000,7 @@ class DocumentTest extends TestCase
      * @return string[]
      * @throws ModelException
      */
-    public function getIdentifierTypes()
+    public static function getIdentifierTypes()
     {
         $identifier = Identifier::new();
 

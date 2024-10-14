@@ -71,7 +71,7 @@ class FieldTest extends TestCase
      *
      * @return array
      */
-    public function invalidSetMultiplicityValuesDataProvider()
+    public static function invalidSetMultiplicityValuesDataProvider()
     {
         return [
             ['0'],
@@ -97,7 +97,7 @@ class FieldTest extends TestCase
      *
      * @return array
      */
-    public function setterGetterCallDataProvider()
+    public static function setterGetterCallDataProvider()
     {
         return [
             ['Mandatory', 'true', true],

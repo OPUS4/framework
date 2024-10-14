@@ -169,7 +169,7 @@ class AbstractLinkModelTest extends TestCase
     public function testLinkedModelsFieldsCanBeAccessedViaAdd()
     {
         $model = $this->getMockBuilder(AbstractModelMock::class)
-            ->setMethods(['__call'])
+            ->onlyMethods(['__call'])
             ->getMock();
 
         $model->addField(new Field('Multi'));

@@ -302,7 +302,13 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
         $dbadapter->commit();
 
         $this->_postStore();
-        return $id;
+
+        // TODO determine type of id from model descriptor
+        if (is_string($id) && ctype_digit($id)) {
+            return (int)$id;
+        } else {
+            return $id;
+        }
     }
 
     /**

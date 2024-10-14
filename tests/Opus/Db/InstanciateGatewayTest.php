@@ -90,7 +90,7 @@ class InstanciateGatewayTest extends TestCase
      *
      * @return array List of table gateways.
      */
-    public function tableGatewayDataProvider()
+    public static function tableGatewayDataProvider()
     {
         return [
             [Accounts::class],

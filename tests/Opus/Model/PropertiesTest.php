@@ -263,7 +263,7 @@ class PropertiesTest extends TestCase
     /**
      * @return string[][]
      */
-    public function validKeyProvider()
+    public static function validKeyProvider()
     {
         return [
             ['test'],
@@ -292,7 +292,7 @@ class PropertiesTest extends TestCase
     /**
      * @return string[][]
      */
-    public function invalidKeyProvider()
+    public static function invalidKeyProvider()
     {
         return [
             ['123'],

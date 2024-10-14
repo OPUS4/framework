@@ -194,7 +194,7 @@ class CacheTest extends TestCase
     /**
      * @return array
      */
-    public function invalidCombinationOfIdAndVersion()
+    public static function invalidCombinationOfIdAndVersion()
     {
         return [
             [['document_id' => 0, 'xml_version' => 4]],
