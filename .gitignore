@@ -19,3 +19,4 @@ database.ini*
 # IntelliJ IDEA files
 .idea
 *.iml
+/.phpunit.cache
