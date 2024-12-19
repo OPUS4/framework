@@ -177,7 +177,11 @@
                 </xsl:element>
             </xsl:if>
 
-            <xsl:apply-templates select="Licence"/>
+            <xsl:if test="Licence">
+                <xsl:element name="rightsList">
+                    <xsl:apply-templates select="Licence"/>
+                </xsl:element>
+            </xsl:if>
 
             <xsl:if test="TitleAbstract or Series">
                 <xsl:element name="descriptions">
@@ -365,7 +369,7 @@
         </xsl:element>
     </xsl:template>
 
-	<xsl:template match="PersonEditor" mode="creator">
+    <xsl:template match="PersonEditor" mode="creator">
         <xsl:element name="creator">
             <xsl:element name="creatorName">
                 <xsl:value-of select="@LastName"/>
@@ -373,7 +377,7 @@
                     <xsl:text>, </xsl:text>
                 </xsl:if>
                 <xsl:value-of select="@FirstName"/>
-				<xsl:text> (Ed.)</xsl:text>
+                <xsl:text> (Ed.)</xsl:text>
             </xsl:element>
             <xsl:if test="@FirstName">
                 <xsl:element name="givenName">
@@ -486,13 +490,11 @@
     </xsl:template>
 
     <xsl:template match="Licence">
-        <xsl:element name="rightsList">
-            <xsl:element name="rights">
-                <xsl:attribute name="rightsURI">
-                    <xsl:value-of select="@LinkLicence"/>
-                </xsl:attribute>
-                <xsl:value-of select="@NameLong"/>
-            </xsl:element>
+        <xsl:element name="rights">
+            <xsl:attribute name="rightsURI">
+                <xsl:value-of select="@LinkLicence"/>
+            </xsl:attribute>
+            <xsl:value-of select="@NameLong"/>
         </xsl:element>
     </xsl:template>
 
