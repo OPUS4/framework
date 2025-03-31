@@ -1635,10 +1635,29 @@ class PersonRepositoryTest extends TestCase
         ], $result);
     }
 
-    public function testGetOrcidInfo()
+    public function testGetAllIdentifierOrcid()
     {
-        $this->markTestIncomplete('TODO');
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('1111-2222-3333-4444');
+        $person->store();
+
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('111102222');
+        $person->store();
+
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('111102222');
+        $person->store();
+
         $persons = Repository::getInstance()->getModelRepository(Person::class);
+
+        $info = $persons->getAllIdentifierOrcid();
+
+        $this->assertIsArray($info);
+        $this->assertCount(2, $info);
     }
 
     public function testNormalizeOrcidValues()
