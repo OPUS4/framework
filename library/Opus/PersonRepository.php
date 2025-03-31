@@ -612,13 +612,15 @@ class PersonRepository implements PersonRepositoryInterface
      *
      * @return array
      */
-    public function getOrcidInfo()
+    public function getAllIdentifierOrcid()
     {
-        $table  = TableGateway::getInstance(self::$personTableClass);
-        $select = $table->select()->from($table, 'identifier_orcid')
-            ->where('identifier_orcid IS NOT NULL');
+        $table    = TableGateway::getInstance(self::$personTableClass);
+        $database = $table->getAdapter();
+        $select   = $table->select()->from($table, 'identifier_orcid')
+            ->where('identifier_orcid IS NOT NULL')
+            ->distinct();
 
-        return $table->fetchAll();
+        return $database->fetchCol($select);
     }
 
     /**
