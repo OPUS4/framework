@@ -179,7 +179,7 @@ class PersonTest extends TestCase
     {
         $person = Person::new();
         $person->setLastName('Tester');
-        $person->setIdentifierOrcid('http://orcid.org/0000-0002-1694-233X');
+        $person->setIdentifierOrcid('0000-0002-1694-233X');
         $person->setIdentifierGnd('test_gnd_identifier');
         $person->setIdentifierMisc('myid');
 
@@ -187,9 +187,42 @@ class PersonTest extends TestCase
 
         $person = Person::get($personId);
 
-        $this->assertEquals('http://orcid.org/0000-0002-1694-233X', $person->getIdentifierOrcid());
+        $this->assertEquals('0000-0002-1694-233X', $person->getIdentifierOrcid());
         $this->assertEquals('test_gnd_identifier', $person->getIdentifierGnd());
         $this->assertEquals('myid', $person->getIdentifierMisc());
+    }
+
+    public function testStoreIdentifierOrcidRemoveUrlHttp()
+    {
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('http://orcid.org/0000-0002-1694-233X');
+
+        $person = Person::get($person->store());
+
+        $this->assertEquals('0000-0002-1694-233X', $person->getIdentifierOrcid());
+    }
+
+    public function testStoreIdentifierOrcidRemoveUrlHttps()
+    {
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('https://orcid.org/0000-0002-1694-233X');
+
+        $person = Person::get($person->store());
+
+        $this->assertEquals('0000-0002-1694-233X', $person->getIdentifierOrcid());
+    }
+
+    public function testStoreIdentifierOrcidInvalidValue()
+    {
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('000000002-1694-2338');
+
+        $person = Person::get($person->store());
+
+        $this->assertEquals('000000002-1694-2338', $person->getIdentifierOrcid());
     }
 
     /**

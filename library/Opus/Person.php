@@ -493,4 +493,17 @@ class Person extends AbstractDb implements PersonInterface
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
+
+    /**
+     * Normalize ORCID values before storing.
+     *
+     * @param string|null $orcidValue
+     */
+    protected function _storeIdentifierOrcid($orcidValue)
+    {
+        if ($orcidValue !== null) {
+            $orcidValue = preg_replace('/^https?:\/\/orcid.org\//' , '', $orcidValue);
+        }
+        $this->primaryTableRow->identifier_orcid = $orcidValue;
+    }
 }
