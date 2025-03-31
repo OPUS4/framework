@@ -128,8 +128,8 @@ class PersonRepository implements PersonRepositoryInterface
     /**
      * Returns total count of persons for role and filter string.
      *
-     * @param null $role
-     * @param null $filter
+     * @param null|string $role
+     * @param null|string $filter
      * @return mixed
      */
     public function getAllPersonsCount($role = null, $filter = null)
@@ -196,7 +196,7 @@ class PersonRepository implements PersonRepositoryInterface
      * @param string|null $state
      * @param string|null $role
      * @param string|null $sort
-     * @param boolean     $order
+     * @param bool        $order
      * @return array
      */
     public function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
@@ -280,7 +280,7 @@ class PersonRepository implements PersonRepositoryInterface
      * Returns the value of matching person objects.
      *
      * @param string[] $person
-     * @return array
+     * @return array|null
      */
     public function getPersonValues($person)
     {
@@ -365,7 +365,7 @@ class PersonRepository implements PersonRepositoryInterface
     /**
      * @param string[]   $person
      * @param int[]|null $documents
-     * @return array|mixed|null
+     * @return array|null
      * @throws Zend_Db_Select_Exception
      */
     public function getPersonsAndDocuments($person, $documents = null)
@@ -401,11 +401,11 @@ class PersonRepository implements PersonRepositoryInterface
      *
      * Optionally the scope can be limited to specified set of documents.
      *
-     * @param array $person Criteria for matching persons
-     * @param array $changes Map of column names and new values
-     * @param null                                       $documents Array with document Ids
+     * @param array       $person Criteria for matching persons
+     * @param array       $changes Map of column names and new values
+     * @param null|array  $documents Array with document Ids
      *
-     *                                       TODO update ServerDateModified for modified documents (How?)
+     * TODO update ServerDateModified for modified documents (How?)
      */
     public function updateAll($person, $changes, $documents = null)
     {
@@ -552,8 +552,8 @@ class PersonRepository implements PersonRepositoryInterface
     /**
      * Constructs select statement for getting all persons matching criteria.
      *
-     * @param null $role
-     * @param null $filter
+     * @param null|string $role
+     * @param null|string $filter
      * @return Zend_Db_Select
      *
      * TODO should be protected, or?
