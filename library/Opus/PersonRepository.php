@@ -401,9 +401,9 @@ class PersonRepository implements PersonRepositoryInterface
      *
      * Optionally the scope can be limited to specified set of documents.
      *
-     * @param array       $person Criteria for matching persons
-     * @param array       $changes Map of column names and new values
-     * @param null|array  $documents Array with document Ids
+     * @param array      $person Criteria for matching persons
+     * @param array      $changes Map of column names and new values
+     * @param null|array $documents Array with document Ids
      *
      * TODO update ServerDateModified for modified documents (How?)
      */
