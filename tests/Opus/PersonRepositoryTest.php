@@ -1660,9 +1660,44 @@ class PersonRepositoryTest extends TestCase
         $this->assertCount(2, $info);
     }
 
-    public function testNormalizeOrcidValues()
+    /**
+     * @return array[]
+     */
+    public static function orcidProvider()
     {
-        $this->markTestIncomplete('TODO');
+        return [
+            [' http://orcid.org/1111-2222-3333-4444', '1111-2222-3333-4444'],
+            [' HTTP://orcid.org/2222-2222-2222-2222', '2222-2222-2222-2222'],
+            ['https://orcid.org/3333-3333-3333-333X ', '3333-3333-3333-333X'],
+            ['HTTPS://orcid.org/111102222 ', '111102222'],
+            ['1111-2222-3333', '1111-2222-3333'],
+            ['3333-3333-3333-333x', '3333-3333-3333-333x'],
+        ];
+    }
+
+    /**
+     * @param string $orcid
+     * @param string $expected
+     * @dataProvider orcidProvider
+     */
+    public function testNormalizeOrcidValues($orcid, $expected)
+    {
+        $person = Person::new();
+        $person::setFilterEnabled(false);
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid($orcid);
+        $person->store();
+        $person::setFilterEnabled(true);
+
+        $persons = Repository::getInstance()->getModelRepository(Person::class);
+
+        $persons->normalizeOrcidValues();
+
+        $values = $persons->getAllidentifierOrcid();
+
+        $this->assertIsArray($values);
+        $this->assertCount(1, $values);
+        $this->assertEquals($expected, $values[0]);
     }
 
     /**

@@ -410,12 +410,12 @@ class PersonRepository implements PersonRepositoryInterface
     public function updateAll($person, $changes, $documents = null)
     {
         if (empty($person)) {
-            // TODO do logging?
+            // TODO logging?
             return;
         }
 
         if (empty($changes)) {
-            // TODO do logging?
+            // TODO logging?
             return;
         }
 
@@ -564,8 +564,6 @@ class PersonRepository implements PersonRepositoryInterface
 
         $table = TableGateway::getInstance(self::$personTableClass);
 
-        $result = null;
-
         $identityColumns = ['last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc'];
 
         $trimmedColumns = array_map(function ($value) {
@@ -628,5 +626,20 @@ class PersonRepository implements PersonRepositoryInterface
      */
     public function normalizeOrcidValues()
     {
+        $database = TableGateway::getInstance(self::$personTableClass)->getAdapter();
+
+        $sql = <<<SQL
+UPDATE persons SET identifier_orcid = REPLACE(UPPER(identifier_orcid), 'HTTPS://ORCID.ORG/', '') 
+               WHERE UPPER(identifier_orcid) LIKE 'HTTPS://ORCID.ORG/%'
+SQL;
+
+        $database->query($sql);
+
+        $sql = <<<SQL
+UPDATE persons SET identifier_orcid = REPLACE(UPPER(identifier_orcid), 'HTTP://ORCID.ORG/', '') 
+               WHERE UPPER(identifier_orcid) LIKE 'HTTP://ORCID.ORG/%'
+SQL;
+
+        $database->query($sql);
     }
 }
