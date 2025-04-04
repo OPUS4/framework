@@ -1635,7 +1635,7 @@ class PersonRepositoryTest extends TestCase
         ], $result);
     }
 
-    public function testGetAllIdentifierOrcid()
+    public function testGetAllUniqueIdentifierOrcid()
     {
         $person = Person::new();
         $person->setLastName('Tester');
@@ -1654,7 +1654,7 @@ class PersonRepositoryTest extends TestCase
 
         $persons = Repository::getInstance()->getModelRepository(Person::class);
 
-        $info = $persons->getAllIdentifierOrcid();
+        $info = $persons->getAllUniqueIdentifierOrcid();
 
         $this->assertIsArray($info);
         $this->assertCount(2, $info);
@@ -1693,11 +1693,51 @@ class PersonRepositoryTest extends TestCase
 
         $persons->normalizeOrcidValues();
 
-        $values = $persons->getAllidentifierOrcid();
+        $values = $persons->getAllUniqueIdentifierOrcid();
 
         $this->assertIsArray($values);
         $this->assertCount(1, $values);
         $this->assertEquals($expected, $values[0]);
+    }
+
+    public function testGetAllIdentifierOrcid()
+    {
+        $doc1   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test1');
+        $person->setIdentifierOrcid('1111-2222-3333-4444');
+        $doc1->addPersonAuthor($person);
+        $docId1    = (int) $doc1->store();
+        $personId1 = $doc1->getPersonAuthor()[0]->getModel()->getId();
+
+        $doc2   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test2');
+        $person->setIdentifierOrcid('2222-2222-2222-2222');
+        $doc2->addPersonAuthor($person);
+        $docId2    = (int) $doc2->store();
+        $personId2 = $doc2->getPersonAuthor()[0]->getModel()->getId();
+
+        $doc3   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test3');
+        $person->setIdentifierOrcid('1111-2222-3333-4444');
+        $doc3->addPersonAuthor($person);
+        $docId3    = (int) $doc3->store();
+        $personId3 = $doc3->getPersonAuthor()[0]->getModel()->getId();
+
+        $persons = Repository::getInstance()->getModelRepository(Person::class);
+
+        $result = $persons->getAllIdentifierOrcid();
+
+        $this->assertEquals(
+            [
+                ['documentId' => $docId1, 'personId' => $personId1, 'orcidId' => '1111-2222-3333-4444'],
+                ['documentId' => $docId2, 'personId' => $personId2, 'orcidId' => '2222-2222-2222-2222'],
+                ['documentId' => $docId3, 'personId' => $personId3, 'orcidId' => '1111-2222-3333-4444'],
+            ],
+            $result
+        );
     }
 
     /**

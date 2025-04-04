@@ -604,13 +604,13 @@ class PersonRepository implements PersonRepositoryInterface
     }
 
     /**
-     * Returns statistical information on ORCID values for persons in database.
+     * Returns all unique ORCID values from the database.
      *
      * TODO Can this be separated from the core functionality, like and extension of a "PersonRepository"?
      *
-     * @return array
+     * @return string[]
      */
-    public function getAllIdentifierOrcid()
+    public function getAllUniqueIdentifierOrcid()
     {
         $table    = TableGateway::getInstance(self::$personTableClass);
         $database = $table->getAdapter();
@@ -619,6 +619,33 @@ class PersonRepository implements PersonRepositoryInterface
             ->distinct();
 
         return $database->fetchCol($select);
+    }
+
+    /**
+     * Return all ORCID IDs with document and person database IDs.
+     *
+     * @return array
+     */
+    public function getAllIdentifierOrcid()
+    {
+        $table    = TableGateway::getInstance(self::$personTableClass);
+        $database = $table->getAdapter();
+        $select   = $table->select();
+
+        $select->from(
+            ['p' => 'persons'],
+            []
+        )->join(
+            ['link' => 'link_persons_documents'],
+            'link.person_id = p.id',
+            []
+        )->columns(
+            ['link.document_id AS documentId', 'link.person_id AS personId', 'p.identifier_orcid AS orcidId']
+        )->where('identifier_orcid IS NOT NULL');
+
+        $select->setIntegrityCheck(false);
+
+        return $database->fetchAll($select);
     }
 
     /**
