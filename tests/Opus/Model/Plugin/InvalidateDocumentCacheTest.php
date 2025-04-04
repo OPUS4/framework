@@ -692,4 +692,15 @@ class InvalidateDocumentCacheTest extends TestCase
             'ServerDateModified of document should not have changed.'
         );
     }
+
+    public function testStoringUnchangedDocumentDoesNotUpdateServerDateModified()
+    {
+        $doc = new Document();
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+        sleep(2);
+        $doc->store();
+        $this->assertEquals($lastModified, $doc->getServerDateModified()->getUnixTimestamp());
+    }
 }
