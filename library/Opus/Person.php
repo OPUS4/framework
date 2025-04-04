@@ -92,6 +92,9 @@ class Person extends AbstractDb implements PersonInterface
      */
     protected static $tableGatewayClass = Db\Persons::class;
 
+    /** @var bool Filtering of ORCID values TODO replace with filter configuration in field descriptor */
+    private static $filterEnabled = true;
+
     /**
      * Plugins to load
      *
@@ -501,9 +504,31 @@ class Person extends AbstractDb implements PersonInterface
      */
     protected function _storeIdentifierOrcid($orcidValue)
     {
-        if ($orcidValue !== null) {
+        if ($orcidValue !== null && static::$filterEnabled) {
             $orcidValue = preg_replace('/^https?:\/\/orcid.org\//' , '', $orcidValue);
         }
         $this->primaryTableRow->identifier_orcid = $orcidValue;
+    }
+
+    /**
+     * TODO hack to disable OCRID filtering for tests
+     * TODO replace with filter configuration in field descriptor for ORCID field; changing the configuration allows
+     *      adding/removing filtering
+     *
+     * @return bool
+     */
+    public static function isFilterEnabled()
+    {
+        return static::$filterEnabled;
+    }
+
+    /**
+     * TODO hack to disable OCRID filtering for tests; replace with field descriptor configuration
+     *
+     * @param bool $enabled
+     */
+    public static function setFilterEnabled($enabled = true)
+    {
+        static::$filterEnabled = $enabled;
     }
 }
