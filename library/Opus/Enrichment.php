@@ -83,6 +83,14 @@ class Enrichment extends AbstractDependentModel implements EnrichmentInterface, 
     }
 
     /**
+     * @return array
+     */
+    public function getDefaultPlugins()
+    {
+        return [];
+    }
+
+    /**
      * Returns the associated enrichment key or null if it does not exist.
      *
      * @return EnrichmentKey|null
