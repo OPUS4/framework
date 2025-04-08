@@ -669,4 +669,22 @@ SQL;
 
         $database->query($sql);
     }
+
+    /**
+     * @param string $oldOrcid
+     * @param string $newOrcid
+     */
+    public function replaceOrcid($oldOrcid, $newOrcid)
+    {
+        $database = TableGateway::getInstance(self::$personTableClass)->getAdapter();
+
+        $quotedNewOrcid = $database->quote($newOrcid);
+        $quotedOldOrcid = $database->quote($oldOrcid);
+
+        $sql = <<<SQL
+UPDATE persons SET identifier_orcid = $quotedNewOrcid WHERE identifier_orcid = $quotedOldOrcid; 
+SQL;
+
+        $database->query($sql);
+    }
 }
