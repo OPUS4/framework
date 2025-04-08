@@ -708,7 +708,7 @@ SQL;
         return $database->fetchOne($sql);
     }
 
-    /**  
+    /**
      * @param string $oldOrcid
      * @param string $newOrcid
      */

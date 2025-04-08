@@ -1846,7 +1846,7 @@ class PersonRepositoryTest extends TestCase
 
         $this->assertEquals(0, $persons->getOrphanedPersonsCount());
     }
-  
+
     public function testReplaceOrcid()
     {
         $doc    = Document::new();
