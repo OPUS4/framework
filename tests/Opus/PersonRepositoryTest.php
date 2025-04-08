@@ -36,6 +36,7 @@ use Opus\Common\Date;
 use Opus\Common\Document;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\ModelRepositoryInterface;
+use Opus\Common\Model\NotFoundException;
 use Opus\Common\Person;
 use Opus\Common\Repository;
 use Opus\Db\Persons;
@@ -1738,6 +1739,112 @@ class PersonRepositoryTest extends TestCase
             ],
             $result
         );
+    }
+
+    public function testDeleteOrphanedPersons()
+    {
+        $doc1   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test1');
+        $person->setIdentifierOrcid('1111-2222-3333-4444');
+        $doc1->addPersonAuthor($person);
+        $docId1    = (int) $doc1->store();
+        $personId1 = $doc1->getPersonAuthor()[0]->getModel()->getId();
+
+        $doc2   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test2');
+        $person->setIdentifierOrcid('2222-2222-2222-2222');
+        $doc2->addPersonAuthor($person);
+        $docId2    = (int) $doc2->store();
+        $personId2 = $doc2->getPersonAuthor()[0]->getModel()->getId();
+
+        $doc1 = Document::get($docId1);
+        $doc1->delete();
+
+        $orphan = Person::get($personId1);
+        $this->assertNotNull($orphan);
+
+        $persons = $this->getPersonRepository();
+
+        $persons->deleteOrphanedPersons();
+
+        $person2 = Person::get($personId2);
+        $this->assertNotNull($person2);
+
+        $this->expectException(NotFoundException::class);
+        Person::get($personId1);
+    }
+
+    public function testDeleteOrphanedPersonsKeepPersonsWithIdentifiers()
+    {
+        $doc1   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test1');
+        $person->setIdentifierOrcid('1111-2222-3333-4444');
+        $doc1->addPersonAuthor($person);
+        $docId1    = (int) $doc1->store();
+        $personId1 = $doc1->getPersonAuthor()[0]->getModel()->getId();
+
+        $doc2   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test2');
+        $doc2->addPersonAuthor($person);
+        $docId2    = (int) $doc2->store();
+        $personId2 = $doc2->getPersonAuthor()[0]->getModel()->getId();
+
+        $doc1 = Document::get($docId1);
+        $doc1->delete();
+
+        $doc2 = Document::get($docId2);
+        $doc2->delete();
+
+        $person1 = Person::get($personId1);
+        $this->assertNotNull($person1);
+
+        $person2 = Person::get($personId2);
+        $this->assertNotNull($person2);
+
+        $persons = $this->getPersonRepository();
+
+        $persons->deleteOrphanedPersons(true);
+
+        $person1 = Person::get($personId1);
+        $this->assertNotNull($person1);
+
+        $this->expectException(NotFoundException::class);
+        Person::get($personId2);
+    }
+
+    public function testGetOrphanedPersonsCount()
+    {
+        $doc1   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test1');
+        $person->setIdentifierOrcid('1111-2222-3333-4444');
+        $doc1->addPersonAuthor($person);
+        $docId1 = (int) $doc1->store();
+
+        $doc2   = Document::new();
+        $person = Person::new();
+        $person->setLastName('Test2');
+        $doc2->addPersonAuthor($person);
+        $docId2 = (int) $doc2->store();
+
+        $doc1 = Document::get($docId1);
+        $doc1->delete();
+
+        $doc2 = Document::get($docId2);
+        $doc2->delete();
+
+        $persons = $this->getPersonRepository();
+
+        // 10 orphans are generated in setUp
+        $this->assertEquals(12, $persons->getOrphanedPersonsCount());
+
+        $persons->deleteOrphanedPersons();
+
+        $this->assertEquals(0, $persons->getOrphanedPersonsCount());
     }
 
     public function testReplaceOrcid()
