@@ -669,4 +669,42 @@ SQL;
 
         $database->query($sql);
     }
+
+    /**
+     * @param bool $keepPersonsWithIdentifiers
+     */
+    public function deleteOrphanedPersons($keepPersonsWithIdentifiers = false)
+    {
+        $database = TableGateway::getInstance(self::$personTableClass)->getAdapter();
+
+        if ($keepPersonsWithIdentifiers) {
+            $sql = <<<SQL
+DELETE FROM persons 
+       WHERE id NOT IN (SELECT DISTINCT(person_id) FROM link_persons_documents)
+         AND identifier_orcid IS NULL
+         AND identifier_gnd IS NULL
+         AND identifier_misc IS NULL
+SQL;
+        } else {
+            $sql = <<<SQL
+DELETE FROM persons WHERE id NOT IN (SELECT DISTINCT(person_id) FROM link_persons_documents) 
+SQL;
+        }
+
+        $database->query($sql);
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrphanedPersonsCount()
+    {
+        $database = TableGateway::getInstance(self::$personTableClass)->getAdapter();
+
+        $sql = <<<SQL
+SELECT COUNT(id) FROM persons WHERE id NOT IN (SELECT DISTINCT(person_id) FROM link_persons_documents)
+SQL;
+
+        return $database->fetchOne($sql);
+    }
 }
