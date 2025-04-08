@@ -1690,7 +1690,7 @@ class PersonRepositoryTest extends TestCase
         $person->store();
         $person::setFilterEnabled(true);
 
-        $persons = Repository::getInstance()->getModelRepository(Person::class);
+        $persons = $this->getPersonRepository();
 
         $persons->normalizeOrcidValues();
 
@@ -1727,7 +1727,7 @@ class PersonRepositoryTest extends TestCase
         $docId3    = (int) $doc3->store();
         $personId3 = $doc3->getPersonAuthor()[0]->getModel()->getId();
 
-        $persons = Repository::getInstance()->getModelRepository(Person::class);
+        $persons = $this->getPersonRepository();
 
         $result = $persons->getAllIdentifierOrcid();
 
@@ -1845,6 +1845,24 @@ class PersonRepositoryTest extends TestCase
         $persons->deleteOrphanedPersons();
 
         $this->assertEquals(0, $persons->getOrphanedPersonsCount());
+    }
+  
+    public function testReplaceOrcid()
+    {
+        $doc    = Document::new();
+        $person = Person::new();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('1111-2222-3333-444');
+        $doc->addPersonAuthor($person);
+        $docId = (int) $doc->store();
+
+        $persons = $this->getPersonRepository();
+
+        $persons->replaceOrcid('1111-2222-3333-444', '1111-2222-3333-444X');
+
+        $doc    = Document::get($docId);
+        $person = $doc->getPersonAuthor(0);
+        $this->assertEquals('1111-2222-3333-444X', $person->getIdentifierOrcid());
     }
 
     /**
