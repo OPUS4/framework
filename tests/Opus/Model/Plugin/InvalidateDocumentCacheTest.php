@@ -108,7 +108,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $doc1   = new Document();
         $doc1->registerPlugin(new XmlCache());
         $docIds[] = $doc1->setType("article")
-                ->setServerState('published');
+            ->setServerState('published');
 
 //        $doc1->addLicence($licence);
         $doc1->addCollection($this->collection);
@@ -127,7 +127,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $doc2->registerPlugin(new XmlCache());
 
         $docIds[] = $doc2->setType("article")
-                ->setServerState('unpublished');
+            ->setServerState('unpublished');
 
         $author = new Person();
         try {
@@ -200,8 +200,8 @@ class InvalidateDocumentCacheTest extends TestCase
         $doc3->registerPlugin(new XmlCache());
 
         $doc3Id = $docIds[] = $doc3->setType("preprint")
-                ->setServerState('unpublished')
-                ->store();
+            ->setServerState('unpublished')
+            ->store();
         $this->assertTrue(
             $xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()),
             'Expected valid cache entry for doc3 after creation. id: ' . $doc3->getId()
@@ -210,7 +210,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $doc4 = new Document();
         $doc4->registerPlugin(new XmlCache());
         $docIds[] = $doc4->setType("preprint")
-                ->setServerState('unpublished');
+            ->setServerState('unpublished');
 
 //        $doc4->addLicence($licence);
         $doc4->addCollection($this->collection);
@@ -366,7 +366,7 @@ class InvalidateDocumentCacheTest extends TestCase
         $doc = new Document();
         $doc->registerPlugin(new XmlCache());
         $doc->setType("article")
-                ->setServerState('published');
+            ->setServerState('published');
 
         $doc->addCollection($this->collection);
         $docId              = $doc->store();
@@ -386,7 +386,7 @@ class InvalidateDocumentCacheTest extends TestCase
     {
         $doc = new Document();
         $doc->setType("article")
-                ->setServerState('published');
+            ->setServerState('published');
         $docId = $doc->store();
 
         $licence = new Licence();
@@ -691,5 +691,16 @@ class InvalidateDocumentCacheTest extends TestCase
             $doc->getServerDateModified()->getUnixTimestamp(),
             'ServerDateModified of document should not have changed.'
         );
+    }
+
+    public function testStoringUnchangedDocumentDoesNotUpdateServerDateModified()
+    {
+        $doc = new Document();
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+        sleep(2);
+        $doc->store();
+        $this->assertEquals($lastModified, $doc->getServerDateModified()->getUnixTimestamp());
     }
 }

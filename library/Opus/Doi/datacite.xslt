@@ -173,7 +173,11 @@
                 </xsl:element>
             </xsl:if>
 
-            <xsl:apply-templates select="Licence"/>
+            <xsl:if test="Licence">
+                <xsl:element name="rightsList">
+                    <xsl:apply-templates select="Licence"/>
+                </xsl:element>
+            </xsl:if>
 
             <xsl:if test="TitleAbstract or Series">
                 <xsl:element name="descriptions">
@@ -685,13 +689,11 @@
     </xsl:template>
 
     <xsl:template match="Licence">
-        <xsl:element name="rightsList">
-            <xsl:element name="rights">
-                <xsl:attribute name="rightsURI">
-                    <xsl:value-of select="@LinkLicence"/>
-                </xsl:attribute>
-                <xsl:value-of select="@NameLong"/>
-            </xsl:element>
+        <xsl:element name="rights">
+            <xsl:attribute name="rightsURI">
+                <xsl:value-of select="@LinkLicence"/>
+            </xsl:attribute>
+            <xsl:value-of select="@NameLong"/>
         </xsl:element>
     </xsl:template>
 

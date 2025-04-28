@@ -36,8 +36,8 @@ use Opus\Common\DocumentInterface;
 use Opus\Common\Model\ModelException;
 use Opus\Document;
 use Opus\DocumentRepository;
+use Opus\EnrichmentKey;
 use Opus\ModelFactory;
-use Opus\Person;
 use OpusTest\TestAsset\TestCase;
 
 class ModelFactoryTest extends TestCase
@@ -82,9 +82,9 @@ class ModelFactoryTest extends TestCase
     {
         $modelFactory = new ModelFactory();
 
-        $personRepository = $modelFactory->getRepository('Person');
+        $personRepository = $modelFactory->getRepository('EnrichmentKey');
 
-        $this->assertInstanceOf(Person::class, $personRepository);
+        $this->assertInstanceOf(EnrichmentKey::class, $personRepository);
     }
 
     public function testGetRepositoryUnknownType()
