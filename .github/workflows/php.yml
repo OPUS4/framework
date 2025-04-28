@@ -32,7 +32,8 @@ jobs:
         run: php -v
 
       - name: Update Ubuntu packages
-        run: sudo apt-get update
+        run: echo "temporarily disabled"
+        # run: sudo apt-get update
 
       - name: Install Composer and Dependencies
         run: curl -s http://getcomposer.org/installer | php && php composer.phar self-update && php composer.phar install
