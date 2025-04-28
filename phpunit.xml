@@ -1,32 +1,24 @@
 <?xml version="1.0"?>
 <!-- see http://www.phpunit.de/wiki/Documentation -->
 <!-- Options copy-pasted from phpUnderControl documentation -->
-
-<phpunit bootstrap="./tests/Bootstrap.php"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         bootstrap="./tests/Bootstrap.php"
          colors="false"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          stopOnFailure="false"
-         processIsolation="false">
-
-    <testsuite name="FrameworkTests">
-        <directory>./tests</directory>
-    </testsuite>
-
-    <logging>
-        <log type="junit" target="./build/logs/phpunit.xml" />
-    </logging>
-
-    <!-- Define directories/files filter for code coverage. -->
-    <filter>
-        <!-- Define directories to include. -->
-        <whitelist>
-            <directory suffix=".php">./library/Opus</directory>
-            <exclude>
-                <!-- <file>./library/Opus/...</file> -->
-            </exclude>
-        </whitelist>
-    </filter>
-
+         processIsolation="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         cacheDirectory=".phpunit.cache">
+  <testsuite name="FrameworkTests">
+    <directory>./tests</directory>
+  </testsuite>
+  <logging>
+    <junit outputFile="./build/logs/phpunit.xml"/>
+  </logging>
+  <!-- Define directories/files filter for code coverage. -->
+  <source>
+    <include>
+      <directory suffix=".php">./library/Opus</directory>
+    </include>
+    <exclude/>
+  </source>
 </phpunit>

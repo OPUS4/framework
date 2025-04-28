@@ -274,7 +274,7 @@ class FileTest extends TestCase
         $this->assertFileExists($expectedPath, 'File should still exist.');
 
         $token = $file->doDelete($token);
-        $this->assertFileNotExists($expectedPath, 'File should be deleted.');
+        $this->assertFileDoesNotExist($expectedPath, 'File should be deleted.');
         $this->assertFalse(file_exists($workingDir));
         $this->assertFalse(is_dir($workingDir));
     }
@@ -318,7 +318,7 @@ class FileTest extends TestCase
         );
 
         $doc->store();
-        $this->assertFileNotExists(
+        $this->assertFileDoesNotExist(
             $this->destPath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
             'File has not been deleted after storing the model.'
         );
@@ -390,7 +390,7 @@ class FileTest extends TestCase
             'Expecting file renamed properly.'
         );
 
-        $this->assertFileNotExists($path . $fileNameWrong, 'Expecting old file removed.');
+        $this->assertFileDoesNotExist($path . $fileNameWrong, 'Expecting old file removed.');
     }
 
     /**

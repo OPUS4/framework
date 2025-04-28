@@ -74,14 +74,14 @@ class AbstractDbTest extends TestCase
      *
      * @return array Array containing arrays of id and value pairs.
      */
-    public function abstractDataSetDataProvider()
+    public static function abstractDataSetDataProvider()
     {
         return [
-            ['testtable_id' => 1, 'value' => 'foobar'],
-            ['testtable_id' => 3, 'value' => 'foo'],
-            ['testtable_id' => 4, 'value' => 'bar'],
-            ['testtable_id' => 5, 'value' => 'bla'],
-            ['testtable_id' => 8, 'value' => 'blub'],
+            [1, 'foobar'],
+            [3, 'foo'],
+            [4, 'bar'],
+            [5, 'bla'],
+            [8, 'blub'],
         ];
     }
 
@@ -97,10 +97,8 @@ class AbstractDbTest extends TestCase
             value        VARCHAR(255))');
 
         // load table data
-        foreach ($this->abstractDataSetDataProvider() as $row) {
-            $dba->query('INSERT INTO testtable (testtable_id, value) VALUES ( ' .
-                $row['testtable_id'] . ', "' . $row['value'] .'")'
-            );
+        foreach (self::abstractDataSetDataProvider() as $row) {
+            $dba->query("INSERT INTO testtable (testtable_id, value) VALUES ({$row[0]}, \"{$row[1]}\")");
         }
 
         parent::setUp();
@@ -295,7 +293,7 @@ class AbstractDbTest extends TestCase
         // A record with id 1 is created by setUp()
         // So create a mocked Model to detect certain calls
         $mock = $this->getMockBuilder(AbstractDbMock::class)
-            ->setMethods(['_storeInternalFields', '_storeExternalFields'])
+            ->onlyMethods(['_storeInternalFields', '_storeExternalFields'])
             ->setConstructorArgs([1])
             ->getMock();
 
@@ -652,7 +650,7 @@ class AbstractDbTest extends TestCase
 
         // mock external field
         $mockFieldExternalModel = $this->getMockBuilder(Field::class)
-            ->setMethods(['clearModified'])
+            ->onlyMethods(['clearModified'])
             ->setConstructorArgs(['ExternalField'])
             ->getMock();
 
@@ -770,7 +768,7 @@ class AbstractDbTest extends TestCase
     *
     * @return array Method names.
     */
-    public function pluginCallnameProvider()
+    public static function pluginCallnameProvider()
     {
         return [
             ['store', 'preStore'],
@@ -854,7 +852,7 @@ class AbstractDbTest extends TestCase
         $model = new AbstractDbMock();
 
         $plugin = $this->getMockBuilder(AbstractPlugin::class)
-            ->setMethods(['postStoreInternal'])
+            ->onlyMethods(['postStoreInternal'])
             ->getMock();
 
         $plugin->expects($this->never())
@@ -874,7 +872,7 @@ class AbstractDbTest extends TestCase
         $model = new AbstractDbMock();
 
         $plugin = $this->getMockBuilder(AbstractPlugin::class)
-            ->setMethods(['postStoreInternal'])
+            ->onlyMethods(['postStoreInternal'])
             ->getMock();
 
         $plugin->expects($this->never())
@@ -894,7 +892,7 @@ class AbstractDbTest extends TestCase
         $model = new AbstractDbMock();
 
         $plugin = $this->getMockBuilder(AbstractPlugin::class)
-            ->setMethods(['postStoreInternal'])
+            ->onlyMethods(['postStoreInternal'])
             ->getMock();
 
         $plugin->expects($this->never())

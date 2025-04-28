@@ -25,39 +25,75 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
-namespace Opus\Enrichment;
+namespace OpusTest;
 
-use Admin_Form_Document_Enrichment;
+use Opus\Common\Config;
+use Opus\Common\Document;
+use Opus\Model\DbException;
+use OpusTest\TestAsset\TestCase;
 
 /**
- * phpcs:disable
+ * Test cases for class Opus\Document and field PublicationState.
  */
-class BooleanType extends AbstractType
+class DocumentPublicationStateTest extends TestCase
 {
-    public function getFormElementName()
+    /**
+     * Set up test fixture.
+     */
+    public function setUp(): void
     {
-        return 'Checkbox';
+        // Set up a mock language list.
+        $list = ['de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch'];
+        Config::getInstance()->setAvailableLanguages($list);
+
+        parent::setUp();
+
+        $this->clearTables(false);
     }
 
-    public function getFormElement($value = null)
+    public function tearDown(): void
     {
-        $form    = new Admin_Form_Document_Enrichment();
-        $options = ['required' => true]; // FIXME überhaupt erforderlich?
-        $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
-        $element->removeDecorator('Label'); // kein Label anzeigen
+        $document = Document::new();
+        $document->setDefaultPlugins(null);
 
-        if ($value !== null) {
-            $element->setValue($value);
-        }
+        parent::tearDown();
+    }
 
-        return $element;
+    public function testDefaultPublicationStateNull()
+    {
+        $doc = Document::new();
+
+        $doc = Document::get($doc->store());
+
+        $this->assertNull($doc->getPublicationState());
+    }
+
+    public function testStorePublicationState()
+    {
+        $doc = Document::new();
+
+        $doc->setPublicationState('submittedVersion');
+
+        $docId = $doc->store();
+
+        $doc = Document::get($docId);
+
+        $this->assertEquals('submittedVersion', $doc->getPublicationState());
+    }
+
+    public function testStorePublicationStateInvalidValue()
+    {
+        $doc = Document::new();
+
+        $doc->setPublicationState('invalidState');
+
+        $this->expectException(DbException::class);
+        $this->expectExceptionMessage('truncated for column \'publication_state\'');
+
+        $doc->store();
     }
 }

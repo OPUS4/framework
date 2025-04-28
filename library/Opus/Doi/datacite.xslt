@@ -26,11 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @author      Friederike Gerland
- * @author      Carina Winter
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 -->
@@ -293,6 +289,9 @@
     <xsl:template match="PersonAuthor">
         <xsl:element name="creator">
             <xsl:element name="creatorName">
+                <xsl:attribute name="nameType">
+                    <xsl:text>Personal</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="@LastName"/>
                 <xsl:if test="@LastName and @FirstName">
                     <xsl:text>, </xsl:text>
@@ -309,9 +308,11 @@
                     <xsl:value-of select="@LastName"/>
                 </xsl:element>
             </xsl:if>
-
             <xsl:if test="@IdentifierOrcid != ''">
                 <xsl:apply-templates select="@IdentifierOrcid"/>
+            </xsl:if>
+            <xsl:if test="@IdentifierGnd != ''">
+                <xsl:apply-templates select="@IdentifierGnd"/>
             </xsl:if>
         </xsl:element>
     </xsl:template>
@@ -320,6 +321,9 @@
         <xsl:if test="../@CreatingCorporation != ''">
             <xsl:element name="creator">
                 <xsl:element name="creatorName">
+                    <xsl:attribute name="nameType">
+                        <xsl:text>Organizational</xsl:text>
+                    </xsl:attribute>
                     <xsl:value-of select="."/>
                 </xsl:element>
             </xsl:element>
@@ -332,6 +336,9 @@
                 <xsl:text>Editor</xsl:text>
             </xsl:attribute>
             <xsl:element name="contributorName">
+                <xsl:attribute name="nameType">
+                    <xsl:text>Personal</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="@LastName"/>
                 <xsl:text>, </xsl:text>
                 <xsl:value-of select="@FirstName"/>
@@ -339,12 +346,18 @@
             <xsl:if test="@IdentifierOrcid != ''">
                 <xsl:apply-templates select="@IdentifierOrcid"/>
             </xsl:if>
+            <xsl:if test="@IdentifierGnd != ''">
+                <xsl:apply-templates select="@IdentifierGnd"/>
+            </xsl:if>
         </xsl:element>
     </xsl:template>
 
     <xsl:template match="PersonEditor" mode="creator">
         <xsl:element name="creator">
             <xsl:element name="creatorName">
+                <xsl:attribute name="nameType">
+                    <xsl:text>Personal</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="@LastName"/>
                 <xsl:if test="@LastName and @FirstName">
                     <xsl:text>, </xsl:text>
@@ -362,44 +375,11 @@
                     <xsl:value-of select="@LastName"/>
                 </xsl:element>
             </xsl:if>
-
             <xsl:if test="@IdentifierOrcid != ''">
                 <xsl:apply-templates select="@IdentifierOrcid"/>
             </xsl:if>
-        </xsl:element>
-    </xsl:template>
-
-    <xsl:template match="PersonEditor" mode="creator">
-        <xsl:element name="creator">
-            <xsl:element name="creatorName">
-                <xsl:value-of select="@LastName"/>
-                <xsl:if test="@LastName and @FirstName">
-                    <xsl:text>, </xsl:text>
-                </xsl:if>
-                <xsl:value-of select="@FirstName"/>
-                <xsl:text> (Ed.)</xsl:text>
-            </xsl:element>
-            <xsl:if test="@FirstName">
-                <xsl:element name="givenName">
-                    <xsl:value-of select="@FirstName"/>
-                </xsl:element>
-            </xsl:if>
-            <xsl:if test="@LastName">
-                <xsl:element name="familyName">
-                    <xsl:value-of select="@LastName"/>
-                </xsl:element>
-            </xsl:if>
-
-            <xsl:if test="@IdentifierOrcid != ''">
-                <xsl:element name="nameIdentifier">
-                    <xsl:attribute name="schemeURI">
-                        <xsl:text>https://orcid.org/</xsl:text>
-                    </xsl:attribute>
-                    <xsl:attribute name="nameIdentifierScheme">
-                        <xsl:text>ORCID</xsl:text>
-                    </xsl:attribute>
-                    <xsl:value-of select="@IdentifierOrcid"/>
-                </xsl:element>
+            <xsl:if test="@IdentifierGnd != ''">
+                <xsl:apply-templates select="@IdentifierGnd"/>
             </xsl:if>
         </xsl:element>
     </xsl:template>
@@ -433,57 +413,276 @@
 
     <xsl:template match="@Type">
         <xsl:element name="resourceType">
-            <xsl:attribute name="resourceTypeGeneral">
-                <xsl:text>Text</xsl:text>
-            </xsl:attribute>
             <xsl:choose>
-                <xsl:when test=".='article'">
-                    <xsl:text>Journal Article</xsl:text>
+                <xsl:when test=".='annotation'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Annotation</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='bachelorthesis'">
+                <xsl:when test=".='article'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Article</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='bachelorthesis'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Bachelor Thesis</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='book'">
+                <xsl:when test=".='book'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Book</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Book</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='bookpart'">
-                    <xsl:text>Book Chapter</xsl:text>
+                <xsl:when test=".='bookpart'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>BookChapter</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Part Of A Book</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='conferenceobject'">
+                <xsl:when test=".='conferenceabstract'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Meeting Abstract</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='conferenceobject'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Conference Object</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='conferencepaper'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>ConferencePaper</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Conference Paper</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='contributiontoperiodical'">
-                    <xsl:text>Magazine Article</xsl:text>
+                <xsl:when test=".='conferenceposter'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Conference Poster</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='diplom'">
+                <xsl:when test=".='conferenceproceedings'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>ConferenceProceeding</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Conference Proceedings</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='conferenceslides'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Conference Slides</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='contributiontoperiodical'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Contribution To A Periodical</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='corrigendum'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Corrigendum</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='coursematerial'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Course Material</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='datapaper'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>DataPaper</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Data Paper</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='diplom'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Diploma Thesis</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='doctoralthesis'">
-                    <xsl:text>Dissertation</xsl:text>
+                <xsl:when test=".='doctoralthesis'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Dissertation</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>PhD Thesis</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='masterthesis'">
+                <xsl:when test=".='dynamicwebresource'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Other</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Dynamic Online Resource</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='dynamicwebresourcepart'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Other</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Part Of A Dynamic Online Resource</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='editedcollection'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Book</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Edited Collection</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='editorial'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Editorial</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='habilitation'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Dissertation</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Habilitation</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='image'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Image</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Image</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='lecture'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Lecture</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='letter'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Letter To The Editor</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='masterthesis'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Master Thesis</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='periodical'">
-                    <xsl:text>Periodical</xsl:text>
+                <xsl:when test=".='monograph'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Book</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Monograph</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='periodicalpart'">
-                    <xsl:text>Journal Issue</xsl:text>
+                <xsl:when test=".='movingimage'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Audiovisual</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Moving Image</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='report'">
+                <xsl:when test=".='musicalnotation'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Other</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Musical Notation</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='periodicalpart'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Part Of A Periodical</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='periodical'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Journal</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Periodical</xsl:text>                    
+                </xsl:when>
+               <xsl:when test=".='preprint'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Preprint</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Preprint</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='report'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Report</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Report</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='review'">
-                    <xsl:text>Book Review</xsl:text>
+                <xsl:when test=".='researcharticle'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Research Article</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='studythesis'">
+                <xsl:when test=".='researchdata'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Dataset</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Research Data</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='review'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Recension</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='reviewarticle'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Review Article</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='software'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Software</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Software</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='softwarepaper'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>JournalArticle</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Software Paper</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='sound'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Sound</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Sound</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='sourceedition'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Book</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Source Edition</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='studythesis'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Study Thesis</xsl:text>
                 </xsl:when>
-                <xsl:when test=".='workingpaper'">
+                <xsl:when test=".='website'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Other</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Website</xsl:text>
+                </xsl:when>
+                <xsl:when test=".='workingpaper'">                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Text</xsl:text>
+                    </xsl:attribute>
                     <xsl:text>Working Paper</xsl:text>
                 </xsl:when>
-                <xsl:otherwise>
-                    <xsl:text>Text</xsl:text>
+                <xsl:otherwise>                    
+                    <xsl:attribute name="resourceTypeGeneral">
+                        <xsl:text>Other</xsl:text>
+                    </xsl:attribute>
+                    <xsl:text>Other</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:element>
@@ -504,15 +703,13 @@
                 <xsl:attribute name="xml:lang">
                     <xsl:text>de</xsl:text>
                 </xsl:attribute>
-                <xsl:attribute name="schemeURI">
-                    <xsl:text>https://dewey.info/</xsl:text>
-                </xsl:attribute>
                 <xsl:attribute name="subjectScheme">
-                    <xsl:text>dewey</xsl:text>
+                    <xsl:text>ddc</xsl:text>
                 </xsl:attribute>
                 <xsl:if test="@Number">
-                    <xsl:value-of select="@Number"/>
-                    <xsl:text> </xsl:text>
+                    <xsl:attribute name="classificationCode">
+                        <xsl:value-of select="@Number"/>
+                    </xsl:attribute>
                 </xsl:if>
                 <xsl:value-of select="@Name"/>
             </xsl:element>
@@ -555,6 +752,19 @@
             <xsl:attribute name="nameIdentifierScheme">
                 <xsl:text>ORCID</xsl:text>
             </xsl:attribute>
+            <xsl:value-of select="."/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="@IdentifierGnd">
+        <xsl:element name="nameIdentifier">
+            <xsl:attribute name="schemeURI">
+                <xsl:text>https://d-nb.info/gnd/</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="nameIdentifierScheme">
+                <xsl:text>GND</xsl:text>
+            </xsl:attribute>
+            <xsl:text>https://d-nb.info/gnd/</xsl:text>
             <xsl:value-of select="."/>
         </xsl:element>
     </xsl:template>

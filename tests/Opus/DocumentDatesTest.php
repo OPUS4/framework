@@ -25,72 +25,54 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
-namespace OpusTest\Enrichment;
+namespace OpusTest;
 
-use Opus\Enrichment\TextType;
+use Opus\Common\Document;
 use OpusTest\TestAsset\TestCase;
 
-class TextTypeTest extends TestCase
+/**
+ * Test cases for class Opus\Document.
+ */
+class DocumentDatesTest extends TestCase
 {
-    public function testSetOptionsFromString()
+    public function setUp(): void
     {
-        $textType = new TextType();
-        $textType->setOptionsFromString("foo");
+        parent::setUp();
 
-        $this->assertNull($textType->getOptions());
-        $this->assertNull($textType->getOptionsAsString());
-        $this->assertFalse($textType->isStrictValidation());
+        $this->clearTables(false);
     }
 
-    public function testGetDescription()
+    public function tearDown(): void
     {
-        $textType = new TextType();
-        $this->assertEquals('admin_enrichmenttype_texttype_description', $textType->getDescription());
+        $document = Document::new();
+        $document->setDefaultPlugins(null);
+
+        parent::tearDown();
     }
 
-    public function testGetName()
+    public function testSetCompletedDateNull()
     {
-        $textType = new TextType();
-        $this->assertEquals('TextType', $textType->getName());
+        $doc = Document::new();
+        $doc->setCompletedDate(null);
+        $docId = $doc->store();
+
+        $doc = Document::get($docId);
+
+        $this->assertNull($doc->getCompletedDate());
     }
 
-    public function testGetAllEnrichmentTypesRaw()
+    public function testSetCompletedDateWithEmptyString()
     {
-        $resultArr = TextType::getAllEnrichmentTypes(true);
-        $this->assertNotEmpty($resultArr);
-    }
+        $doc = Document::new();
+        $doc->setCompletedDate('');
+        $docId = $doc->store();
 
-    public function testGetAllEnrichmentTypes()
-    {
-        $resultArr = TextType::getAllEnrichmentTypes();
-        $this->assertNotEmpty($resultArr);
-    }
+        $doc = Document::get($docId);
 
-    /**
-     * @doesNotPerformAssertions
-     */
-    public function testRobustnessOfSetOptions()
-    {
-        $textType = new TextType();
-
-        $textType->setOptions(null);
-
-        $textType->setOptions("");
-
-        $textType->setOptions("{foo}");
-
-        $textType->setOptions('{"foo":"bar"}');
-
-        $textType->setOptions(["foo"]);
-
-        $textType->setOptions(["foo" => "bar"]);
+        $this->assertNull($doc->getCompletedDate());
     }
 }

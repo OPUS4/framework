@@ -40,13 +40,15 @@ class Version
 {
     /**
      * Opus Framework version identification - see compareVersion()
+     *
+     * TODO Is this still used anywhere? Apparently it has not been updated for recent version.
      */
     public const VERSION = '4.7.1';
 
     /**
      * Version of database schema.
      */
-    public const SCHEMA_VERSION = 20;
+    public const SCHEMA_VERSION = 23;
 
     /**
      * Compare the specified Opus Framework version string $version

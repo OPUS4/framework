@@ -25,16 +25,57 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2024, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Application
- * @package     Opus\Enrichment
- * @author      Sascha Szott <opus-development@saschaszott.de>
  */
 
-namespace Opus\Enrichment;
+namespace OpusTest;
 
-class TextType extends AbstractType
+use Opus\Common\Config\ConfigException;
+use Opus\Common\Model\ModelException;
+use Opus\Common\PublicationState;
+use Opus\Common\Repository;
+use Opus\Db\TableGateway;
+use OpusTest\TestAsset\TestCase;
+use Zend_Db_Table_Exception;
+
+use function array_map;
+use function explode;
+use function preg_match;
+use function trim;
+
+/**
+ * Test cases for class Opus\Person.
+ */
+class PublicationStateTest extends TestCase
 {
+    public function testPublicationStateValuesMatchEnumDefinition()
+    {
+        $enumValues = $this->getEnumValues();
+
+        $publicationState = new PublicationState();
+
+        $this->assertEqualsCanonicalizing($publicationState->getAllValues(), $enumValues);
+    }
+
+    /**
+     * @return string[]
+     * @throws ConfigException
+     * @throws ModelException
+     * @throws Zend_Db_Table_Exception
+     */
+    protected function getEnumValues()
+    {
+        $tableGatewayClass = Repository::getInstance()->getModelFactory()->getTableGatewayClass('Document');
+
+        $metadata = TableGateway::getInstance($tableGatewayClass)->info();
+
+        $dataType = $metadata['metadata']['publication_state']['DATA_TYPE'];
+
+        preg_match('/enum\\((.*)\\)/', $dataType, $matches);
+
+        return array_map(function ($value) {
+            return trim($value, ' \'');
+        }, explode(',', $matches[1]));
+    }
 }

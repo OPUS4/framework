@@ -302,7 +302,13 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
         $dbadapter->commit();
 
         $this->_postStore();
-        return $id;
+
+        // TODO determine type of id from model descriptor
+        if (is_string($id) && ctype_digit($id)) {
+            return (int)$id;
+        } else {
+            return $id;
+        }
     }
 
     /**
@@ -322,6 +328,11 @@ abstract class AbstractDb extends AbstractModel implements ModificationTrackingI
 
                 // map field values: Cannot process array-valued fields
                 $fieldValue = $field->getValue();
+
+                // store bool values as 0 or 1
+                if ($field->getType() === 'bool') {
+                    $fieldValue = (int) $fieldValue;
+                }
 
                 if ($fieldValue !== null) {
                     $fieldValue = trim($fieldValue);

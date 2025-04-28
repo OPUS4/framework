@@ -115,7 +115,7 @@ class AbstractDependentModelTest extends TestCase
         $config = ['dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser'];
 
         $this->mockAdapter = $this->getMockBuilder('Zend_Db_Adapter_Abstract')
-            ->setMethods(
+            ->onlyMethods(
                 [
                     '_connect',
                     '_beginTransaction',
@@ -137,12 +137,12 @@ class AbstractDependentModelTest extends TestCase
             ->getMock();
 
         $this->mockTableGateway = $this->getMockBuilder('Opus_Model_Dependent_AbstractTest_MockTableGateway')
-            ->setMethods(['createRow'])
+            ->onlyMethods(['createRow'])
             ->setConstructorArgs([[Zend_Db_Table_Abstract::ADAPTER => $this->mockAdapter]])
             ->getMock();
 
         $this->mockTableRow = $this->getMockBuilder('Zend_Db_Table_Row')
-            ->setMethods(['delete'])
+            ->onlyMethods(['delete'])
             ->setConstructorArgs([['table' => $this->mockTableGateway]])
             ->getMock();
 
@@ -155,7 +155,7 @@ class AbstractDependentModelTest extends TestCase
             ->will($this->returnValue($this->mockTableRow));
 
         $this->cut = $this->getMockBuilder(AbstractDependentModel::class)
-            ->setMethods(['init', 'getId'])
+            ->onlyMethods(['init', 'getId'])
             ->setConstructorArgs([null, $this->mockTableGateway])
             ->getMock();
 

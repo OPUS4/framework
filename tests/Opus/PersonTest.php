@@ -284,7 +284,7 @@ class PersonTest extends TestCase
         $docIds = $person->getDocumentIds();
 
         $this->assertNotNull($docIds);
-        $this->assertInternalType('array', $docIds);
+        $this->assertIsArray($docIds);
         $this->assertCount(1, $docIds);
         $this->assertContains(1, $docIds);
     }
@@ -312,14 +312,14 @@ class PersonTest extends TestCase
         $docIds = $person->getDocumentIds('author');
 
         $this->assertNotNull($docIds);
-        $this->assertInternalType('array', $docIds);
+        $this->assertIsArray($docIds);
         $this->assertCount(1, $docIds);
         $this->assertContains($this->documents[0]->getId(), $docIds);
 
         $docIds = $person->getDocumentIds('advisor');
 
         $this->assertNotNull($docIds);
-        $this->assertInternalType('array', $docIds);
+        $this->assertIsArray($docIds);
         $this->assertCount(0, $docIds);
 
         $this->documents[0]->addPersonAdvisor($person);
@@ -328,7 +328,7 @@ class PersonTest extends TestCase
         $docIds = $person->getDocumentIds('advisor');
 
         $this->assertNotNull($docIds);
-        $this->assertInternalType('array', $docIds);
+        $this->assertIsArray($docIds);
         $this->assertCount(1, $docIds);
         $this->assertContains($this->documents[0]->getId(), $docIds);
     }

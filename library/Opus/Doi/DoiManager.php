@@ -59,7 +59,6 @@ use function file_exists;
 use function file_put_contents;
 use function get_class;
 use function is_dir;
-use function is_numeric;
 use function is_string;
 use function ltrim;
 use function mkdir;
@@ -158,20 +157,26 @@ class DoiManager
      * Liefert im Erfolgsfall die registrierte DOI zurück. Liefert null zurück, wenn das Dokument keine lokale
      * DOI besitzt, die registriert werden kann.
      *
-     * @param DocumentInterface $doc   Document oder ID eines Opus\Document als String
-     * @param bool              $store Wenn true, dann wird am Ende der Methode store() auf dem übergebenen $doc
-     *                                 aufgerufen. Wenn die Methode im Kontext eines Store-Plugins aufgerufen wird,
-     *                                 dann erfolgt der Aufruf von store() an anderer Stelle (sonst gibt es eine
-     *                                 Endlosschleife).
+     * @param DocumentInterface|string|int $doc   Document oder ID eines Opus\Document als String oder Int
+     * @param bool                         $store Wenn true, dann wird am Ende der Methode store() auf dem übergebenen
+     *                                            $doc aufgerufen. Wenn die Methode im Kontext eines Store-Plugins
+     *                                            aufgerufen wird, dann erfolgt der Aufruf von store() an anderer Stelle
+     *                                            (sonst gibt es eine Endlosschleife).
      * @throws DoiException wenn das referenzierte Dokument nicht in der Datenbank existiert
      * @throws RegistrationException wenn bei dem Versuch der Registrierung bei DataCite ein Fehler auftritt
+     *
+     * TODO do not allow string for $doc parameter
      */
     public function register($doc, $store = false)
     {
-        if (is_string($doc)) {
-            $docId = $doc;
+        if ($doc !== null && (! is_object($doc) || ! $doc instanceof DocumentInterface)) {
+            if (is_string($doc) && ctype_digit($doc)) {
+                $docId = (int)$doc;
+            } else {
+                $docId = $doc;
+            }
             try {
-                $doc = new Document($docId);
+                $doc = Document::get($docId);
             } catch (NotFoundException $e) {
                 $message = 'could not find document with ID ' . $docId . ' in database';
                 $this->defaultLog->err($message);
@@ -680,10 +685,11 @@ class DoiManager
             throw $e;
         }
 
-        if (is_string($doc) && is_numeric($doc)) {
-            $docId = $doc;
+        // TODO assume string is an error - only accept int or DocumentInterface
+        if (is_int($doc) || (is_string($doc) && ctype_digit($doc))) {
+            $docId = (int)$doc;
             try {
-                $doc = new Document($docId);
+                $doc = Document::get($docId);
             } catch (NotFoundException $e) {
                 $message = 'could not find document ' . $docId . ' in database';
                 $this->defaultLog->err($message);

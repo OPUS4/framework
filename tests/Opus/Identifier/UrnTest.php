@@ -66,7 +66,7 @@ class UrnTest extends TestCase
      *
      * @return array Array containing document identifier, URN and check digit pairs.
      */
-    public function provider()
+    public static function provider()
     {
         return [
             ['8765', 'urn:nbn:de:swb:14-opus-8765', '0'],
@@ -87,7 +87,7 @@ class UrnTest extends TestCase
      *
      * @return array Array containing invalid namespace identifier pairs.
      */
-    public function badProvider()
+    public static function badProvider()
     {
         return [
             // test invalid nids
@@ -118,7 +118,7 @@ class UrnTest extends TestCase
      *
      * @return array Array containing invalid document identifier.
      */
-    public function badIdProvider()
+    public static function badIdProvider()
     {
         return [
             ['!ERROR!', 'Used invalid arguments for document id.'],

@@ -108,6 +108,8 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
         'Opac'      => 'opac-id',
         'Arxiv'     => 'arxiv',
         'Pubmed'    => 'pmid',
+        'Ismn'      => 'ismn',
+        'UnionCat'  => 'union-cat',
     ];
 
     /**

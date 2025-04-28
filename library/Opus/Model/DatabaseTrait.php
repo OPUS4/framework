@@ -297,7 +297,11 @@ trait DatabaseTrait
      */
     public function isNewRecord()
     {
-        return $this->isNewRecord;
+        if ($this->isNewRecord === null) {
+            return false;
+        } else {
+            return $this->isNewRecord;
+        }
     }
 
     /**
