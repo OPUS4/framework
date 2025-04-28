@@ -193,7 +193,7 @@ class PersonRepositoryTest extends TestCase
 
         $persons = $personRepository->getAllPersons('cook');
 
-        $this->assertInternalType('array', $persons);
+        $this->assertIsArray($persons);
         $this->assertCount(0, $persons);
     }
 
@@ -219,7 +219,7 @@ class PersonRepositoryTest extends TestCase
 
         $persons = $personRepository->getAllPersons('referee');
 
-        $this->assertInternalType('array', $persons);
+        $this->assertIsArray($persons);
         $this->assertCount(3, $persons);
 
         $this->assertEquals('Blau', $persons[0]['last_name']);
@@ -1263,7 +1263,7 @@ class PersonRepositoryTest extends TestCase
         $personIds = $personRepository->getPersons($personCrit);
 
         $this->assertNotNull($personIds);
-        $this->assertInternalType('array', $personIds);
+        $this->assertIsArray($personIds);
         $this->assertCount(10, $personIds);
     }
 
@@ -1278,7 +1278,7 @@ class PersonRepositoryTest extends TestCase
         $personIds = $personRepository->getPersons($personCrit, $documentIds);
 
         $this->assertNotNull($personIds);
-        $this->assertInternalType('array', $personIds);
+        $this->assertIsArray($personIds);
         $this->assertCount(4, $personIds);
 
         foreach ($personIds as $personId) {
@@ -1485,7 +1485,7 @@ class PersonRepositoryTest extends TestCase
         $documentIds = $personRepository->getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
-        $this->assertInternalType('array', $documentIds);
+        $this->assertIsArray($documentIds);
         $this->assertCount(2, $documentIds);
         $this->assertContains($this->documents[0]->getId(), $documentIds);
         $this->assertContains($this->documents[4]->getId(), $documentIds);
@@ -1505,7 +1505,7 @@ class PersonRepositoryTest extends TestCase
         $documentIds = $personRepository->getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
-        $this->assertInternalType('array', $documentIds);
+        $this->assertIsArray($documentIds);
         $this->assertCount(2, $documentIds);
         $this->assertContains($this->documents[0]->getId(), $documentIds);
         $this->assertContains($this->documents[4]->getId(), $documentIds);
@@ -1527,7 +1527,7 @@ class PersonRepositoryTest extends TestCase
         $documentIds = $personRepository->getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
-        $this->assertInternalType('array', $documentIds);
+        $this->assertIsArray($documentIds);
         $this->assertCount(3, $documentIds);
         $this->assertContains($this->documents[0]->getId(), $documentIds);
         $this->assertContains($this->documents[4]->getId(), $documentIds);
@@ -1553,7 +1553,7 @@ class PersonRepositoryTest extends TestCase
         $documentIds = $personRepository->getDocuments($personIds);
 
         $this->assertNotNull($documentIds);
-        $this->assertInternalType('array', $documentIds);
+        $this->assertIsArray($documentIds);
         $this->assertCount(2, $documentIds);
         $this->assertContains($this->documents[0]->getId(), $documentIds);
         $this->assertContains($this->documents[4]->getId(), $documentIds);
@@ -1575,7 +1575,7 @@ class PersonRepositoryTest extends TestCase
         $documentIds = $personRepository->getDocuments($personIds, $allowedDocuments);
 
         $this->assertNotNull($documentIds);
-        $this->assertInternalType('array', $documentIds);
+        $this->assertIsArray($documentIds);
         $this->assertCount(1, $documentIds);
         $this->assertNotContains($this->documents[0]->getId(), $documentIds);
         $this->assertContains($this->documents[4]->getId(), $documentIds);
