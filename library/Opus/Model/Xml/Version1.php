@@ -260,6 +260,7 @@ class Version1 extends AbstractVersion
      * @see \Opus\Model\Xml\StrategyInterface#updateFromXml()
      *
      * @param string $xml
+     * @return void
      */
     public function updateFromXml($xml)
     {

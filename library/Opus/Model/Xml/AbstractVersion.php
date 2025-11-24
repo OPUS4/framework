@@ -91,10 +91,14 @@ abstract class AbstractVersion implements StrategyInterface
      * (non-PHPdoc)
      *
      * @see StrategyInterface#setDomDocument()
+     *
+     * @return $this
      */
     public function setDomDocument(DOMDocument $dom)
     {
         $this->config->dom = $dom;
+
+        return $this;
     }
 
     /**
@@ -259,10 +263,14 @@ abstract class AbstractVersion implements StrategyInterface
      * (non-PHPdoc)
      *
      * @see StrategyInterface#setDomDocument()
+     *
+     * @return $this
      */
     public function setup(Conf $conf)
     {
         $this->config = $conf;
+
+        return $this;
     }
 
     /**
@@ -271,6 +279,7 @@ abstract class AbstractVersion implements StrategyInterface
      * @see StrategyInterface#setXml()
      *
      * @param string $xml
+     * @return $this
      */
     public function setXml($xml)
     {
@@ -292,6 +301,8 @@ abstract class AbstractVersion implements StrategyInterface
         }
         libxml_use_internal_errors($useInternalErrors);
         $this->setDomDocument($dom);
+
+        return $this;
     }
 
     /**

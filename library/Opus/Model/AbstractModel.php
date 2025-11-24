@@ -636,6 +636,7 @@ abstract class AbstractModel implements PropertySupportInterface, ModelInterface
      *
      * @param string $key Name of property
      * @param string $value Value of property
+     * @return $this
      * @throws UnknownModelTypeException
      * @throws UnknownPropertyKeyException
      */
@@ -644,6 +645,8 @@ abstract class AbstractModel implements PropertySupportInterface, ModelInterface
         $properties = self::getPropertiesService();
 
         $properties->setProperty($this, $key, $value);
+
+        return $this;
     }
 
     /**

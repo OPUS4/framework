@@ -71,11 +71,14 @@ interface StrategyInterface
      * Set a DomDocument instance.
      *
      * @param DOMDocument $dom DomDocument representing a model.
+     * @return $this
      */
     public function setDomDocument(DOMDocument $dom);
 
     /**
      * Setup a representation with a configuration.
+     *
+     * @return $this
      */
     public function setup(Conf $conf);
 
@@ -83,6 +86,7 @@ interface StrategyInterface
      * Set XML model representation.
      *
      * @param string $xml XML string representing a model.
+     * @return $this
      * @throws ModelException Thrown if XML loading failed.
      */
     public function setXml($xml);
@@ -91,6 +95,7 @@ interface StrategyInterface
      * Update a model from a given xml string.
      *
      * @param string $xml String of xml structure.
+     * @return void
      */
     public function updateFromXml($xml);
 }
