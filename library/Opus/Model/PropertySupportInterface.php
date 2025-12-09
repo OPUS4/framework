@@ -50,6 +50,7 @@ interface PropertySupportInterface
      *
      * @param string $key Name of property
      * @param string $value Value of property
+     * @return void
      */
     public function setProperty($key, $value);
 

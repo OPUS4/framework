@@ -75,6 +75,7 @@ interface TypeInterface
      * erzeugte Formularelement eingetragen.
      *
      * @param null|string $value anzuzeigender Wert des Enrichments
+     * @return mixed
      */
     public function getFormElement($value = null);
 
@@ -90,6 +91,7 @@ interface TypeInterface
      * interne Felder
      *
      * @param string|array $string
+     * @return void
      */
     public function setOptionsFromString($string);
 
