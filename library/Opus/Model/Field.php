@@ -326,7 +326,9 @@ class Field implements ModificationTrackingInterface, FieldInterface
             // strong comparison for other values
             switch($this->getType()) {
                 case 'bool':
-                    if ((bool) $value === (bool) $this->value) {
+                    // Initially the stored value is null which matches false, but field needs to be set
+                    // TODO better way?
+                    if ((bool) $value === (bool) $this->value && ! $this->value === null) {
                         return $this;
                     }
                     break;
