@@ -328,7 +328,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
                 case 'bool':
                     // Initially the stored value is null which matches false, but field needs to be set
                     // TODO better way?
-                    if ((bool) $value === (bool) $this->value && ! $this->value === null) {
+                    if ((bool) $value === (bool) $this->value && ($this->value !== null || $value === null)) {
                         return $this;
                     }
                     break;
