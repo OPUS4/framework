@@ -25,19 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Tests
- * @package     Opus
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
  */
 
 namespace OpusTest;
 
-use Opus\Document;
+use Opus\Common\Document;
 use Opus\Licence;
 use Opus\Model\DbConstrainViolationException;
 use Opus\Model\Xml\Cache;
@@ -45,6 +39,7 @@ use OpusTest\TestAsset\TestCase;
 
 use function count;
 use function sleep;
+use function var_dump;
 
 /**
  * Test cases for class Opus\Licence.
@@ -98,7 +93,7 @@ class LicenceTest extends TestCase
         $lic->setNameLong('MyLongName');
         $lic->setLinkLicence('http://licence.link');
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setLicence($lic);
@@ -124,7 +119,7 @@ class LicenceTest extends TestCase
                 ->setLinkLicence('http://test')
                         ->store();
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->setType("article")
                 ->setServerState('published')
                 ->setLicence($licence);
@@ -146,7 +141,7 @@ class LicenceTest extends TestCase
         }
 
         $licence->store();
-        $docReloaded = new Document($docId);
+        $docReloaded = Document::get($docId);
 
         $this->assertEquals(
             (string) $serverDateModified,
@@ -350,7 +345,7 @@ class LicenceTest extends TestCase
 
         $this->assertFalse($licence->isUsed());
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->addLicence($licence);
         $doc->store();
 
@@ -370,13 +365,13 @@ class LicenceTest extends TestCase
 
         $this->assertEquals(0, $licence->getDocumentCount());
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->addLicence($licence);
         $doc->store();
 
         $this->assertEquals(1, $licence->getDocumentCount());
 
-        $doc = new Document();
+        $doc = Document::new();
         $doc->addLicence($licence);
         $doc->store();
 
@@ -386,5 +381,47 @@ class LicenceTest extends TestCase
         $doc->store();
 
         $this->assertEquals(1, $licence->getDocumentCount());
+    }
+
+    public function testAddLicence()
+    {
+        $licence   = Licence::fromArray([
+            'NameLong'    => 'Licence',
+            'Name'        => 'CC BY',
+            'LinkLicence' => 'https://www.kobv.de/licence1',
+        ]);
+        $licenceId = $licence->store();
+
+        $doc = Document::new();
+        $doc->addLicence($licence);
+        $doc->store();
+
+        $licences = $doc->getLicence();
+
+        $this->assertCount(1, $licences);
+        $this->assertEquals(1, $licence->getId());
+
+        $this->markTestIncomplete('TODO What is the purpose of this test? getId() provides unexpected result');
+
+        var_dump($licences[0]->getId());
+
+        $this->assertEquals($licenceId, $licences[0]->getId());
+    }
+
+    public function testIsModified()
+    {
+        $licence = Licence::new();
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://www.example.org/licence');
+        $licence->setActive(true);
+        $licenceId = $licence->store();
+
+        $licence = Licence::get($licenceId);
+
+        $this->assertFalse($licence->isModified());
+
+        $licence->setActive('1');
+
+        $this->assertFalse($licence->isModified());
     }
 }

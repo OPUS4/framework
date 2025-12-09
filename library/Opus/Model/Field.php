@@ -324,8 +324,16 @@ class Field implements ModificationTrackingInterface, FieldInterface
             }
         } else {
             // strong comparison for other values
-            if ($value === $this->value) {
-                return $this;
+            switch($this->getType()) {
+                case 'bool':
+                    if ((bool) $value === (bool) $this->value) {
+                        return $this;
+                    }
+                    break;
+                default:
+                    if ($value === $this->value) {
+                        return $this;
+                    }
             }
         }
 
