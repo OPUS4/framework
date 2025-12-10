@@ -71,7 +71,7 @@ class FieldTest extends TestCase
      *
      * @return array
      */
-    public function invalidSetMultiplicityValuesDataProvider()
+    public static function invalidSetMultiplicityValuesDataProvider()
     {
         return [
             ['0'],
@@ -97,7 +97,7 @@ class FieldTest extends TestCase
      *
      * @return array
      */
-    public function setterGetterCallDataProvider()
+    public static function setterGetterCallDataProvider()
     {
         return [
             ['Mandatory', 'true', true],
@@ -714,24 +714,24 @@ class FieldTest extends TestCase
 
         $this->assertEquals(0, $field->getValue());
         $this->assertEquals(false, $field->getValue());
-        $this->assertInternalType('int', $field->getValue());
+        $this->assertIsInt($field->getValue());
 
         $field->setValue(true);
 
         $this->assertEquals(1, $field->getValue());
         $this->assertEquals(true, $field->getValue());
-        $this->assertInternalType('int', $field->getValue());
+        $this->assertIsInt($field->getValue());
 
         $field->setValue(0);
 
         $this->assertEquals(0, $field->getValue());
         $this->assertEquals(false, $field->getValue());
-        $this->assertInternalType('int', $field->getValue());
+        $this->assertIsInt($field->getValue());
 
         $field->setValue(1);
 
         $this->assertEquals(1, $field->getValue());
         $this->assertEquals(true, $field->getValue());
-        $this->assertInternalType('int', $field->getValue());
+        $this->assertIsInt($field->getValue());
     }
 }

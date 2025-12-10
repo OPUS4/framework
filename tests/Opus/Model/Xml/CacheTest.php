@@ -194,7 +194,7 @@ class CacheTest extends TestCase
     /**
      * @return array
      */
-    public function invalidCombinationOfIdAndVersion()
+    public static function invalidCombinationOfIdAndVersion()
     {
         return [
             [['document_id' => 0, 'xml_version' => 4]],
@@ -516,7 +516,7 @@ class CacheTest extends TestCase
 
         $xmlData = $row->xml_data;
 
-        $this->assertContains('John', $xmlData, 'Cache should contain author.');
+        $this->assertStringContainsString('John', $xmlData, 'Cache should contain author.');
     }
 
     public function testRemoveAllEntriesForDependentModel()

@@ -232,7 +232,7 @@ class Version1Test extends TestCase
      *
      * @return array
      */
-    public function xmlModelDataProvider()
+    public static function xmlModelDataProvider()
     {
         // $this->markTestIncomplete( 'Skipped: Unknown field: Id for OpusTest\Model\Mock\AbstractModelMock' );
 
@@ -348,7 +348,7 @@ class Version1Test extends TestCase
 
         // create mock to track calls
         $link = $this->getMockBuilder(ModelDependentLinkMock::class)
-            ->setMethods(['getId', 'getLinkedModelId', 'describeAll'])
+            ->onlyMethods(['getId', 'getLinkedModelId', 'describeAll'])
             ->getMock();
 
         $link->setModelClass(AbstractModelMock::class);
@@ -782,7 +782,7 @@ class Version1Test extends TestCase
         $mockModel->setValue('after');
 
         $mockResolver = $this->getMockBuilder(XlinkResolverInterface::class)
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
 
         $mockResolver->expects($this->once())
@@ -865,11 +865,11 @@ class Version1Test extends TestCase
         $xmlString = $dom->saveXML();
 
         // first, check that the string contains all required substrings.
-        $this->assertContains('foo...', $xmlString);
-        $this->assertContains('...bar', $xmlString);
+        $this->assertStringContainsString('foo...', $xmlString);
+        $this->assertStringContainsString('...bar', $xmlString);
 
         // second, check that xml string does *not* contain invalid characters.
-        $this->assertNotRegExp('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $xmlString);
+        $this->assertDoesNotMatchRegularExpression('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $xmlString);
 
         // last, check that string can be serialized to model.
         $xml = new Xml();
@@ -879,8 +879,8 @@ class Version1Test extends TestCase
         $model = $xml->getModel();
         $this->assertInstanceOf(AbstractModelMock::class, $model);
 
-        $this->assertContains('foo...', $model->getValue());
-        $this->assertContains('...bar', $model->getValue());
+        $this->assertStringContainsString('foo...', $model->getValue());
+        $this->assertStringContainsString('...bar', $model->getValue());
     }
 
     /**

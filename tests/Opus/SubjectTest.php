@@ -62,7 +62,7 @@ class SubjectTest extends TestCase
         $values = $subjectRepository->getMatchingSubjects('Com');
 
         $this->assertCount(1, $values);
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
 
         $value = $values[0];
 
@@ -95,7 +95,7 @@ class SubjectTest extends TestCase
         $values = $subjectRepository->getMatchingSubjects('cam or 1=1');
 
         $this->assertCount(1, $values);
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
     }
 
     public function testGetMatchingSubjectsGroup()
@@ -196,7 +196,7 @@ class SubjectTest extends TestCase
 
         $values = $subjectRepository->getMatchingSubjects(null);
 
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
         $this->assertCount(0, $values);
     }
 
@@ -206,7 +206,7 @@ class SubjectTest extends TestCase
 
         $values = $subjectRepository->getMatchingSubjects('');
 
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
         $this->assertCount(0, $values);
     }
 

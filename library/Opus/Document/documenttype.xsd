@@ -25,11 +25,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework, Document
- * @author	Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @author     	Susanne Gottwald <gottwald@zib.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
  -->
@@ -144,6 +140,7 @@
             <enumeration value="Note"/>
             <enumeration value="Subject"/>
             <enumeration value="Series"/>
+            <enumeration value="PublicationState"/>
         </restriction>
     </simpleType>
 	

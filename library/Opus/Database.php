@@ -143,7 +143,7 @@ class Database
     public function create()
     {
         $dbName = $this->getName();
-        $sql    = "CREATE SCHEMA IF NOT EXISTS ${dbName}"
+        $sql    = "CREATE SCHEMA IF NOT EXISTS {$dbName}"
             . ' DEFAULT CHARACTER SET = ' . self::DEFAULT_CHARACTER_SET
             . ' DEFAULT COLLATE = ' . self::DEFAULT_COLLATE;
         $this->execWithoutDbName($sql);
@@ -326,7 +326,7 @@ class Database
     {
         $dbName = $this->getName();
 
-        $sql = "DROP DATABASE IF EXISTS ${dbName};";
+        $sql = "DROP DATABASE IF EXISTS {$dbName};";
 
         $this->execWithoutDbName($sql);
     }

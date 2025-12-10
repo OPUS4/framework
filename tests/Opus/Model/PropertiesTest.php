@@ -213,7 +213,7 @@ class PropertiesTest extends TestCase
 
         $types = $properties->getTypes();
 
-        $this->assertInternalType('array', $types);
+        $this->assertIsArray($types);
         $this->assertCount(0, $types);
     }
 
@@ -263,7 +263,7 @@ class PropertiesTest extends TestCase
     /**
      * @return string[][]
      */
-    public function validKeyProvider()
+    public static function validKeyProvider()
     {
         return [
             ['test'],
@@ -292,7 +292,7 @@ class PropertiesTest extends TestCase
     /**
      * @return string[][]
      */
-    public function invalidKeyProvider()
+    public static function invalidKeyProvider()
     {
         return [
             ['123'],
@@ -408,7 +408,7 @@ class PropertiesTest extends TestCase
 
         $keys = $properties->getKeys();
 
-        $this->assertInternalType('array', $keys);
+        $this->assertIsArray($keys);
         $this->assertCount(0, $keys);
     }
 
@@ -449,7 +449,7 @@ class PropertiesTest extends TestCase
 
         $props = $properties->getProperties($model);
 
-        $this->assertInternalType('array', $props);
+        $this->assertIsArray($props);
         $this->assertCount(0, $props);
     }
 
@@ -518,7 +518,7 @@ class PropertiesTest extends TestCase
 
         $props = $properties->getProperties($docId + 1, 'document');
 
-        $this->assertInternalType('array', $props);
+        $this->assertIsArray($props);
         $this->assertEmpty($props);
     }
 
