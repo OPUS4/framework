@@ -117,6 +117,7 @@ class Licence extends AbstractDb implements LicenceInterface, LicenceRepositoryI
     {
         $active = new Field('Active');
         $active->setCheckbox(true);
+        $active->setType('bool');
 
         $commentInternal = new Field('CommentInternal');
         $commentInternal->setTextarea(true);
@@ -152,6 +153,7 @@ class Licence extends AbstractDb implements LicenceInterface, LicenceRepositoryI
 
         $podAllowed = new Field('PodAllowed');
         $podAllowed->setCheckbox(true);
+        $podAllowed->setType('bool');
 
         $this->addField($active)
             ->addField($commentInternal)

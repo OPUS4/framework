@@ -407,4 +407,21 @@ class LicenceTest extends TestCase
 
         $this->assertEquals($licenceId, $licences[0]->getId());
     }
+
+    public function testIsModified()
+    {
+        $licence = Licence::new();
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://www.example.org/licence');
+        $licence->setActive(true);
+        $licenceId = $licence->store();
+
+        $licence = Licence::get($licenceId);
+
+        $this->assertFalse($licence->isModified());
+
+        $licence->setActive('1');
+
+        $this->assertFalse($licence->isModified());
+    }
 }

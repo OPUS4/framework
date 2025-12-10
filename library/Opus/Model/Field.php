@@ -324,8 +324,18 @@ class Field implements ModificationTrackingInterface, FieldInterface
             }
         } else {
             // strong comparison for other values
-            if ($value === $this->value) {
-                return $this;
+            switch($this->getType()) {
+                case 'bool':
+                    // Initially the stored value is null which matches false, but field needs to be set
+                    // TODO better way?
+                    if ((bool) $value === (bool) $this->value && ($this->value !== null || $value === null)) {
+                        return $this;
+                    }
+                    break;
+                default:
+                    if ($value === $this->value) {
+                        return $this;
+                    }
             }
         }
 

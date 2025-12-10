@@ -73,6 +73,8 @@ class InvalidateDocumentCacheTest extends TestCase
             'collections_roles',
             'collections',
             'link_documents_collections',
+            'document_licences',
+            'link_documents_licences',
         ]);
 
         $this->collectionRole = new CollectionRole();
@@ -702,5 +704,36 @@ class InvalidateDocumentCacheTest extends TestCase
         sleep(2);
         $doc->store();
         $this->assertEquals($lastModified, $doc->getServerDateModified()->getUnixTimestamp());
+    }
+
+    public function testLicenceActiveDoesNotUpdateServerDateModified()
+    {
+        $doc = new Document();
+
+        $licence = new Licence();
+        $licence->setLanguage('deu');
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://long.org/licence');
+        $licence->setActive(1);
+        $licenceId = $licence->store();
+
+        $doc->setLicence([$licence]);
+        $docId = $doc->store();
+
+        $doc = new Document($docId);
+
+        $this->assertCount(1, $doc->getLicence());
+
+        $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2);
+
+        $licence = new Licence($licenceId);
+        $licence->setActive(true);
+        $licence->store();
+
+        $doc = new Document($docId);
+
+        $this->assertEquals($serverDateModified, $doc->getServerDateModified()->getUnixTimestamp());
     }
 }
