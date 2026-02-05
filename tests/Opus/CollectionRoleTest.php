@@ -1493,6 +1493,49 @@ class CollectionRoleTest extends TestCase
         $this->assertContains($col3->getId(), $collections);
     }
 
+    public function testGetVisibleCollectionsWithOaiSubset()
+    {
+        $role = new CollectionRole();
+        $role->setName('role-name');
+        $role->setOaiName('role-oai-name');
+        $root = $role->addRootCollection();
+        $root->setVisible(true);
+        $col1 = $root->addLastChild();
+        $col1->setName('col1');
+        $col1->setVisible(false);
+        // $col1->setOaiSubset('testCol1');
+        $col2 = $col1->addLastChild();
+        $col2->setName('col2');
+        $col2->setVisible(true);
+        $col2->setOaiSubset('testCol2');
+        $col3 = $root->addLastChild();
+        $col3->setName('col1b');
+        $col3->setVisible(true);
+        $col3->setOaiSubset('testCol3');
+        $role->store();
+
+        $collections = $role->getVisibleCollections(true);
+
+        $this->assertIsArray($collections);
+        $this->assertCount(1, $collections);
+        $this->assertNotContains($root->getId(), $collections);
+        $this->assertContains($col3->getId(), $collections);
+
+        $root->setOaiSubset('testRoot');
+        $root->store();
+        $col1->setVisible(true);
+        $col1->store();
+
+        $collections = $role->getVisibleCollections(true);
+
+        $this->assertIsArray($collections);
+        $this->assertCount(3, $collections);
+        $this->assertContains($root->getId(), $collections);
+        $this->assertNotContains($col1->getId(), $collections);
+        $this->assertContains($col2->getId(), $collections);
+        $this->assertContains($col3->getId(), $collections);
+    }
+
     public function testAddRootCollectionCreatesVisibleRoot()
     {
         $colRole = new CollectionRole();
@@ -1530,6 +1573,7 @@ class CollectionRoleTest extends TestCase
         $col1 = $root->addFirstChild();
         $col1->setName('col1');
         $col1->setVisible(true);
+        $col1->setOaiSubset('testCol1');
         $colRole->store();
         $doc->setCollection([$col1]);
         $doc->store();
