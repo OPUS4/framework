@@ -31,32 +31,73 @@
 
 namespace Opus\Db\Console;
 
+use Opus\Db\Util\Maintenance;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
+use function count;
+use function sprintf;
 
 class DateCommand extends Command
 {
+    const OPTION_FIX = 'fix';
+
     protected function configure()
     {
         parent::configure();
 
         $help = <<<EOT
+Checks format of document date values. In some cases dates might habe been stored as timestamps.
+
+Checked document fields:
+  - completed_date
+  - published_date
+  - thesis_date_accepted
+  - embargo_date
 EOT;
 
         $this->setName('database:date')
             ->setDescription('Checks and fixes date values')
-            ->setHelp($help);
+            ->setHelp($help)
+            ->addOption(
+                self::OPTION_FIX,
+                null,
+                InputOption::VALUE_NONE,
+                'Shorten timestamps into date values'
+            );
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        // check for option to fix dates
+        $maintenance = new Maintenance();
 
-        // TODO check dates
+        $output->writeln('Checking date fields for timestamps.');
 
-        // TODO fix dates (optionally)
-        //      and check again
+        $dates = $maintenance->checkDateValues();
+
+        if (count($dates) > 0) {
+            if ($input->getOption(self::OPTION_FIX)) {
+                $output->writeln('Fixing date values...');
+                $maintenance->fixDateValues();
+
+                $dates = $maintenance->checkDateValues();
+
+                if (count($dates) > 0) {
+                    $output->writeln('Not all date values could be fixed.');
+                } else {
+                    $output->writeln('Finished');
+                }
+            } else {
+                $output->writeln('Timestamps in date values found:');
+                foreach ($dates as $field => $count) {
+                    $output->writeln(sprintf('%d %s', $count, $field));
+                }
+            }
+        } else {
+            $output->writeln('No timestamps in date fields found.');
+        }
 
         return Command::SUCCESS;
     }
