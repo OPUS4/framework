@@ -31,15 +31,72 @@
 
 namespace OpusTest\Db\Util;
 
+use Opus\Common\Document;
+use Opus\Db\Util\Maintenance;
 use OpusTest\TestAsset\TestCase;
 
 class MaintenanceTest extends TestCase
 {
+    /** @var Maintenance */
+    private $maintenance;
+
+    /** @var array */
+    private $documents;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->clearTables(false);
+
+        $this->maintenance = new Maintenance();
+
+        $doc = Document::new();
+        $doc->setCompletedDate('2026-01-24');
+        $this->documents[0] = $doc->store();
+
+        $doc = Document::new();
+        $doc->setCompletedDate('2024-02-17T00:00:00+01:00');
+        $this->documents[1] = $doc->store();
+
+        $doc = Document::new();
+        $doc->setPublishedDate('2022-03-21T00:00:00+01:00');
+        $this->documents[2] = $doc->store();
+
+        $doc = Document::new();
+        $doc->setEmbargoDate('2025-10-20');
+        $this->documents[3] = $doc->store();
+    }
+
     public function testFixDateValues()
     {
+        $this->maintenance->fixDateValues();
+
+        $dates = $this->maintenance->checkDateValues();
+
+        $this->assertCount(0, $dates);
+
+        $doc = Document::get($this->documents[0]);
+        $this->assertEquals('2026-01-24', $doc->getCompletedDate());
+
+        $doc = Document::get($this->documents[1]);
+        $this->assertEquals('2024-02-17', $doc->getCompletedDate());
+
+        $doc = Document::get($this->documents[2]);
+        $this->assertEquals('2022-03-21', $doc->getPublishedDate());
+
+        $doc = Document::get($this->documents[3]);
+        $this->assertEquals('2025-10-20', $doc->getEmbargoDate());
     }
 
     public function testCheckDateValues()
     {
+        $dates = $this->maintenance->checkDateValues();
+
+        $this->assertCount(2, $dates);
+        $this->assertArrayHasKey('completed_date', $dates);
+        $this->assertArrayHasKey('published_date', $dates);
+        $this->assertEquals(1, $dates['completed_date']);
+        $this->assertEquals(1, $dates['published_date']);
     }
 }

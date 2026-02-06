@@ -31,18 +31,54 @@
 
 namespace Opus\Db\Util;
 
+use Exception;
+use Opus\Common\LoggingTrait;
 use Opus\Db\Documents;
 use Opus\Db\TableGateway;
+use Zend_Db_Expr;
 
+use function count;
+
+/**
+ * Database operations that are not part of normal operations/API.
+ */
 class Maintenance
 {
+    use LoggingTrait;
+
+    /** @var string[] Column names for Document date fields */
+    private $dateColumns = [
+        'completed_date',
+        'published_date',
+        'thesis_date_accepted',
+        'embargo_date',
+    ];
+
     /**
      * Fixes date values that were stored as timestamps because of a bug.
      *
-     * TODO Move to a "DatabaseMaintenance" class?
+     * - completed_date
+     * - published_date
+     * - thesis_date_accepted
+     * - embargo_date
+     *
+     * UPDATE documents SET server_date_modified = SUBSTRING_INDEX(server_date_modified, 'T', 1)
+     * WHERE server_date_modified LIKE '%T%';
      */
     public function fixDateValues(): void
     {
+        $table = TableGateway::getInstance(Documents::class);
+
+        foreach ($this->dateColumns as $column) {
+            try {
+                $table->update(
+                    [$column => new Zend_Db_Expr("SUBSTRING_INDEX({$column}, 'T', 1)")],
+                    "{$column} LIKE '%T%'"
+                );
+            } catch (Exception $e) {
+                $this->getLogger()->err($e->getMessage());
+            }
+        }
     }
 
     /**
@@ -50,8 +86,22 @@ class Maintenance
      */
     public function checkDateValues(): array
     {
+        $results = [];
+
         $table = TableGateway::getInstance(Documents::class);
 
-        return [];
+        foreach ($this->dateColumns as $column) {
+            $select = $table->select()
+                ->from($table, ['id', $column])
+                ->where("{$column} LIKE '%T%'");
+
+            $dates = $table->fetchAll($select)->toArray();
+
+            if (count($dates) > 0) {
+                $results[$column] = count($dates);
+            }
+        }
+
+        return $results;
     }
 }
