@@ -141,9 +141,11 @@ class DnbInstitute extends AbstractDb implements DnbInstituteInterface, DnbInsti
 
         $isGrantor = new Field('IsGrantor');
         $isGrantor->setCheckbox(true);
+        $isGrantor->setType('bool');
 
         $isPublisher = new Field('IsPublisher');
         $isPublisher->setCheckbox(true);
+        $isPublisher->setType('bool');
 
         $this->addField($name)
             ->addField($department)

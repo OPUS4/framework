@@ -90,6 +90,7 @@ class Language extends AbstractDb implements LanguageInterface, LanguageReposito
         $comment = new Field('Comment');
         $active  = new Field('Active');
         $active->setCheckbox(true);
+        $active->setType('bool');
 
         $this->addField($part2B)
             ->addField($part2T)

@@ -89,6 +89,7 @@ class Series extends AbstractDb implements SeriesInterface
 
         $visible = new Field('Visible');
         $visible->setCheckbox(true);
+        $visible->setType('bool');
 
         $sortOrder = new Field('SortOrder');
         $sortOrder->setValidator(new Zend_Validate_Int());

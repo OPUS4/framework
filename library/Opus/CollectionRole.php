@@ -160,18 +160,22 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
         // Attributes for defining visibility.
         $visible = new Field('Visible');
         $visible->setCheckbox(true);
+        $visible->setType('bool');
         $this->addField($visible);
 
         $visibleBrowsingStart = new Field('VisibleBrowsingStart');
         $visibleBrowsingStart->setCheckbox(true);
+        $visibleBrowsingStart->setType('bool');
         $this->addField($visibleBrowsingStart);
 
         $visibleFrontdoor = new Field('VisibleFrontdoor');
         $visibleFrontdoor->setCheckbox(true);
+        $visibleFrontdoor->setType('bool');
         $this->addField($visibleFrontdoor);
 
         $visibleOai = new Field('VisibleOai');
         $visibleOai->setCheckbox(true);
+        $visibleOai->setType('bool');
         $this->addField($visibleOai);
 
         // Attributes for defining output formats.
@@ -185,9 +189,11 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
         $this->addField($isClassification);
 
         $assignRoot = new Field('AssignRoot');
+        $assignRoot->setType('bool');
         $this->addField($assignRoot);
 
         $assignLeavesOnly = new Field('AssignLeavesOnly');
+        $assignLeavesOnly->setType('bool');
         $this->addField($assignLeavesOnly);
 
         // Virtual attributes, which depend on other tables.
@@ -197,6 +203,7 @@ class CollectionRole extends AbstractDb implements CollectionRoleInterface, Coll
         // Attribute to determine visibility of empty collections
         $hideEmptyCollections = new Field('HideEmptyCollections');
         $hideEmptyCollections->setCheckbox(true);
+        $hideEmptyCollections->setType('bool');
         $this->addField($hideEmptyCollections);
 
         $language = new Field('Language');

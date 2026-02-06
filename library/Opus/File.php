@@ -153,7 +153,10 @@ class File extends AbstractDependentModel implements FileInterface, FileReposito
         $filesize->setMandatory(true);
 
         $visibleInFrontdoor = new Field('VisibleInFrontdoor');
-        $visibleInOai       = new Field('VisibleInOai');
+        $visibleInFrontdoor->setType('bool');
+
+        $visibleInOai = new Field('VisibleInOai');
+        $visibleInOai->setType('bool');
 
         $hashvalue = new Field('HashValue');
         $hashvalue->setMandatory(true)

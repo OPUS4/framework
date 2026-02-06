@@ -556,11 +556,12 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
         // Type field should be shown as drop-down.
         // TODO: ->setDefault( somehow::getAvailableDocumentTypes() )
         $this->getField('Type')
-                ->setSelection(true);
+            ->setSelection(true);
 
         // Bibliography field is boolean, so make it a checkbox
         $this->getField('BelongsToBibliography')
-                ->setCheckbox(true);
+            ->setCheckbox(true)
+            ->setType('bool');
 
         // Initialize available licences
         $this->getField('Licence')
