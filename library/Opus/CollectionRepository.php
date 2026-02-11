@@ -212,4 +212,58 @@ class CollectionRepository implements CollectionRepositoryInterface
 
         return $database->fetchAll($select);
     }
+
+    /**
+     * @param int $colId
+     * @param int $filterColId
+     * @param bool $updateLastModified
+     * @return void
+     */
+    public function addCollection($colId, $filterColId, $updateLastModified = true)
+    {
+        // TODO: Implement addCollection() method.
+    }
+
+    /**
+     * @param int $srcColId
+     * @param int $destColId
+     * @param bool $updateLastModified
+     * @return void
+     */
+    public function moveDocuments($srcColId, $destColId, $updateLastModified = true)
+    {
+        // TODO: Implement moveDocuments() method.
+    }
+
+    /**
+     * @param int $srcColId
+     * @param int $destColId
+     * @param bool $updateLastModified
+     * @return void
+     */
+    public function copyDocuments($srcColId, $destColId, $updateLastModified = true)
+    {
+        // TODO: Implement copyDocuments() method.
+    }
+
+    /**
+     * @param int $colId
+     * @param int $filterColId
+     * @param bool $updateLastModified
+     * @return void
+     */
+    public function removeCollection($colId, $filterColId, $updateLastModified = true)
+    {
+        // TODO: Implement removeCollection() method.
+    }
+
+    /**
+     * @param int $colId
+     * @param bool $updateLastModified
+     * @return void
+     */
+    public function removeDocuments($colId, $updateLastModified = true)
+    {
+        // TODO: Implement removeDocuments() method.
+    }
 }
