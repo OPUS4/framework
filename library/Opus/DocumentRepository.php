@@ -100,4 +100,29 @@ class DocumentRepository implements DocumentRepositoryInterface
             }
         }
     }
+
+    /**
+     * Returns necessary information for generating site links for a year.
+     *
+     * TODO should be a check included to make sure documents without language or title do not get missed?
+     *
+     * @return array ID and main title of all documents
+     */
+    public function getSiteLinksInfo(int $year)
+    {
+        $table = TableGateway::getInstance(Db\DocumentTitleAbstracts::class);
+
+        $adapter = $table->getAdapter();
+
+        $select = $adapter->select()
+            ->from(['d' => 'documents'], ['d.id'])
+            ->join(['t' => 'document_title_abstracts'], 'd.id = t.document_id', ['t.value', 't.language'])
+            ->where('t.type = ?', 'main')
+            ->where('d.server_state = ?', Document::STATE_PUBLISHED)
+            ->where('d.language = t.language')
+            ->where('substr(d.server_date_published, 1, 4) = ?', $year)
+            ->order('d.id DESC');
+
+        return $adapter->fetchAssoc($select);
+    }
 }

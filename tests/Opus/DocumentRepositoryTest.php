@@ -47,6 +47,7 @@ class DocumentRepositoryTest extends TestCase
 
         $this->clearTables(false, [
             'documents',
+            'document_title_abstracts',
         ]);
     }
 
@@ -95,5 +96,58 @@ class DocumentRepositoryTest extends TestCase
 
         $doc = Document::get($doc3Id);
         $this->assertEquals(0, $date->compare($doc->getServerDateModified()));
+    }
+
+    public function testGetSiteLinksInfo()
+    {
+        $doc   = Document::new();
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 1');
+        $title->setLanguage('eng');
+        $doc->setLanguage('eng');
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId1 = $doc->store();
+
+        $doc   = Document::new();
+        $title = $doc->addTitleParent();
+        $title->setValue('Title 2 Parent');
+        $title->setLanguage('deu');
+        $doc->setLanguage('deu');
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId2 = $doc->store();
+
+        $doc   = Document::new();
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 3');
+        $title->setLanguage('deu');
+        $doc->setLanguage('deu');
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId3 = $doc->store();
+
+        $doc   = Document::new();
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 4');
+        $title->setLanguage('deu');
+        $doc->setLanguage('deu');
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId4 = $doc->store();
+        $doc->setServerDatePublished('2011-06-01T00:00:00Z');
+        $doc->store();
+
+        $documentRepository = new DocumentRepository();
+        $info               = $documentRepository->getSiteLinksInfo(2026);
+
+        $this->assertCount(2, $info);
+        $this->assertEqualsCanonicalizing([
+            $docId1 => [$docId1, 'Title 1', 'eng'],
+            $docId3 => [$docId3, 'Title 3', 'deu'],
+        ], $info);
+
+        $info = $documentRepository->getSiteLinksInfo(2011);
+
+        $this->assertCount(1, $info);
+        $this->assertEqualsCanonicalizing([
+            $docId4 => [$docId4, 'Title 4', 'deu'],
+        ], $info);
     }
 }
