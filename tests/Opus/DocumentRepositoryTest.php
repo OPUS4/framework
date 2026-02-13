@@ -121,6 +121,9 @@ class DocumentRepositoryTest extends TestCase
         $title->setValue('Title 3');
         $title->setLanguage('deu');
         $doc->setLanguage('deu');
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 3 not matching language');
+        $title->setLanguage('eng');
         $doc->setServerState(Document::STATE_PUBLISHED);
         $docId3 = $doc->store();
 
@@ -134,13 +137,28 @@ class DocumentRepositoryTest extends TestCase
         $doc->setServerDatePublished('2011-06-01T00:00:00Z');
         $doc->store();
 
-        $documentRepository = new DocumentRepository();
-        $info               = $documentRepository->getSiteLinksInfo(2026);
+        $doc   = Document::new();
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 5 not matching language');
+        $title->setLanguage('eng');
+        $doc->setLanguage('deu');
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 5 also not matching language');
+        $title->setLanguage('fra');
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId5 = $doc->store();
 
-        $this->assertCount(2, $info);
+        $doc5   = Document::get($docId5);
+        $titles = $doc5->getTitleMain();
+
+        $documentRepository = new DocumentRepository();
+        $info               = $documentRepository->getSiteLinksInfo(2026); // TODO CURRENT year needs to be used
+
+        $this->assertCount(3, $info);
         $this->assertEqualsCanonicalizing([
             $docId1 => [$docId1, 'Title 1', 'eng'],
             $docId3 => [$docId3, 'Title 3', 'deu'],
+            $docId5 => [$docId5, $titles[0]->getValue(), $titles[0]->getLanguage()],
         ], $info);
 
         $info = $documentRepository->getSiteLinksInfo(2011);

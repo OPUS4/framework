@@ -105,23 +105,47 @@ class DocumentRepository implements DocumentRepositoryInterface
      * Returns necessary information for generating site links for a year.
      *
      * TODO should be a check included to make sure documents without language or title do not get missed?
+     * TODO review and simplify?
      *
      * @return array ID and main title of all documents
      */
     public function getSiteLinksInfo(int $year)
     {
-        $table = TableGateway::getInstance(Db\DocumentTitleAbstracts::class);
-
+        $table   = TableGateway::getInstance(Db\DocumentTitleAbstracts::class);
         $adapter = $table->getAdapter();
 
+        // Create join with relevant columns
+        $selectJoin = $adapter->select()
+        ->from(['d' => 'documents'], ['docId' => 'd.id', 'docLang' => 'd.language'])
+        ->join(['t' => 'document_title_abstracts'], 'd.id = t.document_id', ['t.value', 't.language'])
+        ->where('t.type = ?', 'main')
+        ->where('d.server_state = ?', Document::STATE_PUBLISHED)
+        ->where('substr(d.server_date_published, 1, 4) = ?', $year);
+
+        // Get IDs of documents with titles in the document language
+        $selectDocIds = $adapter->select()
+            ->from($selectJoin, ['docId'])
+            ->where('docLang = t.language');
+
+        // Get titles matching document language
+        $selectLangMatch = $adapter->select()
+            ->from($selectJoin, ['docId', 't.value', 't.language'])
+            ->where('docLang = t.language');
+
+        // Get titles for documents that do not have titles in the document language
+        $selectNoLangMatch = $adapter->select()
+            ->from($selectJoin, ['min(docId)', 't.value', 't.language'])
+            ->where('docLang != t.language')
+            ->where('docId NOT IN (?)', $selectDocIds);
+
+        // Create union of matching and not matching titles
+        $selectUnion = $adapter->select()
+            ->union([$selectLangMatch, $selectNoLangMatch]);
+
+        // Eliminate row with NULL values, that is created when on of the UNION selects has no result
         $select = $adapter->select()
-            ->from(['d' => 'documents'], ['d.id'])
-            ->join(['t' => 'document_title_abstracts'], 'd.id = t.document_id', ['t.value', 't.language'])
-            ->where('t.type = ?', 'main')
-            ->where('d.server_state = ?', Document::STATE_PUBLISHED)
-            ->where('d.language = t.language')
-            ->where('substr(d.server_date_published, 1, 4) = ?', $year)
-            ->order('d.id DESC');
+            ->from($selectUnion, ['docId', 't.value', 't.language'])
+            ->where('docId IS NOT NULL');
 
         return $adapter->fetchAssoc($select);
     }
