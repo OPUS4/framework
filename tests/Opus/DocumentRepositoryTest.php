@@ -39,6 +39,8 @@ use Opus\Db\TableGateway;
 use Opus\DocumentRepository;
 use OpusTest\TestAsset\TestCase;
 
+use function date;
+
 class DocumentRepositoryTest extends TestCase
 {
     public function setUp(): void
@@ -100,6 +102,7 @@ class DocumentRepositoryTest extends TestCase
 
     public function testGetSiteLinksInfo()
     {
+        // Document with main title matching document language
         $doc   = Document::new();
         $title = $doc->addTitleMain();
         $title->setValue('Title 1');
@@ -108,6 +111,7 @@ class DocumentRepositoryTest extends TestCase
         $doc->setServerState(Document::STATE_PUBLISHED);
         $docId1 = $doc->store();
 
+        // Document without main title
         $doc   = Document::new();
         $title = $doc->addTitleParent();
         $title->setValue('Title 2 Parent');
@@ -116,6 +120,7 @@ class DocumentRepositoryTest extends TestCase
         $doc->setServerState(Document::STATE_PUBLISHED);
         $docId2 = $doc->store();
 
+        // Document with titles matching and not matching document language
         $doc   = Document::new();
         $title = $doc->addTitleMain();
         $title->setValue('Title 3');
@@ -127,6 +132,7 @@ class DocumentRepositoryTest extends TestCase
         $doc->setServerState(Document::STATE_PUBLISHED);
         $docId3 = $doc->store();
 
+        // Document published in a different year
         $doc   = Document::new();
         $title = $doc->addTitleMain();
         $title->setValue('Title 4');
@@ -137,6 +143,7 @@ class DocumentRepositoryTest extends TestCase
         $doc->setServerDatePublished('2011-06-01T00:00:00Z');
         $doc->store();
 
+        // Document without main titles matching document language
         $doc   = Document::new();
         $title = $doc->addTitleMain();
         $title->setValue('Title 5 not matching language');
@@ -148,17 +155,28 @@ class DocumentRepositoryTest extends TestCase
         $doc->setServerState(Document::STATE_PUBLISHED);
         $docId5 = $doc->store();
 
+        // Document without language
+        $doc   = Document::new();
+        $title = $doc->addTitleMain();
+        $title->setValue('Title 6');
+        $title->setLanguage('eng');
+        $doc->setServerState(Document::STATE_PUBLISHED);
+        $docId6 = $doc->store();
+
         $doc5   = Document::get($docId5);
         $titles = $doc5->getTitleMain();
 
-        $documentRepository = new DocumentRepository();
-        $info               = $documentRepository->getSiteLinksInfo(2026); // TODO CURRENT year needs to be used
+        $currentYear = (int) date('Y');
 
-        $this->assertCount(3, $info);
+        $documentRepository = new DocumentRepository();
+        $info               = $documentRepository->getSiteLinksInfo($currentYear);
+
+        $this->assertCount(4, $info);
         $this->assertEqualsCanonicalizing([
             $docId1 => [$docId1, 'Title 1', 'eng'],
             $docId3 => [$docId3, 'Title 3', 'deu'],
             $docId5 => [$docId5, $titles[0]->getValue(), $titles[0]->getLanguage()],
+            $docId6 => [$docId6, 'Title 6', 'eng'],
         ], $info);
 
         $info = $documentRepository->getSiteLinksInfo(2011);

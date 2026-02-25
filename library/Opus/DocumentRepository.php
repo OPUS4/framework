@@ -40,6 +40,7 @@ use Opus\Db\TableGateway;
 use function count;
 use function is_array;
 use function preg_match;
+use function sprintf;
 
 class DocumentRepository implements DocumentRepositoryInterface
 {
@@ -114,38 +115,27 @@ class DocumentRepository implements DocumentRepositoryInterface
         $table   = TableGateway::getInstance(Db\DocumentTitleAbstracts::class);
         $adapter = $table->getAdapter();
 
-        // Create join with relevant columns
-        $selectJoin = $adapter->select()
-        ->from(['d' => 'documents'], ['docId' => 'd.id', 'docLang' => 'd.language'])
-        ->join(['t' => 'document_title_abstracts'], 'd.id = t.document_id', ['t.value', 't.language'])
-        ->where('t.type = ?', 'main')
-        ->where('d.server_state = ?', Document::STATE_PUBLISHED)
-        ->where('substr(d.server_date_published, 1, 4) = ?', $year);
+        $sql = <<<SQL
+SELECT d.id                             AS docId,
+       ifnull(t1.language, t2.language) AS titleLanguage,
+       ifnull(t1.value, t2.value)       AS title
+FROM documents d
+         LEFT JOIN document_title_abstracts t1
+                   ON t1.document_id = d.id AND t1.type = 'main' AND t1.language = d.language
+         LEFT JOIN document_title_abstracts t2
+                   ON t2.document_id = d.id AND t2.type = 'main'
+                       AND t2.id IN (SELECT min(a.id)
+                                     FROM document_title_abstracts a
+                                              LEFT JOIN documents c 
+                                                        ON c.id = a.document_id AND c.language <> a.language
+                                     WHERE a.type = 'main'
+                                     GROUP BY a.document_id)
+WHERE d.server_state = 'published'
+  AND left (d.server_date_published, 4) = %d
+  AND (t1.value IS NOT NULL OR t2.value IS NOT NULL);
+SQL;
 
-        // Get IDs of documents with titles in the document language
-        $selectDocIds = $adapter->select()
-            ->from($selectJoin, ['docId'])
-            ->where('docLang = t.language');
-
-        // Get titles matching document language
-        $selectLangMatch = $adapter->select()
-            ->from($selectJoin, ['docId', 't.value', 't.language'])
-            ->where('docLang = t.language');
-
-        // Get titles for documents that do not have titles in the document language
-        $selectNoLangMatch = $adapter->select()
-            ->from($selectJoin, ['min(docId)', 't.value', 't.language'])
-            ->where('docLang != t.language')
-            ->where('docId NOT IN (?)', $selectDocIds);
-
-        // Create union of matching and not matching titles
-        $selectUnion = $adapter->select()
-            ->union([$selectLangMatch, $selectNoLangMatch]);
-
-        // Eliminate row with NULL values, that is created when on of the UNION selects has no result
-        $select = $adapter->select()
-            ->from($selectUnion, ['docId', 't.value', 't.language'])
-            ->where('docId IS NOT NULL');
+        $select = sprintf($sql, $year);
 
         return $adapter->fetchAssoc($select);
     }
