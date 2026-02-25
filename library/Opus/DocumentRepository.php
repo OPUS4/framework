@@ -40,6 +40,7 @@ use Opus\Db\TableGateway;
 use function count;
 use function is_array;
 use function preg_match;
+use function sprintf;
 
 class DocumentRepository implements DocumentRepositoryInterface
 {
@@ -105,23 +106,36 @@ class DocumentRepository implements DocumentRepositoryInterface
      * Returns necessary information for generating site links for a year.
      *
      * TODO should be a check included to make sure documents without language or title do not get missed?
+     * TODO review and simplify?
      *
      * @return array ID and main title of all documents
      */
     public function getSiteLinksInfo(int $year)
     {
-        $table = TableGateway::getInstance(Db\DocumentTitleAbstracts::class);
-
+        $table   = TableGateway::getInstance(Db\DocumentTitleAbstracts::class);
         $adapter = $table->getAdapter();
 
-        $select = $adapter->select()
-            ->from(['d' => 'documents'], ['d.id'])
-            ->join(['t' => 'document_title_abstracts'], 'd.id = t.document_id', ['t.value', 't.language'])
-            ->where('t.type = ?', 'main')
-            ->where('d.server_state = ?', Document::STATE_PUBLISHED)
-            ->where('d.language = t.language')
-            ->where('substr(d.server_date_published, 1, 4) = ?', $year)
-            ->order('d.id DESC');
+        $sql = <<<SQL
+SELECT d.id                             AS docId,
+       ifnull(t1.language, t2.language) AS titleLanguage,
+       ifnull(t1.value, t2.value)       AS title
+FROM documents d
+         LEFT JOIN document_title_abstracts t1
+                   ON t1.document_id = d.id AND t1.type = 'main' AND t1.language = d.language
+         LEFT JOIN document_title_abstracts t2
+                   ON t2.document_id = d.id AND t2.type = 'main'
+                       AND t2.id IN (SELECT min(a.id)
+                                     FROM document_title_abstracts a
+                                              LEFT JOIN documents c 
+                                                        ON c.id = a.document_id AND c.language <> a.language
+                                     WHERE a.type = 'main'
+                                     GROUP BY a.document_id)
+WHERE d.server_state = 'published'
+  AND left (d.server_date_published, 4) = %d
+  AND (t1.value IS NOT NULL OR t2.value IS NOT NULL);
+SQL;
+
+        $select = sprintf($sql, $year);
 
         return $adapter->fetchAssoc($select);
     }
