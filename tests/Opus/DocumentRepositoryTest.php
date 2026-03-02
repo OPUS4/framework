@@ -185,5 +185,9 @@ class DocumentRepositoryTest extends TestCase
         $this->assertEqualsCanonicalizing([
             $docId4 => [$docId4, 'Title 4', 'deu'],
         ], $info);
+
+        $title = $info[$docId4];
+        $this->assertArrayHasKey('value', $title);
+        $this->assertArrayHasKey('language', $title);
     }
 }

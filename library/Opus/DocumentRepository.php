@@ -117,8 +117,8 @@ class DocumentRepository implements DocumentRepositoryInterface
 
         $sql = <<<SQL
 SELECT d.id                             AS docId,
-       ifnull(t1.language, t2.language) AS titleLanguage,
-       ifnull(t1.value, t2.value)       AS title
+       ifnull(t1.language, t2.language) AS language,
+       ifnull(t1.value, t2.value)       AS value
 FROM documents d
          LEFT JOIN document_title_abstracts t1
                    ON t1.document_id = d.id AND t1.type = 'main' AND t1.language = d.language
