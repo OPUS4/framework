@@ -184,6 +184,7 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     /**
      * @param string $name
      * @param string $value
+     * @param bool   $like
      * @return $this
      */
     public function setIdentifierValue($name, $value, $like = false)
