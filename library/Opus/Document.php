@@ -538,7 +538,11 @@ class Document extends AbstractDb implements DocumentInterface, ServerStateConst
             'EmbargoDate',
         ];
         foreach ($dateFields as $fieldName) {
-            $this->getField($fieldName)->setValueModelClass(Date::class);
+            $field = $this->getField($fieldName);
+            $field->setValueModelClass(Date::class);
+            if (strpos($fieldName, 'Server') === false) {
+                $field->setType('Date');
+            }
         }
 
         $this->initFieldOptionsForDisplayAndValidation();

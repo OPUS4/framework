@@ -332,6 +332,8 @@ class Field implements ModificationTrackingInterface, FieldInterface
                         return $this;
                     }
                     break;
+                case 'Date':
+                    // TODO trim down to date (Date object, date string)
                 default:
                     if ($value === $this->value) {
                         return $this;
