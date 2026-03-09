@@ -184,11 +184,12 @@ class DefaultDocumentFinder implements DocumentFinderInterface
     /**
      * @param string $name
      * @param string $value
+     * @param bool   $like
      * @return $this
      */
-    public function setIdentifierValue($name, $value)
+    public function setIdentifierValue($name, $value, $like = false)
     {
-        $this->finder->setIdentifierTypeValue($name, $value);
+        $this->finder->setIdentifierTypeValue($name, $value, $like);
         return $this;
     }
 

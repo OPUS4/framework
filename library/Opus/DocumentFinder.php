@@ -485,12 +485,19 @@ class DocumentFinder
      * @param  string $type
      * @return $this Fluent interface.
      */
-    public function setIdentifierTypeValue($type, $value)
+    public function setIdentifierTypeValue($type, $value, $like = false)
     {
         $quotedType  = $this->_db->quote($type);
-        $quotedValue = $this->_db->quote($value);
-        $subselect   = "SELECT id FROM document_identifiers AS i "
-            . "WHERE i.document_id = d.id AND type = $quotedType AND value = $quotedValue";
+
+        if ($like) {
+            $quotedValue = $this->_db->quote('%' . $value . '%');
+            $subselect = "SELECT id FROM document_identifiers AS i "
+                . "WHERE value LIKE $quotedValue";
+        } else {
+            $quotedValue = $this->_db->quote($value);
+            $subselect = "SELECT id FROM document_identifiers AS i "
+                . "WHERE i.document_id = d.id AND type = $quotedType AND value = $quotedValue";
+        }
 
         $this->_select->where("EXISTS ($subselect)");
         return $this;
