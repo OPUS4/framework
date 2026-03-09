@@ -42,6 +42,7 @@ use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DefaultDocumentFinder;
 use Opus\File;
+use Opus\Common\Identifier;
 use Opus\Licence;
 use Opus\Person;
 use Opus\Title;
@@ -68,6 +69,7 @@ class DocumentFinderTest extends TestCase
             'persons',
             'link_persons_documents',
             'document_title_abstracts',
+            'document_identifiers',
         ]);
     }
 
@@ -1044,5 +1046,27 @@ class DocumentFinderTest extends TestCase
         $this->assertCount(1, $result);
         $this->assertArrayHasKey(PublicationState::SUBMITTED, $result);
         $this->assertEquals(1, $result[PublicationState::SUBMITTED]);
+    }
+
+    public function testFindDoi()
+    {
+        $doc = Document::new();
+        $doi = Identifier::new();
+        $doi->setType('doi');
+        $doi->setValue('https://doi.org/10.1002/anie.202519457');
+        $doc->addIdentifier($doi);
+        $docId = $doc->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setIdentifierValue('doi', 'https://doi.org/10.1002/anie.202519457');
+        $this->assertCount(1, $finder->getIds());
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setIdentifierValue('doi', '10.1002/anie.202519457');
+        $this->assertCount(0, $finder->getIds());
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setIdentifierValue('doi', '10.1002/anie.202519457', true);
+        $this->assertCount(1, $finder->getIds());
     }
 }
