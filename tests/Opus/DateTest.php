@@ -77,9 +77,6 @@ class DateTest extends TestCase
         ], $date->toArray());
     }
 
-    /**
-     * TODO LAMINAS PublishedDate should not be stored with time
-     */
     public function testStoringDateWithTime()
     {
         $date = new Date('2018-10-20T14:31:12+02:00');
@@ -93,12 +90,9 @@ class DateTest extends TestCase
         $dateLoaded = $doc->getPublishedDate();
 
         $this->assertEquals(0, $date->compare($dateLoaded));
-        $this->assertEquals('2018-10-20T14:31:12+02:00', $dateLoaded->__toString());
+        $this->assertEquals('2018-10-20', $dateLoaded->__toString());
     }
 
-    /**
-     * TODO LAMINAS PublishedDate should not be stored with time
-     */
     public function testStoringDateWithTimezoneZ()
     {
         $date = new Date('2018-10-20T14:31:12Z');
@@ -112,6 +106,6 @@ class DateTest extends TestCase
         $dateLoaded = $doc->getPublishedDate();
 
         $this->assertEquals(0, $date->compare($dateLoaded));
-        $this->assertEquals('2018-10-20T14:31:12Z', $dateLoaded->__toString());
+        $this->assertEquals('2018-10-20', $dateLoaded->__toString());
     }
 }

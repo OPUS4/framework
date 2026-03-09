@@ -31,7 +31,10 @@
 
 namespace OpusTest;
 
+use Opus\Common\Date;
 use Opus\Common\Document;
+use Opus\Db\Documents;
+use Opus\Db\TableGateway;
 use OpusTest\TestAsset\TestCase;
 
 /**
@@ -74,5 +77,74 @@ class DocumentDatesTest extends TestCase
         $doc = Document::get($docId);
 
         $this->assertNull($doc->getCompletedDate());
+    }
+
+    public function testSetCompletedDateWithTimestamp()
+    {
+        $doc = Document::new();
+        $doc->setCompletedDate('2024-02-17T00:00:00+01:00');
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-02-17', $this->getDocumentColumn($doc->getId(), 'completed_date'));
+
+        $date = new Date('2024-03-16T00:50:00+01:00');
+        $doc->setCompletedDate($date);
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-03-16', $this->getDocumentColumn($doc->getId(), 'completed_date'));
+    }
+
+    public function testSetPublishedDateWithTimestamp()
+    {
+        $doc = Document::new();
+        $doc->setPublishedDate('2024-02-17T00:00:00+01:00');
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-02-17', $this->getDocumentColumn($doc->getId(), 'published_date'));
+
+        $date = new Date('2024-03-16T00:50:00+01:00');
+        $doc->setPublishedDate($date);
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-03-16', $this->getDocumentColumn($doc->getId(), 'published_date'));
+    }
+
+    public function testSetEmbargoDateWithTimestamp()
+    {
+        $doc = Document::new();
+        $doc->setEmbargoDate('2024-02-17T00:00:00+01:00');
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-02-17', $this->getDocumentColumn($doc->getId(), 'embargo_date'));
+
+        $date = new Date('2024-03-16T00:50:00+01:00');
+        $doc->setEmbargoDate($date);
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-03-16', $this->getDocumentColumn($doc->getId(), 'embargo_date'));
+    }
+
+    public function testSetThesisDateAcceptedWithTimestamp()
+    {
+        $doc = Document::new();
+        $doc->setThesisDateAccepted('2024-02-17T00:00:00+01:00');
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-02-17', $this->getDocumentColumn($doc->getId(), 'thesis_date_accepted'));
+
+        $date = new Date('2024-03-16T00:50:00+01:00');
+        $doc->setThesisDateAccepted($date);
+        $doc = Document::get($doc->store());
+
+        $this->assertEquals('2024-03-16', $this->getDocumentColumn($doc->getId(), 'thesis_date_accepted'));
+    }
+
+    protected function getDocumentColumn(int $docId, string $column): string
+    {
+        $database = TableGateway::getInstance(Documents::class)->getAdapter();
+
+        $select = $database->select()->from('documents', [$column])->where('id = ?', $docId);
+
+        return $database->fetchOne($select);
     }
 }

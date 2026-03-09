@@ -39,6 +39,7 @@ namespace Opus\Model;
 
 use Exception;
 use InvalidArgumentException;
+use Opus\Common\Date;
 use Opus\Common\Model\ComparableInterface;
 use Opus\Common\Model\FieldInterface;
 use Opus\Common\Model\ModelException;
@@ -310,6 +311,11 @@ class Field implements ModificationTrackingInterface, FieldInterface
     {
         // If the fields value is not going to change, leave.
         if (is_object($value) === true) {
+            if ($value instanceof Date && $this->getType() === 'Date' && ! $value->isDateOnly())
+            {
+                $value->setDateOnly($value->getDateTime());
+            }
+
             // ComparableInterface used for comparing Date objects
             if ($value instanceof ComparableInterface) {
                 if ($value->compare($this->value) === 0) {
@@ -332,6 +338,11 @@ class Field implements ModificationTrackingInterface, FieldInterface
                         return $this;
                     }
                     break;
+                case 'Date':
+                    $matches = [];
+                    if ($value !== null && preg_match('/(.*)T.*/', $value, $matches)) {
+                        $value = $matches[1];
+                    }
                 default:
                     if ($value === $this->value) {
                         return $this;
