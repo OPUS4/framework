@@ -32,6 +32,8 @@
 namespace OpusTest\Db\Util;
 
 use Opus\Common\Document;
+use Opus\Db\Documents;
+use Opus\Db\TableGateway;
 use Opus\Db\Util\Maintenance;
 use OpusTest\TestAsset\TestCase;
 
@@ -55,13 +57,13 @@ class MaintenanceTest extends TestCase
         $doc->setCompletedDate('2026-01-24');
         $this->documents[0] = $doc->store();
 
-        $doc = Document::new();
-        $doc->setCompletedDate('2024-02-17T00:00:00+01:00');
+        $doc                = Document::new();
         $this->documents[1] = $doc->store();
+        $this->setDocumentsColumn($this->documents[1], 'completed_date', '2024-02-17T00:00:00+01:00');
 
-        $doc = Document::new();
-        $doc->setPublishedDate('2022-03-21T00:00:00+01:00');
+        $doc                = Document::new();
         $this->documents[2] = $doc->store();
+        $this->setDocumentsColumn($this->documents[2], 'published_date', '2022-03-21T00:00:00+01:00');
 
         $doc = Document::new();
         $doc->setEmbargoDate('2025-10-20');
@@ -98,5 +100,22 @@ class MaintenanceTest extends TestCase
         $this->assertArrayHasKey('published_date', $dates);
         $this->assertEquals(1, $dates['completed_date']);
         $this->assertEquals(1, $dates['published_date']);
+    }
+
+    protected function setDocumentsColumn(int $docId, string $column, string $value): void
+    {
+        $database = TableGateway::getInstance(Documents::class)->getAdapter();
+
+        $data = [
+            $column => $value,
+        ];
+
+        $where = [
+            'id = ?' => $docId,
+        ];
+
+        $database->beginTransaction();
+        $database->update('documents', $data, $where);
+        $database->commit();
     }
 }
