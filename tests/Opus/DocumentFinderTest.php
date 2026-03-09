@@ -666,10 +666,10 @@ class DocumentFinderTest extends TestCase
         $now->setNow();
 
         $past = new Date();
-        $past->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('-1 hour'))));
+        $past->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('-1 day'))));
 
         $future = new Date();
-        $future->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('+1 hour'))));
+        $future->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('+1 day'))));
 
         $doc = new Document();
         $doc->setEmbargoDate($past);

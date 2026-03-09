@@ -2785,15 +2785,18 @@ class DocumentTest extends TestCase
 
         $now = Date::getNow();
 
+        $dateOnly = new Date();
+        $dateOnly->setDateOnly($now->getDateTime());
+
         $nowArray = [
             'Year'          => $now->getYear(),
             'Month'         => $now->getMonth(),
             'Day'           => $now->getDay(),
-            'Hour'          => $now->getHour(),
-            'Minute'        => $now->getMinute(),
-            'Second'        => $now->getSecond(),
-            'Timezone'      => $now->getTimezone(),
-            'UnixTimestamp' => $now->getUnixTimestamp(),
+            'Hour'          => null,
+            'Minute'        => null,
+            'Second'        => null,
+            'Timezone'      => null,
+            'UnixTimestamp' => $dateOnly->getUnixTimestamp(),
         ];
 
         $doc->setCompletedDate($now);
@@ -3786,15 +3789,18 @@ class DocumentTest extends TestCase
 
         $date->setTimestamp(1322694000);
 
+        $dateOnly = new Date();
+        $dateOnly->setDateOnly($date->getDateTime());
+
         $doc->setCompletedDate($date);
 
         $doc = new Document($doc->store());
 
         $date = $doc->getCompletedDate();
 
-        $this->assertEquals(1322694000, $date->getUnixTimestamp());
-        $this->assertEquals('2011-11-30 23:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
-        $this->assertEquals('2011-11-30T23:00:00Z', $date->__toString());
+        $this->assertEquals($dateOnly->getTimestamp(), $date->getUnixTimestamp());
+        $this->assertEquals('2011-11-30 00:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
+        $this->assertEquals('2011-11-30', $date->__toString());
     }
 
     public function testGetSubjectOrderAsAdded()
