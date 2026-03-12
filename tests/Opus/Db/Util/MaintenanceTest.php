@@ -32,6 +32,7 @@
 namespace OpusTest\Db\Util;
 
 use Opus\Common\Document;
+use Opus\Db\DocumentIdentifiers;
 use Opus\Db\Documents;
 use Opus\Db\TableGateway;
 use Opus\Db\Util\Maintenance;
@@ -102,6 +103,45 @@ class MaintenanceTest extends TestCase
         $this->assertEquals(1, $dates['published_date']);
     }
 
+    public function testCheckDoiValues()
+    {
+        $doc    = Document::new();
+        $docId1 = $doc->store();
+        $this->addIdentifierValue($docId1, 'doi', 'https://doi.org/10.1002/anie.202519457');
+        $this->addIdentifierValue($docId1, 'doi', 'https://doi.org/10.23952/jnva.10.2026.2.8');
+
+        $doc    = Document::new();
+        $docId2 = $doc->store();
+        $this->addIdentifierValue($docId2, 'doi', '10.1016/j.eswa.2025.127355');
+
+        $result = $this->maintenance->checkDoiValues();
+
+        $this->assertCount(2, $result);
+
+        $this->assertEqualsCanonicalizing([
+            ['document_id' => $docId1, 'value' => 'https://doi.org/10.1002/anie.202519457'],
+            ['document_id' => $docId1, 'value' => 'https://doi.org/10.23952/jnva.10.2026.2.8'],
+        ], $result);
+    }
+
+    public function testFixDoiValues()
+    {
+        $doc   = Document::new();
+        $docId = $doc->store();
+        $this->addIdentifierValue($docId, 'doi', 'https://doi.org/10.1002/anie.202519457 ');
+
+        $doc = Document::get($docId);
+        $this->assertCount(1, $doc->getIdentifierDoi());
+
+        $this->maintenance->fixDoiValues();
+
+        $doc = Document::get($docId);
+        $this->assertEquals('10.1002/anie.202519457', $doc->getIdentifierDoi()[0]->getValue());
+    }
+
+    /**
+     * Add values to a document bypassing the API.
+     */
     protected function setDocumentsColumn(int $docId, string $column, string $value): void
     {
         $database = TableGateway::getInstance(Documents::class)->getAdapter();
@@ -116,6 +156,24 @@ class MaintenanceTest extends TestCase
 
         $database->beginTransaction();
         $database->update('documents', $data, $where);
+        $database->commit();
+    }
+
+    /**
+     * Add identifiers to a document bypassing the API.
+     */
+    protected function addIdentifierValue(int $docId, string $type, string $value): void
+    {
+        $database = TableGateway::getInstance(DocumentIdentifiers::class)->getAdapter();
+
+        $data = [
+            'document_id' => $docId,
+            'type'        => $type,
+            'value'       => $value,
+        ];
+
+        $database->beginTransaction();
+        $database->insert('document_identifiers', $data);
         $database->commit();
     }
 }

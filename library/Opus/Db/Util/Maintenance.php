@@ -33,6 +33,7 @@ namespace Opus\Db\Util;
 
 use Exception;
 use Opus\Common\LoggingTrait;
+use Opus\Db\DocumentIdentifiers;
 use Opus\Db\Documents;
 use Opus\Db\TableGateway;
 use Zend_Db_Expr;
@@ -103,5 +104,38 @@ class Maintenance
         }
 
         return $results;
+    }
+
+    /**
+     * Finds DOI values that do not start with "10." and therefore might contain a URL prefix.
+     */
+    public function checkDoiValues(): array
+    {
+        $table    = TableGateway::getInstance(DocumentIdentifiers::class);
+        $database = $table->getAdapter();
+
+        $select = $table->select()
+            ->from($table, ['document_id', 'value'])
+            ->where('value NOT LIKE \'10.%\'')
+            ->where('type = \'doi\'');
+
+        return $database->fetchAll($select);
+    }
+
+    /**
+     * Remove prefix URL from DOI values.
+     */
+    public function fixDoiValues(): void
+    {
+        $table = TableGateway::getInstance(DocumentIdentifiers::class);
+
+        try {
+            $table->update(
+                ['value' => new Zend_Db_Expr("REGEXP_SUBSTR(value, '10\.\\\\S+')")],
+                ['type = \'doi\'', 'value NOT LIKE \'10.%\'']
+            );
+        } catch (Exception $e) {
+            $this->getLogger()->err($e->getMessage());
+        }
     }
 }
