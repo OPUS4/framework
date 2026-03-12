@@ -35,6 +35,7 @@ use DateTime;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Date;
+use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Common\PublicationState;
 use Opus\Common\Security\SecurityException;
@@ -1051,7 +1052,6 @@ class DocumentFinderTest extends TestCase
 
     public function testFindDoi()
     {
-        $doc   = Document::new();
         $docId = $doc->store();
         $this->addIdentifierValue($docId, 'doi', 'https://doi.org/10.1002/anie.202519457');
 
