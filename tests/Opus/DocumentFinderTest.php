@@ -35,10 +35,11 @@ use DateTime;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Date;
-use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Common\PublicationState;
 use Opus\Common\Security\SecurityException;
+use Opus\Db\DocumentIdentifiers;
+use Opus\Db\TableGateway;
 use Opus\Document;
 use Opus\DocumentFinder;
 use Opus\DocumentFinder\DefaultDocumentFinder;
@@ -1050,12 +1051,9 @@ class DocumentFinderTest extends TestCase
 
     public function testFindDoi()
     {
-        $doc = Document::new();
-        $doi = Identifier::new();
-        $doi->setType('doi');
-        $doi->setValue('https://doi.org/10.1002/anie.202519457');
-        $doc->addIdentifier($doi);
+        $doc   = Document::new();
         $docId = $doc->store();
+        $this->addIdentifierValue($docId, 'doi', 'https://doi.org/10.1002/anie.202519457');
 
         $finder = new DefaultDocumentFinder();
         $finder->setIdentifierValue('doi', 'https://doi.org/10.1002/anie.202519457');
@@ -1068,5 +1066,23 @@ class DocumentFinderTest extends TestCase
         $finder = new DefaultDocumentFinder();
         $finder->setIdentifierValue('doi', '10.1002/anie.202519457', true);
         $this->assertCount(1, $finder->getIds());
+    }
+
+    /**
+     * Add identifiers to a document bypassing the API.
+     */
+    protected function addIdentifierValue(int $docId, string $type, string $value): void
+    {
+        $database = TableGateway::getInstance(DocumentIdentifiers::class)->getAdapter();
+
+        $data = [
+            'document_id' => $docId,
+            'type'        => $type,
+            'value'       => $value,
+        ];
+
+        $database->beginTransaction();
+        $database->insert('document_identifiers', $data);
+        $database->commit();
     }
 }

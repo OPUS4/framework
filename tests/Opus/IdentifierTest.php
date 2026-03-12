@@ -656,4 +656,17 @@ class IdentifierTest extends TestCase
         $identifier = Identifier::new();
         $this->assertEquals('identifier', $identifier->getModelType());
     }
+
+    public function testStoreFilterDoiValue()
+    {
+        $doc        = Document::new();
+        $identifier = Identifier::new();
+        $identifier->setType('doi');
+        $identifier->setValue('https://doi.org/10.23952/jnva.10.2026.2.8 ');
+        $doc->addIdentifier($identifier);
+        $docId = $doc->store();
+
+        $doc = new Document($docId);
+        $this->assertEquals('10.23952/jnva.10.2026.2.8', $doc->getIdentifierDoi()[0]->getValue());
+    }
 }
