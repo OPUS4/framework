@@ -1052,6 +1052,7 @@ class DocumentFinderTest extends TestCase
 
     public function testFindDoi()
     {
+        $doc   = Document::new();
         $docId = $doc->store();
         $this->addIdentifierValue($docId, 'doi', 'https://doi.org/10.1002/anie.202519457');
 
