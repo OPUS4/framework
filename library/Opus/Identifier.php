@@ -158,6 +158,10 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
                     $this->checkUrnCollision($value);
                     break;
                 case 'doi':
+                    if (preg_match('/10\..+/', $value, $matches)) {
+                        $value = $matches[0];
+                        $this->setValue($value);
+                    }
                     if ($this->checkDoiCollision()) {
                         throw new DoiAlreadyExistsException(
                             "could not save DOI with value $value since it already exists in your instance"
@@ -205,7 +209,7 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
      * Optional kann eine ID eines OPUS-Dokuments übergeben werden. Das zugehörige Dokument wird dann bei der
      * Eindeutigkeitsüberprüfung nicht betrachtet.
      *
-     * @param $docId optionale ID eines OPUS-Dokuments
+     * @param int $docId Optional ID eines OPUS-Dokuments
      * @return bool
      */
     public function isUrnUnique($docId = null)
