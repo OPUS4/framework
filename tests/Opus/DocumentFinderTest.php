@@ -35,7 +35,6 @@ use DateTime;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Date;
-use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Common\PublicationState;
 use Opus\Common\Security\SecurityException;
