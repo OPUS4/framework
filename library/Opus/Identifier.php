@@ -256,6 +256,9 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
      *
      * Wird eine ID eines Opus-Dokuments übergeben, so wird das zugehörige Dokument bei der Eindeutigkeitsprüfung nicht
      * betrachtet.
+     *
+     * TODO This only works when all DOI do not have prefixes.
+     * TODO isDoiUnqiue calls checkDoiCollision which calls isDoiUnique - Is there a risk of endless looping?
      */
     public function isDoiUnique($docId = null)
     {
