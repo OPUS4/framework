@@ -35,6 +35,7 @@ use DateTime;
 use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Date;
+use Opus\Common\Identifier;
 use Opus\Common\Model\ModelException;
 use Opus\Common\PublicationState;
 use Opus\Common\Security\SecurityException;
@@ -1066,6 +1067,33 @@ class DocumentFinderTest extends TestCase
         $finder = new DefaultDocumentFinder();
         $finder->setIdentifierValue('doi', '10.1002/anie.202519457', true);
         $this->assertCount(1, $finder->getIds());
+    }
+
+    public function testDoiUnique()
+    {
+        $doi1 = '12.3456/opustest-890';
+        $doi2 = '12.3456/opustest-789';
+
+        $doc        = Document::new();
+        $identifier = Identifier::new();
+        $identifier->setType('doi');
+        $identifier->setValue($doi1);
+        $doc->addIdentifier($identifier);
+        $doc->store();
+
+        $doc        = Document::new();
+        $identifier = Identifier::new();
+        $identifier->setType('doi');
+        $identifier->setValue($doi2);
+        $doc->addIdentifier($identifier);
+        $docId2 = $doc->store();
+
+        $finder = new DefaultDocumentFinder();
+        $finder->setIdentifierValue('doi', $doi2, true);
+        $ids = $finder->getIds();
+
+        $this->assertCount(1, $ids);
+        $this->assertContains($docId2, $ids);
     }
 
     /**

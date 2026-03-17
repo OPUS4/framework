@@ -263,7 +263,7 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
     public function isDoiUnique($docId = null)
     {
         $finder = new DocumentFinder();
-        $finder->setIdentifierTypeValue('doi', $this->getValue());
+        $finder->setIdentifierTypeValue('doi', $this->getValue(), true);
         $docIds = $finder->ids();
         // remove $docId from $docIds
         if ($docId !== null) {
