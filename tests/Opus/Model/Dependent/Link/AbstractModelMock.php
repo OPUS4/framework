@@ -41,6 +41,9 @@ class AbstractModelMock extends AbstractModel
     /** @var bool */
     private $mockValid = true;
 
+    /** @var string */
+    private $_mockDisplayName;
+
     /**
      * No fields to add for this mock model so the method has an empty body.
      *

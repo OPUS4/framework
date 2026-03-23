@@ -73,9 +73,6 @@ class AbstractModelMock extends AbstractModel
      */
     protected function init()
     {
-        $this->validatorPrefix[] = 'Opus_Model_ValidateTest';
-        $this->filterPrefix[]    = 'Opus_Model_FilterTest';
-
         $id = new Field('Id');
 
         $value = new Field('Value');

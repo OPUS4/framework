@@ -73,9 +73,6 @@ class AbstractDbMock extends AbstractDb
      */
     protected function init()
     {
-        $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
-        $this->_filterPrefix[]    = 'Opus_Model_FilterTest';
-
         $value = new Field('Value');
         $this->addField($value);
     }

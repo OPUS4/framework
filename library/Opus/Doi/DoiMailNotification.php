@@ -62,6 +62,9 @@ class DoiMailNotification
 
     private $recipientProvider;
 
+    /** @var array */
+    private $notifications;
+
     public function __construct()
     {
         $this->notifications = [];
