@@ -394,6 +394,9 @@ abstract class AbstractVersion implements StrategyInterface
         if ($fieldValues instanceof DateTimeZone) {
             $fieldValues = $fieldValues->getName();
         }
+        if ($field->getType() === 'bool') {
+            $fieldValues = $fieldValues ? '1' : '0';
+        }
 
         return trim($fieldValues ?? '');
     }

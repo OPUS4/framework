@@ -949,8 +949,6 @@ class Version1Test extends TestCase
         $xml->setModel($document);
         $dom = $xml->getDomDocument();
 
-        $output = $dom->saveXml();
-
         $elements = $dom->getElementsByTagName('CompletedDate');
         $this->assertCount(1, $elements);
 
@@ -970,5 +968,19 @@ class Version1Test extends TestCase
         $this->assertTrue($completedDate->hasAttribute('Second'));
         $this->assertTrue($completedDate->hasAttribute('Timezone'));
         $this->assertTrue($completedDate->hasAttribute('UnixTimestamp'));
+    }
+
+    public function testOutputBelongsToBibliographyFalseAsZero()
+    {
+        $doc = Document::new();
+        $doc->setBelongsToBibliography(false);
+
+        $xml = new Xml();
+        $xml->setStrategy(new Version1());
+        $xml->setModel($doc);
+        $dom = $xml->getDomDocument();
+
+        $docElement = $dom->getElementsByTagName('Opus_Document')->item(0);
+        $this->assertEquals('0', $docElement->attributes->getNamedItem('BelongsToBibliography')->nodeValue);
     }
 }
