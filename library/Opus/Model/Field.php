@@ -965,10 +965,7 @@ class Field implements ModificationTrackingInterface, FieldInterface
         $this->type = $type;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getType()
+    public function getType(): string|null
     {
         return $this->type;
     }
