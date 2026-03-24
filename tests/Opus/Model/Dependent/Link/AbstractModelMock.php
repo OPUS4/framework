@@ -42,7 +42,7 @@ class AbstractModelMock extends AbstractModel
     private $mockValid = true;
 
     /** @var string */
-    private $_mockDisplayName;
+    private $mockDisplayName;
 
     /**
      * No fields to add for this mock model so the method has an empty body.
@@ -60,7 +60,7 @@ class AbstractModelMock extends AbstractModel
      */
     public function setDisplayName($displayName)
     {
-        $this->_mockDisplayName = $displayName;
+        $this->mockDisplayName = $displayName;
     }
 
     /**
@@ -70,7 +70,7 @@ class AbstractModelMock extends AbstractModel
      */
     public function getDisplayName()
     {
-        return $this->_mockDisplayName;
+        return $this->mockDisplayName;
     }
 
     /**
