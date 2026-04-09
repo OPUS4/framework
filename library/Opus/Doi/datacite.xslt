@@ -464,7 +464,7 @@
                 </xsl:when>
                 <xsl:when test=".='conferenceposter'">                    
                     <xsl:attribute name="resourceTypeGeneral">
-                        <xsl:text>Text</xsl:text>
+                        <xsl:text>Poster</xsl:text>
                     </xsl:attribute>
                     <xsl:text>Conference Poster</xsl:text>
                 </xsl:when>
@@ -476,7 +476,7 @@
                 </xsl:when>
                 <xsl:when test=".='conferenceslides'">                    
                     <xsl:attribute name="resourceTypeGeneral">
-                        <xsl:text>Text</xsl:text>
+                        <xsl:text>Presentation</xsl:text>
                     </xsl:attribute>
                     <xsl:text>Conference Slides</xsl:text>
                 </xsl:when>
