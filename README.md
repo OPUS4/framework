@@ -4,14 +4,7 @@ The project is using Composer for handling dependencies. The OPUS 4 Framework it
 that is used by the OPUS 4 Application. 
 
 The OPUS 4 Framework is written in PHP. It also uses Ant for scripting common development actions. The Ant
-script (`build.xml`) is used for automation by a continous integration system.
-
-## Requirements
-
-The system must meet the following basic requirements in order to run the unit tests:
-
-- PHP < 7.2 (because of Zend Framework 1)
-- MySQL > 5.1
+script (`build.xml`) is used for automation by a continuous integration system.
 
 ## Dependencies
 
