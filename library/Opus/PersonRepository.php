@@ -52,6 +52,7 @@ use function array_unique;
 use function array_values;
 use function count;
 use function in_array;
+use function intval;
 use function is_array;
 use function strlen;
 use function trim;
@@ -304,6 +305,10 @@ class PersonRepository implements PersonRepositoryInterface
 
         foreach ($data as $personId => $values) {
             foreach ($values as $key => $value) {
+                if ($key === 'id') {
+                    $value = intval($value);
+                }
+
                 if (array_key_exists($key, $merged)) {
                     $allValues = $merged[$key];
 
@@ -393,7 +398,14 @@ class PersonRepository implements PersonRepositoryInterface
 
         self::addWherePerson($select, $person);
 
-        return $database->fetchAll($select);
+        $result = $database->fetchAll($select);
+
+        return array_map(function ($value) {
+            return [
+                'person_id'   => intval($value['person_id']),
+                'document_id' => intval($value['document_id']),
+            ];
+        }, $result);
     }
 
     /**
@@ -491,7 +503,7 @@ class PersonRepository implements PersonRepositoryInterface
             $select->where('link.document_id IN (?)', $documents);
         }
 
-        return $database->fetchCol($select);
+        return array_map('intval', $database->fetchCol($select));
     }
 
     /**

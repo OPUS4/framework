@@ -36,6 +36,8 @@ use Exception;
 use Opus\Common\CollectionRepositoryInterface;
 use Opus\Db\TableGateway;
 
+use function array_map;
+use function count;
 use function is_array;
 
 /**
@@ -180,7 +182,13 @@ class CollectionRepository implements CollectionRepositoryInterface
             ->where('ldc.document_id = ?', $documentId)
             ->distinct();
 
-        return $table->getAdapter()->fetchCol($select);
+        $collectionIds = $table->getAdapter()->fetchCol($select);
+
+        if (count($collectionIds) > 0) {
+            return array_map('intval', $collectionIds);
+        } else {
+            return [];
+        }
     }
 
     /**

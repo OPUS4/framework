@@ -227,7 +227,7 @@ class Person extends AbstractDb implements PersonInterface
             $select->where('role = ?', $role);
         }
 
-        return $database->fetchCol($select);
+        return array_map('intval', $database->fetchCol($select));
     }
 
 

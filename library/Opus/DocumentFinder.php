@@ -109,7 +109,7 @@ class DocumentFinder
      */
     public function ids()
     {
-        return array_unique($this->_db->fetchCol($this->getSelectIds()));
+        return array_map('intval', array_unique($this->_db->fetchCol($this->getSelectIds())));
     }
 
     /**

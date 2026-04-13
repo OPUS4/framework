@@ -39,6 +39,7 @@ use Opus\Db\TableGateway;
 use Opus\Model\AbstractDb;
 use Opus\Model\Field;
 
+use function array_map;
 use function count;
 use function func_get_args;
 
@@ -218,7 +219,7 @@ class UserRole extends AbstractDb implements UserRoleInterface, UserRoleReposito
                         ->from('access_files', ['file_id'])
                         ->where('role_id = ?', $this->getId());
 
-        return $adapter->fetchCol($select);
+        return array_map('intval', $adapter->fetchCol($select));
     }
 
     /**

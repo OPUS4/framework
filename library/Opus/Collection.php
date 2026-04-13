@@ -329,7 +329,7 @@ class Collection extends AbstractDb implements CollectionInterface
                         ->where('collection_id = ?', $this->getId())
                         ->distinct();
 
-        return $table->getAdapter()->fetchCol($select);
+        return array_map('intval', $table->getAdapter()->fetchCol($select));
     }
 
     /**

@@ -535,12 +535,12 @@ SQL;
         $db     = Zend_Db_Table::getDefaultAdapter();
         $select = $db->quoteInto($select, $this->getId());
 
-        return $db->fetchCol($select);
+        return array_map('intval', $db->fetchCol($select));
     }
 
     /**
      * Return visible collections with oai_name (optional) and documents.
-     * @return void
+     * @return array
      */
     public function getOaiCollections($requireOaiName = false)
     {
@@ -700,10 +700,12 @@ SQL;
 
             $result = $db->fetchCol($select);
 
-            return $result;
-        } else {
-            return [];
+            if (count($result) > 0) {
+                return array_map('intval', $result);
+            }
         }
+
+        return [];
     }
 
     /**
