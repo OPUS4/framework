@@ -186,13 +186,6 @@
                 </xsl:element>
             </xsl:if>
 
-            <!-- es kann in einem OPUS-XML mehrere ThesisPublisher-Elemente geben -->
-            <xsl:if test="ThesisPublisher/@City">
-                <xsl:element name="geoLocations">
-                    <xsl:apply-templates select="ThesisPublisher/@City"/>
-                </xsl:element>
-            </xsl:if>
-
         </xsl:element>
     </xsl:template>
 
@@ -714,14 +707,6 @@
                 <xsl:value-of select="@Name"/>
             </xsl:element>
         </xsl:if>
-    </xsl:template>
-
-    <xsl:template match="ThesisPublisher/@City">
-        <xsl:element name="geoLocation">
-            <xsl:element name="geoLocationPlace">
-                <xsl:value-of select="."/>
-            </xsl:element>
-        </xsl:element>
     </xsl:template>
 
     <xsl:template match="File/@FileSize">
