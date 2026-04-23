@@ -35,7 +35,6 @@ use Opus\Collection;
 use Opus\CollectionRole;
 use Opus\Common\Config;
 use Opus\Common\Identifier;
-use Opus\Common\Language;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Util\File as FileUtil;
 use Opus\DnbInstitute;
@@ -80,32 +79,6 @@ class DataCiteXmlGeneratorTest extends TestCase
         parent::setUp();
 
         $this->clearTables(false);
-
-        $lang = Language::new();
-        $lang->updateFromArray([
-            'Comment' => 'Deutsche Sprache',
-            'Part2B'  => 'ger',
-            'Part2T'  => 'deu',
-            'Part1'   => 'de',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'German',
-            'Active'  => 1,
-        ]);
-        $lang->store();
-
-        $lang = Language::new();
-        $lang->updateFromArray([
-            'Comment' => 'English language',
-            'Part2B'  => 'eng',
-            'Part2T'  => 'eng',
-            'Part1'   => 'en',
-            'Scope'   => 'I',
-            'Type'    => 'L',
-            'RefName' => 'English',
-            'Active'  => 1,
-        ]);
-        $lang->store();
 
         $config     = Config::get();
         $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();

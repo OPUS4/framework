@@ -131,7 +131,7 @@ class DataCiteXmlGenerator
         }
 
         $proc = new XSLTProcessor();
-        $proc->registerPHPFunctions('Opus\Common\Language::getLanguageCode');
+        $proc->registerPHPFunctions('Opus\I18n\Languages::getPart1');
         $proc->importStyleSheet($xslt);
 
         if (! $skipTestOfRequiredFields && ! $allowInvalidXml && ! $this->checkRequiredFields($doc)) {

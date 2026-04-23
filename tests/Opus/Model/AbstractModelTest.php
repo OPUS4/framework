@@ -34,10 +34,10 @@ namespace OpusTest\Model;
 use Opus\Common\Date;
 use Opus\Common\Document;
 use Opus\Common\Identifier;
-use Opus\Common\Language;
 use Opus\Common\Log;
 use Opus\Common\Model\ModelException;
 use Opus\Common\Model\NotFoundException;
+use Opus\Common\Patent;
 use Opus\Document as DocumentImpl;
 use Opus\Model\Dependent\Link\DocumentPerson;
 use Opus\Model\Field;
@@ -509,11 +509,11 @@ class AbstractModelTest extends TestCase
 
     public function testGetModelType()
     {
-        $model = Language::new();
+        $model = Patent::new();
 
         $this->expectException(
             UnknownModelTypeException::class,
-            'Properties not supported for Opus\Language'
+            'Properties not supported for Opus\Patent'
         );
 
         $model->getModelType();
