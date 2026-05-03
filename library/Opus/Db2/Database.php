@@ -35,7 +35,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Opus\Common\Config;
-use Opus\Database as OpusDatabase;
 
 /**
  * TODO Allgemeine Funktionen für Datenbankanbindung mit Doctrine. Das Design insgesamt ist aber noch unklar. Diese
@@ -55,9 +54,10 @@ class Database
 
         if (isset($config->db->params)) {
             $dbConfig = $config->db->params;
+            return $dbConfig->toArray();
         }
 
-        return $dbConfig->toArray();
+        return [];
     }
 
     /**
@@ -69,13 +69,8 @@ class Database
         if (self::$conn === null) {
             $params = self::getConnectionParams();
 
-            $db = new OpusDatabase();
-
-            $dbName = $db->getName();
-
-            $pdo = $db->getPdo($dbName);
-
-            $params['pdo'] = $pdo;
+            $params['user']   = $params['username'] ?? null;
+            $params['driver'] = 'pdo_mysql';
 
             self::$conn = DriverManager::getConnection($params);
         }
