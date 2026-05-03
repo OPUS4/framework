@@ -69,7 +69,7 @@ class Database
         if (self::$conn === null) {
             $params = self::getConnectionParams();
 
-            $params['user'] = $params['username'] ?? null;
+            $params['user']   = $params['username'] ?? null;
             $params['driver'] = 'pdo_mysql';
 
             self::$conn = DriverManager::getConnection($params);

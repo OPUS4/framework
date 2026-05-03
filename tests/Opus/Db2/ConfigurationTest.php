@@ -64,6 +64,15 @@ class ConfigurationTest extends TestCase
         $this->assertNull($this->configuration->getOption('testOption'));
     }
 
+    public function testSetOptionUpdateValue()
+    {
+        $this->configuration->setOption('i18n.languages.active', 'deu, eng');
+        $this->assertEquals('deu, eng', $this->configuration->getOption('i18n.languages.active'));
+
+        $this->configuration->setOption('i18n.languages.active', 'deu, eng, fra');
+        $this->assertEquals('deu, eng, fra', $this->configuration->getOption('i18n.languages.active'));
+    }
+
     public function testGetOption()
     {
         $this->configuration->setOption('i18n.languages.active', 'deu, eng');
@@ -90,7 +99,46 @@ class ConfigurationTest extends TestCase
         ], $result);
     }
 
-    public function testLoadConfiguration()
+    public function testGetOptionArrayConflict()
+    {
+        $this->configuration->setOption('i18n.languages.local.cmn', ', zho, zh, Chinesisch/Manadrin');
+        $this->configuration->setOption('i18n.languages.local.wuu', ', zho, zh, Chinesisch/Wu');
+        $this->configuration->setOption('i18n.languages.localEnabled', '1');
+
+        $result = $this->configuration->getOption('i18n.languages.local');
+
+        $this->assertEquals([
+            'cmn' => ', zho, zh, Chinesisch/Manadrin',
+            'wuu' => ', zho, zh, Chinesisch/Wu',
+        ], $result);
+    }
+
+    public function testGetOptionShortConflict()
+    {
+        $this->configuration->setOption('opusVersion', '4.9');
+        $this->configuration->setOption('opusTheme', 'default');
+
+        $result = $this->configuration->getOption('opus');
+
+        $this->assertNull($result);
+    }
+
+    public function testGetOptionAllWithMatchingPrefix()
+    {
+        $this->configuration->setOption('opusVersion', '4.9');
+        $this->configuration->setOption('opus.default', 'test1');
+        $this->configuration->setOption('opus.current', 'test2');
+
+        $result = $this->configuration->getOption('opus', true);
+
+        $this->assertEquals([
+            'opusVersion'  => '4.9',
+            'opus.default' => 'test1',
+            'opus.current' => 'test2',
+        ], $result);
+    }
+
+    public function testGetConfig()
     {
         $this->configuration->setOption('i18n.languages.active', 'deu, eng, fra, rus, spa, por');
         $this->configuration->setOption('i18n.languages.sortByName', '0');
@@ -102,5 +150,77 @@ class ConfigurationTest extends TestCase
         $this->assertEquals('deu, eng, fra, rus, spa, por', $config->i18n->languages->active);
         $this->assertTrue(isset($config->i18n->languages->sortByName));
         $this->assertEquals('0', $config->i18n->languages->sortByName);
+    }
+
+    public function testImport()
+    {
+        $config = new Zend_Config([
+            'i18n' => [
+                'languages' => [
+                    'active'     => 'deu, eng',
+                    'sortByName' => '1',
+                ],
+            ],
+        ]);
+
+        $this->configuration->import($config);
+
+        $this->assertEquals('deu, eng', $this->configuration->getOption('i18n.languages.active'));
+        $this->assertEquals('1', $this->configuration->getOption('i18n.languages.sortByName'));
+    }
+
+    public function testImportSimpleArrayWithoutKeys()
+    {
+        $config = new Zend_Config([
+            'languages' => ['deu', 'eng'],
+        ]);
+
+        $this->configuration->import($config);
+
+        $this->assertEquals(['deu', 'eng'], $this->configuration->getOption('languages'));
+    }
+
+    public function testGetConfigSimpleArrayWithoutKeys()
+    {
+        $this->configuration->import(new Zend_Config([
+            'languages' => ['deu', 'eng'],
+        ]));
+
+        $config = $this->configuration->getConfig();
+
+        $this->assertEquals([
+            'languages' => ['deu', 'eng'],
+        ], $config->toArray());
+    }
+
+    public function testRemoveOption()
+    {
+        $this->configuration->setOption('i18n.languages.active', 'deu, eng');
+        $this->assertEquals('deu, eng', $this->configuration->getOption('i18n.languages.active'));
+        $this->configuration->remove('i18n.languages.active');
+        $this->assertNull($this->configuration->getOption('i18n.languages.active'));
+    }
+
+    public function testRemoveArray()
+    {
+        $config = new Zend_Config([
+            'languages' => ['deu', 'eng'],
+        ]);
+
+        $this->configuration->import($config);
+        $this->assertEquals(['deu', 'eng'], $this->configuration->getOption('languages'));
+
+        $this->configuration->remove('languages');
+
+        $this->assertNull($this->configuration->getOption('languages'));
+    }
+
+    public function testReset()
+    {
+        $this->configuration->setOption('i18n.languages.active', 'deu, eng');
+        $this->assertEquals('deu, eng', $this->configuration->getOption('i18n.languages.active'));
+
+        $this->configuration->reset();
+        $this->assertNull($this->configuration->getOption('i18n.languages.active'));
     }
 }
