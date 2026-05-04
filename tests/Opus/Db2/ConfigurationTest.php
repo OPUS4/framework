@@ -169,6 +169,19 @@ class ConfigurationTest extends TestCase
         $this->assertEquals('1', $this->configuration->getOption('i18n.languages.sortByName'));
     }
 
+    public function testImportMultipleRoots()
+    {
+        $options = [
+            'searchengine' => ['solr' => ['parameterDefaults' => ['rows' => '15']]],
+            'browsing'     => ['series' => ['sortByTitle' => '1']],
+        ];
+
+        $config = new Zend_Config($options);
+        $this->configuration->import($config);
+        $imported = $this->configuration->getConfig();
+        $this->assertEquals($options, $imported->toArray());
+    }
+
     public function testImportSimpleArrayWithoutKeys()
     {
         $config = new Zend_Config([

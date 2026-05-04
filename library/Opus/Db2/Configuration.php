@@ -149,7 +149,7 @@ class Configuration
 
         foreach ($config as $key => $value) {
             if (is_array($value)) {
-                $output = array_merge($this->arr2ini($value, $prefix . $key . '.'));
+                $output = array_merge($output, $this->arr2ini($value, $prefix . $key . '.'));
             } else {
                 $output["{$prefix}{$key}"] = $value;
             }
