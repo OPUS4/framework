@@ -19,7 +19,11 @@
     "opus4-repo/opus4-common": "^4.9",
     "opus4-repo/opus4-doi": "^4.9",
     "opus4-repo/opus4-i18n": "*",
-    "symfony/console": "*"
+    "symfony/console": "*",
+    "doctrine/dbal": "*",
+    "doctrine/orm": "*",
+    "doctrine/cache": "*",
+    "doctrine/annotations": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
