@@ -143,7 +143,7 @@ class Configuration
     /**
      * Converts an array into the INI format, where the levels of the array are connected with dots.
      */
-    protected function arr2ini(array $config, string $prefix = ''): array
+    public function arr2ini(array $config, string $prefix = ''): array
     {
         $output = [];
 
