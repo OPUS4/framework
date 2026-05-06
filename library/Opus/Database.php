@@ -198,7 +198,7 @@ class Database
     /**
      * Loads and executes SQL file.
      *
-     * @param $path Path to SQL file
+     * @param string $path Path to SQL file
      */
     public function execScript($path)
     {
