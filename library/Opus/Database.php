@@ -25,12 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2014, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License*
  */
 
 namespace Opus;
@@ -43,6 +39,8 @@ use Opus\Common\LoggingTrait;
 use Opus\Update\Plugin\DatabaseSchema;
 use PDO;
 use PDOException;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Zend_Config;
 use Zend_Exception;
 use Zend_Log;
@@ -102,6 +100,12 @@ class Database
 
     /** @var int */
     private $_latestVersion = 0;
+
+    /** @var OutputInterface */
+    private $output;
+
+    /** @var bool */
+    private $quiet = false;
 
     /**
      * @return string Name of database
@@ -184,14 +188,16 @@ class Database
             $files[] = $path;
         }
 
+        $output = $this->getOutput();
+
         foreach ($files as $file) {
             // TODO make output optional
             $name = basename($file);
-            echo "Importing '$name' ... ";
+            $output->write("Importing '{$name}' ... ");
             $sql = file_get_contents($file);
             $this->getLogger()->info("Import SQL file: $name");
             $this->exec($sql);
-            echo 'done' . PHP_EOL;
+            $output->writeln('done');
         }
     }
 
@@ -495,5 +501,27 @@ class Database
         $files = array_values($files);
 
         return $files;
+    }
+
+    public function getOutput(): OutputInterface
+    {
+        if ($this->output === null) {
+            $this->output = new ConsoleOutput();
+            if ($this->isQuiet()) {
+                $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+            }
+        }
+
+        return $this->output;
+    }
+
+    public function setQuiet(bool $quiet)
+    {
+        $this->quiet = $quiet;
+    }
+
+    public function isQuiet()
+    {
+        return $this->quiet;
     }
 }

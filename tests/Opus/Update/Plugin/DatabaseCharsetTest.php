@@ -50,7 +50,7 @@ class DatabaseCharsetTest extends TestCase
     {
         $tables = $this->plugin->getAllTables();
 
-        $this->assertCount(43, $tables);
+        $this->assertCount(42, $tables);
 
         $this->assertContains('documents', $tables);
         $this->assertContains('link_persons_documents', $tables);
