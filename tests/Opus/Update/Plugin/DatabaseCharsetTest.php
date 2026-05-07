@@ -54,7 +54,7 @@ class DatabaseCharsetTest extends TestCase
 
         $this->assertContains('documents', $tables);
         $this->assertContains('link_persons_documents', $tables);
-        $this->assertContains('languages', $tables);
+        $this->assertContains('configuration', $tables);
         $this->assertContains('user_roles', $tables);
     }
 }
