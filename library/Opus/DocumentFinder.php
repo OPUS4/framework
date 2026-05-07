@@ -489,9 +489,11 @@ class DocumentFinder
     {
         $quotedType  = $this->_db->quote($type);
 
+        $value = trim($value);
+
         if ($like) {
-            $quotedValue = $this->_db->quote('%' . $value . '%');
-            $subselect = "SELECT id FROM document_identifiers AS i "
+            $quotedValue = $this->_db->quote('%' . $value);
+            $subselect   = "SELECT id FROM document_identifiers AS i "
                 . "WHERE i.document_id = d.id AND type = $quotedType AND value LIKE $quotedValue";
         } else {
             $quotedValue = $this->_db->quote($value);

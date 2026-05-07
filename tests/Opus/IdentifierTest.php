@@ -416,6 +416,24 @@ class IdentifierTest extends TestCase
         $this->assertTrue($exceptionToCheck instanceof DoiAlreadyExistsException);
     }
 
+    public function testIsDoiUniqueDoiPrefixOfOtherDoi()
+    {
+        $doiConfig = [
+            'generatorClass' => DefaultGenerator::class,
+            'prefix'         => '12.3456/',
+            'localPrefix'    => 'opustest',
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
+
+        $this->createTestDocumentWithDoi('12.3456/opustest-12');
+
+        $doi = Identifier::new();
+        $doi->setType('doi');
+        $doi->setValue('12.3456/opustest-1');
+
+        $this->assertTrue($doi->isDoiUnique());
+    }
+
     public function testIsUrnUniquePositive()
     {
         $doc1   = $this->createDocumentWithIdentifierUrn('urn:987654321');
