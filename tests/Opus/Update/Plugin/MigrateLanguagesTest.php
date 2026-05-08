@@ -34,10 +34,11 @@ namespace OpusTest\Update\Plugin;
 use Opus\Database;
 use Opus\Db2\Configuration;
 use Opus\Db2\Database as DoctrineDatabase;
-use Opus\Update\Plugin\MigrateLanguagesTableToConfig;
+use Opus\Translate\Dao;
+use Opus\Update\Plugin\MigrateLanguages;
 use OpusTest\TestAsset\TestCase;
 
-class MigrateLanguagesTableToConfigTest extends TestCase
+class MigrateLanguagesTest extends TestCase
 {
     public function setUp(): void
     {
@@ -68,7 +69,21 @@ class MigrateLanguagesTableToConfigTest extends TestCase
         $this->addLanguage('eng', 'eng', 'en', 0, 'English');
         $this->addLanguage('l1B', 'l1T', 'l1', 1, 'Test');
 
-        $plugin = new MigrateLanguagesTableToConfig();
+        $translate = new Dao();
+        $translate->setTranslation('deu', [
+            'en' => 'German',
+            'de' => 'Deutsch',
+        ]);
+        $translate->setTranslation('fra', [
+            'en' => 'French',
+            'de' => 'Französisch',
+        ]);
+        $translate->setTranslation('eng', [
+            'en' => 'English',
+            'de' => 'Englisch',
+        ]);
+
+        $plugin = new MigrateLanguages();
 
         $plugin->beforeUpdate();
 
@@ -76,6 +91,12 @@ class MigrateLanguagesTableToConfigTest extends TestCase
         $this->assertEquals('deu, fra, l1T', $config->getOption('i18n.languages.active'));
 
         $this->assertEquals('l1B, l1T, l1, Test', $config->getOption('i18n.languages.local.l1T'));
+
+        $this->assertNull($translate->getTranslation('deu'));
+        $this->assertNotNull($translate->getTranslation('i18n_language_deu'));
+        $this->assertNull($translate->getTranslation('fra'));
+        $this->assertNotNull($translate->getTranslation('i18n_language_fra'));
+        $this->assertNull($translate->getTranslation('eng'));
     }
 
     protected function addLanguage(string $part2b, string $part2t, string $part1, int $active, string $refName): void
