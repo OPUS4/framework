@@ -72,6 +72,8 @@ use const PHP_EOL;
  *
  * TODO more logging
  * TODO is admin level access to schema always necessary? distinguish?
+ * TODO use factory method (singleton)
+ * TODO switch to Doctrine
  *
  * phpcs:disable
  */
@@ -110,7 +112,7 @@ class Database
     private $quiet = false;
 
     /** @var array */
-    private $schemaPlugins;
+    private static $plugins;
 
     /**
      * @return string Name of database
@@ -534,14 +536,14 @@ class Database
 
     public function registerPlugin(int $version, SchemaUpdatePluginInterface $plugin): self
     {
-        if (isset($this->plugins[$version])) {
-            $registeredPlugins = $this->plugins[$version];
+        if (isset(self::$plugins[$version])) {
+            $registeredPlugins = self::$plugins[$version];
             if (! in_array($plugin, $registeredPlugins)) {
                 $registeredPlugins[] = $plugin;
-                $this->plugins[$version] = $registeredPlugins;
+                self::$plugins[$version] = $registeredPlugins;
             }
         } else {
-            $this->plugins[$version] = [$plugin];
+            self::$plugins[$version] = [$plugin];
         }
 
         return $this;
@@ -549,6 +551,6 @@ class Database
 
     public function getPlugins(int $version)
     {
-        return $this->plugins[$version] ?? [];
+        return self::$plugins[$version] ?? [];
     }
 }

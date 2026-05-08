@@ -368,4 +368,15 @@ class DatabaseTest extends TestCase
         $this->assertIsArray($plugins);
         $this->assertCount(0, $plugins);
     }
+
+    public function testPluginsGlobal()
+    {
+        $database = new Database();
+        $database->registerPlugin(25, $plugin = new MigrateLanguages());
+
+        $database = new Database();
+        $plugins  = $database->getPlugins(25);
+        $this->assertIsArray($plugins);
+        $this->assertCount(1, $plugins);
+    }
 }
