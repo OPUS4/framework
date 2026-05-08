@@ -553,4 +553,9 @@ class Database
     {
         return self::$plugins[$version] ?? [];
     }
+
+    public function clearPlugins()
+    {
+        self::$plugins = [];
+    }
 }

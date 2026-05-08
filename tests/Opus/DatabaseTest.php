@@ -338,7 +338,8 @@ class DatabaseTest extends TestCase
     public function testGetPlugins()
     {
         $database = new Database();
-        $plugin   = new MigrateLanguages();
+        $database->clearPlugins();
+        $plugin = new MigrateLanguages();
 
         $database->registerPlugin(25, $plugin);
         $plugins = $database->getPlugins(25);
@@ -364,7 +365,8 @@ class DatabaseTest extends TestCase
     public function testGetPluginsNothingRegistered()
     {
         $database = new Database();
-        $plugins  = $database->getPlugins(24);
+        $database->clearPlugins();
+        $plugins = $database->getPlugins(24);
         $this->assertIsArray($plugins);
         $this->assertCount(0, $plugins);
     }
@@ -372,6 +374,7 @@ class DatabaseTest extends TestCase
     public function testPluginsGlobal()
     {
         $database = new Database();
+        $database->clearPlugins();
         $database->registerPlugin(25, $plugin = new MigrateLanguages());
 
         $database = new Database();
