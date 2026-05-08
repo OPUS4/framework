@@ -37,6 +37,7 @@ use Opus\Common\Config;
 use Opus\Common\Log;
 use Opus\Common\LoggingTrait;
 use Opus\Update\Plugin\DatabaseSchema;
+use Opus\Update\Plugin\MigrateLanguages;
 use Opus\Update\SchemaUpdatePluginInterface;
 use PDO;
 use PDOException;
@@ -465,6 +466,8 @@ class Database
      */
     public function update($targetVersion = null)
     {
+        $this->registerPlugin(25, new MigrateLanguages());
+
         $schemaUpdate = new DatabaseSchema();
         $schemaUpdate->setTargetVersion($targetVersion);
         $schemaUpdate->run();
