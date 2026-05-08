@@ -37,6 +37,7 @@ use Opus\Common\Config;
 use Opus\Common\Log;
 use Opus\Common\LoggingTrait;
 use Opus\Update\Plugin\DatabaseSchema;
+use Opus\Update\SchemaUpdatePluginInterface;
 use PDO;
 use PDOException;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -106,6 +107,9 @@ class Database
 
     /** @var bool */
     private $quiet = false;
+
+    /** @var array */
+    private $schemaPlugins;
 
     /**
      * @return string Name of database
@@ -523,5 +527,25 @@ class Database
     public function isQuiet()
     {
         return $this->quiet;
+    }
+
+    public function registerPlugin(int $version, SchemaUpdatePluginInterface $plugin): self
+    {
+        if (isset($this->plugins[$version])) {
+            $registeredPlugins = $this->plugins[$version];
+            if (! in_array($plugin, $registeredPlugins)) {
+                $registeredPlugins[] = $plugin;
+                $this->plugins[$version] = $registeredPlugins;
+            }
+        } else {
+            $this->plugins[$version] = [$plugin];
+        }
+
+        return $this;
+    }
+
+    public function getPlugins(int $version)
+    {
+        return $this->plugins[$version] ?? [];
     }
 }

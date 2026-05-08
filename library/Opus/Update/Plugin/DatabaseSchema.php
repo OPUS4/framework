@@ -70,13 +70,17 @@ class DatabaseSchema extends AbstractUpdatePlugin
 
                 $version = substr(basename($scriptPath), 0, 3);
 
-                // TODO get plugins for version
+                $plugins = $database->getPlugins($version);
 
-                // TODO call beforeUpdate
+                foreach ($plugins as $plugin) {
+                    $plugin->beforeUpdate();
+                }
 
                 $database->execScript($scriptPath);
 
-                // TODO call afterUpdate
+                foreach ($plugins as $plugin) {
+                    $plugin->afterUpdate();
+                }
             }
         } else {
             $this->log('No update needed');
