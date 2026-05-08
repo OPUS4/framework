@@ -35,6 +35,7 @@ use Opus\Common\Log;
 use Opus\Common\Security\Realm;
 use Opus\Common\Security\RealmStorageInterface;
 use Opus\Common\Security\SecurityException;
+use Opus\Db\AccessModules;
 use Opus\Db\Accounts;
 use Opus\Db\TableGateway;
 use Opus\Db\UserRoles;
@@ -233,5 +234,15 @@ class SecurityStorage implements RealmStorageInterface
                 ->where('am.module_name = ?', $moduleName)
         );
         return 1 <= count($results) ? true : false;
+    }
+
+    /**
+     * Removes a resource from 'access_modules' table.
+     */
+    public function removeResource(string $resourceId)
+    {
+        $db = TableGateway::getInstance(AccessModules::class)->getAdapter();
+
+        $db->delete('access_modules', ['module_name = ?' => $resourceId]);
     }
 }
