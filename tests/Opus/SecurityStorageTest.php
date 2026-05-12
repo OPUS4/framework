@@ -25,36 +25,71 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2026, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-namespace OpusTest\Update\Plugin;
+namespace OpusTest;
 
-use Opus\Update\Plugin\DatabaseCharset;
+use Opus\Common\UserRole;
+use Opus\SecurityStorage;
 use OpusTest\TestAsset\TestCase;
 
-class DatabaseCharsetTest extends TestCase
+/**
+ * TODO What would be meaningful and useful tests for this class?
+ */
+class SecurityStorageTest extends TestCase
 {
-    /** @var DatabaseCharset */
-    private $plugin;
+    private int $roleId1;
+
+    private int $roleId2;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->plugin = new DatabaseCharset();
+        $this->clearTables(false, ['user_roles', 'access_modules']);
+
+        $role = UserRole::new();
+        $role->setName('testrole1');
+        $role->appendAccessModule('resources_languages');
+        $role->appendAccessModule('resources_collections');
+        $role->appendAccessModule('admin');
+        $this->roleId1 = $role->store();
+
+        $role = UserRole::new();
+        $role->setName('testrole2');
+        $role->appendAccessModule('resources_languages');
+        $this->roleId2 = $role->store();
     }
 
-    public function testGetAllTables()
+    public function testRemoveResource()
     {
-        $tables = $this->plugin->getAllTables();
+        $role1 = UserRole::get($this->roleId1);
+        $role2 = UserRole::get($this->roleId2);
 
-        $this->assertCount(42, $tables);
+        $resources = $role1->listAccessModules();
+        $this->assertCount(3, $resources);
+        $this->assertEqualsCanonicalizing([
+            'resources_languages',
+            'resources_collections',
+            'admin',
+        ], $resources);
 
-        $this->assertContains('documents', $tables);
-        $this->assertContains('link_persons_documents', $tables);
-        $this->assertContains('configuration', $tables);
-        $this->assertContains('user_roles', $tables);
+        $this->assertEqualsCanonicalizing([
+            'resources_languages',
+        ], $role2->listAccessModules());
+
+        $security = new SecurityStorage();
+        $security->removeResource('resources_languages');
+
+        $resources = $role1->listAccessModules();
+        $this->assertCount(2, $resources);
+        $this->assertEqualsCanonicalizing([
+            'resources_collections',
+            'admin',
+        ], $resources);
+
+        $this->assertEqualsCanonicalizing([], $role2->listAccessModules());
     }
 }

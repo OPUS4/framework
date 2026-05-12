@@ -25,12 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
- * @category    Framework
- * @package     Opus
- * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2014, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License*
  */
 
 namespace Opus;
@@ -41,8 +37,12 @@ use Opus\Common\Config;
 use Opus\Common\Log;
 use Opus\Common\LoggingTrait;
 use Opus\Update\Plugin\DatabaseSchema;
+use Opus\Update\Plugin\MigrateLanguages;
+use Opus\Update\SchemaUpdatePluginInterface;
 use PDO;
 use PDOException;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Zend_Config;
 use Zend_Exception;
 use Zend_Log;
@@ -72,6 +72,8 @@ use const PHP_EOL;
  *
  * TODO more logging
  * TODO is admin level access to schema always necessary? distinguish?
+ * TODO use factory method (singleton)
+ * TODO switch to Doctrine
  *
  * phpcs:disable
  */
@@ -102,6 +104,15 @@ class Database
 
     /** @var int */
     private $_latestVersion = 0;
+
+    /** @var OutputInterface */
+    private $output;
+
+    /** @var bool */
+    private $quiet = false;
+
+    /** @var array */
+    private static $plugins;
 
     /**
      * @return string Name of database
@@ -184,21 +195,23 @@ class Database
             $files[] = $path;
         }
 
+        $output = $this->getOutput();
+
         foreach ($files as $file) {
             // TODO make output optional
             $name = basename($file);
-            echo "Importing '$name' ... ";
+            $output->write("Importing '{$name}' ... ");
             $sql = file_get_contents($file);
             $this->getLogger()->info("Import SQL file: $name");
             $this->exec($sql);
-            echo 'done' . PHP_EOL;
+            $output->writeln('done');
         }
     }
 
     /**
      * Loads and executes SQL file.
      *
-     * @param $path Path to SQL file
+     * @param string $path Path to SQL file
      */
     public function execScript($path)
     {
@@ -455,6 +468,8 @@ class Database
      */
     public function update($targetVersion = null)
     {
+        $this->registerPlugin(25, new MigrateLanguages());
+
         $schemaUpdate = new DatabaseSchema();
         $schemaUpdate->setTargetVersion($targetVersion);
         $schemaUpdate->run();
@@ -495,5 +510,52 @@ class Database
         $files = array_values($files);
 
         return $files;
+    }
+
+    public function getOutput(): OutputInterface
+    {
+        if ($this->output === null) {
+            $this->output = new ConsoleOutput();
+            if ($this->isQuiet()) {
+                $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
+            }
+        }
+
+        return $this->output;
+    }
+
+    public function setQuiet(bool $quiet)
+    {
+        $this->quiet = $quiet;
+    }
+
+    public function isQuiet()
+    {
+        return $this->quiet;
+    }
+
+    public function registerPlugin(int $version, SchemaUpdatePluginInterface $plugin): self
+    {
+        if (isset(self::$plugins[$version])) {
+            $registeredPlugins = self::$plugins[$version];
+            if (! in_array($plugin, $registeredPlugins)) {
+                $registeredPlugins[] = $plugin;
+                self::$plugins[$version] = $registeredPlugins;
+            }
+        } else {
+            self::$plugins[$version] = [$plugin];
+        }
+
+        return $this;
+    }
+
+    public function getPlugins(int $version)
+    {
+        return self::$plugins[$version] ?? [];
+    }
+
+    public function clearPlugins()
+    {
+        self::$plugins = [];
     }
 }

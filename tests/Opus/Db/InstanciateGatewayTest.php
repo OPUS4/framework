@@ -50,7 +50,6 @@ use Opus\Db\DocumentSubjects;
 use Opus\Db\DocumentTitleAbstracts;
 use Opus\Db\FileHashvalues;
 use Opus\Db\Ipranges;
-use Opus\Db\Languages;
 use Opus\Db\LinkAccountsRoles;
 use Opus\Db\LinkDocumentsCollections;
 use Opus\Db\LinkDocumentsDnbInstitutes;
@@ -111,7 +110,6 @@ class InstanciateGatewayTest extends TestCase
             [DocumentTitleAbstracts::class],
             [FileHashvalues::class],
             [Ipranges::class],
-            [Languages::class],
             [LinkAccountsRoles::class],
             [LinkDocumentsCollections::class],
             [LinkDocumentsDnbInstitutes::class],

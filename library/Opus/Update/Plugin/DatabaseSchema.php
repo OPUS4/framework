@@ -34,7 +34,9 @@ namespace Opus\Update\Plugin;
 use Opus\Database;
 use Zend_Db_Table_Abstract;
 
+use function basename;
 use function count;
+use function substr;
 
 /**
  * Class for updating the database schema for new version of OPUS.
@@ -66,7 +68,19 @@ class DatabaseSchema extends AbstractUpdatePlugin
             foreach ($scripts as $scriptPath) {
                 $this->log("Running $scriptPath ...");
 
-                $result = $database->execScript($scriptPath);
+                $version = substr(basename($scriptPath), 0, 3);
+
+                $plugins = $database->getPlugins($version);
+
+                foreach ($plugins as $plugin) {
+                    $plugin->beforeUpdate();
+                }
+
+                $database->execScript($scriptPath);
+
+                foreach ($plugins as $plugin) {
+                    $plugin->afterUpdate();
+                }
             }
         } else {
             $this->log('No update needed');

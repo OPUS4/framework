@@ -236,7 +236,7 @@
     <xsl:template match="TitleMain">
         <xsl:element name="title">
             <xsl:attribute name="xml:lang">
-                <xsl:value-of select="php:functionString('Opus\Common\Language::getLanguageCode', @Language, 'part1')" />
+                <xsl:value-of select="php:functionString('Opus\I18n\Languages::getPart1', @Language)" />
             </xsl:attribute>
             <xsl:value-of select="@Value"/>
         </xsl:element>
@@ -245,7 +245,7 @@
     <xsl:template match="TitleSub">
         <xsl:element name="title">
             <xsl:attribute name="xml:lang">
-                <xsl:value-of select="php:functionString('Opus\Common\Language::getLanguageCode', @Language, 'part1')" />
+                <xsl:value-of select="php:functionString('Opus\I18n\Languages::getPart1', @Language)" />
             </xsl:attribute>
             <xsl:attribute name="titleType">
                 <xsl:text>Subtitle</xsl:text>
@@ -257,7 +257,7 @@
     <xsl:template match="TitleAbstract">
         <xsl:element name="description">
             <xsl:attribute name="xml:lang">
-                <xsl:value-of select="php:functionString('Opus\Common\Language::getLanguageCode', @Language, 'part1')" />
+                <xsl:value-of select="php:functionString('Opus\I18n\Languages::getPart1', @Language)" />
             </xsl:attribute>
             <xsl:attribute name="descriptionType">
                 <xsl:text>Abstract</xsl:text>
@@ -400,7 +400,7 @@
 
     <xsl:template match="@Language">
         <xsl:element name="language">
-            <xsl:value-of select="php:functionString('Opus\Common\Language::getLanguageCode', ., 'part1')" />
+            <xsl:value-of select="php:functionString('Opus\I18n\Languages::getPart1', .)" />
         </xsl:element>
     </xsl:template>
 

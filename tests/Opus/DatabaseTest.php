@@ -36,6 +36,8 @@
 namespace OpusTest;
 
 use Opus\Database;
+use Opus\Update\Plugin\MigrateLanguages;
+use Opus\Update\SchemaUpdatePluginInterface;
 use OpusTest\TestAsset\TestCase;
 use PDOException;
 
@@ -289,5 +291,95 @@ class DatabaseTest extends TestCase
     public function testImportSchema()
     {
         $this->markTestIncomplete('TODO - how to do schema import testing within the regular test environment?');
+    }
+
+    public function testRegisterPlugin()
+    {
+        $database = new Database();
+        $plugin   = new MigrateLanguages();
+
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertIsArray($plugins);
+        $this->assertCount(1, $plugins);
+    }
+
+    public function testRegisterPluginTwice()
+    {
+        $database = new Database();
+        $plugin   = new MigrateLanguages();
+
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertIsArray($plugins);
+        $this->assertCount(1, $plugins);
+
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertCount(1, $plugins);
+    }
+
+    public function testRegisterPluginTwiceDifferentObjects()
+    {
+        $database = new Database();
+        $plugin   = new MigrateLanguages();
+
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertIsArray($plugins);
+        $this->assertCount(1, $plugins);
+
+        $plugin = new MigrateLanguages();
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertCount(1, $plugins);
+    }
+
+    public function testGetPlugins()
+    {
+        $database = new Database();
+        $database->clearPlugins();
+        $plugin = new MigrateLanguages();
+
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertIsArray($plugins);
+        $this->assertCount(1, $plugins);
+
+        $plugin = new class implements SchemaUpdatePluginInterface {
+            public function beforeUpdate(): void
+            {
+                // TODO: Implement beforeUpdate() method.
+            }
+
+            public function afterUpdate(): void
+            {
+                // TODO: Implement afterUpdate() method.
+            }
+        };
+        $database->registerPlugin(25, $plugin);
+        $plugins = $database->getPlugins(25);
+        $this->assertCount(2, $plugins);
+    }
+
+    public function testGetPluginsNothingRegistered()
+    {
+        $database = new Database();
+        $database->clearPlugins();
+        $plugins = $database->getPlugins(24);
+        $this->assertIsArray($plugins);
+        $this->assertCount(0, $plugins);
+    }
+
+    public function testPluginsGlobal()
+    {
+        $database = new Database();
+        $database->clearPlugins();
+        $database->registerPlugin(25, $plugin = new MigrateLanguages());
+
+        $database = new Database();
+        $plugins  = $database->getPlugins(25);
+        $this->assertIsArray($plugins);
+        $this->assertCount(1, $plugins);
     }
 }
