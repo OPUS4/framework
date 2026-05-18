@@ -15,6 +15,7 @@
     "ext-fileinfo": "*",
     "ext-json": "*",
     "ext-libxml": "*",
+    "ext-xsl": "*",
     "opus4/zf1-future": "1.25.*",
     "opus4-repo/opus4-common": "^4.10",
     "opus4-repo/opus4-doi": "^4.9",
