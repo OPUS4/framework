@@ -354,12 +354,27 @@ class Identifier extends AbstractDependentModel implements IdentifierInterface
 
     public function getTypeForFieldname($fieldname)
     {
+        if (null === $fieldname) {
+            throw new ModelException('Field name cannot be null');
+        }
+
+        $label = substr($fieldname, 10);
+        if (! isset(self::$identifierMapping[$label])) {
+            throw new ModelException("unknown field name '{$fieldname}'");
+        }
+
         return self::$identifierMapping[substr($fieldname, 10)];
     }
 
     public function getFieldnameForType($type)
     {
-        return 'Identifier' . array_search($type, self::$identifierMapping);
+        $label = array_search($type, self::$identifierMapping);
+
+        if (! $label) {
+            throw new ModelException("unknown identifier type '{$type}'");
+        }
+
+        return 'Identifier' . $label;
     }
 
     public function getModelType()
