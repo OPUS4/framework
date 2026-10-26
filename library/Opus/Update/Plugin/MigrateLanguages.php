@@ -90,7 +90,7 @@ class MigrateLanguages implements SchemaUpdatePluginInterface
             $part2b  = $language['part2_b'];
             $part1   = $language['part1'];
             $refName = $language['ref_name'];
-            $config->setOption("i18n.languages.local.{$part2t}", "{$part2b}, ${part2t}, ${part1}, ${refName}");
+            $config->setOption("i18n.languages.local.{$part2t}", "{$part2b}, {$part2t}, {$part1}, {$refName}");
         }
 
         // Update translation keys for active languages

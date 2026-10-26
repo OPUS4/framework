@@ -7,7 +7,9 @@
          stopOnFailure="false"
          processIsolation="false"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         cacheDirectory=".phpunit.cache">
+         cacheDirectory=".phpunit.cache"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true">
   <testsuite name="FrameworkTests">
     <directory>./tests</directory>
   </testsuite>

@@ -664,9 +664,27 @@ class IdentifierTest extends TestCase
         $this->assertEquals('IdentifierPubmed', Identifier::getFieldnameForType('pmid'));
     }
 
+    public function testGetFieldnameForTypeUnknownType()
+    {
+        $this->expectExceptionMessage('unknown identifier type');
+        Identifier::getFieldnameForType('unknown');
+    }
+
     public function testGetTypeForFieldname()
     {
         $this->assertEquals('pmid', Identifier::getTypeForFieldname('IdentifierPubmed'));
+    }
+
+    public function testGetTypeForFieldnameUnknownFieldname()
+    {
+        $this->expectExceptionMessage('unknown field name');
+        Identifier::getTypeForFieldname('IdentifierUnknown');
+    }
+
+    public function testGetTypeForFieldnameNull()
+    {
+        $this->expectExceptionMessage('Field name cannot be null');
+        Identifier::getTypeForFieldname(null);
     }
 
     public function testGetModelType()
