@@ -681,6 +681,12 @@ class IdentifierTest extends TestCase
         Identifier::getTypeForFieldname('IdentifierUnknown');
     }
 
+    public function testGetTypeForFieldnameNull()
+    {
+        $this->expectExceptionMessage('Field name cannot be null');
+        Identifier::getTypeForFieldname(null);
+    }
+
     public function testGetModelType()
     {
         $identifier = Identifier::new();
