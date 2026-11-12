@@ -165,9 +165,9 @@ createDatabase()
 
 sql=$(cat <<-ENDSTRING
     CREATE DATABASE IF NOT EXISTS $dbname DEFAULT CHARACTER SET = UTF8 DEFAULT COLLATE = UTF8_GENERAL_CI;
-    CREATE USER IF NOT EXISTS '$admin'@'localhost' IDENTIFIED WITH mysql_native_password BY '${adminpwd}';
+    CREATE USER IF NOT EXISTS '$admin'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${adminpwd}';
     GRANT ALL PRIVILEGES ON $dbname.* TO '$admin'@'localhost';
-    CREATE USER IF NOT EXISTS '$user'@'localhost' IDENTIFIED WITH mysql_native_password BY '$userpwd';
+    CREATE USER IF NOT EXISTS '$user'@'localhost' IDENTIFIED WITH caching_sha2_password BY '$userpwd';
     GRANT SELECT,INSERT,UPDATE,DELETE ON $dbname.* TO '$user'@'localhost';
     FLUSH PRIVILEGES;
 ENDSTRING

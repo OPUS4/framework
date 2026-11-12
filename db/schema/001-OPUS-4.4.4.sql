@@ -647,7 +647,7 @@ CREATE TABLE IF NOT EXISTS `collections` (
     `visible_publish` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT 'Show collection in publish form',
 
     PRIMARY KEY (`id`),
-    KEY `role_id` (`role_id`,`id`),
+    UNIQUE KEY `role_id` (`role_id`,`id`),
     UNIQUE KEY `role_id_left` (`role_id`,`left_id`),
     UNIQUE KEY `role_id_right` (`role_id`,`right_id`),
     -- UNIQUE KEY `role_id_number` (`role_id`,`number`), -- Uniqueness-constraint on number?
