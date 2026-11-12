@@ -44,7 +44,7 @@ class DateCommand extends Command
 {
     const OPTION_FIX = 'fix';
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
